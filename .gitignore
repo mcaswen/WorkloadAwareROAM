@@ -1,0 +1,96 @@
+# macOS / editor noise
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+*.swp
+*.swo
+*~
+__pycache__/
+*.py[cod]
+
+# IDEs
+.idea/
+.vscode/
+*.code-workspace
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.VC.opendb
+.vs/
+
+# CMake / build output
+build/
+out/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+install_manifest.txt
+CTestTestfile.cmake
+Testing/
+_deps/
+
+# CMake user-local presets
+CMakeUserPresets.json
+
+# Compiled objects / libraries / executables
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+*.app/
+*.pdb
+*.ilk
+*.dSYM/
+
+# Generated profiling / coverage output
+*.gcda
+*.gcno
+*.gcov
+coverage/
+*.profraw
+*.profdata
+*.etl
+*.symcache
+benchmark-output/*-profile-detail.txt
+benchmark-output/*-profile-stacks.txt
+
+# Logs and generated experiment data
+*.log
+logs/
+captures/
+screenshots/
+code-output/
+*.csv.tmp
+
+# Local dependency/vendor drops. Keep explicit placeholders if needed.
+external/*
+!external/.gitkeep
+third_party/*
+!third_party/.gitkeep
+!third_party/glad/
+!third_party/glad/**
+!third_party/SDL2/
+!third_party/SDL2/**
+!third_party/glm/
+!third_party/glm/**
+!third_party/imgui/
+!third_party/imgui/**
+!third_party/stb/
+!third_party/stb/**
+tools/downloads/
+tools/cmake/

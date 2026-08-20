@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="820" viewBox="0 0 1100 820">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#344054"/>
+    </marker>
+    <style>
+      .title{font:700 24px "Microsoft YaHei",Arial,sans-serif;fill:#111827}
+      .section{font:700 17px "Microsoft YaHei",Arial,sans-serif;fill:#111827}
+      .code{font:600 14px "Consolas","SFMono-Regular",monospace;fill:#1f2937}
+      .tinycode{font:600 12px "Consolas","SFMono-Regular",monospace;fill:#1f2937}
+      .small{font:13px "Microsoft YaHei",Arial,sans-serif;fill:#475467}
+      .caption{font:12px "Microsoft YaHei",Arial,sans-serif;fill:#667085}
+      .line{stroke:#344054;stroke-width:2;fill:none;marker-end:url(#arrow)}
+      .dash{stroke:#667085;stroke-width:1.8;stroke-dasharray:6 5;fill:none;marker-end:url(#arrow)}
+      .app{fill:#eef4ff;stroke:#3b82f6;stroke-width:2}
+      .render{fill:#ecfdf3;stroke:#16a34a;stroke-width:2}
+      .algo{fill:#fff7ed;stroke:#f97316;stroke-width:2}
+      .data{fill:#f8fafc;stroke:#64748b;stroke-width:1.7}
+      .bench{fill:#fdf2f8;stroke:#db2777;stroke-width:1.8}
+      .classic{fill:#fff1f2;stroke:#e11d48;stroke-width:1.9}
+      .dod{fill:#f0fdf4;stroke:#22c55e;stroke-width:1.9}
+      .gpu{fill:#eff6ff;stroke:#2563eb;stroke-width:1.9}
+    </style>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#fbfcfd"/>
+  <text x="550" y="38" text-anchor="middle" class="title">图3-1 项目总体架构图：类与接口关系</text>
+
+  <rect x="455" y="62" width="190" height="58" rx="8" class="data"/>
+  <text x="550" y="88" text-anchor="middle" class="code">程序入口</text>
+  <text x="550" y="109" text-anchor="middle" class="caption">CLI / benchmark / smoke-test 入口</text>
+  <path d="M550 120 L550 150" class="line"/>
+
+  <rect x="55" y="150" width="990" height="162" rx="8" class="app"/>
+  <text x="550" y="178" text-anchor="middle" class="section">App::Application</text>
+  <text x="550" y="201" text-anchor="middle" class="code">Run() 驱动主循环；RenderFrame() 汇总单帧渲染</text>
+
+  <rect x="85" y="222" width="172" height="58" rx="7" class="data"/>
+  <text x="171" y="246" text-anchor="middle" class="code">Platform::Window</text>
+  <text x="171" y="266" text-anchor="middle" class="caption">SDL window / GL context</text>
+
+  <rect x="277" y="222" width="150" height="58" rx="7" class="data"/>
+  <text x="352" y="246" text-anchor="middle" class="code">InputState</text>
+  <text x="352" y="266" text-anchor="middle" class="caption">事件输入缓存</text>
+
+  <rect x="447" y="222" width="188" height="58" rx="7" class="data"/>
+  <text x="541" y="246" text-anchor="middle" class="code">CameraController</text>
+  <text x="541" y="266" text-anchor="middle" class="caption">相机位姿更新</text>
+
+  <rect x="655" y="222" width="155" height="58" rx="7" class="data"/>
+  <text x="732" y="246" text-anchor="middle" class="code">Gui::ImGuiLayer</text>
+  <text x="732" y="266" text-anchor="middle" class="caption">参数面板</text>
+
+  <rect x="830" y="222" width="185" height="58" rx="7" class="bench"/>
+  <text x="922" y="246" text-anchor="middle" class="code">RuntimeBenchmarkState</text>
+  <text x="922" y="266" text-anchor="middle" class="caption">自动采样与 CSV 输出</text>
+
+  <path d="M550 312 L550 340" class="line"/>
+
+  <rect x="325" y="340" width="450" height="160" rx="8" class="render"/>
+  <text x="550" y="368" text-anchor="middle" class="section">Render::TerrainRenderer</text>
+  <text x="550" y="392" text-anchor="middle" class="code">UpdateForCamera() 根据相机触发 LOD 重建</text>
+  <text x="550" y="415" text-anchor="middle" class="code">CPU mesh 上传或 GPU buffer 绑定后提交 draw</text>
+  <text x="550" y="440" text-anchor="middle" class="small">持有 _terrainLodAlgorithm 并把算法输出转成 GL draw 资源</text>
+
+  <rect x="350" y="456" width="185" height="30" rx="6" class="data"/>
+  <text x="442" y="476" text-anchor="middle" class="code">Terrain::HeightMap</text>
+  <rect x="565" y="456" width="185" height="30" rx="6" class="data"/>
+  <text x="657" y="476" text-anchor="middle" class="tinycode">TerrainMeshData / Shader</text>
+
+  <rect x="55" y="360" width="235" height="118" rx="8" class="data"/>
+  <text x="172" y="387" text-anchor="middle" class="section">Terrain 数据层</text>
+  <text x="172" y="413" text-anchor="middle" class="code">Terrain::HeightMap</text>
+  <text x="172" y="436" text-anchor="middle" class="code">Terrain::TerrainMeshData</text>
+  <text x="172" y="459" text-anchor="middle" class="code">TerrainMeshBuilder</text>
+  <path d="M290 420 L325 420" class="line"/>
+
+  <rect x="810" y="360" width="235" height="118" rx="8" class="bench"/>
+  <text x="927" y="387" text-anchor="middle" class="section">Benchmark 输出</text>
+  <text x="927" y="413" text-anchor="middle" class="tinycode">写出 Markdown / CSV 基准报告</text>
+  <text x="927" y="436" text-anchor="middle" class="code">RuntimeBenchmarkSample</text>
+  <text x="927" y="459" text-anchor="middle" class="tinycode">RuntimeBenchmarkAlgorithmResult</text>
+  <path d="M775 420 L810 420" class="dash"/>
+
+  <path d="M550 500 L550 530" class="line"/>
+  <rect x="285" y="530" width="530" height="112" rx="8" class="algo"/>
+  <text x="550" y="558" text-anchor="middle" class="section">Algorithms::ITerrainLodAlgorithm</text>
+  <text x="550" y="583" text-anchor="middle" class="code">BuildRenderData() 用统一输入生成渲染包</text>
+  <text x="550" y="606" text-anchor="middle" class="code">Stats() 汇总指标；Capabilities() 声明输出路径</text>
+  <text x="550" y="628" text-anchor="middle" class="small">统一 Classic / Data-Oriented / GPU 的输入、输出与统计字段</text>
+
+  <path d="M550 642 L550 668" class="line"/>
+  <path d="M550 668 L199 668 L199 692" class="line"/>
+  <path d="M550 668 L550 692" class="line"/>
+  <path d="M550 668 L901 668 L901 692" class="line"/>
+
+  <rect x="45" y="692" width="308" height="90" rx="8" class="classic"/>
+  <text x="199" y="721" text-anchor="middle" class="code">ClassicRoamTerrainLodAlgorithm</text>
+  <text x="199" y="745" text-anchor="middle" class="small">裸指针 bintree 拓扑</text>
+  <text x="199" y="766" text-anchor="middle" class="code">ClassicRoamMeshBuilder</text>
+
+  <rect x="396" y="692" width="308" height="90" rx="8" class="dod"/>
+  <text x="550" y="721" text-anchor="middle" class="code">DataOrientedRoamTerrainLodAlgorithm</text>
+  <text x="550" y="745" text-anchor="middle" class="small">SoA node pool + CPU 并行 pass</text>
+  <text x="550" y="766" text-anchor="middle" class="code">DataOrientedRoamPipeline</text>
+
+  <rect x="747" y="692" width="308" height="90" rx="8" class="gpu"/>
+  <text x="901" y="721" text-anchor="middle" class="code">GpuRoamTerrainLodAlgorithm</text>
+  <text x="901" y="745" text-anchor="middle" class="small">DOD 拓扑快照 + compute shader emit</text>
+  <text x="901" y="766" text-anchor="middle" class="code">GpuRoamMeshBuilder / GpuRoamState</text>
+</svg>

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "parallel-roam",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "sdl2",
+    "glm",
+    "glad",
+    "stb",
+    {
+      "name": "imgui",
+      "features": [
+        "opengl3-binding",
+        "sdl2-binding"
+      ]
+    }
+  ]
+}

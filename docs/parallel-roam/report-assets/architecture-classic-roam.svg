@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="840" viewBox="0 0 1100 840">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#344054"/>
+    </marker>
+    <style>
+      .title{font:700 24px "Microsoft YaHei",Arial,sans-serif;fill:#111827}
+      .section{font:700 17px "Microsoft YaHei",Arial,sans-serif;fill:#111827}
+      .code{font:600 14px "Consolas","SFMono-Regular",monospace;fill:#1f2937}
+      .small{font:13px "Microsoft YaHei",Arial,sans-serif;fill:#475467}
+      .caption{font:12px "Microsoft YaHei",Arial,sans-serif;fill:#667085}
+      .line{stroke:#344054;stroke-width:2;fill:none;marker-end:url(#arrow)}
+      .dash{stroke:#667085;stroke-width:1.8;stroke-dasharray:6 5;fill:none;marker-end:url(#arrow)}
+      .adapter{fill:#fff7ed;stroke:#f97316;stroke-width:2}
+      .builder{fill:#fff1f2;stroke:#e11d48;stroke-width:2}
+      .state{fill:#f8fafc;stroke:#64748b;stroke-width:1.8}
+      .pass{fill:#fef2f2;stroke:#fb7185;stroke-width:1.8}
+      .output{fill:#ecfdf3;stroke:#16a34a;stroke-width:1.9}
+    </style>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#fbfcfd"/>
+  <text x="550" y="38" text-anchor="middle" class="title">图3-2 Classic CPU ROAM：类与 pass 结构</text>
+
+  <rect x="300" y="62" width="500" height="86" rx="8" class="adapter"/>
+  <text x="550" y="91" text-anchor="middle" class="section">ClassicRoamTerrainLodAlgorithm</text>
+  <text x="550" y="116" text-anchor="middle" class="code">BuildRenderData() 适配统一接口并维护统计</text>
+  <text x="550" y="137" text-anchor="middle" class="caption">负责 ITerrainLodAlgorithm 适配和 TerrainLodStats 字段转换</text>
+  <path d="M550 148 L550 184" class="line"/>
+
+  <rect x="275" y="184" width="550" height="110" rx="8" class="builder"/>
+  <text x="550" y="214" text-anchor="middle" class="section">ClassicRoamMeshBuilder</text>
+  <text x="550" y="238" text-anchor="middle" class="code">Build() 根据相机与阈值更新 active leaf</text>
+  <text x="550" y="259" text-anchor="middle" class="code">保持持久 bintree 拓扑并输出 CPU mesh</text>
+  <text x="550" y="281" text-anchor="middle" class="code">Stats() 暴露 split / merge / emit 耗时</text>
+
+  <path d="M420 294 L260 340" class="line"/>
+  <path d="M550 294 L550 340" class="line"/>
+  <path d="M680 294 L840 340" class="line"/>
+
+  <rect x="45" y="340" width="320" height="242" rx="8" class="state"/>
+  <text x="205" y="370" text-anchor="middle" class="section">ClassicRoamMeshBuilder 私有状态</text>
+  <text x="205" y="397" text-anchor="middle" class="code">struct ClassicRoamNode</text>
+  <text x="205" y="421" text-anchor="middle" class="small">Parent / LeftChild / RightChild</text>
+  <text x="205" y="444" text-anchor="middle" class="small">BaseNeighbor / LeftNeighbor / RightNeighbor</text>
+  <text x="205" y="467" text-anchor="middle" class="small">PathId / Depth / VarianceIndex / GeometricError</text>
+  <line x1="75" y1="489" x2="335" y2="489" stroke="#cbd5e1"/>
+  <text x="205" y="515" text-anchor="middle" class="code">_nodes</text>
+  <text x="205" y="538" text-anchor="middle" class="code">_rootA / _rootB</text>
+  <text x="205" y="561" text-anchor="middle" class="code">_varianceTrees / _previousSplitPaths</text>
+
+  <rect x="735" y="340" width="320" height="242" rx="8" class="state"/>
+  <text x="895" y="370" text-anchor="middle" class="section">输入配置与统计映射</text>
+  <text x="895" y="398" text-anchor="middle" class="code">ClassicRoamSettings</text>
+  <text x="895" y="422" text-anchor="middle" class="small">MaxDepth / Pixel Split / Pixel Merge</text>
+  <text x="895" y="445" text-anchor="middle" class="small">TriangleBudget / View / FrustumPlanes</text>
+  <line x1="765" y1="469" x2="1025" y2="469" stroke="#cbd5e1"/>
+  <text x="895" y="496" text-anchor="middle" class="code">ClassicRoamStats</text>
+  <text x="895" y="520" text-anchor="middle" class="small">Split / Merge / Emit / Validate 毫秒桶</text>
+  <text x="895" y="543" text-anchor="middle" class="small">NodeCount / ActiveTriangleCount / CrackRisk</text>
+  <text x="895" y="566" text-anchor="middle" class="code">ToTerrainLodStats() 映射统一统计字段</text>
+
+  <rect x="395" y="340" width="310" height="64" rx="8" class="pass"/>
+  <text x="550" y="366" text-anchor="middle" class="code">状态与叶节点收集</text>
+  <text x="550" y="388" text-anchor="middle" class="small">重建根 diamond，并收集当前 active leaf</text>
+  <path d="M550 404 L550 428" class="line"/>
+
+  <rect x="395" y="428" width="310" height="64" rx="8" class="pass"/>
+  <text x="550" y="454" text-anchor="middle" class="code">误差评分 pass</text>
+  <text x="550" y="473" text-anchor="middle" class="small">Nested thickness + SSE + frustum</text>
+  <text x="550" y="489" text-anchor="middle" class="small">ShouldSplit() 用像素阈值筛选候选</text>
+  <path d="M550 492 L550 516" class="line"/>
+
+  <rect x="395" y="516" width="310" height="86" rx="8" class="pass"/>
+  <text x="550" y="543" text-anchor="middle" class="code">Split / Merge 拓扑 pass</text>
+  <text x="550" y="564" text-anchor="middle" class="small">动态队列级联 diamond merge</text>
+  <text x="550" y="583" text-anchor="middle" class="small">预算 token 内按误差队列 split</text>
+  <text x="550" y="599" text-anchor="middle" class="small">同步邻接关系，降低 T-junction 风险</text>
+  <path d="M550 602 L550 626" class="line"/>
+
+  <rect x="395" y="626" width="310" height="64" rx="8" class="pass"/>
+  <text x="550" y="652" text-anchor="middle" class="code">拓扑验证 pass</text>
+  <text x="550" y="674" text-anchor="middle" class="small">ValidateTopology() 统计邻接与拓扑异常</text>
+  <path d="M550 690 L550 714" class="line"/>
+
+  <rect x="395" y="714" width="310" height="64" rx="8" class="pass"/>
+  <text x="550" y="740" text-anchor="middle" class="code">CPU mesh emit pass</text>
+  <text x="550" y="762" text-anchor="middle" class="small">EmitLeafTriangles() 采样高度并写 CPU mesh</text>
+
+  <path d="M365 515 L395 515" class="dash"/>
+  <path d="M735 515 L705 515" class="dash"/>
+  <path d="M550 778 L550 804" class="line"/>
+
+  <rect x="275" y="796" width="550" height="40" rx="8" class="output"/>
+  <text x="550" y="814" text-anchor="middle" class="code">Terrain::TerrainMeshData</text>
+  <text x="550" y="831" text-anchor="middle" class="code">TerrainLodRenderPacket::Mode = CpuMesh</text>
+</svg>

@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="860" viewBox="0 0 1100 860">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#344054"/>
+    </marker>
+    <style>
+      .title{font:700 24px "Microsoft YaHei",Arial,sans-serif;fill:#111827}
+      .section{font:700 17px "Microsoft YaHei",Arial,sans-serif;fill:#111827}
+      .code{font:600 14px "Consolas","SFMono-Regular",monospace;fill:#1f2937}
+      .small{font:13px "Microsoft YaHei",Arial,sans-serif;fill:#475467}
+      .caption{font:12px "Microsoft YaHei",Arial,sans-serif;fill:#667085}
+      .line{stroke:#344054;stroke-width:2;fill:none;marker-end:url(#arrow)}
+      .dash{stroke:#667085;stroke-width:1.8;stroke-dasharray:6 5;fill:none;marker-end:url(#arrow)}
+      .adapter{fill:#fff7ed;stroke:#f97316;stroke-width:2}
+      .builder{fill:#f0fdf4;stroke:#22c55e;stroke-width:2}
+      .state{fill:#ecfdf3;stroke:#16a34a;stroke-width:1.9}
+      .pass{fill:#f8fafc;stroke:#64748b;stroke-width:1.8}
+      .thread{fill:#eef4ff;stroke:#3b82f6;stroke-width:1.9}
+      .output{fill:#fdf2f8;stroke:#db2777;stroke-width:1.9}
+    </style>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#fbfcfd"/>
+  <text x="550" y="38" text-anchor="middle" class="title">图3-3 Data-Oriented CPU ROAM：类与 pass 结构</text>
+
+  <rect x="250" y="60" width="600" height="86" rx="8" class="adapter"/>
+  <text x="550" y="90" text-anchor="middle" class="section">DataOrientedRoamTerrainLodAlgorithm</text>
+  <text x="550" y="115" text-anchor="middle" class="code">BuildRenderData() 接入统一接口并复用 builder 状态</text>
+  <text x="550" y="136" text-anchor="middle" class="caption">算法接口适配层，持有 DataOrientedRoamPipeline _builder</text>
+  <path d="M550 146 L550 178" class="line"/>
+
+  <rect x="235" y="178" width="630" height="122" rx="8" class="builder"/>
+  <text x="550" y="208" text-anchor="middle" class="section">DataOrientedRoamPipeline</text>
+  <text x="550" y="233" text-anchor="middle" class="code">Build() 输出 CPU mesh；UpdateTopology() 仅更新拓扑</text>
+  <text x="550" y="256" text-anchor="middle" class="code">BuildInternal() 用 emitCpuMesh 切换输出路径</text>
+  <text x="550" y="279" text-anchor="middle" class="caption">用 _state 交换 pass 数据；用 _threadPool 支撑 error / mark / emit 并行</text>
+
+  <path d="M430 300 L245 340" class="line"/>
+  <path d="M550 300 L550 340" class="line"/>
+  <path d="M670 300 L855 340" class="line"/>
+
+  <rect x="40" y="340" width="330" height="365" rx="8" class="state"/>
+  <text x="205" y="370" text-anchor="middle" class="section">DataOrientedRoamState</text>
+  <text x="205" y="397" text-anchor="middle" class="code">DataOrientedRoamNodePool Nodes</text>
+  <text x="205" y="421" text-anchor="middle" class="small">Domains / Parents / LeftChildren / RightChildren</text>
+  <text x="205" y="444" text-anchor="middle" class="small">BaseNeighbors / LeftNeighbors / RightNeighbors</text>
+  <text x="205" y="467" text-anchor="middle" class="small">Errors / VarianceIndices / Depths / PathIds</text>
+  <line x1="70" y1="490" x2="340" y2="490" stroke="#bbf7d0"/>
+  <text x="205" y="517" text-anchor="middle" class="code">PreviousSplitPaths</text>
+  <text x="205" y="540" text-anchor="middle" class="code">CurrentSplitPaths</text>
+  <text x="205" y="563" text-anchor="middle" class="code">ActiveLeafNodes / ActiveInternalNodes</text>
+  <text x="205" y="586" text-anchor="middle" class="code">RootA / RootB / VarianceTrees</text>
+  <line x1="70" y1="609" x2="340" y2="609" stroke="#bbf7d0"/>
+  <text x="205" y="636" text-anchor="middle" class="code">DataOrientedRoamStats</text>
+  <text x="205" y="660" text-anchor="middle" class="small">Split scan / Merge mark / Topology / Emit</text>
+  <text x="205" y="683" text-anchor="middle" class="small">worker 数、候选数量、chunk commit 覆盖面</text>
+
+  <rect x="400" y="340" width="300" height="64" rx="8" class="pass"/>
+  <text x="550" y="366" text-anchor="middle" class="code">状态初始化与叶节点收集</text>
+  <text x="550" y="388" text-anchor="middle" class="small">公式 (1) thickness → SoA roots</text>
+  <path d="M550 404 L550 424" class="line"/>
+
+  <rect x="400" y="424" width="300" height="64" rx="8" class="pass"/>
+  <text x="550" y="450" text-anchor="middle" class="code">融合 Split 扫描 pass</text>
+  <text x="550" y="472" text-anchor="middle" class="small">active leaf + SSE/frustum + candidate</text>
+  <path d="M550 488 L550 508" class="line"/>
+
+  <rect x="400" y="508" width="300" height="74" rx="8" class="pass"/>
+  <text x="550" y="535" text-anchor="middle" class="code">Merge 候选标记 pass</text>
+  <text x="550" y="558" text-anchor="middle" class="small">扫描 ActiveInternalNodes</text>
+  <text x="550" y="577" text-anchor="middle" class="small">低 score diamond 进入 merge queue</text>
+  <path d="M550 582 L550 604" class="line"/>
+
+  <rect x="400" y="604" width="300" height="84" rx="8" class="pass"/>
+  <text x="550" y="631" text-anchor="middle" class="code">Split / Merge 拓扑提交</text>
+  <text x="550" y="654" text-anchor="middle" class="small">并行预提交 + 动态父层级联合并</text>
+  <text x="550" y="675" text-anchor="middle" class="small">原子预算内按 chunk 提交 split</text>
+  <path d="M550 688 L550 710" class="line"/>
+
+  <rect x="400" y="710" width="300" height="64" rx="8" class="pass"/>
+  <text x="550" y="736" text-anchor="middle" class="code">CPU mesh emit pass</text>
+  <text x="550" y="758" text-anchor="middle" class="small">EmitLeafTriangles() 并行输出 CPU mesh</text>
+
+  <rect x="730" y="340" width="330" height="365" rx="8" class="thread"/>
+  <text x="895" y="370" text-anchor="middle" class="section">并行调度与验证</text>
+  <text x="895" y="399" text-anchor="middle" class="code">DataOrientedRoamThreadPool</text>
+  <text x="895" y="423" text-anchor="middle" class="small">EnsureWorkerCount() 固定 worker 数后复用线程</text>
+  <text x="895" y="446" text-anchor="middle" class="small">ParallelFor 分发 split scan / merge mark / emit</text>
+  <line x1="760" y1="470" x2="1030" y2="470" stroke="#bfdbfe"/>
+  <text x="895" y="497" text-anchor="middle" class="code">拓扑验证 pass</text>
+  <text x="895" y="521" text-anchor="middle" class="small">ValidateTopology() 只统计异常，不主动修复</text>
+  <text x="895" y="544" text-anchor="middle" class="small">只在 EnableTopologyValidation 开启时运行</text>
+  <line x1="760" y1="568" x2="1030" y2="568" stroke="#bfdbfe"/>
+  <text x="895" y="595" text-anchor="middle" class="code">误差评分函数</text>
+  <text x="895" y="619" text-anchor="middle" class="small">Nested thickness + 像素 SSE + 六平面视锥</text>
+  <text x="895" y="642" text-anchor="middle" class="small">与 Classic / GPU 共用质量和预算口径</text>
+  <line x1="760" y1="666" x2="1030" y2="666" stroke="#bfdbfe"/>
+  <text x="895" y="693" text-anchor="middle" class="caption">Topology commit 使用 chunk 统计区分 interior / boundary 候选</text>
+
+  <path d="M370 520 L400 520" class="dash"/>
+  <path d="M730 520 L700 520" class="dash"/>
+  <path d="M550 774 L550 808" class="line"/>
+
+  <rect x="235" y="808" width="630" height="42" rx="8" class="output"/>
+  <text x="550" y="829" text-anchor="middle" class="code">emitCpuMesh=true: TerrainMeshData / CpuMesh</text>
+  <text x="550" y="846" text-anchor="middle" class="caption">emitCpuMesh=false 时只保留 State()，供 GPU 路径构建快照</text>
+</svg>
