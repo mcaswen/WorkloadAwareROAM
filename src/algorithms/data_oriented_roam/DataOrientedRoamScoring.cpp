@@ -31,25 +31,23 @@ bool ShouldSplitWithScore(
 
     if (screenErrorScore > state.Settings.SplitThreshold)
     {
-        // 高于 split 阈值时直接展开
+        // 误差高于细分阈值时直接细分
         return true;
     }
 
     if (screenErrorScore < state.Settings.MergeThreshold)
     {
-        // 低于 merge 阈值时明确不 split
-        // 中间区间才交给 hysteresis 保持稳定
+        // 误差低于合并阈值时保持叶节点，只有中间区间需要参考上一帧状态
         return false;
     }
 
-    // hysteresis 区间沿用上一帧 split 状态
-    // 避免相机轻微移动造成频繁 split / merge 抖动
+    // 误差落在迟滞区间时沿用上一帧细分状态，避免相机轻微移动造成反复切换
     return WasSplitLastFrame(state, node);
 }
 
 bool WasSplitLastFrame(const DataOrientedRoamState& state, DataOrientedRoamNodeIndex node)
 {
-    // hysteresis 只看上一帧最终 active split path
+    // 迟滞判断只读取上一帧结束时仍处于细分状态的路径编号
     return state.PreviousSplitPaths.find(state.Nodes.PathIdAt(node)) != state.PreviousSplitPaths.end();
 }
 

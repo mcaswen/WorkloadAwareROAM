@@ -24,7 +24,7 @@ struct TriangleDomainChildren
     Domain Right;
 };
 
-/// 沿 A-B base edge 二分 ROAM 三角形，并保持现有绕序约定。
+/// 从 A-B 底边的中点细分三角形，并保持 ROAM 邻接代码所依赖的顶点绕序
 template <typename Domain>
 [[nodiscard]] inline TriangleDomainChildren<Domain> SplitTriangleDomain(const Domain& domain)
 {
@@ -35,7 +35,7 @@ template <typename Domain>
     };
 }
 
-/// 返回 base edge 中点高度相对两端点线性插值的有符号位移。
+/// 计算底边中点的真实高度与线性插值高度之差，作为该节点的局部几何误差
 template <typename Domain>
 [[nodiscard]] inline float ComputeBaseMidpointDisplacement(
     const Terrain::HeightMap& heightMap,
@@ -48,7 +48,7 @@ template <typename Domain>
     return midpointHeight - (heightA + heightB) * 0.5F;
 }
 
-/// 对归一化 HeightMap 坐标采样一次，并同时返回高度与世界坐标。
+/// 在归一化高度图坐标处采样，并一次性返回原始高度和换算后的世界坐标
 [[nodiscard]] inline TerrainWorldSample SampleTerrainWorld(
     const Terrain::HeightMap& heightMap,
     const glm::vec2& uv,
@@ -66,7 +66,7 @@ template <typename Domain>
     };
 }
 
-/// 将归一化 HeightMap 坐标映射到地形世界坐标。
+/// 将归一化高度图坐标换算为当前地形尺寸和高度比例下的世界坐标
 [[nodiscard]] inline glm::vec3 DomainToWorld(
     const Terrain::HeightMap& heightMap,
     const glm::vec2& uv,
@@ -76,7 +76,7 @@ template <typename Domain>
     return SampleTerrainWorld(heightMap, uv, terrainSize, heightScale).Position;
 }
 
-/// 使用 HeightMap 四点差分估计世界空间地形法线。
+/// 用高度图相邻四点的中心差分估算世界空间法线，供网格顶点着色使用
 [[nodiscard]] inline glm::vec3 SampleHeightGradientNormal(
     const Terrain::HeightMap& heightMap,
     const glm::vec2& uv,
@@ -101,7 +101,7 @@ template <typename Domain>
     return glm::normalize(normal);
 }
 
-/// 使用误差扩张后的三角形 AABB 执行 split/merge 共用的保守视锥测试。
+/// 用几何误差扩张三角形包围盒后再做视锥测试，避免误删仍可能影响画面的细分或合并候选
 [[nodiscard]] inline bool IsTriangleVisible(
     const std::array<glm::vec3, 3U>& triangle,
     float worldError,
@@ -127,4 +127,4 @@ template <typename Domain>
 
     return true;
 }
-} // namespace ParallelRoam::Algorithms::Roam
+} // 命名空间 ParallelRoam::Algorithms::Roam

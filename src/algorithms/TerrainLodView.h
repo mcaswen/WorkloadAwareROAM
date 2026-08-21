@@ -5,7 +5,7 @@
 namespace ParallelRoam::Algorithms
 {
 /// <summary>
-/// 构建归一化视锥平面，usesZeroToOneDepth 指定投影矩阵使用零到一或负一到一深度范围
+/// 整理相机输入并提取归一化视锥平面；usesZeroToOneDepth 用于区分 D3D 与 OpenGL 的裁剪空间深度范围
 /// </summary>
 [[nodiscard]] TerrainLodViewInput BuildTerrainLodViewInput(
     const glm::mat4& view,
@@ -15,4 +15,4 @@ namespace ParallelRoam::Algorithms
     std::uint32_t drawableWidth,
     std::uint32_t drawableHeight,
     bool usesZeroToOneDepth);
-} // namespace ParallelRoam::Algorithms
+} // 命名空间 ParallelRoam::Algorithms

@@ -39,7 +39,7 @@ DataOrientedRoamPipeline::DataOrientedRoamPipeline(DataOrientedRoamPipeline&& ot
 {
     if (_state != nullptr)
     {
-        // state 只借用线程池指针，pipeline move 后必须重新绑定
+        // 状态只保存线程池地址但不负责释放，移动对象后必须改为指向新对象中的线程池
         _state->ThreadPool = _threadPool.get();
     }
 }
@@ -55,7 +55,7 @@ DataOrientedRoamPipeline& DataOrientedRoamPipeline::operator=(DataOrientedRoamPi
     _threadPool = std::move(other._threadPool);
     if (_state != nullptr)
     {
-        // 移动赋值会替换 owner，旧裸指针不能继续留在 state 中
+        // 移动赋值会换用另一个线程池，状态中保存的地址也必须同步更新
         _state->ThreadPool = _threadPool.get();
     }
 
@@ -97,8 +97,7 @@ void DataOrientedRoamPipeline::BuildInternal(
         state.VarianceHeightMap != &heightMap || state.VarianceTreeMaxDepth != varianceTreeDepth;
     state.HeightMap = &heightMap;
     state.Settings = normalizedSettings;
-    // merge 阈值不能高于 split 阈值
-    // 否则同一帧可能在 hysteresis 区间反复展开和回收
+    // 合并阈值不得高于细分阈值，否则同一帧可能反复展开和回收同一区域
     state.Settings.MergeThreshold = std::min(state.Settings.MergeThreshold, state.Settings.SplitThreshold);
     state.Stats = {};
     state.CurrentSplitPaths.clear();
@@ -112,7 +111,7 @@ void DataOrientedRoamPipeline::BuildInternal(
 
     if (!heightMap.IsValid())
     {
-        // 保持返回空 mesh 的语义和 Classic builder 一致
+        // 无效高度图返回空网格，与 Classic 生成器保持相同失败行为
         ResetIncrementalMeshStorage(state);
         return;
     }
@@ -124,10 +123,10 @@ void DataOrientedRoamPipeline::BuildInternal(
 
     if (resetTopology)
     {
-        // reset 只发生在缓存误差或深度上限不再兼容时
+        // 只有高度图、深度或预算等变化使现有状态不能继续使用时才清空跨帧数据
         ResetIncrementalMeshStorage(state);
     }
-    // Mesh reset 会释放 node-to-slot 和 slot owner 容量，因此统一在 reset 之后预留。
+    // 网格重置会清空节点到槽位的对应关系，因此要在重置后统一预留节点和网格容量
     ReserveNodePool(state);
     if (resetTopology)
     {
@@ -135,23 +134,23 @@ void DataOrientedRoamPipeline::BuildInternal(
     }
     else if (rebuildVarianceTrees)
     {
-        // 预计算树扩深时保留拓扑，但已有节点必须刷新 nested wedgie thickness
+        // 扩展误差树不会改变现有拓扑，但全部节点必须重新读取几何误差
         RefreshNodeVarianceErrors(state);
     }
     const float prepareMilliseconds = updateTimer.ElapsedMilliseconds();
 
     Tools::PerformanceTimer mergeTimer;
-    // merge pass 先运行，远处旧细节先回收
+    // 先合并误差已经降低的旧细节，为后续细分腾出三角形名额
     MergeWithDiamondQueue(state);
     const float mergeMilliseconds = mergeTimer.Stop();
 
     Tools::PerformanceTimer splitTimer;
-    // 持久 Q_s 并行刷新 priority 并生成提交快照，随后执行 split/crossover。
+    // 刷新 Q_s 中保留的分数并复制当前候选，再执行细分和必要的预算调整
     RefineWithSplitQueue(state);
     const float splitMilliseconds = splitTimer.Stop();
 
-    // split/merge 已增量维护 ActiveLeafNodes；拓扑稳定后直接复用这份只读输出视图，
-    // 避免为了 emit、统计和 GPU snapshot 再从两个 root 递归遍历或复制活动 leaf。
+    // 细分和合并会同步维护 ActiveLeafNodes，拓扑稳定后直接复用这份最终活动叶集合
+    // 网格提交和统计无需再从两个根节点递归遍历或复制
     const std::vector<DataOrientedRoamNodeIndex>& finalActiveLeaves = state.ActiveLeafNodes;
     Tools::PerformanceTimer meshEmitTimer;
     ApplyIncrementalMeshUpdates(state);
@@ -170,20 +169,19 @@ void DataOrientedRoamPipeline::BuildInternal(
     AccumulateLeafStats(state, finalActiveLeaves);
     state.Stats.PersistentSplitQueueSize = state.SplitQueue.size();
     state.Stats.PersistentMergeQueueSize = state.MergeQueue.size();
-    // 预算交叉 merge 发生在 Split 收敛循环内，但统计上仍属于 Merge topology。
+    // 为细分腾出预算而执行的合并虽然发生在细分循环内，耗时仍计入合并阶段
     state.Stats.MergeMilliseconds = mergeMilliseconds + state.Stats.MergeCrossoverMilliseconds;
     state.Stats.SplitMilliseconds = splitMilliseconds;
     state.Stats.EmitMilliseconds = meshEmitMilliseconds;
     state.Stats.PrepareMilliseconds = prepareMilliseconds;
-    // DOD 直接用 Q_s.size() 计算预算，不再有独立的 leaf collect。
+    // DOD 直接使用 Q_s 成员数量计算预算，不再单独遍历活动叶
     state.Stats.BudgetLeafCollectMilliseconds = 0.0F;
-    // 字段为统一报告 schema 保留；DOD 不再执行最终 leaf collect/copy pass。
+    // 为兼容公共报告保留该字段，DOD 不再执行最终叶集合收集或复制阶段
     state.Stats.FinalLeafCollectMilliseconds = 0.0F;
     state.Stats.MeshEmitMilliseconds = meshEmitMilliseconds;
 
     CollectActiveSplitPaths(state);
-    // split path 集合是 hysteresis 的跨帧状态
-    // 必须在 merge 和 split 都完成后再更新
+    // 仍处于细分状态的路径集合用于下一帧迟滞判断，必须在合并和细分全部完成后更新
     state.PreviousSplitPaths = state.CurrentSplitPaths;
     state.TopologyMaxDepth = state.Settings.MaxDepth;
     state.Stats.FinalizeMilliseconds = finalizeTimer.Stop();

@@ -12,12 +12,12 @@
 namespace ParallelRoam::Algorithms::ClassicRoam
 {
 /// <summary>
-/// Classic ROAM 的跨模块值类型
-/// 由 builder 在初始化和 Build 期间创建或复制；类型本身不拥有节点池和 mesh
+/// 表示 Classic ROAM 三角形在高度图上的覆盖区域
+/// 该值可在模块之间复制，不负责管理节点或网格资源
 /// </summary>
 struct TriangleDomain
 {
-    // 三个 UV 点保持逆时针绕序，最终会映射到 XZ 平面
+    // 三个 UV 点保持逆时针绕序，生成网格时映射到世界空间的 XZ 平面
     glm::vec2 A{0.0F};
     glm::vec2 B{0.0F};
     glm::vec2 C{0.0F};
@@ -35,36 +35,36 @@ struct ClassicRoamMeshUpdateRange
     std::size_t TriangleCount{0};
 };
 
-// 按 Classic ROAM 的 base edge 规则生成两个 child domain
+// 沿 Classic ROAM 规定的底边生成两个子三角形区域
 [[nodiscard]] TriangleDomainChildren SplitTriangleDomain(const TriangleDomain& domain);
 
 /// <summary>
-/// Classic CPU ROAM 的单帧细分、合并和拓扑验证参数
-/// 由上层算法适配器按帧传入，builder 只保存当前配置的副本
+/// 控制 Classic CPU ROAM 每帧的细分、合并和拓扑验证
+/// 上层适配器每帧传入一次，网格生成器只保存本帧副本
 /// </summary>
 struct ClassicRoamSettings
 {
-    // MaxDepth 限制二叉三角树的最细层级
+    // MaxDepth 限制二叉三角树能够细分到的最深层级
     int MaxDepth{14};
-    // 屏幕误差超过该值时允许 split
+    // 屏幕误差高于该值时允许细分
     float SplitThreshold{4.0F};
-    // 屏幕误差低于该值时允许 merge
+    // 屏幕误差低于该值时允许合并
     float MergeThreshold{2.0F};
-    // 活动 leaf triangle 的硬预算
+    // 当前可用于渲染的活动叶三角形数量上限
     std::size_t TriangleBudget{20000U};
-    // 是否启用 base neighbor 的局部裂缝约束
+    // 是否同步细分底边邻居，以避免不同层级相接产生裂缝
     bool EnableLocalConstraints{true};
-    // 是否运行额外的全局拓扑验证
+    // 是否在更新后运行完整拓扑检查
     bool EnableTopologyValidation{false};
 };
 
 /// <summary>
-/// Classic CPU ROAM 的运行统计
-/// 由 ClassicRoamMeshBuilder 持有，每次 Build 开始时刷新，Build 结束后供适配器读取
+/// 记录 Classic CPU ROAM 最近一次更新的规模、结果和各阶段耗时
+/// 数据由 ClassicRoamMeshBuilder 填写，更新完成后供适配器读取
 /// </summary>
 struct ClassicRoamStats
 {
-    // 节点池总数，包括 internal 和 leaf 节点
+    // 节点池总数，包括内部节点和叶节点
     std::size_t NodeCount{0};
     // 当前用于渲染的活动叶三角形数量
     std::size_t ActiveTriangleCount{0};
@@ -72,82 +72,82 @@ struct ClassicRoamStats
     std::size_t OriginalTriangleCount{0};
     // 已细分但仍处于稳定活动状态的叶三角形数量
     std::size_t SubdividedTriangleCount{0};
-    // 本次 Build 新激活或由 merge 恢复的叶三角形数量
+    // 本次更新中新激活或因合并而恢复的叶三角形数量
     std::size_t RebuiltTriangleCount{0};
-    // 当前仍处于 split 状态的 internal 节点数量
+    // 当前已细分的内部节点数量
     std::size_t ActiveSplitCount{0};
-    // 本次 Build 成功执行的普通 split 数量
+    // 本次更新中因误差超出阈值而成功细分的次数
     std::size_t SplitCount{0};
-    // 为满足邻居约束额外执行的 forced split 数量
+    // 为补齐底边邻接关系而额外执行的强制细分次数
     std::size_t ForcedSplitCount{0};
-    // 本次 Build 成功回收的 parent 数量
+    // 本次更新中成功合并回父节点的次数
     std::size_t MergeCount{0};
     // 达到最大深度后仍可能存在裂缝的次数
     std::size_t CrackRiskCount{0};
-    // base neighbor 约束传播次数
+    // 底边邻居约束向外传播的次数
     std::size_t ConstraintPassCount{0};
-    // 两个持久队列成员数量之和的峰值
+    // 两个跨帧保留队列的成员数量峰值之和
     std::size_t CandidatePeakCount{0};
-    // Build 结束时 split queue 的成员数量
+    // 更新结束时细分队列中的节点数量
     std::size_t PersistentSplitQueueSize{0};
-    // Build 结束时 merge queue 的成员数量
+    // 更新结束时合并队列中的菱形数量
     std::size_t PersistentMergeQueueSize{0};
-    // 队列交叉腾挪预算的次数
+    // 通过先合并再细分来重新分配三角形预算的次数
     std::size_t QueueCrossoverCount{0};
     // 队列成员发生局部变更的次数
     std::size_t QueueMembershipUpdateCount{0};
-    // 发生完整 mesh 重建的次数
+    // 完整重建 CPU 网格的次数
     std::size_t MeshFullRebuildCount{0};
-    // 被重新写入的 mesh 三角形数量
+    // 本次重新写入 CPU 网格的三角形数量
     std::size_t MeshUpdatedTriangleCount{0};
-    // 直接复用旧 mesh slot 的三角形数量
+    // 继续复用原有网格槽位的三角形数量
     std::size_t MeshReusedTriangleCount{0};
-    // 被标记为 dirty 的 mesh range 数量
+    // 需要重新上传的网格连续区间数量
     std::size_t MeshDirtyRangeCount{0};
-    // 非预算原因导致的 split 拒绝次数
+    // 因拓扑或深度等非预算原因被拒绝的细分次数
     std::size_t RejectedSplitCount{0};
-    // 因活动三角形预算不足导致的 split 拒绝次数
+    // 因活动三角形预算不足被拒绝的细分次数
     std::size_t BudgetRejectedSplitCount{0};
-    // 因 diamond 条件不满足导致的 merge 拒绝次数
+    // 因菱形合并条件不满足被拒绝的合并次数
     std::size_t RejectedMergeCount{0};
-    // validator 发现的 T-junction 数量
+    // 验证器发现的 T 形接缝数量
     std::size_t TjunctionCount{0};
-    // validator 发现的邻接关系错误数量
+    // 验证器发现的邻接关系错误数量
     std::size_t InvalidNeighborCount{0};
-    // validator 发现的拓扑不变量错误数量
+    // 验证器发现的拓扑结构错误数量
     std::size_t InvalidTopologyCount{0};
 
-    // 完整 Build 的 CPU 耗时
+    // 完整更新的 CPU 耗时
     float UpdateMilliseconds{0.0F};
     // 输入准备和状态同步耗时
     float PrepareMilliseconds{0.0F};
-    // merge 候选标记耗时
+    // 合并候选评分耗时
     float MergeCandidateMarkMilliseconds{0.0F};
-    // merge topology 操作耗时
+    // 实际执行合并并维护拓扑的耗时
     float MergeTopologyMilliseconds{0.0F};
     // 活动叶收集耗时
     float BudgetLeafCollectMilliseconds{0.0F};
-    // split 初始扫描耗时
+    // 刷新并扫描细分队列的耗时
     float SplitInitialScanMilliseconds{0.0F};
-    // split/merge 收敛循环耗时
+    // 主线程反复处理细分和合并候选直到队列稳定的耗时
     float SplitSerialConvergenceMilliseconds{0.0F};
-    // 单个 split topology 提交的诊断耗时
+    // 实际执行细分并维护拓扑的耗时
     float SplitQueueTopologyMilliseconds{0.0F};
     // 最终叶集合收集耗时
     float FinalLeafCollectMilliseconds{0.0F};
-    // mesh emit 阶段耗时
+    // 将拓扑变化写入 CPU 网格的耗时
     float MeshEmitMilliseconds{0.0F};
-    // Build 收尾阶段耗时
+    // 更新收尾阶段耗时
     float FinalizeMilliseconds{0.0F};
-    // split queue 与 topology 操作总耗时
+    // 细分队列处理与拓扑修改的总耗时
     float SplitMilliseconds{0.0F};
-    // mesh 输出总耗时
+    // CPU 网格输出总耗时
     float EmitMilliseconds{0.0F};
     // 拓扑验证耗时
     float ValidateMilliseconds{0.0F};
-    // merge 候选和 topology 回收总耗时
+    // 合并候选处理与拓扑回收的总耗时
     float MergeMilliseconds{0.0F};
-    // 本次 Build 观察到的最大深度
+    // 本次更新观察到的最大深度
     int MaxDepthReached{0};
 };
-} // namespace ParallelRoam::Algorithms::ClassicRoam
+} // 命名空间 ParallelRoam::Algorithms::ClassicRoam

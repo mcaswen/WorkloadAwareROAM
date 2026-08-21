@@ -5,15 +5,15 @@
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 /// <summary>
-/// merge 候选标记接口
-/// 在每帧 queue refresh 或 merge 前读取 state；只返回候选评估，不持有节点和队列所有权
+/// 评估节点是否能作为合并候选，并返回整个菱形的合并分数
+/// 函数只读取当前状态，不持有节点或队列资源
 /// </summary>
 [[nodiscard]] DataOrientedRoamMergeCandidateEvaluation EvaluateMergeCandidate(
     const DataOrientedRoamState& state,
     DataOrientedRoamNodeIndex node,
     float maximumScore);
 
-// CanMergeNode 只检查 diamond 的当前拓扑条件；真正修改由 topology pass 完成
+// CanMergeNode 只检查菱形结构和误差条件，实际合并由拓扑阶段完成
 [[nodiscard]] bool CanMergeNode(
     const DataOrientedRoamState& state,
     DataOrientedRoamNodeIndex node);
@@ -21,4 +21,4 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
     const DataOrientedRoamState& state,
     DataOrientedRoamNodeIndex node,
     float maximumScore);
-} // namespace ParallelRoam::Algorithms::DataOrientedRoam
+} // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

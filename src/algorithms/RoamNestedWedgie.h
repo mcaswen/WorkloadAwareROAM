@@ -10,7 +10,7 @@
 namespace ParallelRoam::Algorithms::Roam
 {
 /// <summary>
-/// 返回覆盖给定采样段数所需的二次幂层级。
+/// 计算覆盖给定采样段数所需的最小二次幂层级，用于确定误差树深度
 /// </summary>
 [[nodiscard]] inline int CeilLog2Extent(int segmentCount)
 {
@@ -26,7 +26,7 @@ namespace ParallelRoam::Algorithms::Roam
 }
 
 /// <summary>
-/// 二叉三角树每两个深度层级会把两个地形轴的采样间隔各减半。
+/// 根据高度图分辨率、运行深度和实现上限，确定嵌套楔形误差树需要构建到的深度
 /// </summary>
 [[nodiscard]] inline int ResolveNestedWedgieTreeDepth(
     int width,
@@ -44,7 +44,7 @@ namespace ParallelRoam::Algorithms::Roam
 }
 
 /// <summary>
-/// 计算包含 root 和指定最细深度的完整二叉树节点数。
+/// 计算从根节点到指定最细深度的完整二叉树需要多少个节点
 /// </summary>
 [[nodiscard]] inline std::size_t CompleteBinaryTreeNodeCount(int finestDepth)
 {
@@ -54,7 +54,7 @@ namespace ParallelRoam::Algorithms::Roam
 }
 
 /// <summary>
-/// 按 ROAM 论文公式 (1) 自底向上构建 nested wedgie thickness。
+/// 按 ROAM 论文公式 (1) 自底向上累积局部位移，得到每个节点覆盖子树的保守几何误差
 /// </summary>
 template <typename Domain, typename SplitFunction, typename DisplacementFunction>
 [[nodiscard]] float BuildNestedWedgieSubtree(
@@ -69,7 +69,7 @@ template <typename Domain, typename SplitFunction, typename DisplacementFunction
     assert(treeIndex < tree.size());
     if (depth >= finestDepth)
     {
-        // 论文把输入地形的最细 bintree level 定义为零 thickness。
+        // 最细层直接对应输入采样，没有更细层需要包络，因此误差厚度为零
         tree[treeIndex] = 0.0F;
         return 0.0F;
     }
@@ -98,7 +98,7 @@ template <typename Domain, typename SplitFunction, typename DisplacementFunction
 }
 
 /// <summary>
-/// 分配完整二叉树并返回 root 的 nested wedgie thickness。
+/// 分配完整误差树、填充全部节点，并返回根节点覆盖整棵树的误差厚度
 /// </summary>
 template <typename Domain, typename SplitFunction, typename DisplacementFunction>
 [[nodiscard]] float BuildNestedWedgieTree(
@@ -118,4 +118,4 @@ template <typename Domain, typename SplitFunction, typename DisplacementFunction
         splitDomain,
         signedBaseMidpointDisplacement);
 }
-} // namespace ParallelRoam::Algorithms::Roam
+} // 命名空间 ParallelRoam::Algorithms::Roam

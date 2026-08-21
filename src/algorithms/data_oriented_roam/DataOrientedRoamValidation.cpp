@@ -15,24 +15,24 @@ namespace
 {
 struct DomainEdge
 {
-    // validator 用 UV 边界做几何邻接判断
+    // 验证器用 UV 边判断三角形是否在几何上相邻
     glm::vec2 Start{0.0F};
     glm::vec2 End{0.0F};
 };
 
 struct QuantizedPoint
 {
-    // 量化点把浮点中点落回 maxDepth 网格
+    // 将浮点中点量化到最大深度对应的整数网格
     long long X{0};
     long long Y{0};
 };
 
 struct QuantizedLineKey
 {
-    // Direction 描述归一化直线方向
+    // Direction 保存统一朝向后的直线方向
     long long DirectionX{0};
     long long DirectionY{0};
-    // Constant 区分平行线的位置
+    // Constant 区分方向相同但位置不同的平行线
     long long Constant{0};
 
     bool operator==(const QuantizedLineKey& other) const
@@ -61,9 +61,9 @@ struct QuantizedLineKeyHash
 
 struct QuantizedEdge
 {
-    // Line 聚合同一直线上的 leaf 边
+    // Line 将同一直线上的叶三角形边归为一组
     QuantizedLineKey Line;
-    // 参数区间用于判断端点是否落在粗边内部
+    // 参数区间用于判断细边端点是否落在较粗边内部
     long long MinParameter{0};
     long long MaxParameter{0};
 };
@@ -76,7 +76,7 @@ float DistanceSquared(const glm::vec2& a, const glm::vec2& b)
 
 bool SamePoint(const glm::vec2& a, const glm::vec2& b)
 {
-    // UV 中点由浮点计算产生，端点比较需要容差
+    // UV 中点通过浮点运算得到，因此端点比较需要容差
     constexpr float Epsilon = 0.000001F;
     return DistanceSquared(a, b) <= Epsilon * Epsilon;
 }
@@ -92,7 +92,7 @@ std::array<DomainEdge, 3> DomainEdges(const TriangleDomain& domain)
 
 bool SameUndirectedEdge(const DomainEdge& left, const DomainEdge& right)
 {
-    // 邻接三角形通常以反向绕序保存共享边
+    // 相邻三角形通常按相反方向保存共享边，因此两个方向都要匹配
     return (SamePoint(left.Start, right.Start) && SamePoint(left.End, right.End)) ||
            (SamePoint(left.Start, right.End) && SamePoint(left.End, right.Start));
 }
@@ -104,7 +104,7 @@ long long AbsoluteGcd(long long a, long long b)
 
 QuantizedPoint QuantizePoint(const glm::vec2& point, int maxDepth)
 {
-    // clamp 到 30 避免左移溢出 long long 的安全区间
+    // 深度限制到 30，避免左移超出 64 位有符号整数的安全范围
     const auto scale = static_cast<long long>(1ULL << static_cast<unsigned int>(std::clamp(maxDepth, 0, 30)));
     return QuantizedPoint{
         static_cast<long long>(std::llround(static_cast<double>(point.x) * static_cast<double>(scale))),
@@ -120,7 +120,7 @@ QuantizedLineKey MakeLineKey(const QuantizedPoint& start, const QuantizedPoint& 
     directionX /= divisor;
     directionY /= divisor;
 
-    // 方向归一到统一半平面，同一条无向直线才能得到相同 key
+    // 将方向统一到同一半平面，使同一条无向直线得到相同键
     if (directionX < 0 || (directionX == 0 && directionY < 0))
     {
         directionX = -directionX;
@@ -148,7 +148,7 @@ bool ValidateNeighbor(
 {
     if (!state.IsValidNode(neighbor) || !leafSet[neighbor])
     {
-        // 非 active leaf 不能作为当前帧合法 neighbor
+        // 非活动叶节点不能成为当前帧的合法邻居
         return false;
     }
 
@@ -168,26 +168,26 @@ bool ValidateNeighbor(
 
 void ValidateTopology(DataOrientedRoamState& state)
 {
-    // validator 不修复拓扑，只把裂缝风险和邻接错误写入统计
+    // 验证器不修改拓扑，只把裂缝风险和邻接错误写入统计
     std::vector<DataOrientedRoamNodeIndex> leafNodes;
     CollectLeafNodes(state, leafNodes);
     std::vector<bool> leafSet(state.Nodes.size(), false);
-    // leafSet 的大小直接来自 SoA 长度，覆盖 inactive child 的下标空间
+    // leafSet 按整个节点池分配，能够覆盖停用历史子节点的下标
     for (DataOrientedRoamNodeIndex node : leafNodes)
     {
-        // leafSet 让 neighbor 验证不用反复线性查找 active leaf
+        // leafSet 使邻居验证可以常数时间确认节点是否属于活动叶集合
         leafSet[node] = true;
     }
 
     std::unordered_map<QuantizedLineKey, std::vector<long long>, QuantizedLineKeyHash> lineVertices;
     lineVertices.reserve(leafNodes.size() * 3U);
     std::vector<QuantizedEdge> quantizedEdges;
-    // 每个 leaf 最多贡献三条边
+    // 每个叶三角形固定贡献三条边
     quantizedEdges.reserve(leafNodes.size() * 3U);
 
     for (DataOrientedRoamNodeIndex node : leafNodes)
     {
-        // 每条 leaf 边都记录到量化直线索引中
+        // 将每条叶三角形边记录到对应的量化直线索引
         const std::array<DomainEdge, 3> edges = DomainEdges(state.Nodes[node].Domain);
         for (const DomainEdge& edge : edges)
         {
@@ -196,7 +196,7 @@ void ValidateTopology(DataOrientedRoamState& state)
             const QuantizedLineKey line = MakeLineKey(start, end);
             const long long startParameter = ProjectToLineParameter(start, line);
             const long long endParameter = ProjectToLineParameter(end, line);
-            // 边保存为同一直线上的一维参数区间
+            // 将二维边保存为所属直线上的一维参数区间
             quantizedEdges.push_back(QuantizedEdge{
                 line,
                 std::min(startParameter, endParameter),
@@ -212,7 +212,7 @@ void ValidateTopology(DataOrientedRoamState& state)
     for (auto& [line, vertexParameters] : lineVertices)
     {
         (void)line;
-        // 排序去重后才能可靠做 interior 查询
+        // 端点参数排序去重后，才能可靠查找边内部的额外端点
         std::sort(vertexParameters.begin(), vertexParameters.end());
         vertexParameters.erase(std::unique(vertexParameters.begin(), vertexParameters.end()), vertexParameters.end());
     }
@@ -227,10 +227,10 @@ void ValidateTopology(DataOrientedRoamState& state)
 
         const std::vector<long long>& vertexParameters = lineIt->second;
         const auto interiorIt = std::upper_bound(vertexParameters.begin(), vertexParameters.end(), edge.MinParameter);
-        // interiorIt 排除边端点，只捕获粗边内部的细分顶点
+        // upper_bound 排除起点，只查找较粗边内部的细分顶点
         if (interiorIt != vertexParameters.end() && *interiorIt < edge.MaxParameter)
         {
-            // 粗边内部存在其他 leaf 端点，这是典型 T-junction 风险
+            // 较粗边内部出现其他叶节点端点，表示存在典型 T 形接缝风险
             ++state.Stats.TjunctionCount;
             ++state.Stats.CrackRiskCount;
         }
@@ -242,7 +242,7 @@ void ValidateTopology(DataOrientedRoamState& state)
         if (state.IsValidNode(state.Nodes[node].BaseNeighbor) &&
             !ValidateNeighbor(state, leafSet, node, state.Nodes[node].BaseNeighbor, edges[0]))
         {
-            // base edge 的 neighbor 关系优先暴露 diamond 约束错误
+            // 底边邻居关系最容易暴露菱形约束错误，因此单独计数
             ++state.Stats.InvalidNeighborCount;
         }
 
@@ -264,7 +264,7 @@ void ValidateTopology(DataOrientedRoamState& state)
         state.Nodes[state.RootA].BaseNeighbor != state.RootB ||
         state.Nodes[state.RootB].BaseNeighbor != state.RootA)
     {
-        // 根 diamond 失效通常意味着 split/merge 改写了不该改的 base neighbor
+    // 根菱形关系损坏通常表示细分或合并错误改写了根节点的底边邻居
         ++state.Stats.InvalidTopologyCount;
     }
 
@@ -288,13 +288,13 @@ void ValidateTopology(DataOrientedRoamState& state)
 
         if (nodeIndex != state.RootA && nodeIndex != state.RootB && !state.IsValidNode(node.Parent))
         {
-            // 除 root 外的节点必须能回溯到 parent
+            // 除根节点外，每个节点都必须能够回溯到有效父节点
             ++state.Stats.InvalidTopologyCount;
         }
     }
 
-    // active internal 索引必须与两个 root 可达的当前拓扑完全一致。
-    // 历史 child 即使保留 IsSplit 状态，只要祖先已 merge，就不能出现在索引中。
+    // 活动内部节点索引必须与从两个根节点可达的当前拓扑完全一致
+    // 历史子节点即使保留 IsSplit 状态，只要祖先已合并就不能出现在索引中
     std::vector<std::uint8_t> reachableInternal(state.Nodes.size(), 0U);
     std::vector<DataOrientedRoamNodeIndex> stack;
     stack.reserve(state.ActiveInternalNodes.size() + 2U);
@@ -353,15 +353,15 @@ void ValidateTopology(DataOrientedRoamState& state)
         }
     }
 
-    // active leaf 索引必须与原有 root 遍历结果相同，且反向 position 唯一
-    // 这里故意保留独立 root traversal，避免 validator 与被验证索引共享同一个真值来源。
+    // 活动叶索引必须与独立根遍历结果一致，并且每个节点只有一个反向位置
+    // 独立遍历避免验证器与被验证索引共用同一数据来源
     if (state.ActiveLeafNodes.size() != leafNodes.size())
     {
         ++state.Stats.InvalidTopologyCount;
     }
     for (std::size_t position = 0U; position < state.ActiveLeafNodes.size(); ++position)
     {
-        // 正向表中的每个元素都必须反查到当前位置，并且确实属于可达 leaf 集合。
+        // 正向数组中的每个节点都必须反查到当前位置，并且属于根节点可达的叶集合
         const DataOrientedRoamNodeIndex nodeIndex = state.ActiveLeafNodes[position];
         if (!state.IsValidNode(nodeIndex) ||
             nodeIndex >= state.NodeMembership.size() ||
@@ -373,7 +373,7 @@ void ValidateTopology(DataOrientedRoamState& state)
     }
     for (std::size_t nodeIndex = 0U; nodeIndex < state.Nodes.size(); ++nodeIndex)
     {
-        // 反向全扫捕获漏登记 leaf，以及 merge 后仍残留 position 的 inactive child。
+        // 扫描全部反向位置可以发现漏登记叶节点，以及合并后仍残留位置的停用子节点
         const bool indexed = nodeIndex < state.NodeMembership.size() &&
                              state.NodeMembership[nodeIndex].ActiveLeafPosition !=
                                  InvalidActiveNodePosition;
@@ -383,8 +383,7 @@ void ValidateTopology(DataOrientedRoamState& state)
         }
     }
 
-    // heap 顺序、intrusive position、diamond canonicalization 和成员完整性
-    // 由负责这些不变量的 queue 模块统一检查
+    // 堆顺序、反向位置、菱形代表节点和成员完整性由队列模块统一检查
     state.Stats.InvalidTopologyCount += CountPersistentQueueInvariantViolations(state);
 }
 

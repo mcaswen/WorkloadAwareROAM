@@ -15,7 +15,7 @@ constexpr std::size_t InvalidMeshSlot = std::numeric_limits<std::size_t>::max();
 }
 
 /// <summary>
-/// 开始一个 mesh generation，并在 topology reset 时要求重新建立根槽位。
+/// 开始记录本次网格更新；拓扑重置时标记为需要重新建立根槽位
 /// </summary>
 void ClassicRoamMeshBuilder::BeginIncrementalMeshUpdate(bool resetTopology)
 {
@@ -33,7 +33,7 @@ void ClassicRoamMeshBuilder::BeginIncrementalMeshUpdate(bool resetTopology)
 }
 
 /// <summary>
-/// 丢弃持久 mesh 的有效内容；下一次 apply 会从两个 root 重新建立 dense cut。
+/// 清空跨帧保留的网格及槽位映射，使下一次更新从两个根节点重新生成连续网格
 /// </summary>
 void ClassicRoamMeshBuilder::ResetIncrementalMeshStorage()
 {
@@ -49,7 +49,7 @@ void ClassicRoamMeshBuilder::ResetIncrementalMeshStorage()
 }
 
 /// <summary>
-/// 建立两个根 leaf 的初始槽位，并为硬预算预留稳定容量。
+/// 为两个根叶节点建立初始槽位，并按三角形预算预留容量以减少后续扩容
 /// </summary>
 void ClassicRoamMeshBuilder::InitializeIncrementalMesh()
 {
@@ -68,7 +68,7 @@ void ClassicRoamMeshBuilder::InitializeIncrementalMesh()
 }
 
 /// <summary>
-/// 记录已成功提交的 split；edit 必须保持与 topology transaction 相同顺序。
+/// 记录已经成功提交的细分，后续按相同顺序更新网格
 /// </summary>
 void ClassicRoamMeshBuilder::RecordMeshSplit(ClassicRoamNode* parent)
 {
@@ -76,7 +76,7 @@ void ClassicRoamMeshBuilder::RecordMeshSplit(ClassicRoamNode* parent)
 }
 
 /// <summary>
-/// 记录已成功提交的 merge，供 topology 稳定后的 mesh replay 使用。
+/// 记录已经成功提交的合并，等待拓扑稳定后再更新网格
 /// </summary>
 void ClassicRoamMeshBuilder::RecordMeshMerge(ClassicRoamNode* parent)
 {
@@ -84,7 +84,7 @@ void ClassicRoamMeshBuilder::RecordMeshMerge(ClassicRoamNode* parent)
 }
 
 /// <summary>
-/// 先结束上一 Build 的调试色过渡，再按提交顺序重放本次 topology edits。
+/// 先恢复上一帧的临时调试颜色，再按提交顺序把本次拓扑变化写入网格
 /// </summary>
 void ClassicRoamMeshBuilder::ApplyIncrementalMeshUpdates()
 {
@@ -93,7 +93,7 @@ void ClassicRoamMeshBuilder::ApplyIncrementalMeshUpdates()
         InitializeIncrementalMesh();
     }
 
-    // Rebuilt 颜色只维持一个 Build；拓扑稳定后只刷新仍是 leaf 的旧成员。
+    // 用于标出本轮重建节点的颜色只显示一次更新，之后只刷新仍为活动叶节点的槽位
     for (ClassicRoamNode* node : _debugTransitionLeaves)
     {
         if (node != nullptr && node->Active && IsLeaf(node) &&
@@ -104,7 +104,7 @@ void ClassicRoamMeshBuilder::ApplyIncrementalMeshUpdates()
     }
     _debugTransitionLeaves.clear();
 
-    // edit 顺序与 topology 提交顺序一致，支持同一 Build 内从深层向 parent 级联合并。
+    // 严格保持拓扑修改顺序，才能正确处理同一次更新内由深到浅的连续合并
     for (const MeshTopologyEdit& edit : _meshTopologyEdits)
     {
         if (edit.Type == MeshTopologyEditType::Split)
@@ -120,7 +120,7 @@ void ClassicRoamMeshBuilder::ApplyIncrementalMeshUpdates()
 }
 
 /// <summary>
-/// 在 dense arrays 末尾追加一个 leaf，并立即生成其三个顶点和索引。
+/// 在稠密数组末尾追加一个叶节点槽位，并写入对应顶点和索引
 /// </summary>
 void ClassicRoamMeshBuilder::AppendMeshLeaf(ClassicRoamNode* node)
 {
@@ -139,7 +139,7 @@ void ClassicRoamMeshBuilder::AppendMeshLeaf(ClassicRoamNode* node)
 }
 
 /// <summary>
-/// 删除 leaf 槽；非末槽通过 move-last compaction 保持 draw range 连续。
+/// 删除叶节点槽位；删除中间槽位时用末尾元素填洞，保持绘制范围连续
 /// </summary>
 void ClassicRoamMeshBuilder::RemoveMeshLeaf(ClassicRoamNode* node)
 {
@@ -176,7 +176,7 @@ void ClassicRoamMeshBuilder::RemoveMeshLeaf(ClassicRoamNode* node)
 }
 
 /// <summary>
-/// split 时让 left child 继承 parent 槽，right child 追加到数组末尾。
+/// 细分时让左子节点复用父节点槽位，并把右子节点追加到数组末尾
 /// </summary>
 void ClassicRoamMeshBuilder::ReplaceMeshLeafWithChildren(ClassicRoamNode* parent)
 {
@@ -197,7 +197,7 @@ void ClassicRoamMeshBuilder::ReplaceMeshLeafWithChildren(ClassicRoamNode* parent
 }
 
 /// <summary>
-/// merge 时用一个 child 槽恢复 parent，并安全删除另一个 child 槽。
+/// 合并时用一个子节点槽位恢复父节点，并删除另一个子节点槽位
 /// </summary>
 void ClassicRoamMeshBuilder::ReplaceMeshChildrenWithLeaf(ClassicRoamNode* parent)
 {
@@ -213,8 +213,7 @@ void ClassicRoamMeshBuilder::ReplaceMeshChildrenWithLeaf(ClassicRoamNode* parent
     const std::size_t lastSlot = _meshSlotOwners.size() - 1U;
     if (retainedChild->MeshSlot == lastSlot)
     {
-        // RemoveMeshLeaf 会把末尾槽位压入被删除的空洞
-        // 保留非末尾 child，避免压缩过程覆盖新 parent
+        // RemoveMeshLeaf 会用末尾槽位填补空洞，因此保留非末尾子节点可避免覆盖新父节点
         std::swap(retainedChild, removedChild);
     }
 
@@ -227,7 +226,7 @@ void ClassicRoamMeshBuilder::ReplaceMeshChildrenWithLeaf(ClassicRoamNode* parent
 }
 
 /// <summary>
-/// 重建单个 leaf 槽的完整顶点属性和局部索引，并统一正 Y 绕序。
+/// 重新生成单个叶节点槽位的顶点属性和局部索引，并保证法线朝向正 Y
 /// </summary>
 void ClassicRoamMeshBuilder::WriteMeshLeaf(std::size_t slot, const ClassicRoamNode& node)
 {
@@ -269,7 +268,7 @@ void ClassicRoamMeshBuilder::WriteMeshLeaf(std::size_t slot, const ClassicRoamNo
 }
 
 /// <summary>
-/// topology 不变时只刷新上一 Build 的 Rebuilt 调试属性，避免重采样几何。
+/// 拓扑不变时只更新上一轮留下的重建标记颜色，避免重复采样几何数据
 /// </summary>
 void ClassicRoamMeshBuilder::RefreshMeshLeafDebugAttributes(ClassicRoamNode& node)
 {
@@ -291,7 +290,7 @@ void ClassicRoamMeshBuilder::RefreshMeshLeafDebugAttributes(ClassicRoamNode& nod
 }
 
 /// <summary>
-/// 用 mesh generation 对 dirty slot 去重，使一个 Build 内的多次 edit 只上传一次。
+/// 用网格版本号对待更新槽位去重，使同一次更新内多次修改的槽位只上传一次
 /// </summary>
 void ClassicRoamMeshBuilder::MarkMeshSlotDirty(std::size_t slot)
 {
@@ -307,7 +306,7 @@ void ClassicRoamMeshBuilder::MarkMeshSlotDirty(std::size_t slot)
 }
 
 /// <summary>
-/// 清理无效 dirty slots、合并连续范围，并发布本 Build 的增量输出统计。
+/// 移除已经无效的待更新槽位、合并连续区间，并生成本次增量上传范围和统计
 /// </summary>
 void ClassicRoamMeshBuilder::FinalizeIncrementalMeshUpdate()
 {

@@ -5,26 +5,30 @@
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 /// <summary>
-/// 开始一个持久 Mesh generation。
+/// 开始记录本次对跨帧保留网格的修改
 /// </summary>
 void BeginIncrementalMeshUpdate(
     DataOrientedRoamState& state,
     bool resetTopology);
 
 /// <summary>
-/// 丢弃持久 Mesh 数据；下一次 CPU Build 从当前 active leaf cut 做完整初始化。
+/// 清空跨帧保留的网格，下一次 CPU 更新将根据当前活动叶集合完整初始化
 /// </summary>
 void ResetIncrementalMeshStorage(DataOrientedRoamState& state);
 
 /// <summary>
-/// 记录已经成功提交的 topology edit；只在主线程活动索引更新点调用。
+/// 记录主线程已经提交并完成活动索引更新的拓扑变化
 /// </summary>
 void RecordMeshSplit(DataOrientedRoamState& state, DataOrientedRoamNodeIndex node);
 void RecordMeshMerge(DataOrientedRoamState& state, DataOrientedRoamNodeIndex node);
 
 /// <summary>
-/// 拓扑稳定后重放 slot edit，并只重写本 Build 的 dirty triangle。
+/// 拓扑稳定后更新槽位，只重写本次更新中发生变化的三角形
 /// </summary>
 void ApplyIncrementalMeshUpdates(DataOrientedRoamState& state);
+
+/// <summary>
+/// 合并下标连续的待更新槽位，并生成渲染器需要的上传范围和网格复用统计
+/// </summary>
 void FinalizeIncrementalMeshUpdate(DataOrientedRoamState& state);
-} // namespace ParallelRoam::Algorithms::DataOrientedRoam
+} // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

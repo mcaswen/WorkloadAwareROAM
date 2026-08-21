@@ -22,10 +22,10 @@ void DataOrientedRoamThreadPool::EnsureWorkerCount(std::size_t workerCount)
         return;
     }
 
-    // 扩容时只补缺口，已创建 worker 会跨帧保留
+    // 扩容时只创建缺少的线程，已有线程继续跨帧复用
     while (_workers.size() < workerCount)
     {
-        // worker 只从队列取闭包执行，不持有任何算法状态
+        // 工作线程只执行任务队列中的任务，不直接保存算法状态
         _workers.emplace_back([this]() {
             WorkerLoop();
         });
@@ -50,7 +50,7 @@ void DataOrientedRoamThreadPool::ParallelFor(
     EnsureWorkerCount(workerCount);
     {
         std::lock_guard<std::mutex> lock{_mutex};
-        // 任务先全部入队，再统一通知 worker 竞争领取
+        // 先将整批任务入队，再统一唤醒工作线程，避免重复通知
         for (std::size_t workerIndex = 0U; workerIndex < workerCount; ++workerIndex)
         {
             _tasks.push([task, workerIndex]() {
@@ -80,7 +80,7 @@ void DataOrientedRoamThreadPool::Shutdown()
         _stopping = true;
     }
 
-    // worker 会处理完已出队任务，再在队列清空后退出循环
+    // 工作线程会处理完已提交任务，并在队列清空后退出
     _taskAvailable.notify_all();
     for (std::thread& worker : _workers)
     {
@@ -106,12 +106,12 @@ void DataOrientedRoamThreadPool::WorkerLoop()
         Task task;
         {
             std::unique_lock<std::mutex> lock{_mutex};
-            // wait predicate 同时观察停止信号和任务队列
+            // 等待条件同时检查停止信号和新任务，避免无任务时空转
             _taskAvailable.wait(lock, [this]() {
                 return _stopping || !_tasks.empty();
             });
 
-            // 队列清空后才响应停止，避免丢掉已提交任务
+            // 只有任务队列清空后才响应停止，避免丢失已提交任务
             if (_stopping && _tasks.empty())
             {
                 return;
@@ -122,12 +122,12 @@ void DataOrientedRoamThreadPool::WorkerLoop()
             ++_activeTaskCount;
         }
 
-        // 任务在锁外执行，避免长任务阻塞其他 worker 取任务
+        // 在互斥锁外执行任务，避免长任务阻塞其他线程领取工作
         task();
 
         {
             std::lock_guard<std::mutex> lock{_mutex};
-            // task 完成后再更新计数，等待线程才能看见批次边界
+            // 任务完成后再减少活动数量，使等待方准确识别整批任务结束
             _activeTaskCount = _activeTaskCount == 0U ? 0U : _activeTaskCount - 1U;
             if (_tasks.empty() && _activeTaskCount == 0U)
             {
@@ -136,4 +136,4 @@ void DataOrientedRoamThreadPool::WorkerLoop()
         }
     }
 }
-} // namespace ParallelRoam::Algorithms::DataOrientedRoam
+} // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

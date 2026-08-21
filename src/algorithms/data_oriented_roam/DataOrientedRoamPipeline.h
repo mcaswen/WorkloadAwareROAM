@@ -16,9 +16,8 @@ struct DataOrientedRoamState;
 class DataOrientedRoamThreadPool;
 
 /// <summary>
-/// Data-Oriented CPU ROAM 在 SoA 节点池上维护持久拓扑并生成 CPU Mesh
-/// 由 DataOrientedRoamTerrainLodAlgorithm 持有；内部 state 和线程池跨帧复用
-/// Build 会修改它；调用方只读取输出 mesh、State 和 Stats
+/// 在 SoA 节点池上维护 DOD CPU ROAM 跨帧保留的拓扑，并只更新发生变化的 CPU 网格部分
+/// 对象跨帧复用状态和线程池，调用方每帧更新一次并读取网格、状态和统计结果
 /// </summary>
 class DataOrientedRoamPipeline
 {
@@ -31,6 +30,9 @@ public:
     DataOrientedRoamPipeline(DataOrientedRoamPipeline&&) noexcept;
     DataOrientedRoamPipeline& operator=(DataOrientedRoamPipeline&&) noexcept;
 
+    /// <summary>
+    /// 使用本帧输入更新拓扑和网格，并返回渲染器可以直接读取的内部 CPU 网格
+    /// </summary>
     [[nodiscard]] const Terrain::TerrainMeshData& Build(
         const Terrain::HeightMap& heightMap,
         float terrainSize,
@@ -38,13 +40,23 @@ public:
         const TerrainLodViewInput& view,
         const DataOrientedRoamSettings& settings);
 
+    /// <summary>
+    /// 返回最近一次更新的统计和当前跨帧状态，调用方不得通过这些引用修改内部数据
+    /// </summary>
     [[nodiscard]] const DataOrientedRoamStats& Stats() const;
     [[nodiscard]] const DataOrientedRoamState& State() const;
+
+    /// <summary>
+    /// 提供本次需要上传的连续网格范围、完整上传标记和网格版本号
+    /// </summary>
     [[nodiscard]] const std::vector<DataOrientedRoamMeshUpdateRange>& MeshUpdateRanges() const;
     [[nodiscard]] bool MeshRequiresFullUpload() const;
     [[nodiscard]] std::uint64_t MeshGeneration() const;
 
 private:
+    /// <summary>
+    /// 依次完成输入准备、低误差区域合并、高误差区域细分、网格更新和统计收尾
+    /// </summary>
     void BuildInternal(
         const Terrain::HeightMap& heightMap,
         float terrainSize,

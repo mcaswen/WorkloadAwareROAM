@@ -23,7 +23,7 @@ const Terrain::TerrainMeshData& ClassicRoamMeshBuilder::Build(
     Tools::PerformanceTimer updateTimer;
     ++_buildSequence;
     ClassicRoamSettings normalizedSettings = settings;
-    // nested wedgie tree 的容量随深度指数增长，和现有 UI 的上限保持一致
+    // 误差树容量随深度指数增长，因此使用与界面相同的安全上限
     normalizedSettings.MaxDepth = std::clamp(normalizedSettings.MaxDepth, 0, MaximumSupportedDepth);
     normalizedSettings.TriangleBudget = std::max<std::size_t>(normalizedSettings.TriangleBudget, 2U);
     const int varianceTreeDepth = Roam::ResolveNestedWedgieTreeDepth(
@@ -31,15 +31,15 @@ const Terrain::TerrainMeshData& ClassicRoamMeshBuilder::Build(
         heightMap.Height(),
         normalizedSettings.MaxDepth,
         MaximumSupportedDepth);
-    // reset 判定必须在写入本帧输入前完成
+    // 先用上一帧状态判断是否需要重置，避免新输入覆盖比较基准
     const bool resetTopology = NeedsTopologyReset(heightMap, terrainSize, heightScale, normalizedSettings);
     const bool rebuildVarianceTrees =
         _varianceHeightMap != &heightMap || _varianceTreeMaxDepth != varianceTreeDepth;
     _heightMap = &heightMap;
     _settings = normalizedSettings;
-    // 持久化 bintree 只在输入不兼容时重置
-    // 普通相机移动复用旧 child 和 geometric error
-    // merge 阈值不能高于 split 阈值，否则同一帧可能反复 split / merge
+    // 只有高度图、世界尺度、深度或预算不兼容时才重置跨帧保留的二叉三角树
+    // 普通相机移动继续复用已有子节点和几何误差
+    // 合并阈值不得高于细分阈值，否则同一帧可能反复细分和合并
     _settings.MergeThreshold = std::min(_settings.MergeThreshold, _settings.SplitThreshold);
     _stats = {};
     _currentSplitPaths.clear();
@@ -53,34 +53,34 @@ const Terrain::TerrainMeshData& ClassicRoamMeshBuilder::Build(
 
     if (!heightMap.IsValid())
     {
-        // 与规则网格 builder 保持空 mesh 失败语义
+        // 无效高度图返回空网格，与规则网格生成器的失败行为保持一致
         ResetIncrementalMeshStorage();
         return _meshData;
     }
 
     if (rebuildVarianceTrees)
     {
-        // topology 节点只缓存 thickness，因此 nested wedgie tree 必须先于节点创建或刷新
+        // 拓扑节点只缓存误差树中的结果，因此必须先重建误差树再创建或刷新节点
         RebuildVarianceTrees(varianceTreeDepth);
     }
 
     if (resetTopology)
     {
-        // 高度图或最大深度不兼容时才清空拓扑，普通相机移动保留树结构
+        // 输入结构发生变化时重建拓扑，普通相机移动则保留树结构
         ResetIncrementalMeshStorage();
         ResetTopology();
     }
     else if (rebuildVarianceTrees)
     {
-        // 预计算树扩深时不需要丢弃拓扑，但已有节点必须读取新的 nested wedgie thickness
+        // 误差树扩深不会改变已有拓扑，但所有现有节点必须重新读取几何误差
         RefreshNodeVarianceErrors();
     }
     const float prepareMilliseconds = updateTimer.ElapsedMilliseconds();
 
-    // Q_s/Q_m membership 与 active topology 一起跨帧保留；本帧只刷新 priority 并局部改队列
+    // Q_s 和 Q_m 随活动拓扑跨帧保留，本帧只刷新分数并维护受拓扑变化影响的成员
     OptimizeWithPersistentDualQueues();
 
-    // topology edit 按提交顺序作用到持久 mesh，只重写 split/merge 影响的稠密槽位。
+    // 按拓扑修改顺序更新跨帧保留的网格，只重写细分或合并影响的连续槽位
     Tools::PerformanceTimer meshEmitTimer;
     ApplyIncrementalMeshUpdates();
     FinalizeIncrementalMeshUpdate();
@@ -88,7 +88,7 @@ const Terrain::TerrainMeshData& ClassicRoamMeshBuilder::Build(
 
     if (_settings.EnableTopologyValidation)
     {
-        // validator 是调试路径，不参与默认修复逻辑
+        // 验证器只报告问题，不改变正常更新路径的拓扑
         Tools::PerformanceTimer validateTimer;
         ValidateTopology();
         _stats.ValidateMilliseconds = validateTimer.Stop();
@@ -102,18 +102,18 @@ const Terrain::TerrainMeshData& ClassicRoamMeshBuilder::Build(
         _stats.SplitInitialScanMilliseconds + _stats.SplitSerialConvergenceMilliseconds;
     _stats.EmitMilliseconds = meshEmitMilliseconds;
     _stats.PrepareMilliseconds = prepareMilliseconds;
-    // 活动 leaf 数由持久 Q_s 直接给出，不再为预算单独递归收集
+    // 活动叶数量可直接从跨帧保留的 Q_s 获得，无需为预算再次遍历拓扑
     _stats.BudgetLeafCollectMilliseconds = 0.0F;
-    // 稠密 slot owner 数组就是最终 active leaf 视图，不再递归收集。
+    // 按槽位记录叶节点的连续数组已经包含最终活动叶集合，无需再次递归收集
     _stats.FinalLeafCollectMilliseconds = 0.0F;
     _stats.MeshEmitMilliseconds = meshEmitMilliseconds;
 
     CollectActiveSplitPaths();
-    // hysteresis 只使用 merge 和 split 完成后的最终 active topology
+    // 下一帧迟滞判断只复用合并和细分全部完成后的最终拓扑
     _previousSplitPaths = _currentSplitPaths;
     _topologyMaxDepth = _settings.MaxDepth;
     _stats.FinalizeMilliseconds = finalizeTimer.Stop();
-    // update 时间覆盖完整算法入口，便于和各互斥阶段总和做 sanity check
+    // 总更新时间覆盖本次完整更新，可用于核对各阶段计时是否完整
     _stats.UpdateMilliseconds = updateTimer.Stop();
     return _meshData;
 }

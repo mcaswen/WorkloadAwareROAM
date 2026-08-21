@@ -14,8 +14,8 @@ namespace ParallelRoam::Algorithms::Roam
 constexpr float ArtificialMaximumScreenError = std::numeric_limits<float>::max();
 
 /// <summary>
-/// 论文公式 (2)/(3) 的输入。项目的世界高度轴为 Y，因此 WorldThickness
-/// 表示 world-space thickness vector (0, WorldThickness, 0) 的长度。
+/// ROAM 论文公式 (2)/(3) 所需的三角形、投影和屏幕参数
+/// 项目以 Y 轴表示高度，因此 WorldThickness 对应世界空间向量 (0, WorldThickness, 0)
 /// </summary>
 struct ConservativeScreenProjectionInput
 {
@@ -28,7 +28,7 @@ struct ConservativeScreenProjectionInput
 };
 
 /// <summary>
-/// 检查整个 nested wedgie 是否触碰或穿过 near plane。
+/// 检查误差包络是否触碰或穿过近裁剪面；此时常规投影误差公式不再可靠
 /// </summary>
 [[nodiscard]] inline bool WedgieIntersectsNearPlane(
     const std::array<glm::vec3, 3U>& triangle,
@@ -54,9 +54,8 @@ struct ConservativeScreenProjectionInput
 }
 
 /// <summary>
-/// 使用论文公式 (2)/(3) 计算 projected wedgie thickness 的像素上界。
-/// p/q/r 与 a/b/c 直接取齐次裁剪坐标的 x/y/w 分量，因此投影矩阵的
-/// FOV、aspect、offset 以及透视/正交形式都包含在同一代数中。
+/// 按论文公式 (2)/(3) 计算误差包络投影到屏幕后的像素上界
+/// 公式直接使用齐次裁剪坐标的 x/y/w 分量，因此无需单独处理视场角、宽高比、偏移或投影类型
 /// </summary>
 [[nodiscard]] inline float ComputeConservativeScreenDistortionPixels(
     const ConservativeScreenProjectionInput& input)
@@ -100,7 +99,7 @@ struct ConservativeScreenProjectionInput
 }
 
 /// <summary>
-/// 项目额外 edge-density 项的精确端点投影长度；它不是论文 geometric bound。
+/// 计算三角形最长边在屏幕上的实际像素长度，用来补充论文几何误差对大而平坦三角形不敏感的问题
 /// </summary>
 [[nodiscard]] inline float ComputeProjectedLongestEdgePixels(
     const std::array<glm::vec3, 3U>& triangle,
@@ -134,4 +133,4 @@ struct ConservativeScreenProjectionInput
         glm::length(screenPositions[2] - screenPositions[0]),
     });
 }
-} // namespace ParallelRoam::Algorithms::Roam
+} // 命名空间 ParallelRoam::Algorithms::Roam

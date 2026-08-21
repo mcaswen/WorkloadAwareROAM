@@ -4,8 +4,7 @@
 
 namespace ParallelRoam::Algorithms::ClassicRoam
 {
-// Adapter 层只做接口映射
-// ClassicRoamMeshBuilder 仍然拥有实际拓扑状态
+// 适配层只转换公共接口与 Classic 类型，实际拓扑仍由 ClassicRoamMeshBuilder 持有
 TerrainLodAlgorithmInfo ClassicRoamTerrainLodAlgorithm::Info() const
 {
     return TerrainLodAlgorithmInfo{
@@ -35,12 +34,10 @@ bool ClassicRoamTerrainLodAlgorithm::BuildRenderData(
     _stats = {};
     outPacket = {};
 
-    // renderer 和 benchmark 不依赖 Classic 内部类型
-    // 失败语义统一收敛在算法接口层
+    // 在公共接口层检查输入，使渲染器和基准测试无需了解 Classic 内部类型
     if (input.HeightMap == nullptr || !input.HeightMap->IsValid())
     {
-        // 统一接口把无效 HeightMap 作为算法失败处理
-        // builder 自身仍保留返回空 mesh 的低层语义
+        // 公共接口将无效高度图视为构建失败，底层生成器仍保留返回空网格的行为
         if (errorMessage != nullptr)
         {
             *errorMessage = "Classic CPU ROAM build failed: invalid height map";
@@ -48,8 +45,7 @@ bool ClassicRoamTerrainLodAlgorithm::BuildRenderData(
         return false;
     }
 
-    // 当前 Classic 路径输出 CPU mesh
-    // Classic 只发布借用的 CPU mesh；GPU 资源字段保持为空。
+    // Classic 直接返回生成器内部保留的 CPU 网格引用，避免复制完整顶点和索引数组
     outPacket.Mode = TerrainLodRenderMode::CpuMesh;
     const TerrainLodCpuSample cpuSampleStart = CaptureTerrainLodCpuSample();
     const Terrain::TerrainMeshData& meshData = _builder.Build(
@@ -87,16 +83,14 @@ const TerrainLodStats& ClassicRoamTerrainLodAlgorithm::Stats() const
 
 void ClassicRoamTerrainLodAlgorithm::Reset()
 {
-    // Reset 通过重建 builder 丢弃持久拓扑
-    // renderer 在算法开关或规则网格回退时会调用
+    // 切换算法或改用规则网格时，重建生成器以丢弃全部跨帧保留的拓扑和网格状态
     _builder = ClassicRoamMeshBuilder{};
     _stats = {};
 }
 
 ClassicRoamSettings ClassicRoamTerrainLodAlgorithm::ToClassicSettings(const TerrainLodSettings& settings)
 {
-    // 只复制 Classic builder 已支持的控制变量
-    // TerrainLodSettings 中的 GPU 统计字段不进入此层
+    // 只传递 Classic 实现真正支持的参数，避免公共设置中的其他字段产生误导
     ClassicRoamSettings classicSettings{};
     classicSettings.MaxDepth = settings.MaxDepth;
     classicSettings.SplitThreshold = settings.ScreenSpaceSplitThresholdPixels;
@@ -109,8 +103,7 @@ ClassicRoamSettings ClassicRoamTerrainLodAlgorithm::ToClassicSettings(const Terr
 
 TerrainLodStats ClassicRoamTerrainLodAlgorithm::ToTerrainLodStats(const ClassicRoamStats& stats)
 {
-    // 统一 Stats 字段是 benchmark CSV 的稳定契约
-    // Classic 的 split/merge/emit 时间映射到 CPU topology 和 mesh build 桶
+    // 将 Classic 统计映射到公共字段，使基准测试 CSV 可以直接比较不同实现
     TerrainLodStats lodStats{};
     lodStats.ActiveTriangleCount = stats.ActiveTriangleCount;
     lodStats.ActiveNodeCount = stats.NodeCount;
@@ -144,7 +137,7 @@ TerrainLodStats ClassicRoamTerrainLodAlgorithm::ToTerrainLodStats(const ClassicR
     lodStats.CpuMergeCandidateMarkMilliseconds = stats.MergeCandidateMarkMilliseconds;
     lodStats.CpuMergeTopologyMilliseconds = stats.MergeTopologyMilliseconds;
     lodStats.CpuBudgetLeafCollectMilliseconds = stats.BudgetLeafCollectMilliseconds;
-    // Classic 在扫描并弹出 split priority queue 时计算 screen error
+    // Classic 在刷新和处理细分优先队列时同步计算屏幕误差
     lodStats.CpuSplitCandidateMarkMilliseconds = stats.SplitInitialScanMilliseconds;
     lodStats.CpuSplitTopologySerialConvergenceMilliseconds =
         stats.SplitSerialConvergenceMilliseconds;

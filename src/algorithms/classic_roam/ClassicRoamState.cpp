@@ -13,7 +13,7 @@ constexpr std::uint64_t RootBPathId = 1ULL << 32U;
 
 const ClassicRoamStats& ClassicRoamMeshBuilder::Stats() const
 {
-    // adapter 层通过只读引用读取最近一帧统计
+    // 适配层通过只读引用读取最近一次更新的统计结果
     return _stats;
 }
 
@@ -47,15 +47,15 @@ ClassicRoamMeshBuilder::ClassicRoamNode* ClassicRoamMeshBuilder::AddNode(
     node->PathId = pathId;
     node->VarianceTreeIndex = varianceTreeIndex;
     node->VarianceIndex = varianceIndex;
-    // CreatedBuildId 记录节点第一次进入持久化池的帧
+    // CreatedBuildId 记录节点首次进入节点池时的更新序号
     node->CreatedBuildId = _buildSequence;
     node->ActivatedBuildId = _buildSequence;
-    // nested wedgie tree 已按公式 (1) 累积子树误差，节点只复制稳定索引对应值
+    // 误差树已经累积整棵子树的误差，节点只需读取自身稳定下标对应的结果
     node->GeometricError = VarianceError(varianceTreeIndex, varianceIndex);
-    // 创建时更新一次，后续最终统计会按 active leaf 重算
+    // 创建节点时先更新一次最大深度，更新收尾时再按最终活动叶重新统计
     _stats.MaxDepthReached = std::max(_stats.MaxDepthReached, depth);
 
-    // unique_ptr 池负责生命周期，节点之间保留 Classic ROAM 裸指针关系
+    // unique_ptr 池负责释放节点，节点之间仍使用 Classic ROAM 的裸指针表达拓扑
     ClassicRoamNode* nodePointer = node.get();
     _nodes.push_back(std::move(node));
     return nodePointer;
@@ -63,15 +63,15 @@ ClassicRoamMeshBuilder::ClassicRoamNode* ClassicRoamMeshBuilder::AddNode(
 
 void ClassicRoamMeshBuilder::ResetTopology()
 {
-    // ResetTopology 是唯一清空 node pool 的入口，避免普通 frame 破坏持久化拓扑
+    // 仅允许 ResetTopology 清空节点池，普通帧更新必须保留跨帧拓扑
     _splitQueue.clear();
     _mergeQueue.clear();
     _nodes.clear();
     _previousSplitPaths.clear();
     _currentSplitPaths.clear();
 
-    // rootA 和 rootB 分别覆盖同一正方形的两半
-    // 两个根三角形共享对角线 base edge，构成 Classic ROAM 的根 diamond
+    // rootA 和 rootB 分别覆盖地形正方形的一半
+    // 两个根三角形共享对角底边，共同构成初始菱形
     _rootA = AddNode(
         TriangleDomain{glm::vec2{0.0F, 1.0F}, glm::vec2{1.0F, 0.0F}, glm::vec2{0.0F, 0.0F}},
         nullptr,
@@ -87,7 +87,7 @@ void ClassicRoamMeshBuilder::ResetTopology()
         1,
         0);
 
-    // 根节点跨共享 base edge 互为 base neighbor
+    // 两个根节点隔着共享对角线互为底边邻居
     _rootA->BaseNeighbor = _rootB;
     _rootB->BaseNeighbor = _rootA;
     _rootA->Active = true;
@@ -104,40 +104,40 @@ bool ClassicRoamMeshBuilder::NeedsTopologyReset(
 {
     if (_rootA == nullptr || _rootB == nullptr || _nodes.empty())
     {
-        // 首帧没有 root diamond，必须初始化
+        // 首次构建尚无根菱形，需要初始化完整状态
         return true;
     }
 
     if (_heightMap != &heightMap)
     {
-        // Height Map 变化会让几何误差缓存失效
+        // 更换高度图后，旧节点的几何误差和采样位置都不再有效
         return true;
     }
 
     if (settings.MaxDepth < _topologyMaxDepth)
     {
-        // 降低最大深度时，保守重建以清理过深的历史节点
+        // 降低最大深度时重建拓扑，确保过深的历史节点不会继续参与更新
         return true;
     }
 
     if (settings.TriangleBudget != _settings.TriangleBudget)
     {
-        // 预算变化时从两个根重新按优先级分配，保证降低预算后当前 Build 立即满足硬上限
+        // 预算变化后从根节点重新分配，确保降低上限时本次更新立即满足数量限制
         return true;
     }
 
-    // world-space 输入变化会改变 screen error 和 debug 高度映射
-    // terrain size 或 height scale 改变时，保守重建以避免旧 score 驱动错误 hysteresis
+    // 世界尺寸或高度比例会同时影响屏幕误差和顶点位置
+    // 参数变化后重建拓扑，避免旧分数和迟滞状态驱动错误决策
     return terrainSize != _terrainSize || heightScale != _heightScale;
 }
 
 void ClassicRoamMeshBuilder::CollectLeafNodes(std::vector<ClassicRoamNode*>& leafNodes) const
 {
-    // leaf 集合是当前 active mesh 的拓扑基础
+    // 当前可渲染的三角网格直接由活动叶集合生成
     leafNodes.clear();
     leafNodes.reserve(_nodes.size());
-    // reserve 使用持久池上界，避免递归 push 时反复扩容
-    // 只能从 root 递归收集，不能遍历整个 node pool
+    // 按节点池上界预留空间，避免递归追加时反复扩容
+    // 只从两个根沿活动路径收集，节点池中的历史节点不属于当前拓扑
     CollectLeafNodesFrom(_rootA, leafNodes);
     CollectLeafNodesFrom(_rootB, leafNodes);
 }
@@ -151,7 +151,7 @@ void ClassicRoamMeshBuilder::CollectLeafNodesFrom(ClassicRoamNode* node, std::ve
 
     if (IsLeaf(node))
     {
-        // inactive child 可能还留在 node pool 中，但不会从 root active 路径抵达
+        // 已停用的历史子节点仍在节点池中，但不会出现在从根开始的活动路径上
         leafNodes.push_back(node);
         return;
     }
@@ -162,8 +162,8 @@ void ClassicRoamMeshBuilder::CollectLeafNodesFrom(ClassicRoamNode* node, std::ve
 
 void ClassicRoamMeshBuilder::CollectActiveSplitPaths()
 {
-    // 每帧从 active topology 重新构造 split path 集合
-    // merge 掉的旧路径不能继续影响下一帧 hysteresis
+    // 每帧根据最终活动拓扑重建细分路径集合
+    // 已合并的路径不会继续影响下一帧迟滞判断
     _currentSplitPaths.clear();
     _stats.ActiveSplitCount = 0;
     CollectActiveSplitPathsFrom(_rootA);
@@ -174,7 +174,7 @@ void ClassicRoamMeshBuilder::CollectActiveSplitPathsFrom(const ClassicRoamNode* 
 {
     if (node == nullptr || IsLeaf(node))
     {
-        // leaf 没有 child，不属于 split path
+        // 叶节点没有活动子节点，因此不属于细分路径
         return;
     }
 
@@ -190,12 +190,12 @@ void ClassicRoamMeshBuilder::AccumulateLeafStats(
 {
     _stats.NodeCount = _nodes.size();
     _stats.ActiveTriangleCount = meshData.Indices.size() / 3U;
-    // active depth 只按最终 leaf 计算，不受 inactive child 干扰
+    // 最大活动深度只按最终叶节点计算，不受节点池中历史子节点影响
     _stats.MaxDepthReached = 0;
 
     for (const ClassicRoamNode* leaf : leafNodes)
     {
-        // 只统计 active leaf，node pool 中保留的 inactive child 不参与当前帧数据
+        // 只统计活动叶节点，节点池中等待复用的历史子节点不计入本帧结果
         _stats.MaxDepthReached = std::max(_stats.MaxDepthReached, leaf->Depth);
         switch (ClassifyLeafDebug(*leaf))
         {
@@ -216,7 +216,7 @@ bool ClassicRoamMeshBuilder::IsLeaf(const ClassicRoamNode* node) const
 {
     if (node == nullptr)
     {
-        // nullptr 不能作为 active leaf 参与任何 pass
+        // 空指针不表示有效叶节点，不能参与任何算法阶段
         return false;
     }
 

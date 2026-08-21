@@ -17,22 +17,22 @@ namespace
 {
 struct DomainEdge
 {
-    // DomainEdge 用 UV 空间表达 leaf 边界
+    // DomainEdge 用 UV 坐标表示叶三角形的一条边
     glm::vec2 Start{0.0F};
     glm::vec2 End{0.0F};
 };
 
 struct QuantizedPoint
 {
-    // 量化点把二分 UV 映射到整数网格，减少浮点比较噪声
+    // 将二分产生的 UV 坐标量化到整数网格，避免浮点误差破坏端点匹配
     long long X{0};
     long long Y{0};
 };
 
 struct QuantizedLineKey
 {
-    // Direction 描述归一化直线方向
-    // Constant 描述直线相对原点的位置
+    // Direction 保存统一朝向后的直线方向
+    // Constant 保存直线相对原点的有符号偏移
     long long DirectionX{0};
     long long DirectionY{0};
     long long Constant{0};
@@ -49,7 +49,7 @@ struct QuantizedLineKeyHash
 {
     std::size_t operator()(const QuantizedLineKey& key) const
     {
-        // hash 只服务 validator 的 unordered_map 桶分布
+        // 哈希只用于验证器内部无序表的分组，不参与拓扑判定
         std::size_t seed = 1469598103934665603ULL;
         const auto mix = [&seed](long long value) {
             const std::size_t hashedValue = std::hash<long long>{}(value);
@@ -64,8 +64,8 @@ struct QuantizedLineKeyHash
 
 struct QuantizedEdge
 {
-    // Line 负责把共线边归组
-    // 参数区间负责判断端点是否落入某条粗边内部
+    // Line 将共线边分到同一组
+    // 参数区间用于判断细边端点是否落在较粗边的内部
     QuantizedLineKey Line;
     long long MinParameter{0};
     long long MaxParameter{0};
@@ -79,14 +79,14 @@ float DistanceSquared(const glm::vec2& a, const glm::vec2& b)
 
 bool SamePoint(const glm::vec2& a, const glm::vec2& b)
 {
-    // UV 细分会产生浮点中点，需要容差判断端点重合
+    // UV 细分产生的中点可能有浮点误差，因此用容差判断端点是否重合
     constexpr float Epsilon = 0.000001F;
     return DistanceSquared(a, b) <= Epsilon * Epsilon;
 }
 
 std::array<DomainEdge, 3> DomainEdges(const TriangleDomain& domain)
 {
-    // edge 顺序与 base/right/left neighbor 字段保持一致
+    // 边的顺序与底边、右边和左边邻居字段保持一致
     return {
         DomainEdge{domain.A, domain.B},
         DomainEdge{domain.B, domain.C},
@@ -96,8 +96,8 @@ std::array<DomainEdge, 3> DomainEdges(const TriangleDomain& domain)
 
 bool SameUndirectedEdge(const DomainEdge& left, const DomainEdge& right)
 {
-    // leaf neighbor 重建只匹配完整共享边，不把 T-junction 当作合法邻接
-    // 两个方向都要匹配，因为相邻三角形通常以反向顺序保存共享边
+    // 重建叶节点邻接时只接受整条共享边，不把 T 形接缝误认为合法邻接
+    // 相邻三角形通常反向保存共享边，因此两个方向都需要匹配
     return (SamePoint(left.Start, right.Start) && SamePoint(left.End, right.End)) ||
            (SamePoint(left.Start, right.End) && SamePoint(left.End, right.Start));
 }
@@ -124,8 +124,7 @@ QuantizedLineKey MakeLineKey(const QuantizedPoint& start, const QuantizedPoint& 
     directionX /= divisor;
     directionY /= divisor;
 
-    // 同一条无向直线必须得到唯一方向
-    // 否则相邻三角形的反向边会落入不同桶
+    // 同一条无向直线必须统一为同一个方向，否则反向边会被分到不同组
     if (directionX < 0 || (directionX == 0 && directionY < 0))
     {
         directionX = -directionX;
@@ -141,16 +140,15 @@ QuantizedLineKey MakeLineKey(const QuantizedPoint& start, const QuantizedPoint& 
 
 long long ProjectToLineParameter(const QuantizedPoint& point, const QuantizedLineKey& line)
 {
-    // 投影到归一化方向后，二维边界检测可以降成一维区间查找
+    // 投影到统一后的直线方向，可以把二维共线边检测简化为一维区间查找
     return line.DirectionX * point.X + line.DirectionY * point.Y;
 }
 } // 匿名命名空间
 
 void ClassicRoamMeshBuilder::ValidateTopology()
 {
-    // validator 使用量化边线索引检查裂缝，避免 leaf 之间两两扫描
-    // 这里故意独立于 neighbor 指针做几何裂缝检测
-    // 可以同时发现 neighbor 链路正确但 leaf 尺度不一致的问题
+    // 验证器用量化直线索引检查裂缝，避免在所有叶三角形之间两两比较
+    // 几何裂缝检测不依赖邻居指针，因此也能发现指针互相匹配但边尺度不一致的问题
     std::vector<ClassicRoamNode*> leafNodes;
     CollectLeafNodes(leafNodes);
     std::unordered_set<const ClassicRoamNode*> leafSet;
@@ -158,12 +156,12 @@ void ClassicRoamMeshBuilder::ValidateTopology()
 
     for (ClassicRoamNode* node : leafNodes)
     {
-        // leafSet 用于判断 neighbor 是否仍然指向 active leaf
+        // leafSet 用于确认邻居仍然属于当前活动叶集合
         leafSet.insert(node);
     }
 
     const auto validateNeighbor = [&leafSet](const ClassicRoamNode* owner, const ClassicRoamNode* neighbor, const DomainEdge& edge) {
-        // 边界边允许为空，非空 neighbor 必须是 active leaf
+        // 地形外边界可以没有邻居，其余非空邻居必须是活动叶节点
         if (neighbor == nullptr)
         {
             return false;
@@ -178,7 +176,7 @@ void ClassicRoamMeshBuilder::ValidateTopology()
         {
             if (SameUndirectedEdge(edge, neighborEdge))
             {
-                // 共享边成立后还要检查对侧是否能反向找到 owner
+                // 确认共享边后还要检查对侧能否反向找到当前叶节点
                 return neighbor->BaseNeighbor == owner ||
                        neighbor->LeftNeighbor == owner ||
                        neighbor->RightNeighbor == owner;
@@ -191,7 +189,7 @@ void ClassicRoamMeshBuilder::ValidateTopology()
     std::unordered_map<QuantizedLineKey, std::vector<long long>, QuantizedLineKeyHash> lineVertices;
     lineVertices.reserve(leafNodes.size() * 3U);
     std::vector<QuantizedEdge> quantizedEdges;
-    // 每个 leaf 恰好贡献三条边，预分配可避免 validator 抖动
+    // 每个叶三角形固定贡献三条边，提前预留空间可减少验证过程中的扩容
     quantizedEdges.reserve(leafNodes.size() * 3U);
 
     for (ClassicRoamNode* node : leafNodes)
@@ -200,8 +198,8 @@ void ClassicRoamMeshBuilder::ValidateTopology()
 
         for (const DomainEdge& edge : edges)
         {
-            // 每条边都映射到量化直线
-            // 同线端点集合用于检测粗边内部是否存在细边端点
+            // 每条边都映射到一条量化直线
+            // 同线端点集合用于查找较粗边内部是否出现额外细分端点
             const QuantizedPoint start = QuantizePoint(edge.Start, _settings.MaxDepth);
             const QuantizedPoint end = QuantizePoint(edge.End, _settings.MaxDepth);
             const QuantizedLineKey line = MakeLineKey(start, end);
@@ -213,7 +211,7 @@ void ClassicRoamMeshBuilder::ValidateTopology()
             quantizedEdge.MaxParameter = std::max(startParameter, endParameter);
             quantizedEdges.push_back(quantizedEdge);
 
-            // 同一直线上的端点参数可用于快速发现粗边内部是否被其他 leaf 顶点切开
+            // 同一直线上的端点参数可以快速判断较粗边是否被其他叶节点顶点切开
             std::vector<long long>& vertexParameters = lineVertices[line];
             vertexParameters.push_back(startParameter);
             vertexParameters.push_back(endParameter);
@@ -223,8 +221,7 @@ void ClassicRoamMeshBuilder::ValidateTopology()
     for (auto& [line, vertexParameters] : lineVertices)
     {
         (void)line;
-        // 同一 leaf 可能贡献重复端点
-        // 去重后 interior 检测才不会把端点重合当裂缝
+        // 同一叶三角形可能贡献重复端点，去重后才不会把正常端点重合误判为裂缝
         std::sort(vertexParameters.begin(), vertexParameters.end());
         vertexParameters.erase(std::unique(vertexParameters.begin(), vertexParameters.end()), vertexParameters.end());
     }
@@ -234,7 +231,7 @@ void ClassicRoamMeshBuilder::ValidateTopology()
         const auto lineIt = lineVertices.find(edge.Line);
         if (lineIt == lineVertices.end())
         {
-            // 正常情况下不会缺线，防御损坏的量化输入
+            // 正常情况下直线索引必然存在，此处防御异常量化结果
             continue;
         }
 
@@ -242,8 +239,8 @@ void ClassicRoamMeshBuilder::ValidateTopology()
         const auto interiorIt = std::upper_bound(vertexParameters.begin(), vertexParameters.end(), edge.MinParameter);
         if (interiorIt != vertexParameters.end() && *interiorIt < edge.MaxParameter)
         {
-            // validator 只记录 T-junction，不主动 split 修复
-            // 修复仍由 split 约束传播负责
+            // 验证器只记录 T 形接缝，不主动修改拓扑
+            // 裂缝修复仍由细分约束传播负责
             ++_stats.TjunctionCount;
             ++_stats.CrackRiskCount;
         }
@@ -253,7 +250,7 @@ void ClassicRoamMeshBuilder::ValidateTopology()
     {
         const std::array<DomainEdge, 3> edges = DomainEdges(node->Domain);
 
-        // 只验证非空 neighbor，边界边允许为空
+        // 只检查存在的邻居，地形外边界允许为空
         if (node->BaseNeighbor != nullptr && !validateNeighbor(node, node->BaseNeighbor, edges[0]))
         {
             ++_stats.InvalidNeighborCount;
@@ -272,12 +269,11 @@ void ClassicRoamMeshBuilder::ValidateTopology()
 
     if (_rootA == nullptr || _rootB == nullptr || _rootA->BaseNeighbor != _rootB || _rootB->BaseNeighbor != _rootA)
     {
-        // 根 diamond 互指是所有后续 diamond 约束的基础
+        // 根菱形的底边互指是后续所有菱形约束的起点
         ++_stats.InvalidTopologyCount;
     }
 
-    // 这里遍历整个持久化池
-    // inactive child 也要保持 parent 和 child 指针自洽
+    // 此处遍历整个跨帧保留的节点池，停用的历史子节点也必须保持父子指针一致
     for (const std::unique_ptr<ClassicRoamNode>& ownedNode : _nodes)
     {
         const ClassicRoamNode* node = ownedNode.get();
@@ -289,7 +285,7 @@ void ClassicRoamMeshBuilder::ValidateTopology()
 
         if (node->IsSplit && (node->LeftChild == nullptr || node->RightChild == nullptr))
         {
-            // split flag 和 child 指针必须一起成立
+            // 细分标记和两个子节点指针必须同时成立
             ++_stats.InvalidTopologyCount;
         }
 
@@ -315,7 +311,7 @@ void ClassicRoamMeshBuilder::ValidateTopology()
 
 void ClassicRoamMeshBuilder::ValidatePersistentQueues(const std::vector<ClassicRoamNode*>& leafNodes)
 {
-    // Q_s 必须和 active cut 一一对应，不能包含 inactive 历史 child
+    // Q_s 必须与当前活动叶集合一一对应，不能包含已经停用的历史子节点
     std::unordered_set<const ClassicRoamNode*> splitMembers;
     splitMembers.reserve(_splitQueue.size());
     if (_splitQueue.size() != leafNodes.size() || _splitQueue.size() > _settings.TriangleBudget)
@@ -343,7 +339,7 @@ void ClassicRoamMeshBuilder::ValidatePersistentQueues(const std::vector<ClassicR
         }
     }
 
-    // 从 active topology 独立推导 canonical diamonds，验证 Q_m 的局部维护没有漏项或重复项
+    // 从活动拓扑中按固定规则重新找出全部菱形，用于检查 Q_m 是否遗漏或重复
     std::unordered_set<const ClassicRoamNode*> expectedMergeMembers;
     for (const std::unique_ptr<ClassicRoamNode>& ownedNode : _nodes)
     {

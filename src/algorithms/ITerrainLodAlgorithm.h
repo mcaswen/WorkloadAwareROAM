@@ -15,7 +15,7 @@
 namespace ParallelRoam::Algorithms
 {
 /// <summary>
-/// 标识当前 terrain LOD 算法实现，供 UI、benchmark 和日志输出使用
+/// 为每种地形 LOD 实现提供稳定编号，供界面选择、基准测试和日志记录使用
 /// </summary>
 enum class TerrainLodAlgorithmId
 {
@@ -25,7 +25,7 @@ enum class TerrainLodAlgorithmId
 };
 
 /// <summary>
-/// terrain LOD 算法的展示名称和简短描述
+/// 保存地形 LOD 实现的程序名称、界面名称和用途说明
 /// </summary>
 struct TerrainLodAlgorithmInfo
 {
@@ -36,7 +36,7 @@ struct TerrainLodAlgorithmInfo
 };
 
 /// <summary>
-/// 描述某个 terrain LOD 算法当前可输出的渲染路径和拓扑能力
+/// 说明实现支持哪些输出方式和拓扑操作，调用方据此启用相应功能
 /// </summary>
 struct TerrainLodAlgorithmCapabilities
 {
@@ -48,26 +48,26 @@ struct TerrainLodAlgorithmCapabilities
 };
 
 /// <summary>
-/// terrain LOD 算法共享的运行参数，benchmark 和 renderer 使用同一套字段做公平对比
+/// 所有地形 LOD 实现共用的运行参数，确保基准测试和渲染使用相同配置
 /// </summary>
 struct TerrainLodSettings
 {
     float TerrainSize{30.0F};
     float HeightScale{4.0F};
     int MaxDepth{14};
-    // Classic 和 DOD 共享像素单位的迟滞阈值。
+    // 细分与合并使用不同的像素阈值，避免误差在临界值附近时反复切换
     float ScreenSpaceSplitThresholdPixels{4.0F};
     float ScreenSpaceMergeThresholdPixels{2.0F};
-    // 两种 CPU ROAM 路径共享活动 leaf triangle 硬上限。
+    // 限制当前活动叶三角形数量，防止细分超过 CPU 网格预算
     std::size_t TriangleBudget{20000U};
-    // 仅供 DOD 选择是否执行 chunk 并行 Split 预提交；评分并行不受影响。
+    // 控制 DOD 是否先把能够独立处理的细分分给多个线程，候选评分是否并行由另一项设置决定
     bool EnableParallelSplit{true};
     bool EnableLocalConstraints{true};
     bool EnableTopologyValidation{false};
 };
 
 /// <summary>
-/// 视锥平面在 TerrainLodViewInput 中的固定顺序
+/// 规定视锥平面在 TerrainLodViewInput 数组中的固定顺序
 /// </summary>
 enum class TerrainLodFrustumPlane
 {
@@ -81,7 +81,7 @@ enum class TerrainLodFrustumPlane
 };
 
 /// <summary>
-/// renderer 与视点相关 LOD 算法共享的只读视图数据
+/// 汇总渲染器和 LOD 算法共用的相机、投影及视锥数据
 /// </summary>
 struct TerrainLodViewInput
 {
@@ -90,13 +90,13 @@ struct TerrainLodViewInput
     glm::mat4 ViewProjection{1.0F};
     glm::vec3 CameraPosition{0.0F};
     glm::vec3 CameraForward{0.0F, 0.0F, -1.0F};
-    std::array<glm::vec4, static_cast<std::size_t>(TerrainLodFrustumPlane::Count)> FrustumPlanes{}; // 向内法线且内侧平面值非负
+    std::array<glm::vec4, static_cast<std::size_t>(TerrainLodFrustumPlane::Count)> FrustumPlanes{}; // 法线朝向视锥内部，内部点的平面值非负
     std::uint32_t DrawableWidth{1U};
     std::uint32_t DrawableHeight{1U};
 };
 
 /// <summary>
-/// 单帧 LOD 构建输入，固定高度图、视图和统一算法参数
+/// 一次 LOD 更新所需的完整只读输入
 /// </summary>
 struct TerrainLodBuildInput
 {
@@ -106,7 +106,7 @@ struct TerrainLodBuildInput
 };
 
 /// <summary>
-/// 算法渲染输出模式，区分 CPU mesh 和无几何的调试路径
+/// 区分可直接渲染的 CPU 网格输出和只提供状态的调试输出
 /// </summary>
 enum class TerrainLodRenderMode
 {
@@ -115,7 +115,7 @@ enum class TerrainLodRenderMode
 };
 
 /// <summary>
-/// CPU mesh 的一段连续更新范围；vertex/index 范围可以独立为空。
+/// 描述 CPU 网格中需要重新上传的一段连续顶点和索引范围；两者可以独立为空
 /// </summary>
 struct TerrainLodCpuMeshUpdateRange
 {
@@ -132,13 +132,13 @@ enum class TerrainLodCpuMeshLifetime
 };
 
 /// <summary>
-/// 算法输出给 renderer 或 benchmark 的统一渲染数据包
+/// LOD 算法交给渲染器和基准测试的统一结果
 /// </summary>
 struct TerrainLodRenderPacket
 {
     TerrainLodRenderMode Mode{TerrainLodRenderMode::CpuMesh};
     Terrain::TerrainMeshData CpuMesh;
-    // 增量 CPU 算法可借用其持久 mesh，避免每帧复制完整数组。
+    // 增量算法可以直接返回内部长期保留的网格引用，避免每帧复制全部顶点和索引
     const Terrain::TerrainMeshData* BorrowedCpuMesh{nullptr};
     std::vector<TerrainLodCpuMeshUpdateRange> CpuMeshUpdateRanges;
     TerrainLodCpuMeshLifetime CpuMeshLifetime{TerrainLodCpuMeshLifetime::OwnedByPacket};
@@ -155,7 +155,7 @@ struct TerrainLodRenderPacket
     }
 
     /// <summary>
-    /// 校验拥有式或借用式 CPU mesh 是否满足当前渲染模式
+    /// 检查当前结果是否提供了与渲染模式匹配且可安全访问的 CPU 网格
     /// </summary>
     [[nodiscard]] bool HasConsistentResourceContract() const
     {
@@ -199,7 +199,7 @@ struct TerrainLodRenderPacket
 };
 
 /// <summary>
-/// Classic 和 Data-Oriented 版本共享的统计字段，用于 UI 展示、回归测试和 CSV 输出
+/// 汇总 Classic 与 DOD 共用的运行统计，供界面、回归测试和 CSV 报告读取
 /// </summary>
 struct TerrainLodStats
 {
@@ -215,12 +215,12 @@ struct TerrainLodStats
     std::size_t CrackRiskCount{0};
     std::size_t ConstraintPassCount{0};
     std::size_t CandidatePeakCount{0};
-    // Classic 和 DOD 填充持久 topology queue diagnostics
+    // 记录两种 CPU ROAM 实现中跨帧保留的细分/合并队列规模和维护次数
     std::size_t PersistentSplitQueueSize{0};
     std::size_t PersistentMergeQueueSize{0};
     std::size_t QueueCrossoverCount{0};
     std::size_t QueueMembershipUpdateCount{0};
-    // Classic 和 DOD incremental emit 统计；其他算法保持为零。
+    // 记录增量更新网格时的完整重建、复用和重新上传区间，不支持该功能的实现保持为零
     std::size_t CpuMeshFullRebuildCount{0};
     std::size_t CpuMeshUpdatedTriangleCount{0};
     std::size_t CpuMeshReusedTriangleCount{0};
@@ -233,9 +233,9 @@ struct TerrainLodStats
     std::size_t InvalidTopologyCount{0};
     std::size_t CpuGpuUploadBytes{0};
     std::size_t CpuGpuReadbackBytes{0};
-    // CpuWorkerCount 表示本次 CPU LOD build 的实际并行宽度
+    // CpuWorkerCount 是本次 CPU LOD 更新实际使用的线程数量，而不是线程池总容量
     std::size_t CpuWorkerCount{0};
-    // DOD chunk topology commit 诊断；其他算法保持为零
+    // 记录 DOD 按分块修改拓扑时的候选规模、非空分块和实际线程数量
     std::size_t TopologyCommitMinCandidateCount{0};
     std::size_t SplitTopologyCommitMinCandidateCount{0};
     std::size_t MergeTopologyCommitMinCandidateCount{0};
@@ -248,13 +248,13 @@ struct TerrainLodStats
     std::size_t MergeTopologyCommitWorkerCount{0};
     std::size_t ParallelMergeCommitCount{0};
     float CpuUpdateMilliseconds{0.0F};
-    // CpuUtilizationPercent 按单核 100% 口径记录进程 CPU 占用
+    // CpuUtilizationPercent 以单个逻辑核心满载为 100%，多线程运行时可以超过 100%
     float CpuUtilizationPercent{0.0F};
     float CpuPrepareMilliseconds{0.0F};
     float CpuMergeCandidateMarkMilliseconds{0.0F};
     float CpuMergeTopologyMilliseconds{0.0F};
-    // split/merge topology detail fields 是可选的子阶段诊断
-    // Classic 和 DOD 共享 serial convergence，parallel-only 字段在 Classic 中保持为 0
+    // 以下字段分别记录细分和合并的准备、并行处理及后续串行处理耗时
+    // Classic 只填写主线程反复处理候选直到队列稳定的耗时，DOD 专用并行字段保持为零
     float CpuSplitTopologyChunkBuildMilliseconds{0.0F};
     float CpuSplitTopologyQueueInvalidationMilliseconds{0.0F};
     float CpuSplitTopologyParallelCommitMilliseconds{0.0F};
@@ -284,7 +284,7 @@ struct TerrainLodStats
 };
 
 /// <summary>
-/// 地形 LOD 算法的统一边界，所有 CPU 和 GPU 实现都通过它接入 renderer 和 benchmark
+/// 地形 LOD 的统一接口，使不同 CPU/GPU 实现能够接入同一渲染和基准测试流程
 /// </summary>
 class ITerrainLodAlgorithm
 {
@@ -295,7 +295,7 @@ public:
     [[nodiscard]] virtual TerrainLodAlgorithmCapabilities Capabilities() const = 0;
 
     /// <summary>
-    /// 根据固定输入构建当前帧统一渲染包，失败时通过 errorMessage 暴露可诊断原因
+    /// 根据输入更新当前帧 LOD 并生成渲染结果；失败时通过 errorMessage 返回可定位的原因
     /// </summary>
     [[nodiscard]] virtual bool BuildRenderData(
         const TerrainLodBuildInput& input,

@@ -9,13 +9,13 @@
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 /// <summary>
-/// 串行 topology 事务使用的局部邻域容器
-/// 常规邻域直接存放在栈内数组，只有推导上限被异常拓扑超过时才转入可扩容回退存储
+/// 保存一次串行拓扑修改可能影响的局部节点集合，并自动去重
+/// 常见情况下使用对象内置的固定数组，只有受影响节点过多时才改用可扩容数组
 /// </summary>
 class DataOrientedRoamNeighborhood
 {
 public:
-    // 四个 seed 各自最多扩张到 21 个节点，保留少量安全余量
+    // 四个起始节点各自最多扩展到 21 个节点，额外空间用于容纳少量重叠外的节点
     static constexpr std::size_t InlineCapacity = 96U;
 
     void clear() noexcept
@@ -92,16 +92,16 @@ private:
 };
 
 /// <summary>
-/// DOD 的双持久优先队列接口
-/// queue 容器由 DataOrientedRoamState 持有；初始化只在 reset，priority refresh 和局部成员更新发生在每帧 Build
-/// queue pass 与 topology pass 会修改它；消费者是 MergeWithDiamondQueue 和 RefineWithSplitQueue
+/// 维护 DOD 跨帧保留的细分队列 Q_s 和合并队列 Q_m
+/// 队列只在拓扑重置时完整初始化，普通更新只刷新分数和受影响的局部成员
+/// MergeWithDiamondQueue 和 RefineWithSplitQueue 从队首读取并提交拓扑修改
 /// </summary>
 void InitializePersistentMergeQueue(DataOrientedRoamState& state);
 void InitializePersistentSplitQueue(DataOrientedRoamState& state);
-// split queue 独立于活动叶视图保存 node/score，活动叶顺序不受 heapify 影响
+// 细分队列独立保存节点和分数，建堆不会改变活动叶数组的顺序
 void RefreshPersistentSplitQueuePriorities(DataOrientedRoamState& state);
 
-// 下列接口维护 split queue 的 membership、堆顶和候选快照
+// 以下接口维护细分队列成员和堆顶，并为并行处理复制一份当前候选列表
 void InsertPersistentSplitQueueNode(
     DataOrientedRoamState& state,
     DataOrientedRoamNodeIndex node);
@@ -118,7 +118,7 @@ void SnapshotPersistentSplitQueueCandidates(
     const DataOrientedRoamState& state,
     std::vector<DataOrientedRoamSplitCandidate>& candidates);
 
-// merge queue 每个 diamond 只保留一个代表节点；topology 修改后只刷新受影响邻域
+// 合并队列为每个菱形只保留一个固定代表节点，拓扑修改后只刷新受影响邻域
 void RefreshPersistentMergeQueuePriorities(DataOrientedRoamState& state);
 void AppendPersistentMergeQueueNeighborhood(
     const DataOrientedRoamState& state,
@@ -150,6 +150,10 @@ void SnapshotPersistentMergeQueueCandidates(
     const DataOrientedRoamState& state,
     float maximumScore,
     std::vector<DataOrientedRoamMergeCandidate>& candidates);
+
+/// <summary>
+/// 只读检查双队列的堆顺序、反向位置、成员完整性以及每个菱形是否只有一个代表节点
+/// </summary>
 [[nodiscard]] std::size_t CountPersistentQueueInvariantViolations(
     const DataOrientedRoamState& state);
-} // namespace ParallelRoam::Algorithms::DataOrientedRoam
+} // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

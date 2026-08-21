@@ -5,16 +5,16 @@
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 /// <summary>
-/// variance tree 的构建和读取接口
-/// 树由 DataOrientedRoamState 持有；输入 HeightMap 或拓扑深度变化时重建，普通 Build 只刷新节点误差
+/// 构建和读取 DOD 的嵌套楔形误差树
+/// 更换高度图或改变预计算深度时重建树，普通更新只让节点刷新对应误差
 /// </summary>
 void RebuildVarianceTrees(DataOrientedRoamState& state, int finestDepth);
-// RefreshNodeVarianceErrors 把 state 当前节点映射到已构建的 variance tree
+// 让节点池中的每个节点重新读取误差树中相同下标的结果
 void RefreshNodeVarianceErrors(DataOrientedRoamState& state);
 
-// VarianceError 只读 state，返回值供 AddNode 和 scoring 使用，不产生独立所有权
+// VarianceError 只读取状态，供节点创建和屏幕误差计算使用
 [[nodiscard]] float VarianceError(
     const DataOrientedRoamState& state,
     std::uint8_t varianceTreeIndex,
     std::size_t varianceIndex);
-} // namespace ParallelRoam::Algorithms::DataOrientedRoam
+} // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

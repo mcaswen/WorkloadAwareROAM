@@ -43,7 +43,7 @@ namespace Detail
     userTicks.LowPart = userTime.dwLowDateTime;
     userTicks.HighPart = userTime.dwHighDateTime;
 
-    // FILETIME 使用 100ns tick  kernel + user 是进程所有线程累计 CPU 时间
+    // FILETIME 以 100 ns 为单位；内核态和用户态之和表示进程所有线程累计使用的 CPU 时间
     return static_cast<double>(kernelTicks.QuadPart + userTicks.QuadPart) / 10'000.0;
 #else
     rusage usage{};
@@ -61,16 +61,16 @@ namespace Detail
     return userMilliseconds + kernelMilliseconds;
 #endif
 }
-} // namespace Detail
+} // 命名空间 Detail
 
 /// <summary>
-/// 捕获一次 LOD build 前后的墙钟时间和进程 CPU 时间
+/// 保存一次 LOD 更新的实际经过时间和进程累计 CPU 时间，用于估算并行利用率
 /// </summary>
 struct TerrainLodCpuSample
 {
-    // WallTime 用于计算本次 build 的真实等待时间
+    // WallTime 反映调用方实际等待了多久
     Tools::PerformanceTimer::TimePoint WallTime;
-    // ProcessCpuMilliseconds 会累加同进程内多个 worker 的 CPU 时间
+    // ProcessCpuMilliseconds 会累加进程内所有线程消耗的 CPU 时间
     double ProcessCpuMilliseconds{-1.0};
 };
 
@@ -95,7 +95,7 @@ struct TerrainLodCpuSample
         return 0.0F;
     }
 
-    // 100% 表示一个逻辑核心满载  多线程 build 可以超过 100%
+    // 100% 表示一个逻辑核心满载，因此多线程更新可以超过 100%
     const double cpuMilliseconds = end.ProcessCpuMilliseconds - start.ProcessCpuMilliseconds;
     return static_cast<float>(std::max(0.0, cpuMilliseconds / wallMilliseconds * 100.0));
 }

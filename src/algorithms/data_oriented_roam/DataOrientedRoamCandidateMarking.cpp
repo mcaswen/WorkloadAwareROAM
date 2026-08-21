@@ -25,8 +25,7 @@ DataOrientedRoamMergeCandidateEvaluation EvaluateMergeCandidateImpl(
         return {};
     }
 
-    // 提交时校验只重新计算当前选中的 parent
-    // 持久 Q_m 负责整帧评分和拓扑成员发现
+    // 实际合并前只重新计算当前父节点，整帧分数刷新和成员查找由跨帧保留的 Q_m 负责
     const float score = ComputeScreenErrorScore(state, node);
     if (score > maximumScore)
     {
@@ -39,7 +38,7 @@ DataOrientedRoamMergeCandidateEvaluation EvaluateMergeCandidateImpl(
         return DataOrientedRoamMergeCandidateEvaluation{true, score, score};
     }
 
-    // 对侧 internal parent 必须组成互指 diamond，且提交拓扑事务时其 child 仍然都是 leaf
+    // 对侧父节点必须与当前节点互为底边邻居，且两侧子节点在提交时仍全部是叶节点
     const DataOrientedRoamNodeIndex baseLeftChild = state.Nodes.LeftChildAt(baseNeighbor);
     const DataOrientedRoamNodeIndex baseRightChild = state.Nodes.RightChildAt(baseNeighbor);
     if (state.Nodes.BaseNeighborAt(baseNeighbor) != node ||
@@ -57,13 +56,13 @@ DataOrientedRoamMergeCandidateEvaluation EvaluateMergeCandidateImpl(
         return {};
     }
 
-    // PairScore 表示完整 diamond 事务的误差损失，因此使用持久 Q_m 相同的 max(parent priority) 键
+    // PairScore 衡量合并整个菱形的画质损失，因此取两侧父节点分数的较大值
     return DataOrientedRoamMergeCandidateEvaluation{
         true,
         score,
         std::max(score, baseNeighborScore)};
 }
-} // namespace
+} // 匿名命名空间
 
 DataOrientedRoamMergeCandidateEvaluation EvaluateMergeCandidate(
     const DataOrientedRoamState& state,
@@ -85,4 +84,4 @@ bool CanMergeNode(
 {
     return EvaluateMergeCandidate(state, node, maximumScore).Eligible;
 }
-} // namespace ParallelRoam::Algorithms::DataOrientedRoam
+} // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

@@ -11,7 +11,7 @@ namespace ParallelRoam::Algorithms::ClassicRoam
 {
 TriangleDomainChildren SplitTriangleDomain(const TriangleDomain& domain)
 {
-    // A/B 始终是 base edge，C 是 apex；两个 child 继续保持逆时针绕序
+    // A/B 始终表示底边，C 表示顶点；两个子三角形继续保持逆时针绕序
     const auto children = Roam::SplitTriangleDomain(domain);
     return TriangleDomainChildren{
         children.Left,
@@ -21,7 +21,7 @@ TriangleDomainChildren SplitTriangleDomain(const TriangleDomain& domain)
 
 bool ClassicRoamMeshBuilder::ShouldSplit(const ClassicRoamNode& node) const
 {
-    // 最大深度限制优先于误差判断，避免相机贴近时无限细分
+    // 先执行深度限制，避免相机贴近地形时继续细分到实现上限之外
     if (node.Depth >= _settings.MaxDepth)
     {
         return false;
@@ -39,7 +39,7 @@ bool ClassicRoamMeshBuilder::ShouldSplitWithScore(const ClassicRoamNode& node, f
 
     if (screenErrorScore > _settings.SplitThreshold)
     {
-        // 明确高于 split 阈值时不走 hysteresis
+        // 误差明确超过细分阈值时直接细分，不再沿用上一帧状态
         return true;
     }
 
@@ -48,8 +48,8 @@ bool ClassicRoamMeshBuilder::ShouldSplitWithScore(const ClassicRoamNode& node, f
         return false;
     }
 
-    // hysteresis 区间沿用上一帧 split 状态，降低 split/merge 抖动
-    // 这也是 fixed camera benchmark 稳定的重要条件
+    // 误差落在迟滞区间时沿用上一帧状态，减少细分与合并反复切换
+    // 固定相机的基准测试也因此能保持稳定拓扑
     return WasSplitLastFrame(node);
 }
 
@@ -62,7 +62,7 @@ ClassicRoamMeshBuilder::LeafDebugClass ClassicRoamMeshBuilder::ClassifyLeafDebug
 {
     if (node.ActivatedBuildId == _buildSequence || node.MergeBuildId == _buildSequence)
     {
-        // 本帧新激活和 merge 回来的 parent 都属于 rebuilt
+        // 本帧新激活的叶节点和合并后恢复的父节点都标记为重建
         return LeafDebugClass::Rebuilt;
     }
 
@@ -88,13 +88,13 @@ glm::vec3 ClassicRoamMeshBuilder::DebugColorForLeaf(const ClassicRoamNode& node)
     case LeafDebugClass::Subdivided:
         return glm::mix(glm::vec3{0.08F, 0.72F, 0.62F}, glm::vec3{0.10F, 0.34F, 0.95F}, depthRatio);
     case LeafDebugClass::Rebuilt:
-        // forced split 用粉色系标出 crack repair 触发区域
+        // 强制细分使用粉色，便于定位为修补裂缝而额外细分的区域
         if (node.ActivatedByForcedSplit)
         {
             return glm::mix(glm::vec3{0.96F, 0.34F, 0.90F}, glm::vec3{0.96F, 0.16F, 0.42F}, depthRatio);
         }
 
-        // 普通 rebuild 用暖色，便于和历史细分叶子区分
+        // 普通重建使用暖色，与跨帧保留的稳定细分区域区分
         return glm::mix(glm::vec3{1.0F, 0.68F, 0.15F}, glm::vec3{1.0F, 0.34F, 0.10F}, depthRatio);
     }
 
@@ -103,7 +103,7 @@ glm::vec3 ClassicRoamMeshBuilder::DebugColorForLeaf(const ClassicRoamNode& node)
 
 float ClassicRoamMeshBuilder::DebugHighlightForLeaf(const ClassicRoamNode& node) const
 {
-    // highlight 与 color 分类保持同源，避免 UI debug 语义分裂
+    // 高亮强度与颜色使用同一分类，保证界面中的调试含义一致
     switch (ClassifyLeafDebug(node))
     {
     case LeafDebugClass::Original:

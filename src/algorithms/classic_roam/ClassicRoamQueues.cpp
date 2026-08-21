@@ -15,7 +15,7 @@ constexpr float BlockedSplitScore = -std::numeric_limits<float>::max();
 
 void ClassicRoamMeshBuilder::InitializePersistentQueues()
 {
-    // topology reset 后只有两个 root leaf 属于当前 triangulation
+    // 拓扑重置后只有两个根叶节点属于当前活动三角网格
     _splitQueue.clear();
     _mergeQueue.clear();
     InsertSplitQueueNode(_rootA);
@@ -24,7 +24,7 @@ void ClassicRoamMeshBuilder::InitializePersistentQueues()
 
 float ClassicRoamMeshBuilder::SplitQueueScore(const ClassicRoamNode& node) const
 {
-    // Q_s 保留全部 active leaf membership，但不可 split 元素沉到 heap 底部
+    // Q_s 保留全部活动叶节点；本帧不可细分的节点使用最低分沉到堆底
     if (!node.Active || !IsLeaf(&node) || node.Depth >= _settings.MaxDepth ||
         node.SplitBlockedBuildId == _buildSequence || node.MergeBuildId == _buildSequence)
     {
@@ -36,14 +36,14 @@ float ClassicRoamMeshBuilder::SplitQueueScore(const ClassicRoamNode& node) const
 
 float ClassicRoamMeshBuilder::MergeQueueScore(const ClassicRoamNode& node) const
 {
-    // membership 始终反映 topology；刚 split 的 diamond 只在本 Build 暂停反向 merge。
+    // Q_m 成员始终反映当前拓扑，本次刚细分的菱形在当前更新中暂不参与合并
     if (node.SplitBuildId == _buildSequence ||
         (node.MergeQueuePartner != nullptr && node.MergeQueuePartner->SplitBuildId == _buildSequence))
     {
         return std::numeric_limits<float>::max();
     }
 
-    // 论文把 diamond priority 定义为两侧 parent priority 的最大值
+    // 按论文定义，菱形的合并分数取两侧父节点屏幕误差的较大值
     float score = ComputeScreenErrorScore(node);
     if (node.MergeQueuePartner != nullptr)
     {
@@ -56,7 +56,7 @@ bool ClassicRoamMeshBuilder::SplitEntryPrecedes(
     const SplitQueueEntry& left,
     const SplitQueueEntry& right) const
 {
-    // Q_s 是 max heap；PathId 为同分候选提供跨帧稳定顺序
+    // Q_s 使用最大堆，PathId 为同分节点提供跨帧稳定顺序
     if (left.Score != right.Score)
     {
         return left.Score > right.Score;
@@ -68,7 +68,7 @@ bool ClassicRoamMeshBuilder::MergeEntryPrecedes(
     const MergeQueueEntry& left,
     const MergeQueueEntry& right) const
 {
-    // Q_m 是 min heap；最低损失 diamond 位于队首
+    // Q_m 使用最小堆，合并后画质损失最小的菱形位于队首
     if (left.Score != right.Score)
     {
         return left.Score < right.Score;
@@ -100,7 +100,7 @@ void ClassicRoamMeshBuilder::SwapMergeQueueEntries(std::size_t left, std::size_t
 
 void ClassicRoamMeshBuilder::SiftSplitQueueUp(std::size_t index)
 {
-    // intrusive index 随 swap 同步，调用者不需要保存不稳定 iterator
+    // 交换堆元素时同步更新节点内的下标，调用方无需保存会失效的迭代器
     while (index > 0U)
     {
         const std::size_t parent = (index - 1U) / 2U;
@@ -209,7 +209,7 @@ void ClassicRoamMeshBuilder::RestoreMergeQueueAt(std::size_t index)
 
 void ClassicRoamMeshBuilder::HeapifySplitQueue()
 {
-    // 所有 view-dependent key 同时刷新后，自底向上 heapify 是 O(N)
+    // 相机变化会使全部分数失效，统一刷新后自底向上建堆只需 O(N)
     for (std::size_t index = _splitQueue.size() / 2U; index > 0U; --index)
     {
         SiftSplitQueueDown(index - 1U);
@@ -326,7 +326,7 @@ void ClassicRoamMeshBuilder::InsertMergeQueueNodeIfEligible(ClassicRoamNode* nod
         partner = nullptr;
     }
 
-    // 若局部失效集合遗漏了旧 association，先删除旧项，不能让一个 parent 属于两个 diamonds
+    // 若需要重新检查的局部节点漏掉旧关联，先移除旧项，防止一个父节点同时属于两个菱形
     if (partner != nullptr && partner->MergeQueueRepresentative != nullptr)
     {
         RemoveMergeQueueCandidate(partner);
@@ -406,7 +406,7 @@ void ClassicRoamMeshBuilder::AppendQueueNeighborhood(
     appendUnique(seed->LeftNeighbor);
     appendUnique(seed->RightNeighbor);
 
-    // mergeability 还依赖相邻 parent 的 child 状态，因此再扩一层 parent/base 关系
+    // 可合并性还取决于相邻父节点的子节点状态，因此邻域需要沿父节点和底边再扩一层
     const ClassicRoamNode* directNodes[] = {
         seed,
         seed->Parent,
@@ -465,7 +465,7 @@ void ClassicRoamMeshBuilder::RefreshPersistentQueuePriorities()
 
 void ClassicRoamMeshBuilder::OptimizeWithPersistentDualQueues()
 {
-    // priority 值随相机变化，membership 则只由局部 topology 事务修改
+    // 相机变化只刷新队列分数，队列成员只随局部拓扑修改而变化
     RefreshPersistentQueuePriorities();
     _remainingSplitBudget = _settings.TriangleBudget > _splitQueue.size()
         ? _settings.TriangleBudget - _splitQueue.size()
@@ -493,7 +493,7 @@ void ClassicRoamMeshBuilder::OptimizeWithPersistentDualQueues()
             ? _mergeQueue.front().Score
             : std::numeric_limits<float>::max();
 
-        // accuracy target 优先回收明确低于 merge threshold 的 diamond
+        // 先合并误差明确低于阈值的菱形，回收当前画面不再需要的细节
         if (mergeNode != nullptr && mergeScore < _settings.MergeThreshold)
         {
             const bool merged = mergeDuringSplitConvergence(mergeNode);
@@ -510,7 +510,7 @@ void ClassicRoamMeshBuilder::OptimizeWithPersistentDualQueues()
             break;
         }
 
-        // 有空余 token 时先尝试完整 forced-split closure；reservation guard 保证失败不超预算
+        // 有剩余预算时先计算补齐相邻三角形需要执行的全部细分，确保整组操作不会超过上限
         if (_remainingSplitBudget > 0U)
         {
             const std::size_t budgetRejectBefore = _stats.BudgetRejectedSplitCount;
@@ -529,7 +529,7 @@ void ClassicRoamMeshBuilder::OptimizeWithPersistentDualQueues()
                 : std::numeric_limits<float>::max();
             if (closureNeedsMoreBudget && mergeNode != nullptr && splitScore > currentMergeScore)
             {
-                // strict capacity 下先 merge 再重试 split，避免论文伪代码的瞬时超预算
+                // 严格预算下先合并再重试细分，避免论文伪代码产生瞬时超限
                 const bool merged = mergeDuringSplitConvergence(mergeNode);
                 if (merged)
                 {
@@ -540,7 +540,7 @@ void ClassicRoamMeshBuilder::OptimizeWithPersistentDualQueues()
                 ++_stats.RejectedMergeCount;
             }
 
-            // 当前 closure 无法提交时只屏蔽到本帧，下一帧 priority refresh 会重新激活
+            // 本次无法完成整组连锁细分时只暂停该节点，下一帧刷新分数后再尝试
             splitNode->SplitBlockedBuildId = _buildSequence;
             UpdateSplitQueueScore(splitNode, BlockedSplitScore);
             if (!closureNeedsMoreBudget)
@@ -550,7 +550,7 @@ void ClassicRoamMeshBuilder::OptimizeWithPersistentDualQueues()
             continue;
         }
 
-        // 已满预算时执行论文 crossover：只有回收损失低于最高 split 收益才交换资源
+        // 预算已满时只在合并损失低于细分收益的情况下交换三角形资源
         if (mergeNode != nullptr && splitScore > mergeScore)
         {
             const bool merged = mergeDuringSplitConvergence(mergeNode);

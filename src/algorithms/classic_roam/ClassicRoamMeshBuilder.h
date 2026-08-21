@@ -18,15 +18,15 @@ struct TerrainLodViewInput;
 namespace ParallelRoam::Algorithms::ClassicRoam
 {
 /// <summary>
-/// Classic CPU ROAM 的裸指针二叉三角树网格生成器
-/// 由 ClassicRoamTerrainLodAlgorithm 持有；builder 持有节点、队列、方差树和 CPU mesh，直到 Reset 或析构
-/// Build 流程中的 state、topology、queue 和 mesh pass 会修改它；调用方只读取 Build 返回值和 Stats
+/// 使用经典裸指针二叉三角树维护 CPU ROAM 地形网格
+/// 对象跨帧保留节点池、双优先队列、误差树和 CPU 网格，直到 Reset 或析构
+/// 调用方每帧更新一次状态，并从返回网格和统计信息中读取结果
 /// </summary>
 class ClassicRoamMeshBuilder
 {
 public:
     /// <summary>
-    /// 根据完整视图输入和像素误差阈值生成当前 active leaf triangle mesh
+    /// 根据相机和像素误差阈值更新拓扑，并返回当前活动叶三角形组成的网格
     /// </summary>
     [[nodiscard]] const Terrain::TerrainMeshData& Build(
         const Terrain::HeightMap& heightMap,
@@ -43,38 +43,38 @@ public:
 private:
     enum class SplitReason
     {
-        // 普通误差阈值触发的 split
+        // 屏幕误差超过阈值后主动请求细分
         Requested,
 
-        // baseNeighbor 为了补齐 diamond 触发的 split
+        // 为补齐底边菱形关系而执行的强制细分
         ForcedByBaseNeighbor,
     };
 
     /// <summary>
-    /// Classic ROAM 的持久化二叉三角树节点，使用裸指针表达 parent / child / neighbor 拓扑
+    /// Classic ROAM 跨帧保留的二叉三角树节点，使用裸指针连接父子节点和三个邻居
     /// </summary>
     struct ClassicRoamNode
     {
-        // Domain 使用 UV 空间表达，避免节点保存重复三维顶点
+        // Domain 只保存高度图 UV，避免相邻节点重复存储三维顶点
         TriangleDomain Domain;
 
-        // Parent 和 child 使用经典 ROAM 裸指针拓扑
+        // 父子指针组成跨帧保留的二叉三角树
         ClassicRoamNode* Parent{nullptr};
         ClassicRoamNode* LeftChild{nullptr};
         ClassicRoamNode* RightChild{nullptr};
 
-        // 三个 neighbor 指针对应 base edge、left edge 和 right edge
+        // 三个邻居分别位于底边、左边和右边
         ClassicRoamNode* BaseNeighbor{nullptr};
         ClassicRoamNode* LeftNeighbor{nullptr};
         ClassicRoamNode* RightNeighbor{nullptr};
 
-        // GeometricError 是论文公式 (1) 自底向上传播的 nested wedgie thickness
+        // GeometricError 保存论文公式 (1) 自底向上得到的保守几何误差
         float GeometricError{0.0F};
         std::size_t VarianceIndex{0};
         std::uint64_t PathId{0};
         std::uint64_t CreatedBuildId{0};
         std::uint64_t ActivatedBuildId{0};
-        // SplitBuildId / MergeBuildId 也用于禁止同一 Build 立即逆转刚提交的拓扑事务。
+        // SplitBuildId 和 MergeBuildId 防止同一次更新立即撤销刚完成的拓扑修改
         std::uint64_t SplitBuildId{0};
         std::uint64_t MergeBuildId{0};
         std::uint64_t SplitBlockedBuildId{0};
@@ -82,21 +82,21 @@ private:
         std::uint8_t VarianceTreeIndex{0};
         bool ActivatedByForcedSplit{false};
 
-        // Active 区分当前 triangulation 与对象池中等待复用的历史节点
+        // Active 区分当前活动三角网格与节点池中等待复用的历史节点
         bool Active{false};
 
-        // IsSplit 决定 child 当前是否参与 active topology
+        // IsSplit 为真时由两个子节点代替当前节点参与活动拓扑
         bool IsSplit{false};
 
-        // intrusive heap index 让持久队列可以 O(log N) 删除任意 topology 节点
+        // 节点保存自身堆下标，使跨帧保留的队列能以 O(log N) 删除任意拓扑节点
         std::size_t SplitQueueIndex{std::numeric_limits<std::size_t>::max()};
         std::size_t MergeQueueIndex{std::numeric_limits<std::size_t>::max()};
 
-        // 一个 diamond 只在 Q_m 中保存 canonical parent；两侧都指向同一 representative
+        // 每个可合并菱形在 Q_m 中只保留一个固定代表节点，两侧父节点都指向它
         ClassicRoamNode* MergeQueueRepresentative{nullptr};
         ClassicRoamNode* MergeQueuePartner{nullptr};
 
-        // active leaf 在持久 CPU mesh 中占用的稠密三角形槽位。
+        // 活动叶节点在跨帧保留的 CPU 网格中占用的连续三角形槽位
         std::size_t MeshSlot{std::numeric_limits<std::size_t>::max()};
     };
 
@@ -132,50 +132,50 @@ private:
         std::uint8_t varianceTreeIndex,
         std::size_t varianceIndex);
 
-    // nested wedgie tree 会在 topology 创建前预计算，并按公式 (1) 向父节点累加厚度
+    // 在创建拓扑节点前预计算误差树，使每个节点能直接读取覆盖其子树的几何误差
     void RebuildVarianceTrees(int finestDepth);
     void RefreshNodeVarianceErrors();
     [[nodiscard]] float VarianceError(std::uint8_t varianceTreeIndex, std::size_t varianceIndex) const;
 
-    // 初始化或重置持久化根 diamond
+    // 清空旧状态并建立覆盖整个地形的根菱形
     void ResetTopology();
 
-    // 判断设置变化是否必须重建整棵树
+    // 判断输入变化是否使已有节点、误差或预算状态失效
     [[nodiscard]] bool NeedsTopologyReset(
         const Terrain::HeightMap& heightMap,
         float terrainSize,
         float heightScale,
         const ClassicRoamSettings& settings) const;
 
-    // 论文 dual-queue optimizer：跨帧保留 Q_s/Q_m，并在一个 crossover 循环中更新 topology
+    // 按 ROAM 双队列策略在同一循环中合并低误差区域并细分高误差区域
     void OptimizeWithPersistentDualQueues();
 
-    // 重置时从 base triangulation 初始化队列；普通帧只更新已有成员的 priority
+    // 重置后从两个根三角形建立队列，普通帧只刷新现有成员的分数
     void InitializePersistentQueues();
     void RefreshPersistentQueuePriorities();
 
     [[nodiscard]] float SplitQueueScore(const ClassicRoamNode& node) const;
     [[nodiscard]] float MergeQueueScore(const ClassicRoamNode& node) const;
 
-    // Q_s 保存当前 triangulation 的全部 active leaves
+    // Q_s 保存当前全部活动叶节点，队首是最值得细分的节点
     void InsertSplitQueueNode(ClassicRoamNode* node);
     void RemoveSplitQueueNode(ClassicRoamNode* node);
     void UpdateSplitQueueScore(ClassicRoamNode* node, float score);
     [[nodiscard]] ClassicRoamNode* TopSplitQueueNode() const;
 
-    // Q_m 保存当前全部 mergeable diamonds，每个 diamond 只保留一个 canonical parent
+    // Q_m 保存当前全部可合并菱形，每个菱形只保留一个固定的代表父节点
     [[nodiscard]] bool IsMergeableTopology(const ClassicRoamNode* node) const;
     [[nodiscard]] ClassicRoamNode* CanonicalMergeQueueNode(ClassicRoamNode* node) const;
     void InsertMergeQueueNodeIfEligible(ClassicRoamNode* node);
     void RemoveMergeQueueCandidate(ClassicRoamNode* node);
     [[nodiscard]] ClassicRoamNode* TopMergeQueueNode() const;
 
-    // topology 变更前后只失效和重建局部 diamond membership
+    // 拓扑变化只影响局部邻域，因此只移除并重建附近的合并队列成员
     void AppendQueueNeighborhood(ClassicRoamNode* seed, std::vector<ClassicRoamNode*>& nodes) const;
     void InvalidateMergeQueueNeighborhood(const std::vector<ClassicRoamNode*>& nodes);
     void RefreshMergeQueueNeighborhood(const std::vector<ClassicRoamNode*>& nodes);
 
-    // indexed binary heap 的局部维护函数
+    // 维护带节点下标的二叉堆，使任意成员更新和删除都保持对数复杂度
     [[nodiscard]] bool SplitEntryPrecedes(const SplitQueueEntry& left, const SplitQueueEntry& right) const;
     [[nodiscard]] bool MergeEntryPrecedes(const MergeQueueEntry& left, const MergeQueueEntry& right) const;
     void SwapSplitQueueEntries(std::size_t left, std::size_t right);
@@ -189,49 +189,49 @@ private:
     void HeapifySplitQueue();
     void HeapifyMergeQueue();
 
-    // 沿 base edge split，生成两个 child triangle
+    // 沿底边细分节点，并在需要时先递归补齐底边邻居
     [[nodiscard]] bool SplitNode(
         ClassicRoamNode* node,
         SplitReason reason,
         ClassicRoamNode* forcedFrom,
         std::size_t reservedSplitSlots);
 
-    // split 后按 Classic ROAM diamond 关系连接 child 和 neighbor
+    // 细分后按 ROAM 菱形规则连接两个子节点及周围邻居
     void LinkSplitNeighbors(ClassicRoamNode* node, ClassicRoamNode* baseNeighbor);
 
-    // 邻居还指向旧 leaf 时，需要改指向 split 后对应的 child
+    // 将邻居中指向旧叶节点的边替换为细分后对应的子节点
     void ReplaceNeighborReference(ClassicRoamNode* neighbor, ClassicRoamNode* oldNode, ClassicRoamNode* newNode) const;
 
-    // 判断 parent 是否可以在给定最大误差下安全回收为 leaf
+    // 判断父节点能否在误差限制和本帧状态约束下安全恢复为叶节点
     [[nodiscard]] bool CanMergeNode(const ClassicRoamNode* node, float maximumScore) const;
 
-    // 回收一个 parent 的两个 leaf child
+    // 停用两个叶子节点并重新激活其父节点
     void MergeSingleNode(ClassicRoamNode* node);
 
-    // 若 base neighbor 也 split，则按 diamond 成对回收
+    // 底边邻居也已细分时，将菱形两侧成对合并，避免产生裂缝
     [[nodiscard]] bool MergeNodeOrDiamond(ClassicRoamNode* node, float maximumScore);
 
-    // 收集当前 active leaf，供裂缝检测和 neighbor 重建复用
+    // 收集当前活动叶节点，供验证器和最终统计复用
     void CollectLeafNodes(std::vector<ClassicRoamNode*>& leafNodes) const;
 
-    // 从指定根节点收集 active leaf
+    // 从指定根节点递归收集活动叶节点
     void CollectLeafNodesFrom(ClassicRoamNode* node, std::vector<ClassicRoamNode*>& leafNodes) const;
 
-    // 收集当前 active internal path，供 hysteresis 复用
+    // 保存当前仍处于细分状态的路径，供下一帧迟滞判断复用
     void CollectActiveSplitPaths();
     void CollectActiveSplitPathsFrom(const ClassicRoamNode* node);
 
-    // 聚合当前帧 leaf 分类和深度统计
+    // 根据最终活动叶集合汇总调试分类和最大深度
     void AccumulateLeafStats(
         const Terrain::TerrainMeshData& meshData,
         const std::vector<ClassicRoamNode*>& leafNodes);
 
-    // validator 只检查当前拓扑，不在默认路径修复裂缝
+    // 验证器只报告当前拓扑问题，不在正常更新路径中修改状态
     void ValidateTopology();
     void ValidatePersistentQueues(const std::vector<ClassicRoamNode*>& leafNodes);
     void ValidateIncrementalMesh(const std::vector<ClassicRoamNode*>& leafNodes);
 
-    // 现代 indexed-mesh 等价的增量输出：active leaf 对应稠密固定槽位。
+    // 让每个活动叶节点占用一个稠密网格槽位，拓扑变化时只重写受影响部分
     void BeginIncrementalMeshUpdate(bool resetTopology);
     void RecordMeshSplit(ClassicRoamNode* parent);
     void RecordMeshMerge(ClassicRoamNode* parent);
@@ -247,11 +247,11 @@ private:
     void MarkMeshSlotDirty(std::size_t slot);
     void FinalizeIncrementalMeshUpdate();
 
-    // 当前实现使用阈值决策，后续可替换为 priority queue
+    // 将屏幕误差与细分阈值和迟滞状态比较，决定节点是否需要细分
     [[nodiscard]] bool ShouldSplit(const ClassicRoamNode& node) const;
     [[nodiscard]] bool ShouldSplitWithScore(const ClassicRoamNode& node, float screenErrorScore) const;
 
-    // 判断节点是否在 hysteresis 区间内沿用上一帧 split 状态
+    // 误差位于迟滞区间时沿用上一帧的细分状态，避免临界位置反复切换
     [[nodiscard]] bool WasSplitLastFrame(const ClassicRoamNode& node) const;
 
     enum class LeafDebugClass
@@ -261,14 +261,14 @@ private:
         Rebuilt,
     };
 
-    // 对 active leaf 做调试分类，供颜色输出和 benchmark 统计共用
+    // 将活动叶节点分为原始、稳定细分和本帧重建三类
     [[nodiscard]] LeafDebugClass ClassifyLeafDebug(const ClassicRoamNode& node) const;
 
-    // 按 leaf 调试分类输出稳定颜色，避免 UI 和 benchmark 口径分裂
+    // 调试颜色和高亮都使用同一叶节点分类，保证界面与统计含义一致
     [[nodiscard]] glm::vec3 DebugColorForLeaf(const ClassicRoamNode& node) const;
     [[nodiscard]] float DebugHighlightForLeaf(const ClassicRoamNode& node) const;
 
-    // 统一组合视锥、保守几何误差和投影长边密度
+    // 计算细分与合并队列共用的屏幕误差分数
     [[nodiscard]] float ComputeScreenErrorScore(const ClassicRoamNode& node) const;
 
     [[nodiscard]] bool IsLeaf(const ClassicRoamNode* node) const;
@@ -277,20 +277,20 @@ private:
     ClassicRoamSettings _settings;
     ClassicRoamStats _stats;
 
-    // 两棵 nested wedgie tree 分别对应两个根三角形，使用二叉堆索引存储
-    // 预计算深度可大于运行时 MaxDepth，以覆盖高度图源分辨率中的更深误差
+    // 两棵误差树分别覆盖一个根三角形，并按完整二叉树下标存储
+    // 预计算深度可以超过运行时 MaxDepth，以保留高度图原始分辨率中的细节误差
     std::array<std::vector<float>, 2> _varianceTrees;
     const Terrain::HeightMap* _varianceHeightMap{nullptr};
     int _varianceTreeMaxDepth{-1};
 
-    // _nodes 只负责生命周期，算法拓扑通过 ClassicRoamNode* 表达
+    // _nodes 统一管理节点生命周期，拓扑关系仍由 ClassicRoamNode 指针表达
     std::vector<std::unique_ptr<ClassicRoamNode>> _nodes;
     std::unordered_set<std::uint64_t> _previousSplitPaths;
     std::unordered_set<std::uint64_t> _currentSplitPaths;
-    // 两个 indexed heaps 和 active topology 一起跨帧保留
+    // 两个带下标的优先队列随活动拓扑一起跨帧保留
     std::vector<SplitQueueEntry> _splitQueue;
     std::vector<MergeQueueEntry> _mergeQueue;
-    // mesh slot owner 数组本身就是活动 leaf 的稠密输出视图。
+    // 该数组按绘制顺序记录每个槽位对应的活动叶节点，无需再次遍历拓扑
     Terrain::TerrainMeshData _meshData;
     std::vector<ClassicRoamNode*> _meshSlotOwners;
     std::vector<std::uint64_t> _meshSlotDirtyGeneration;

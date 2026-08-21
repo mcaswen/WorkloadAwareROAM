@@ -17,7 +17,7 @@ constexpr std::size_t LargeDepthReserveFallback = 1'000'000U;
 
 int ChunkCoord(float value)
 {
-    // uv=1 必须落到最后一个 chunk，而不是越过网格边界
+    // UV 等于 1 时必须归入最后一个分块，不能计算到网格范围之外
     const float clamped = std::clamp(value, 0.0F, 1.0F);
     const int coord = static_cast<int>(
         clamped * static_cast<float>(DataOrientedRoamTopologyChunkGridSize));
@@ -26,18 +26,18 @@ int ChunkCoord(float value)
 
 DataOrientedRoamChunkId ChunkIdForUv(const glm::vec2& uv)
 {
-    // chunk id 使用 row-major 编码，便于作为 vector 下标
+    // 分块编号按行优先编码，可以直接作为数组下标
     const int x = ChunkCoord(uv.x);
     const int y = ChunkCoord(uv.y);
-    // 这里不依赖 terrainSize，heightmap 切换才需要重建缓存
+    // 分块只由归一化 UV 决定，不受地形世界尺寸影响
     return static_cast<DataOrientedRoamChunkId>(y * DataOrientedRoamTopologyChunkGridSize + x);
 }
 
 std::size_t ExactBintreeNodeCapacity(int maxDepth)
 {
-    // 两棵根树都可能展开成完整二叉树
+    // 两个根节点都可能各自展开成完整二叉树
     const int safeDepth = std::clamp(maxDepth, 0, ExactReserveMaxDepth);
-    // safeDepth 已限制移位范围，避免大深度溢出
+    // safeDepth 已限制移位范围，避免计算节点数量时溢出
     const std::size_t nodesPerRoot = (std::size_t{1} << static_cast<unsigned int>(safeDepth + 1)) - 1U;
     return nodesPerRoot * 2U;
 }
@@ -54,7 +54,7 @@ void CollectLeafNodesFrom(
 
     if (state.IsLeaf(node))
     {
-        // active leaf 才会进入 mesh 输出和统计流程
+        // 只有从根可达的活动叶节点才进入网格输出和统计
         leafNodes.push_back(node);
         return;
     }
@@ -105,15 +105,15 @@ DataOrientedRoamNodeRef::operator DataOrientedRoamNodeConstRef() const
 
 std::size_t DataOrientedRoamNodePool::capacity() const
 {
-    // 预分配容量用 domain 数组代表整个 node pool
+    // 所有 SoA 数组容量保持一致，因此用 Domains 代表整个节点池容量
     return Domains.capacity();
 }
 
 std::size_t DataOrientedRoamNodePool::storage_bytes() const
 {
-    // storage 估算按 capacity 计算，反映预分配后的内存占用
+    // 按容量而非当前大小估算，才能反映预分配后实际保留的内存
     return Domains.capacity() * sizeof(TriangleDomain) +
-           // topology index arrays 是 split / merge 最频繁访问的连续字段
+           // 拓扑下标数组是细分和合并阶段最常访问的数据
            Parents.capacity() * sizeof(DataOrientedRoamNodeIndex) +
            LeftChildren.capacity() * sizeof(DataOrientedRoamNodeIndex) +
            RightChildren.capacity() * sizeof(DataOrientedRoamNodeIndex) +
@@ -121,17 +121,17 @@ std::size_t DataOrientedRoamNodePool::storage_bytes() const
            LeftNeighbors.capacity() * sizeof(DataOrientedRoamNodeIndex) +
            RightNeighbors.capacity() * sizeof(DataOrientedRoamNodeIndex) +
            InteriorChunkIds.capacity() * sizeof(DataOrientedRoamChunkId) +
-           // error arrays 与拓扑 index 分离，方便后续批量评估
+           // 误差数组与拓扑下标分开，便于连续批量评分
            GeometricErrors.capacity() * sizeof(float) +
            ScreenErrors.capacity() * sizeof(float) +
            VarianceIndices.capacity() * sizeof(std::size_t) +
-           // build id arrays 服务 debug 分类，不参与 split 队列热路径
+           // 更新序号只用于调试分类，细分队列的正常处理不会读取它
            PathIds.capacity() * sizeof(std::uint64_t) +
            CreatedBuildIds.capacity() * sizeof(std::uint64_t) +
            ActivatedBuildIds.capacity() * sizeof(std::uint64_t) +
            SplitBuildIds.capacity() * sizeof(std::uint64_t) +
            MergeBuildIds.capacity() * sizeof(std::uint64_t) +
-           // byte flags 独立存储，避免 vector<bool> bit proxy
+           // 字节标志独立存储，避免位压缩布尔数组必须通过临时对象读写
            Depths.capacity() * sizeof(int) +
            VarianceTreeIndices.capacity() * sizeof(std::uint8_t) +
            ActivatedByForcedSplits.capacity() * sizeof(std::uint8_t) +
@@ -140,19 +140,19 @@ std::size_t DataOrientedRoamNodePool::storage_bytes() const
 
 std::size_t DataOrientedRoamNodePool::array_count() const
 {
-    // array_count 用数组数量描述 SoA 字段拆分程度
+    // 数组数量用于报告 SoA 将节点拆成多少个连续字段
     return 20U;
 }
 
 bool DataOrientedRoamNodePool::empty() const
 {
-    // 所有数组同步增删，因此只检查 Domains 即可
+    // 所有数组始终同步增删，检查 Domains 即可判断节点池是否为空
     return Domains.empty();
 }
 
 void DataOrientedRoamNodePool::clear()
 {
-    // clear 保留 capacity，后续 frame 可复用预分配内存
+    // 清空操作保留已分配容量，后续更新可以直接复用
     Domains.clear();
     Parents.clear();
     LeftChildren.clear();
@@ -169,7 +169,7 @@ void DataOrientedRoamNodePool::clear()
     ActivatedBuildIds.clear();
     SplitBuildIds.clear();
     MergeBuildIds.clear();
-    // 所有数组一起清空，避免同 index 指向错位字段
+    // 所有数组必须一起清空，保证相同下标始终表示同一节点
     Depths.clear();
     VarianceTreeIndices.clear();
     ActivatedByForcedSplits.clear();
@@ -178,7 +178,7 @@ void DataOrientedRoamNodePool::clear()
 
 void DataOrientedRoamNodePool::reserve(std::size_t capacity)
 {
-    // topology index 数组必须和 domain 数组保持相同容量策略
+    // 拓扑下标数组与区域数组使用相同的容量策略
     Domains.reserve(capacity);
     Parents.reserve(capacity);
     LeftChildren.reserve(capacity);
@@ -187,17 +187,17 @@ void DataOrientedRoamNodePool::reserve(std::size_t capacity)
     LeftNeighbors.reserve(capacity);
     RightNeighbors.reserve(capacity);
     InteriorChunkIds.reserve(capacity);
-    // 几何误差和方差树索引与拓扑字段分离
+    // 几何误差和误差树下标单独连续存储，便于批量读取
     GeometricErrors.reserve(capacity);
     ScreenErrors.reserve(capacity);
     VarianceIndices.reserve(capacity);
-    // build id 数组服务 debug 和本帧重建分类
+    // 更新序号用于调试显示和本帧重建分类
     PathIds.reserve(capacity);
     CreatedBuildIds.reserve(capacity);
     ActivatedBuildIds.reserve(capacity);
     SplitBuildIds.reserve(capacity);
     MergeBuildIds.reserve(capacity);
-    // depth 和 flag 分离，避免访问拓扑 index 时带入不需要的状态字节
+    // 深度和标志单独存储，访问拓扑下标时无需加载无关状态
     Depths.reserve(capacity);
     VarianceTreeIndices.reserve(capacity);
     ActivatedByForcedSplits.reserve(capacity);
@@ -215,11 +215,11 @@ DataOrientedRoamNodeIndex DataOrientedRoamNodePool::Add(
     std::size_t varianceIndex)
 {
     const auto index = static_cast<DataOrientedRoamNodeIndex>(Domains.size());
-    // 每个 push 顺序必须完全一致，保证 index 能跨数组对齐
+    // 每个数组必须按相同顺序追加，保证同一下标始终对齐
     Domains.push_back(domain);
-    // parent 与 domain 同步写入，validator 才能遍历全池检查
+    // 父节点与区域同步写入，使验证器可以遍历整个节点池检查关系
     Parents.push_back(parent);
-    // child 和 neighbor 默认无效，split / link pass 再填充
+    // 子节点和邻居初始为空，细分和邻接连接时再填写
     LeftChildren.push_back(InvalidDataOrientedRoamNodeIndex);
     RightChildren.push_back(InvalidDataOrientedRoamNodeIndex);
     BaseNeighbors.push_back(InvalidDataOrientedRoamNodeIndex);
@@ -229,16 +229,16 @@ DataOrientedRoamNodeIndex DataOrientedRoamNodePool::Add(
     GeometricErrors.push_back(geometricError);
     ScreenErrors.push_back(0.0F);
     VarianceIndices.push_back(varianceIndex);
-    // PathId 独立于 SoA 下标，用于跨帧 hysteresis
+    // PathId 独立于节点池下标，用于跨帧迟滞判断
     PathIds.push_back(pathId);
     CreatedBuildIds.push_back(buildSequence);
     ActivatedBuildIds.push_back(buildSequence);
-    // split / merge id 初始为 0，只有对应 pass 会写入
+    // 细分与合并序号初始为零，仅在相应拓扑阶段成功提交后写入
     SplitBuildIds.push_back(0);
     MergeBuildIds.push_back(0);
     Depths.push_back(depth);
     VarianceTreeIndices.push_back(varianceTreeIndex);
-    // flag 使用 byte 数组，避免 vector<bool> 的代理语义干扰 pass 代码
+    // 标志使用字节数组，避免位压缩布尔数组必须通过临时对象读写
     ActivatedByForcedSplits.push_back(0);
     IsSplits.push_back(0);
     return index;
@@ -246,7 +246,7 @@ DataOrientedRoamNodeIndex DataOrientedRoamNodePool::Add(
 
 DataOrientedRoamNodeRef DataOrientedRoamNodePool::operator[](DataOrientedRoamNodeIndex node)
 {
-    // 可写 proxy 只保存字段引用，不拷贝节点数据
+    // 可写节点视图只保存字段引用，不复制节点数据
     return DataOrientedRoamNodeRef{
         Domains[node],
         Parents[node],
@@ -273,7 +273,7 @@ DataOrientedRoamNodeRef DataOrientedRoamNodePool::operator[](DataOrientedRoamNod
 
 DataOrientedRoamNodeConstRef DataOrientedRoamNodePool::operator[](DataOrientedRoamNodeIndex node) const
 {
-    // 只读 proxy 让 scoring / validation 不需要知道数组细节
+    // 只读节点视图让评分和验证代码无需了解 SoA 数组细节
     return DataOrientedRoamNodeConstRef{
         Domains[node],
         Parents[node],
@@ -300,24 +300,23 @@ DataOrientedRoamNodeConstRef DataOrientedRoamNodePool::operator[](DataOrientedRo
 
 std::uint64_t LeftChildPathId(std::uint64_t parentPathId)
 {
-    // path id 使用二叉堆编码
-    // merge 后重新 split 可以复用上一帧 hysteresis 状态
+    // 路径编号使用二叉堆编码，合并后再次细分仍能对应同一稳定位置
     return parentPathId * 2ULL;
 }
 
 std::uint64_t RightChildPathId(std::uint64_t parentPathId)
 {
-    // right child 通过末位 1 和 left child 区分
+    // 右子节点用末位 1 与左子节点区分
     return parentPathId * 2ULL + 1ULL;
 }
 
 DataOrientedRoamChunkId ComputeInteriorChunkId(const TriangleDomain& domain)
 {
-    // 三个顶点完全落在同一格内才允许按 chunk 独占写拓扑
+    // 三个顶点全部落在同一分块时，负责该分块的线程才不会与其他线程修改同一组节点
     const DataOrientedRoamChunkId chunkA = ChunkIdForUv(domain.A);
     const DataOrientedRoamChunkId chunkB = ChunkIdForUv(domain.B);
     const DataOrientedRoamChunkId chunkC = ChunkIdForUv(domain.C);
-    // boundary triangle 可能写跨 chunk neighbor，必须回退串行路径
+    // 跨分块三角形可能修改其他任务的邻居，因此必须交给主线程顺序处理
     if (chunkA == chunkB && chunkA == chunkC)
     {
         return chunkA;
@@ -338,7 +337,7 @@ DataOrientedRoamNodeIndex AddNode(
     const float geometricError = VarianceError(state, varianceTreeIndex, varianceIndex);
     state.Stats.MaxDepthReached = std::max(state.Stats.MaxDepthReached, depth);
 
-    // SoA 数组 index 是持久 node pool 的稳定节点引用
+    // 节点在 SoA 数组中的下标不会变化，因此拓扑关系可以长期保存这些下标
     const DataOrientedRoamNodeIndex node = state.Nodes.Add(
         domain,
         parent,
@@ -348,7 +347,7 @@ DataOrientedRoamNodeIndex AddNode(
         geometricError,
         varianceTreeIndex,
         varianceIndex);
-    // 新节点默认为 leaf，后续 split 才会加入 active internal 索引
+    // 新节点默认是活动叶节点，只有再次细分后才加入活动内部节点索引
     state.NodeMembership.emplace_back();
     state.IncrementalMesh.NodeSlots.push_back(InvalidDataOrientedRoamPosition);
     state.SplitQueueBlockedBuildIds.push_back(0U);
@@ -357,18 +356,18 @@ DataOrientedRoamNodeIndex AddNode(
 
 void ReserveNodePool(DataOrientedRoamState& state)
 {
-    // 预分配降低扩容概率，但正确性不能依赖地址稳定
-    // MaxDepth 现在是节点池容量估算的主要上界
+    // 预分配用于降低扩容次数，算法正确性仍只能依赖稳定下标
+    // MaxDepth 提供节点池理论容量的主要上界
     std::size_t targetCapacity = LargeDepthReserveFallback;
     if (state.Settings.MaxDepth <= ExactReserveMaxDepth)
     {
-        // 完整 bintree 容量给出当前 maxDepth 的理论上界
+        // 完整二叉树容量给出当前最大深度下的节点数量上界
         targetCapacity = ExactBintreeNodeCapacity(state.Settings.MaxDepth);
     }
-    // 超过精确移位范围时使用固定 fallback，避免一次性巨大预分配
+    // 深度超出安全移位范围时只预留固定容量，避免一次性申请过大内存
 
-    // active budget 只约束初始有效工作集
-    // 历史 inactive 节点之后可能超过该预算，但按索引引用在扩容后仍然有效
+    // 活动预算只限制当前可渲染叶节点，历史停用节点可能使节点池大于该值
+    // 节点通过下标引用，因此数组扩容不会破坏拓扑关系
     const std::size_t budgetCapacity = state.Settings.TriangleBudget <=
             std::numeric_limits<std::size_t>::max() / 2U
         ? state.Settings.TriangleBudget * 2U
@@ -377,8 +376,8 @@ void ReserveNodePool(DataOrientedRoamState& state)
 
     if (state.Nodes.capacity() < targetCapacity)
     {
-        // 取较大值可以减少 SoA 节点池扩容频率
-        // 但所有 pass 仍必须通过 index 访问节点
+        // 取理论容量和预算容量中的较大值可以减少节点池扩容
+        // 所有算法阶段仍必须通过下标访问节点
         state.Nodes.reserve(targetCapacity);
     }
 
@@ -396,8 +395,7 @@ void ReserveNodePool(DataOrientedRoamState& state)
 
 void ResetTopology(DataOrientedRoamState& state)
 {
-    // ResetTopology 是唯一清空 node pool 的入口
-    // 普通相机移动保留历史节点和 split path
+    // 只有 ResetTopology 会清空节点池，普通相机移动继续复用历史节点和上一帧保留的细分路径
     state.Nodes.clear();
     state.PreviousSplitPaths.clear();
     state.CurrentSplitPaths.clear();
@@ -426,9 +424,8 @@ void ResetTopology(DataOrientedRoamState& state)
         1U,
         0U);
 
-    // 两个 root 的 path id 位于不同区间，避免 hysteresis 键碰撞
-    // 两个根三角形跨共享对角线互为 base neighbor
-    // 这是 Classic ROAM 根 diamond 的起点
+    // 两个根节点的路径编号位于不同区间，避免迟滞判断把它们当成同一位置
+    // 两个根三角形隔着共享对角线互为底边邻居，构成初始菱形
     state.Nodes[state.RootA].BaseNeighbor = state.RootB;
     state.Nodes[state.RootB].BaseNeighbor = state.RootA;
     state.ActiveLeafNodes.push_back(state.RootA);
@@ -449,25 +446,25 @@ bool NeedsTopologyReset(
 {
     if (!state.IsValidNode(state.RootA) || !state.IsValidNode(state.RootB) || state.Nodes.empty())
     {
-        // 首帧没有 root diamond，必须初始化拓扑
+        // 首次更新尚无根菱形，需要初始化完整拓扑
         return true;
     }
 
     if (state.HeightMap != &heightMap)
     {
-        // HeightMap 指针变化意味着所有 geometric error 缓存失效
+        // 更换高度图后，全部节点的几何误差缓存都不再有效
         return true;
     }
 
     if (settings.MaxDepth < state.TopologyMaxDepth)
     {
-        // 降低深度时历史节点可能超过新上限
+        // 降低最大深度后，历史节点可能超过新的允许层级
         return true;
     }
 
     if (settings.TriangleBudget != state.Settings.TriangleBudget)
     {
-        // 预算变化后从根重新分配，保证降低上限立即生效
+        // 预算变化后从根节点重新分配，确保降低上限时立即满足数量限制
         return true;
     }
 
@@ -476,8 +473,7 @@ bool NeedsTopologyReset(
 
 void CollectLeafNodes(const DataOrientedRoamState& state, std::vector<DataOrientedRoamNodeIndex>& leafNodes)
 {
-    // 只能从 root 递归收集 active topology
-    // node pool 中的 inactive child 不属于当前 mesh
+    // 只从两个根节点沿活动路径收集，节点池中的历史子节点不属于当前网格
     leafNodes.clear();
     leafNodes.reserve(state.Nodes.size());
     CollectLeafNodesFrom(state, state.RootA, leafNodes);
@@ -486,11 +482,10 @@ void CollectLeafNodes(const DataOrientedRoamState& state, std::vector<DataOrient
 
 void CollectActiveSplitPaths(DataOrientedRoamState& state)
 {
-    // active split path 反映 merge 后的当前拓扑
-    // hysteresis 下一帧只沿这些 path 复用 split 状态
+    // 活动细分路径来自合并和细分后的最终拓扑，下一帧迟滞判断只复用这些路径
     state.CurrentSplitPaths.clear();
     state.Stats.ActiveSplitCount = 0;
-    // 只从 root 走 active topology，merge 掉的路径会自然消失
+    // 从根节点沿活动拓扑遍历，已经合并的旧路径会自然消失
     CollectActiveSplitPathsFrom(state, state.RootA);
     CollectActiveSplitPathsFrom(state, state.RootB);
 }
@@ -506,10 +501,10 @@ void AccumulateLeafStats(
     state.Stats.ActiveTriangleCount = leafNodes.size();
 
     state.Stats.MaxDepthReached = 0;
-    // leafNodes 来自最终快照，避免统计环节再递归扫描 active topology
+    // leafNodes 已是最终活动叶集合，统计阶段无需再次递归遍历拓扑
     for (DataOrientedRoamNodeIndex leafIndex : leafNodes)
     {
-        // inactive child 仍留在 node pool 中但不参与当前帧统计
+        // 停用的历史子节点仍保留在节点池中，但不计入本帧结果
         state.Stats.MaxDepthReached = std::max(
             state.Stats.MaxDepthReached,
             state.Nodes.DepthAt(leafIndex));

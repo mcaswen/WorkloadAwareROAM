@@ -5,11 +5,11 @@
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 /// <summary>
-/// DOD topology 的每帧提交入口
-/// 在 MeshBuilder 的 Build 中调用；直接修改 state 的活动索引、邻居关系、预算和持久队列
-/// 并行预提交结束后由主线程继续执行串行收敛，调用方不得并发访问同一个 state
+/// DOD 每帧合并和细分拓扑的入口
+/// 函数会修改活动索引、邻接关系、预算和跨帧保留的队列，调用期间不得从其他入口访问同一状态
+/// 多个线程先处理能够独立修改的候选，随后由主线程继续处理剩余候选和需要连锁细分相邻三角形的情况
 /// </summary>
-// merge 先回收低误差 diamond，split 再按高误差顺序消费剩余预算
+// 先合并低误差菱形回收预算，再按分数从高到低细分节点
 void RefineWithSplitQueue(DataOrientedRoamState& state);
 void MergeWithDiamondQueue(DataOrientedRoamState& state);
-} // namespace ParallelRoam::Algorithms::DataOrientedRoam
+} // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

@@ -26,7 +26,7 @@ struct ScreenErrorScoreInput
     float ProjectedEdgeWeight{DefaultProjectedEdgeWeight};
 };
 
-/// 组合视锥可见性、保守几何误差和投影长边密度，返回统一的候选优先级分数。
+/// 先剔除视锥外三角形，再合并几何误差与屏幕长边大小，得到细分/合并队列共用的优先级分数
 [[nodiscard]] inline float ComputeScreenErrorScore(const ScreenErrorScoreInput& input)
 {
     if (!IsTriangleVisible(input.Triangle, input.WorldError, input.FrustumPlanes))
@@ -54,4 +54,4 @@ struct ScreenErrorScoreInput
         input.DrawableHeight) * input.ProjectedEdgeWeight;
     return std::max(geometricBoundPixels, edgeDensityPixels);
 }
-} // namespace ParallelRoam::Algorithms::Roam
+} // 命名空间 ParallelRoam::Algorithms::Roam

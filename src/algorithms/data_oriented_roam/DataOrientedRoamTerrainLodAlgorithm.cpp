@@ -17,9 +17,8 @@ float ErrorEvaluationMilliseconds(const DataOrientedRoamStats& stats)
 
 } // 匿名命名空间
 
-// adapter 保持和 Classic adapter 相同的接口形状
-// 差异只在内部 builder 的 SoA node pool 表达
-// benchmark 因此可以在同一 profile 下直接比较 Classic 与 DOD
+// 适配层与 Classic 保持相同接口，只在内部使用 SoA 节点池
+// 基准测试因此可以用同一组输入和统计字段直接比较两种实现
 TerrainLodAlgorithmInfo DataOrientedRoamTerrainLodAlgorithm::Info() const
 {
     return TerrainLodAlgorithmInfo{
@@ -49,8 +48,7 @@ bool DataOrientedRoamTerrainLodAlgorithm::BuildRenderData(
     _stats = {};
     outPacket = {};
 
-    // 无效 HeightMap 在算法边界上直接失败
-    // 避免 benchmark 把空 mesh 当作合法低细节输出
+    // 在公共算法边界拒绝无效高度图，避免基准测试把空网格误认为合法低细节结果
     if (input.HeightMap == nullptr || !input.HeightMap->IsValid())
     {
         if (errorMessage != nullptr)
@@ -60,7 +58,7 @@ bool DataOrientedRoamTerrainLodAlgorithm::BuildRenderData(
         return false;
     }
 
-    // DOD 与 Classic 共用 borrowed CPU Mesh/update range 契约。
+    // DOD 和 Classic 都直接引用各自内部保留的 CPU 网格，并按相同规则报告需要增量上传的范围
     outPacket.Mode = TerrainLodRenderMode::CpuMesh;
     const TerrainLodCpuSample cpuSampleStart = CaptureTerrainLodCpuSample();
     const Terrain::TerrainMeshData& meshData = _pipeline.Build(
@@ -98,8 +96,7 @@ const TerrainLodStats& DataOrientedRoamTerrainLodAlgorithm::Stats() const
 
 void DataOrientedRoamTerrainLodAlgorithm::Reset()
 {
-    // Reset 丢弃 index pool 和 hysteresis path
-    // 下一帧会重新建立 root diamond
+    // Reset 丢弃节点池和迟滞路径，下一帧从根菱形重新建立状态
     _pipeline = DataOrientedRoamPipeline{};
     _stats = {};
 }
@@ -107,14 +104,13 @@ void DataOrientedRoamTerrainLodAlgorithm::Reset()
 DataOrientedRoamSettings DataOrientedRoamTerrainLodAlgorithm::ToDataOrientedSettings(
     const TerrainLodSettings& settings)
 {
-    // DOD 使用与 Classic 相同的控制变量
-    // 这是三版本 benchmark 可比性的前提
+    // DOD 使用与 Classic 相同的公共质量参数，保证基准测试输入可比
     DataOrientedRoamSettings dataSettings{};
     dataSettings.MaxDepth = settings.MaxDepth;
     dataSettings.SplitThreshold = settings.ScreenSpaceSplitThresholdPixels;
     dataSettings.MergeThreshold = settings.ScreenSpaceMergeThresholdPixels;
     dataSettings.TriangleBudget = settings.TriangleBudget;
-    // worker 数保持 DOD 内部策略  避免扩大统一参数面
+    // 线程数量仍由 DOD 内部自动决定，暂不扩大公共参数接口
     dataSettings.ErrorEvaluationWorkerCount = 0U;
     dataSettings.EnableParallelSplit = settings.EnableParallelSplit;
     dataSettings.EnableLocalConstraints = settings.EnableLocalConstraints;
@@ -124,8 +120,7 @@ DataOrientedRoamSettings DataOrientedRoamTerrainLodAlgorithm::ToDataOrientedSett
 
 TerrainLodStats DataOrientedRoamTerrainLodAlgorithm::ToTerrainLodStats(const DataOrientedRoamStats& stats)
 {
-    // DOD 私有统计映射到统一字段
-    // CSV 不暴露具体 node pool 实现细节
+    // 将 DOD 私有统计映射到公共字段，CSV 无需了解节点池实现细节
     TerrainLodStats lodStats{};
     lodStats.ActiveTriangleCount = stats.ActiveTriangleCount;
     lodStats.ActiveNodeCount = stats.NodeCount;
@@ -154,7 +149,7 @@ TerrainLodStats DataOrientedRoamTerrainLodAlgorithm::ToTerrainLodStats(const Dat
     lodStats.InvalidNeighborCount = stats.InvalidNeighborCount;
     lodStats.InvalidTopologyCount = stats.InvalidTopologyCount;
     lodStats.CpuWorkerCount = std::max({
-        // 统一字段记录本帧用到的最大 CPU 并行宽度
+        // 公共字段记录本帧各阶段实际使用过的最大 CPU 线程数
         std::size_t{1},
         stats.ErrorEvaluationWorkerCount,
         stats.CollectWorkerCount,
@@ -173,10 +168,10 @@ TerrainLodStats DataOrientedRoamTerrainLodAlgorithm::ToTerrainLodStats(const Dat
     lodStats.MergeTopologyNonEmptyChunkCount = stats.MergeTopologyNonEmptyChunkCount;
     lodStats.MergeTopologyCommitWorkerCount = stats.MergeTopologyCommitWorkerCount;
     lodStats.ParallelMergeCommitCount = stats.ParallelMergeCommitCount;
-    // Q_s refresh 已包含评分与预算计数，error/collect 独立时间保持为零。
+    // Q_s 刷新已经包含评分与预算统计，独立误差评估和叶收集时间保持为零
     const float errorEvaluationMilliseconds = ErrorEvaluationMilliseconds(stats);
     const float splitCollectMilliseconds =
-        // 保留公式兼容旧报告；当前 ActiveLeafCollectMilliseconds 为零。
+        // 保留相加公式以兼容旧报告，当前 ActiveLeafCollectMilliseconds 为零
         stats.ActiveLeafCollectMilliseconds + stats.SplitCandidateMarkMilliseconds;
     lodStats.CpuUpdateMilliseconds = stats.UpdateMilliseconds;
     lodStats.CpuPrepareMilliseconds = stats.PrepareMilliseconds;

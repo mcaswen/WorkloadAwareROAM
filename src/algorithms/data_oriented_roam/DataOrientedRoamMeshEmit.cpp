@@ -95,8 +95,8 @@ void MarkMeshSlotDirty(DataOrientedRoamState& state, std::size_t slot)
         return;
     }
 
-    // generation 去重允许同一 slot 在一次 replay 中被连续 split/merge 覆盖，
-    // 最终只为拓扑稳定后的 owner 生成和上传一次数据。
+    // 使用网格版本号去重后，同一槽位即使经历连续细分和合并也只会记录一次
+    // 最终只为拓扑稳定后仍占用这些槽位的叶节点生成并上传数据
     if (mesh.SlotDirtyGenerations[slot] != mesh.Generation)
     {
         mesh.SlotDirtyGenerations[slot] = mesh.Generation;
@@ -106,8 +106,8 @@ void MarkMeshSlotDirty(DataOrientedRoamState& state, std::size_t slot)
 
 void NormalizeDirtyMeshSlots(DataOrientedRoamIncrementalMesh& mesh)
 {
-    // topology edit 顺序不承载输出顺序；提前按 slot 排序既清理已被尾部
-    // shrink 删除的槽位，也让后续顶点写入和 range 生成共享同一连续访问序列。
+    // 拓扑修改顺序不决定输出顺序，因此先按槽位排序并移除已经缩掉的尾部槽位
+    // 后续顶点写入和上传区间生成可以共用同一连续访问顺序
     std::sort(mesh.DirtySlots.begin(), mesh.DirtySlots.end());
     mesh.DirtySlots.erase(
         std::remove_if(
@@ -131,8 +131,8 @@ void ResizeMeshForSlotCount(DataOrientedRoamIncrementalMesh& mesh)
 void InitializeIncrementalMesh(DataOrientedRoamState& state)
 {
     DataOrientedRoamIncrementalMesh& mesh = state.IncrementalMesh;
-    // 初始化直接采用最终 active cut；首帧无需重放从 root 到当前深度的历史 split。
-    // 后续 Build 才依赖稳定 slot 继承增量更新。
+    // 首次初始化直接使用最终活动叶集合，无需重放从根节点到当前深度的历史细分
+    // 后续更新保留未变化叶节点的槽位，只重写发生变化的部分
     mesh.Data = {};
     mesh.Data.GridWidth = state.HeightMap != nullptr ? state.HeightMap->Width() : 0;
     mesh.Data.GridHeight = state.HeightMap != nullptr ? state.HeightMap->Height() : 0;
@@ -174,8 +174,8 @@ bool AppendMeshLeaf(DataOrientedRoamState& state, DataOrientedRoamNodeIndex node
         return false;
     }
 
-    // 追加只增长稠密尾部，不改变已有 leaf 的 slot。
-    // renderer 容量足够时只需上传这个新增范围。
+    // 新叶节点只追加到稠密数组尾部，不改变已有叶节点的槽位
+    // 渲染缓冲区容量足够时只需上传新增范围
     const std::size_t slot = mesh.SlotOwners.size();
     mesh.NodeSlots[node] = static_cast<DataOrientedRoamPosition>(slot);
     mesh.SlotOwners.push_back(node);
@@ -201,8 +201,8 @@ bool RemoveMeshLeaf(DataOrientedRoamState& state, DataOrientedRoamNodeIndex node
     }
 
     const std::size_t lastSlot = mesh.SlotOwners.size() - 1U;
-    // move-last 维持单一连续 draw range；这里不复制旧顶点，
-    // 被移动 owner 的目标 slot 已标脏，稍后的批量 emit 会直接重建正确数据。
+    // 用末尾槽位填补空洞以保持绘制范围连续，此处无需复制旧顶点
+    // 被移动节点的新槽位已经标记为需要重写，稍后会统一生成正确数据
     if (removedSlot != lastSlot)
     {
         const DataOrientedRoamNodeIndex movedNode = mesh.SlotOwners[lastSlot];
@@ -238,8 +238,8 @@ bool ReplaceMeshLeafWithChildren(DataOrientedRoamState& state, DataOrientedRoamN
         return false;
     }
 
-    // 与 Classic 相同，left child 继承 parent slot，right child 追加尾部。
-    // 差异仅是 DOD 通过 NodeSlots 数组维护反向关系。
+    // 与 Classic 相同，左子节点继承父节点槽位，右子节点追加到尾部
+    // DOD 通过 NodeSlots 数组维护节点到槽位的反向关系
     mesh.NodeSlots[parent] = InvalidDataOrientedRoamPosition;
     mesh.NodeSlots[leftChild] = static_cast<DataOrientedRoamPosition>(parentSlot);
     mesh.SlotOwners[parentSlot] = leftChild;
@@ -267,8 +267,8 @@ bool ReplaceMeshChildrenWithLeaf(DataOrientedRoamState& state, DataOrientedRoamN
         return false;
     }
 
-    // retained child 不能位于末槽，否则删除另一 child 时可能把 retained
-    // move 到空洞并覆盖刚建立的 parent owner。
+    // 保留的子节点不能位于末尾槽位，否则删除另一子节点时可能发生填洞移动
+    // 该移动会覆盖刚写入槽位的父节点
     const std::size_t lastSlot = mesh.SlotOwners.size() - 1U;
     if (mesh.NodeSlots[retainedChild] == lastSlot)
     {
@@ -309,8 +309,8 @@ void EmitDirtySlotRange(DataOrientedRoamState& state, std::size_t begin, std::si
 
 void EmitDirtyMeshSlots(DataOrientedRoamState& state)
 {
-    // 无论 dirty 比例高低都只消费 DirtySlots；D1 不在这里选择完整 emit。
-    // 较大的 dirty 批次只沿用 DOD 已有 worker 分段能力。
+    // 这里始终只处理 DirtySlots 中记录的槽位，不会因为变化比例较高就改为重写整个网格
+    // 变化槽位较多时只增加线程数，输出仍只包含需要更新的范围
     const std::size_t dirtyCount = state.IncrementalMesh.DirtySlots.size();
     state.Stats.EmitWorkerCount = ResolveEmitWorkerCount(state, dirtyCount);
     const std::size_t workerCount = state.Stats.EmitWorkerCount;
@@ -335,7 +335,7 @@ void EmitDirtyMeshSlots(DataOrientedRoamState& state)
         }
     });
 }
-} // namespace
+} // 匿名命名空间
 
 void BeginIncrementalMeshUpdate(
     DataOrientedRoamState& state,
@@ -351,7 +351,7 @@ void BeginIncrementalMeshUpdate(
     ++mesh.Generation;
     if (mesh.Generation == 0U)
     {
-        // generation 0 保留给从未发布过的 packet。
+        // 版本号 0 表示网格尚未生成，首次更新必须从 1 开始
         ++mesh.Generation;
         std::fill(mesh.SlotDirtyGenerations.begin(), mesh.SlotDirtyGenerations.end(), 0U);
     }
@@ -397,7 +397,7 @@ void ApplyIncrementalMeshUpdates(DataOrientedRoamState& state)
     }
     else
     {
-        // Rebuilt 颜色只维持一个 Build；仍是最终 leaf 的旧成员需要刷新一次。
+        // 用于标出本轮重建节点的颜色只显示一次更新，之后仍活动的叶节点需要刷新调试属性
         for (DataOrientedRoamNodeIndex node : mesh.DebugTransitionLeaves)
         {
             if (state.IsLeaf(node) && node < mesh.NodeSlots.size())
@@ -411,8 +411,8 @@ void ApplyIncrementalMeshUpdates(DataOrientedRoamState& state)
         }
         mesh.DebugTransitionLeaves.clear();
 
-        // edit 保持 topology 提交顺序，因此同一 Build 的级联 split/merge
-        // 可以逐步把上一代 slot cut 变换为最终 active cut。
+        // 按记录顺序应用拓扑修改，使同一次更新中的连续细分和合并能够逐步
+        // 将上一版槽位集合转换为最终活动叶集合
         bool replaySucceeded = true;
         for (const DataOrientedRoamMeshTopologyEdit& edit : mesh.TopologyEdits)
         {
@@ -427,7 +427,7 @@ void ApplyIncrementalMeshUpdates(DataOrientedRoamState& state)
 
         if (!replaySucceeded)
         {
-            // edit 契约失配时回到当前 active cut，保证发布的 Mesh 不携带旧拓扑。
+            // 拓扑记录与槽位状态不一致时按当前活动叶集合完整重建，避免输出旧拓扑对应的网格
             InitializeIncrementalMesh(state);
         }
     }
@@ -441,8 +441,8 @@ void ApplyIncrementalMeshUpdates(DataOrientedRoamState& state)
 void FinalizeIncrementalMeshUpdate(DataOrientedRoamState& state)
 {
     DataOrientedRoamIncrementalMesh& mesh = state.IncrementalMesh;
-    // slot 排序后只合并物理连续区间；不跨空洞扩大上传范围。
-    // 首次初始化仍发布单个完整范围。
+    // 槽位排序后只合并下标连续的区间，不跨越空洞扩大上传范围
+    // 首次初始化时仍将整个网格作为一个连续区间上传
     mesh.UpdateRanges.clear();
     if (mesh.RequiresFullUpload && !mesh.SlotOwners.empty())
     {
@@ -496,4 +496,4 @@ void FinalizeIncrementalMeshUpdate(DataOrientedRoamState& state)
         }
     }
 }
-} // namespace ParallelRoam::Algorithms::DataOrientedRoam
+} // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

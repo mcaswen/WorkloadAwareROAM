@@ -16,23 +16,23 @@ class DataOrientedRoamThreadPool;
 using DataOrientedRoamNodeIndex = std::uint32_t;
 constexpr DataOrientedRoamNodeIndex InvalidDataOrientedRoamNodeIndex =
     std::numeric_limits<DataOrientedRoamNodeIndex>::max();
-// NodeIndex 已经限制 node pool 为 uint32_t；所有活动列表和持久队列都是
-// node pool 的子集，因此 position 可以使用相同宽度，避免 64 位旁路索引。
+// 节点池下标使用 uint32_t，活动列表和跨帧保留的队列都只引用节点池中的一部分节点
+// 反向位置使用相同宽度即可覆盖全部成员，同时避免额外的 64 位索引开销
 using DataOrientedRoamPosition = std::uint32_t;
 constexpr DataOrientedRoamPosition InvalidDataOrientedRoamPosition =
     std::numeric_limits<DataOrientedRoamPosition>::max();
 constexpr DataOrientedRoamPosition InvalidActiveNodePosition =
     InvalidDataOrientedRoamPosition;
 static_assert(sizeof(DataOrientedRoamNodeIndex) == sizeof(DataOrientedRoamPosition));
-// chunk id 是并发 topology commit 的 ownership 键
+// 分块编号决定节点能否由某一个线程独立修改而不与其他线程冲突
 using DataOrientedRoamChunkId = std::uint32_t;
 constexpr DataOrientedRoamChunkId InvalidDataOrientedRoamChunkId =
     std::numeric_limits<DataOrientedRoamChunkId>::max();
-// 固定分块数避免把内部调度策略暴露成 UI 参数
+// 固定分块网格，避免把内部调度细节暴露为界面参数
 constexpr int DataOrientedRoamTopologyChunkGridSize = 8;
 
 /// <summary>
-/// split 提交的来源，用于区分误差驱动和兼容约束传播
+/// 区分误差驱动的普通细分和为保持邻接兼容而执行的强制细分
 /// </summary>
 enum class DataOrientedRoamSplitReason
 {
@@ -41,7 +41,7 @@ enum class DataOrientedRoamSplitReason
 };
 
 /// <summary>
-/// 活动叶相对当前 build 的生命周期分类
+/// 根据活动叶节点是在本次更新前保留、刚创建还是刚恢复来划分调试类别
 /// </summary>
 enum class DataOrientedRoamLeafDebugClass
 {
@@ -51,18 +51,18 @@ enum class DataOrientedRoamLeafDebugClass
 };
 
 /// <summary>
-/// split priority queue 的候选快照，由候选标记 pass 生成
+/// 从跨帧保留的细分队列复制出的候选，供本次任务划分和线程处理使用
 /// </summary>
 struct DataOrientedRoamSplitCandidate
 {
-    // 高误差优先，Sequence 保证并行收集后的同分候选仍可确定排序
+    // 高误差优先，Sequence 保证同分候选在并行收集后仍有确定顺序
     float Score{0.0F};
     std::uint64_t Sequence{0};
     DataOrientedRoamNodeIndex Node{InvalidDataOrientedRoamNodeIndex};
 };
 
 /// <summary>
-/// split 持久队列中的连续 heap 项，score 与 node 放在同一个位置供比较直接读取
+/// 跨帧保留的细分堆条目，将节点和分数放在一起以便比较时连续读取
 /// </summary>
 struct DataOrientedRoamSplitQueueEntry
 {
@@ -71,11 +71,11 @@ struct DataOrientedRoamSplitQueueEntry
 };
 
 /// <summary>
-/// merge 队列的候选快照，拓扑提交前不会修改节点关系
+/// 从合并队列复制出的候选，复制过程不会修改节点关系
 /// </summary>
 struct DataOrientedRoamMergeCandidate
 {
-    // 低误差 diamond 优先回收
+    // 低误差菱形优先合并，以尽量减少画质损失
     float Score{0.0F};
     DataOrientedRoamNodeIndex Node{InvalidDataOrientedRoamNodeIndex};
 };
@@ -87,9 +87,8 @@ struct DataOrientedRoamMergeQueueEntry
 };
 
 /// <summary>
-/// DOD 节点的动态 membership sidecar。
-/// node pool 仍保持 SoA；只把需要按 node 随机定位的活动/队列元数据收拢，
-/// 对应 Classic 节点内的 intrusive position、representative 和 partner 字段。
+/// 集中保存 DOD 节点在活动列表和跨帧保留队列中的成员信息
+/// 节点池仍保持 SoA 布局，这里只集中保存按节点查找成员位置和菱形关系所需的数据
 /// </summary>
 struct DataOrientedRoamNodeMembership
 {
@@ -115,9 +114,9 @@ struct DataOrientedRoamMeshTopologyEdit
 };
 
 /// <summary>
-/// DOD CPU 输出的持久 Mesh 状态。
-/// NodeSlots 是独立的单字段 SoA 反向索引；SlotOwners 是稠密活动 cut，
-/// topology edit 只在主线程重放，不让并行 topology worker 直接写 Mesh。
+/// 保存 DOD CPU 跨帧保留的网格、槽位映射和待更新范围
+/// NodeSlots 提供节点到槽位的反向索引，SlotOwners 按绘制顺序保存活动叶节点
+/// 其他线程只修改各自负责的拓扑，主线程统一更新网格，避免并发写入顶点和索引数组
 /// </summary>
 struct DataOrientedRoamIncrementalMesh
 {
@@ -137,14 +136,14 @@ struct DataOrientedRoamIncrementalMesh
 
 struct DataOrientedRoamMergeCandidateEvaluation
 {
-    // NodeScore 保持普通 merge 候选的原排序语义；PairScore 用于预算重平衡时衡量整个 diamond。
+    // NodeScore 保留单侧候选排序，PairScore 用于预算交换时衡量整个菱形的画质损失
     bool Eligible{false};
     float NodeScore{0.0F};
     float PairScore{0.0F};
 };
 
 /// <summary>
-/// SoA 节点池中单个节点的只读视图，字段引用到底层连续数组
+/// 将 SoA 节点池同一下标的字段组合成只读节点视图
 /// </summary>
 struct DataOrientedRoamNodeConstRef
 {
@@ -171,7 +170,7 @@ struct DataOrientedRoamNodeConstRef
 };
 
 /// <summary>
-/// SoA 节点池中单个节点的可写视图，算法 pass 通过它保持字段访问可读性
+/// 将 SoA 节点池同一下标的字段组合成可写节点视图，便于拓扑代码按节点访问
 /// </summary>
 struct DataOrientedRoamNodeRef
 {
@@ -200,38 +199,38 @@ struct DataOrientedRoamNodeRef
 };
 
 /// <summary>
-/// Data-Oriented ROAM 的 SoA 节点池，拓扑、误差、深度和 flag 分别连续存储
-/// 由 DataOrientedRoamState 独占；ResetTopology 清空，AddNode 追加，merge 后保留 child index 供复用
-/// state 初始化和 topology pass 会修改它；其他 pass 通过索引访问，不持有节点地址
+/// 使用独立连续数组保存 DOD ROAM 节点的拓扑、误差、深度和标志
+/// 这些数组都由 DataOrientedRoamState 管理，ResetTopology 负责清空，AddNode 以相同下标追加所有字段
+/// 合并后仍保留子节点下标，便于以后再次细分时复用已有节点
 /// </summary>
 struct DataOrientedRoamNodePool
 {
-    // 几何只保存 UV 定义域，世界坐标在评分和 emit 时按需恢复
+    // 节点只保存 UV 区域，评分和网格提交时再按需换算世界坐标
     std::vector<TriangleDomain> Domains;
     std::vector<DataOrientedRoamNodeIndex> Parents;
 
-    // merge 后保留 child index，使后续 split 可以复用节点和静态误差
+    // 合并后保留子节点下标，使后续细分可以复用节点和静态几何误差
     std::vector<DataOrientedRoamNodeIndex> LeftChildren;
     std::vector<DataOrientedRoamNodeIndex> RightChildren;
 
-    // 三个 neighbor 对应 base、left、right 三条边
+    // 三个邻居分别对应底边、左边和右边
     std::vector<DataOrientedRoamNodeIndex> BaseNeighbors;
     std::vector<DataOrientedRoamNodeIndex> LeftNeighbors;
     std::vector<DataOrientedRoamNodeIndex> RightNeighbors;
 
-    // InteriorChunkIds 缓存分块归属，避免 topology pass 反复按 UV 计算
+    // InteriorChunkIds 记录整个三角形所在的分块，避免拓扑阶段反复根据 UV 计算
     std::vector<DataOrientedRoamChunkId> InteriorChunkIds;
 
-    // GeometricErrors 保存 nested wedgie thickness，与相机无关且可跨帧复用
+    // GeometricErrors 保存保守几何误差，与相机无关并可跨帧复用
     std::vector<float> GeometricErrors;
-    // ScreenErrors 仅按需镜像给 GPU 快照，DOD 的 Q_s score 由 SplitQueue 独立持有
+    // 只有需要把节点状态复制给 GPU 时才同步 ScreenErrors，DOD 的 Q_s 分数由 SplitQueue 单独保存
     std::vector<float> ScreenErrors;
     std::vector<std::size_t> VarianceIndices;
 
-    // PathIds 是 hysteresis 的稳定键，不能使用 vector index 代替
+    // PathIds 始终对应固定的拓扑位置，供跨帧迟滞判断使用，不能用节点池数组下标代替
     std::vector<std::uint64_t> PathIds;
 
-    // build id 让 debug overlay 区分新建、激活和合并节点
+    // 更新序号让调试显示能够区分新建、重新激活和刚合并的节点
     std::vector<std::uint64_t> CreatedBuildIds;
     std::vector<std::uint64_t> ActivatedBuildIds;
     std::vector<std::uint64_t> SplitBuildIds;
@@ -239,7 +238,7 @@ struct DataOrientedRoamNodePool
     std::vector<int> Depths;
     std::vector<std::uint8_t> VarianceTreeIndices;
 
-    // flags 分离保存，避免和 index / float 字段混在同一 cache line
+    // 标志位单独连续保存，避免访问拓扑下标或误差时带入无关字节
     std::vector<std::uint8_t> ActivatedByForcedSplits;
     std::vector<std::uint8_t> IsSplits;
 
@@ -248,9 +247,9 @@ struct DataOrientedRoamNodePool
         return Domains.size();
     }
 
-    // 热路径只读取单个 SoA 字段时不再构造完整的 20 字段代理
-    // 除缓存 score 外均只提供只读访问，写操作交给专用拓扑函数
-    // 与 operator[] 一致，由调用方保证索引有效
+    // 只需要一个字段时直接读取对应数组，避免额外组合包含全部字段的节点视图
+    // 除可选的分数副本外，这些接口都只提供读取功能，写入集中在专用拓扑函数中
+    // 与 operator[] 相同，调用方负责保证下标有效
     [[nodiscard]] const TriangleDomain& DomainAt(DataOrientedRoamNodeIndex node) const noexcept
     {
         return Domains[node];
@@ -369,51 +368,51 @@ struct DataOrientedRoamNodePool
         std::uint8_t varianceTreeIndex,
         std::size_t varianceIndex);
 
-    // proxy 让 pass 保持节点语义，同时底层继续使用 SoA 布局
+    // 节点视图让算法代码按节点表达逻辑，底层数据仍保持 SoA 布局
     [[nodiscard]] DataOrientedRoamNodeRef operator[](DataOrientedRoamNodeIndex node);
     [[nodiscard]] DataOrientedRoamNodeConstRef operator[](DataOrientedRoamNodeIndex node) const;
 };
 
 /// <summary>
-/// DOD ROAM 的可变工作集，所有 pass 都只通过这个状态对象交换数据
-/// 由 DataOrientedRoamPipeline 创建并跨帧保存；Build 期间由各 pass 修改，pipeline 析构时释放
-/// Pipeline 持有它；HeightMap、ThreadPool 仅在 Build 调用期间借用
+/// 汇总 DOD ROAM 跨帧保留的拓扑、队列、网格和本次更新的临时数据
+/// DataOrientedRoamPipeline 创建并管理该状态，各算法阶段通过它交换结果
+/// HeightMap 和 ThreadPool 只在更新期间临时引用，状态对象不负责释放
 /// </summary>
 struct DataOrientedRoamState
 {
-    // HeightMap 和 ThreadPool 只在 Build 调用期间借用
+    // HeightMap 和 ThreadPool 只在当前更新期间有效
     const Terrain::HeightMap* HeightMap{nullptr};
     DataOrientedRoamSettings Settings;
     DataOrientedRoamStats Stats;
     DataOrientedRoamNodePool Nodes;
 
-    // 两棵 nested wedgie tree 分别对应两个根三角形；深度可超过运行时 MaxDepth
+    // 两棵误差树分别覆盖一个根三角形，预计算深度可以超过运行时 MaxDepth
     std::array<std::vector<float>, 2> VarianceTrees;
     const Terrain::HeightMap* VarianceHeightMap{nullptr};
     int VarianceTreeMaxDepth{-1};
 
-    // 两组稳定 path id 在帧边界交换，为 split/merge 提供 hysteresis 记忆
+    // 每次更新结束时交换两组路径编号，记录哪些位置仍处于细分状态，供下一帧迟滞判断
     std::unordered_set<std::uint64_t> PreviousSplitPaths;
     std::unordered_set<std::uint64_t> CurrentSplitPaths;
 
-    // 当前活动 internal 节点的连续索引，避免 merge 每帧扫描历史 node pool
+    // 连续保存当前活动内部节点，避免合并阶段扫描整个历史节点池
     std::vector<DataOrientedRoamNodeIndex> ActiveInternalNodes;
-    // 当前活动 leaf 的稠密视图只随拓扑变化，评分和 heapify 不再改变它的顺序
+    // 活动叶节点稠密数组只随拓扑变化，评分和建堆不会改变其顺序
     std::vector<DataOrientedRoamNodeIndex> ActiveLeafNodes;
-    // 每个 node 的活动/队列 membership 使用紧凑 sidecar，避免六组旁路数组分散访问
+    // 每个节点的活动列表和队列成员信息集中存储，避免分散到多个辅助数组中
     std::vector<DataOrientedRoamNodeMembership> NodeMembership;
 
-    // CPU adapter 跨 Build 借用这份持久 Mesh；GPU topology-only 路径不维护其 edit。
+    // CPU 适配层直接引用这份长期保留的网格，仅输出拓扑时不会记录网格修改
     DataOrientedRoamIncrementalMesh IncrementalMesh;
 
-    // 持久 Q_s 独立保存 node/score，反向位置支持 forced split 按 node 删除
+    // 跨帧保留的 Q_s 连续保存节点和分数，反向位置支持强制细分按节点删除成员
     std::vector<DataOrientedRoamSplitQueueEntry> SplitQueue;
     std::vector<std::uint64_t> SplitQueueBlockedBuildIds;
 
-    // 每个可 merge 的 diamond 只保存一个 canonical representative
+    // 每个可合并菱形在 Q_m 中只保存一个固定代表节点
     std::vector<DataOrientedRoamMergeQueueEntry> MergeQueue;
 
-    // RootA 和 RootB 构成初始 diamond
+    // RootA 和 RootB 覆盖整个地形并构成初始菱形
     DataOrientedRoamNodeIndex RootA{InvalidDataOrientedRoamNodeIndex};
     DataOrientedRoamNodeIndex RootB{InvalidDataOrientedRoamNodeIndex};
 
@@ -421,9 +420,9 @@ struct DataOrientedRoamState
     std::array<glm::vec4, 6> FrustumPlanes{};
     std::uint32_t DrawableWidth{1U};
     std::uint32_t DrawableHeight{1U};
-    // 串行 topology 使用普通计数；不会在每个事务里执行 atomic load/CAS。
+    // 串行拓扑阶段使用普通计数，避免每次修改都执行原子读写
     std::size_t RemainingSerialSplitBudget{0U};
-    // 并行 commit 的 worker 之间通过 atomic token 共享硬预算。
+    // 多个线程通过原子计数共享剩余名额，确保活动三角形不超过数量上限
     std::atomic<std::size_t> RemainingParallelSplitBudget{0U};
     float TerrainSize{1.0F};
     float HeightScale{1.0F};
@@ -442,4 +441,4 @@ struct DataOrientedRoamState
     }
 };
 
-} // namespace ParallelRoam::Algorithms::DataOrientedRoam
+} // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

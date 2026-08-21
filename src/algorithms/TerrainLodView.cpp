@@ -10,7 +10,7 @@ namespace
 {
 glm::vec4 MatrixRow(const glm::mat4& matrix, glm::length_t row)
 {
-    // GLM 使用列主序索引，视锥提取公式需要显式重建矩阵行
+    // GLM 按列索引矩阵，而视锥公式按行组合，因此先显式取出指定行
     return glm::vec4{
         matrix[0][row],
         matrix[1][row],
@@ -20,12 +20,12 @@ glm::vec4 MatrixRow(const glm::mat4& matrix, glm::length_t row)
 
 glm::vec4 NormalizePlane(const glm::vec4& plane)
 {
-    // 平面归一化后距离测试可以直接使用世界空间长度
-    // 退化输入保持原值，避免产生 NaN 污染后续候选分类
+    // 归一化后，平面值可以直接与世界空间距离比较
+    // 退化平面保持原值，避免除零产生 NaN 并污染后续可见性判断
     const float normalLength = glm::length(glm::vec3{plane});
     return normalLength > 0.000001F ? plane / normalLength : plane;
 }
-} // namespace
+} // 匿名命名空间
 
 TerrainLodViewInput BuildTerrainLodViewInput(
     const glm::mat4& view,
@@ -41,28 +41,28 @@ TerrainLodViewInput BuildTerrainLodViewInput(
     input.Projection = projection;
     input.ViewProjection = projection * view;
     input.CameraPosition = cameraPosition;
-    // 零方向来自尚未初始化的相机输入，统一回退到项目默认朝向
+    // 相机尚未初始化时方向可能为零，此时使用项目默认前向，保证评分输入有效
     input.CameraForward = glm::dot(cameraForward, cameraForward) > 0.000001F
         ? glm::normalize(cameraForward)
         : glm::vec3{0.0F, 0.0F, -1.0F};
     input.DrawableWidth = std::max(drawableWidth, 1U);
     input.DrawableHeight = std::max(drawableHeight, 1U);
 
-    // 投影与视图相乘后，clip 空间六个不等式可直接组合矩阵行得到平面
-    // 所有平面来自同一个 ViewProjection，避免算法层重复计算或混用矩阵约定
+    // 裁剪空间的六个边界可以直接由视图投影矩阵的行组合得到
+    // 在这里统一生成全部平面，避免各算法重复计算或使用不同矩阵约定
     const glm::vec4 row0 = MatrixRow(input.ViewProjection, 0U);
     const glm::vec4 row1 = MatrixRow(input.ViewProjection, 1U);
     const glm::vec4 row2 = MatrixRow(input.ViewProjection, 2U);
     const glm::vec4 row3 = MatrixRow(input.ViewProjection, 3U);
-    // 组合顺序使所有法线朝向视锥内部，调用方可统一使用非负半空间测试
+    // 组合顺序保证法线朝内，调用方只需检查平面值是否非负
     input.FrustumPlanes[static_cast<std::size_t>(TerrainLodFrustumPlane::Left)] = NormalizePlane(row3 + row0);
     input.FrustumPlanes[static_cast<std::size_t>(TerrainLodFrustumPlane::Right)] = NormalizePlane(row3 - row0);
     input.FrustumPlanes[static_cast<std::size_t>(TerrainLodFrustumPlane::Bottom)] = NormalizePlane(row3 + row1);
     input.FrustumPlanes[static_cast<std::size_t>(TerrainLodFrustumPlane::Top)] = NormalizePlane(row3 - row1);
-    // D3D 深度范围使用 z >= 0，OpenGL 深度范围使用 z + w >= 0
+    // D3D 的近裁剪条件是 z >= 0，OpenGL 则是 z + w >= 0
     input.FrustumPlanes[static_cast<std::size_t>(TerrainLodFrustumPlane::Near)] =
         NormalizePlane(usesZeroToOneDepth ? row2 : row3 + row2);
     input.FrustumPlanes[static_cast<std::size_t>(TerrainLodFrustumPlane::Far)] = NormalizePlane(row3 - row2);
     return input;
 }
-} // namespace ParallelRoam::Algorithms
+} // 命名空间 ParallelRoam::Algorithms
