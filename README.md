@@ -127,6 +127,10 @@ D3D12 版本：
 | [依赖与构建](docs/parallel-roam/10-dependency-setup.md) | 双后端可复现构建 |
 | [问题修复记录](docs/parallel-roam/11-bug-fix-log.md) | 关键正确性与性能问题 |
 | [Classic/DOD 优化计划](docs/parallel-roam/17-dod-classic-optimization-plan.md) | 数据导向优化阶段与公平性约束 |
+| [Workload-Aware 自适应执行研究计划](docs/parallel-roam/18-workload-aware-adaptive-execution-research-plan.md) | 研究问题、假设和论文结果结构 |
+| [Workload-Aware 具体问题定义](docs/parallel-roam/19-workload-aware-problem-definition.md) | pass、二维 workload matrix 和 feature 定义 |
+| [Workload-Aware 策略定义](docs/parallel-roam/20-workload-aware-strategy-definition.md) | 策略接口、基线、oracle 和消融 |
+| [Workload-Aware 实验设计](docs/parallel-roam/21-workload-aware-experiment-design.md) | 两层实验、规模、指标和验证标准 |
 
 ## 可复现性要求
 
