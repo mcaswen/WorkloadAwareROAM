@@ -100,3 +100,4 @@ DOD 可以直接利用以下数据导向特性：
 - [Workload-Aware 具体问题定义](docs/parallel-roam/19-workload-aware-problem-definition.md)：pass、二维 workload matrix 和 feature 定义；
 - [Workload-Aware 策略定义](docs/parallel-roam/20-workload-aware-strategy-definition.md)：策略接口、基线、oracle 和消融；
 - [Workload-Aware 实验设计](docs/parallel-roam/21-workload-aware-experiment-design.md)：两层实验、规模、指标和验证标准。
+- [Workload-Aware 源码改造规划](docs/parallel-roam/22-workload-aware-source-refactoring-plan.md)：源码 pass 判定、策略开关、Classic 对照和分阶段改造。
