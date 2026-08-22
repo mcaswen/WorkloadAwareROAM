@@ -27,13 +27,13 @@
 
 Classic 作为外部实现基线：Q_s/Q_m score refresh、拓扑 transaction 和网格提交主要串行；它不作为 DOD 内部 serial/parallel 的配对 kernel。
 
-## 必须先修正的源码语义
+## Phase 1 前发现并处理的源码语义
 
 ### 1. 拆开 `EnableParallelSplit` 的含义
 
-当前 `TerrainLodSettings::EnableParallelSplit` 传入 `DataOrientedRoamSettings::EnableParallelSplit`，但它只控制 `RefineWithSplitQueue` 是否执行候选 snapshot、chunk build 和 parallel split pre-commit；`RefreshPersistentSplitQueuePriorities` 仍根据 `ErrorEvaluationWorkerCount` 自动并行。因此当前开关不能作为“Split pass 串行/并行”的实验标签。
+改造前，`TerrainLodSettings::EnableParallelSplit` 只控制细分拓扑是否执行候选快照、分块和并行预提交，不能控制 `Q_s` 评分，因此不能代表整个细分流程的串行或并行。
 
-改造为 pass-specific policy：
+Phase 1 已改为阶段独立策略：
 
 ```text
 MergeMarkExecution = Serial | Parallel
@@ -45,15 +45,15 @@ MeshEmitExecution = Serial | Parallel
     CpuUploadAction = DirtyRange | FullBuffer
 ```
 
-`EnableParallelSplit` 在兼容期可映射为 `SplitTopologyExecution`，但 benchmark 和源码统计必须改用新的 requested/effective 字段。
+`EnableParallelSplit` 仍作为兼容入口保留。显式策略为自动时，关闭旧开关会把细分拓扑映射为 `SerialImmediate`；基准测试和源码统计改用新的请求值、实际值与回退原因。
 
 ### 2. 不再用一个线程参数控制所有 pass
 
-当前 `ErrorEvaluationWorkerCount` 同时影响 Q_s/Q_m priority refresh、拓扑 commit 和网格提交。它适合作为旧 benchmark 的线程上限，但不能支持 pass-level crossover。增加 pass-specific action 和线程设置，并记录 requested/effective action 与 fallback reason；保留旧字段只用于兼容旧命令。
+改造前，一个线程参数同时影响 `Q_s/Q_m` 评分刷新、拓扑提交和网格提交，无法隔离单个阶段。Phase 1 已为五个 CPU 算法阶段分别增加线程上限；旧的 `ErrorEvaluationWorkerCount` 只保留为实际评分线程数量统计，不再控制其他阶段。
 
 ### 3. 把环境变量诊断开关迁移到显式策略
 
-`PARALLEL_ROAM_DOD_PARALLEL_COMMIT_PHASE`、`PARALLEL_ROAM_DOD_PARALLEL_COMMIT_BUILD` 和并行候选阈值目前位于 `DataOrientedRoamTopology.cpp`，适合临时诊断，不适合作为论文实验的唯一控制面。最终 benchmark 应通过 settings/命令行写入 action，并把解析后的 effective action 输出到 CSV；环境变量只保留为调试覆盖。
+`PARALLEL_ROAM_DOD_PARALLEL_COMMIT_PHASE`、`PARALLEL_ROAM_DOD_PARALLEL_COMMIT_BUILD` 和并行候选阈值仍可用于临时诊断，但不再是实验的唯一控制面。基准测试现在通过设置或命令行选择策略，并把请求值、实际值和回退原因写入 CSV；环境变量只保留为调试覆盖。
 
 ## 分阶段改造计划
 
@@ -83,13 +83,30 @@ Phase 0 的结果是当前实现状态表和回归基线，不引入 adaptive。
 
 ### Phase 1：建立 pass policy 和可重复串行路径
 
-1. 在 `DataOrientedRoamTypes.h` 增加 pass policy enum/struct；在 `TerrainLodSettings`、benchmark scenario 和 render packet 中传递它。
-2. 将 Q_s/Q_m refresh 的线程解析改为显式读取 `MergeMarkAction`/`SplitMarkAction`；`SerialRefresh` 必须使用同一 score 函数、同一 queue members 和同一 heapify。
+**状态：已完成（2026-08-22）**
+
+1. 在公共 `TerrainLodPassTrace.h` 增加阶段策略枚举和结构，并通过 `TerrainLodSettings`、基准测试场景和渲染数据包传递。
+2. 将 `Q_s/Q_m` 评分刷新的线程解析改为显式读取 `MergeScore` / `SplitScore`；`SerialRefresh` 使用相同评分函数、相同队列成员和相同堆重建。
 3. 将网格提交的线程解析改为读取 `MeshEmitAction`；先实现 `SerialDirty`，确保与当前并行 dirty 写入结果一致，再恢复 `ParallelDirty`。
 4. 增加 `SerialFull`：以当前 `SlotOwners`/active leaf 为唯一输出集合，生成完整 update range；不重建拓扑、不改变 slot ownership。
 5. 对 CPU 上传增加显式 `DirtyRange`/`FullBuffer` 请求，并记录因 buffer capacity 或 frame-slot backlog 触发的 effective fallback。
 
 Phase 1 的验收是所有策略在固定输入下拓扑、预算和规范化 mesh 一致，且 serial mode 确实为单线程。
+
+当前实现结果：
+
+- `TerrainLodPassPolicy` 分别控制合并评分、细分评分、合并拓扑、细分拓扑、网格提交和 CPU 上传，并为五个 CPU 阶段保存独立线程上限
+- 固定串行与最大安全并行分别和增量输出、全量输出组合为四种预设；最大安全并行仍允许工作量不足、安全条件不满足或诊断限制触发串行回退
+- `SerialFull` 先按原有拓扑编辑维护槽位所有者，再由主线程重写所有现有槽位并生成完整更新区间，不重新收集或重建拓扑
+- OpenGL 和 D3D12 均支持显式 `DirtyRange` / `FullBuffer` 请求，并记录首次建立、缓冲区容量和 D3D12 帧槽积压造成的回退
+- 归一化网格哈希按稳定叶路径重排槽位，比较位置、法线、纹理坐标、高度和相对索引；调试颜色只描述变化过程，不参与策略等价判断
+- `pass-policy-replay` 对 Classic 与 DOD 分别重放固定串行增量、最大安全并行增量、固定串行全量和最大安全并行全量，六个固定视点的拓扑、活动叶、预算和归一化网格均一致
+- 两个策略回归已经加入 CTest，两种固定串行组合同时检查所有 CPU 算法阶段的实际线程数量不超过一
+- 两种全量输出组合都复用串行完整网格写入和完整缓冲区上传；“最大安全并行 + 全量输出”只让评分与安全拓扑阶段请求并行，不声称已经实现并行全量网格生成
+- OpenGL 完整验收分别覆盖默认路径每种算法 600 帧和预算饱和路径每种算法 64 帧，两条路径的预算越界、队列不变量错误、资源验证失败、非法邻接、非法拓扑和 T 形裂缝均为零
+- 默认路径验收报告为 `runtime-benchmark-20260822-224103`，预算饱和验收报告为 `runtime-benchmark-20260822-224155`
+- D3D12 已通过重新构建和六点短路径验证，脏区间请求能够记录首次网格建立与帧槽积压造成的完整缓冲区回退，随后恢复脏区间上传
+- D3D12 的“最大安全并行 + 全量输出”四点短路径报告为 `runtime-benchmark-20260822-224302`，DOD 评分实际使用八个线程，完整网格写入保持一个线程，全部帧使用完整缓冲区上传
 
 ### Phase 2：固定 Decision pass 的真实语义
 
@@ -143,7 +160,8 @@ Classic 和 DOD 当前都已填充 `MeshFullRebuildCount`、`MeshUpdatedTriangle
 | 文件 | 改造内容 |
 |---|---|
 | `src/algorithms/ITerrainLodAlgorithm.h` | 增加 pass policy、策略有效性和 trace 所需公共设置/结果字段；保留旧 `EnableParallelSplit` 兼容映射 |
-| `src/algorithms/data_oriented_roam/DataOrientedRoamTypes.h` | DOD pass action、effective action、fallback 和 feature/trace 字段 |
+| `src/algorithms/TerrainLodPassTrace.h` | 公共阶段策略、请求值、实际值、回退原因、结果哈希和策略预设 |
+| `src/algorithms/data_oriented_roam/DataOrientedRoamTypes.h` | DOD 私有设置、统计和公共策略映射 |
 | `DataOrientedRoamTerrainLodAlgorithm.cpp` | 公共设置到 DOD policy 的映射，禁止一个线程字段控制所有 pass |
 | `DataOrientedRoamQueues.cpp` | Q_s/Q_m serial/parallel full score refresh 和评分计时 |
 | `DataOrientedRoamTopology.cpp` | 拓扑 mode 显式选择、parallel-assisted 包络、serial tail 和候选冻结 replay |

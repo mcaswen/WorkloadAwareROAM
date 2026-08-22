@@ -23,6 +23,9 @@ struct RuntimeBenchmarkOverrides
     Gui::TerrainPanelState::RuntimeBenchmarkPath Path{
         Gui::TerrainPanelState::RuntimeBenchmarkPath::Default};
 
+    bool HasPassPolicy{false};
+    Algorithms::TerrainLodPassPolicy PassPolicy{};
+
     bool HasHeightMapIndex{false};
     int HeightMapIndex{0};
 

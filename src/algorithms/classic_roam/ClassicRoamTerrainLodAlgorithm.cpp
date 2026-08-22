@@ -57,6 +57,7 @@ bool ClassicRoamTerrainLodAlgorithm::BuildRenderData(
     outPacket.BorrowedCpuMesh = &meshData;
     outPacket.CpuMeshLifetime = TerrainLodCpuMeshLifetime::UntilNextBuildOrReset;
     outPacket.CpuMeshRequiresFullUpload = _builder.MeshRequiresFullUpload();
+    outPacket.CpuUploadAction = input.Settings.PassPolicy.CpuUpload;
     outPacket.CpuMeshGeneration = _builder.MeshGeneration();
     outPacket.CpuMeshUpdateRanges.reserve(_builder.MeshUpdateRanges().size());
     for (const ClassicRoamMeshUpdateRange& range : _builder.MeshUpdateRanges())
@@ -104,6 +105,7 @@ ClassicRoamSettings ClassicRoamTerrainLodAlgorithm::ToClassicSettings(const Terr
     classicSettings.EnableLocalConstraints = settings.EnableLocalConstraints;
     classicSettings.EnableTopologyValidation = settings.EnableTopologyValidation;
     classicSettings.EnablePassEvidence = settings.EnablePassEvidence;
+    classicSettings.PassPolicy = settings.PassPolicy;
     return classicSettings;
 }
 
@@ -116,6 +118,7 @@ TerrainLodStats ClassicRoamTerrainLodAlgorithm::ToTerrainLodStats(const ClassicR
     lodStats.TopologyHash = stats.TopologyHash;
     lodStats.ActiveLeafHash = stats.ActiveLeafHash;
     lodStats.MeshHash = stats.MeshHash;
+    lodStats.NormalizedMeshHash = stats.NormalizedMeshHash;
     lodStats.TriangleBudget = stats.TriangleBudget;
     lodStats.QueueInvariantViolationCount = stats.QueueInvariantViolationCount;
     lodStats.PassEvidenceMilliseconds = stats.PassEvidenceMilliseconds;

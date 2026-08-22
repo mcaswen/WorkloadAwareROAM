@@ -70,6 +70,7 @@ bool DataOrientedRoamTerrainLodAlgorithm::BuildRenderData(
     outPacket.BorrowedCpuMesh = &meshData;
     outPacket.CpuMeshLifetime = TerrainLodCpuMeshLifetime::UntilNextBuildOrReset;
     outPacket.CpuMeshRequiresFullUpload = _pipeline.MeshRequiresFullUpload();
+    outPacket.CpuUploadAction = input.Settings.PassPolicy.CpuUpload;
     outPacket.CpuMeshGeneration = _pipeline.MeshGeneration();
     outPacket.CpuMeshUpdateRanges.reserve(_pipeline.MeshUpdateRanges().size());
     for (const DataOrientedRoamMeshUpdateRange& range : _pipeline.MeshUpdateRanges())
@@ -116,8 +117,12 @@ DataOrientedRoamSettings DataOrientedRoamTerrainLodAlgorithm::ToDataOrientedSett
     dataSettings.MergeThreshold = settings.ScreenSpaceMergeThresholdPixels;
     dataSettings.TriangleBudget = settings.TriangleBudget;
     // 线程数量仍由 DOD 内部自动决定，暂不扩大公共参数接口
-    dataSettings.ErrorEvaluationWorkerCount = 0U;
-    dataSettings.EnableParallelSplit = settings.EnableParallelSplit;
+    dataSettings.PassPolicy = settings.PassPolicy;
+    if (!settings.EnableParallelSplit &&
+        dataSettings.PassPolicy.SplitTopology == TerrainLodTopologyAction::Automatic)
+    {
+        dataSettings.PassPolicy.SplitTopology = TerrainLodTopologyAction::SerialImmediate;
+    }
     dataSettings.EnableLocalConstraints = settings.EnableLocalConstraints;
     dataSettings.EnableTopologyValidation = settings.EnableTopologyValidation;
     dataSettings.EnablePassEvidence = settings.EnablePassEvidence;
@@ -133,6 +138,7 @@ TerrainLodStats DataOrientedRoamTerrainLodAlgorithm::ToTerrainLodStats(const Dat
     lodStats.TopologyHash = stats.TopologyHash;
     lodStats.ActiveLeafHash = stats.ActiveLeafHash;
     lodStats.MeshHash = stats.MeshHash;
+    lodStats.NormalizedMeshHash = stats.NormalizedMeshHash;
     lodStats.TriangleBudget = stats.TriangleBudget;
     lodStats.QueueInvariantViolationCount = stats.QueueInvariantViolationCount;
     lodStats.PassEvidenceMilliseconds = stats.PassEvidenceMilliseconds;

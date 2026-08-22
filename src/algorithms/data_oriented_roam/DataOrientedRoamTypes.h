@@ -52,10 +52,7 @@ struct DataOrientedRoamSettings
     float MergeThreshold{2.0F};
     // 当前可用于渲染的活动叶三角形数量上限
     std::size_t TriangleBudget{20000U};
-    // 0 表示自动选择线程数，1 表示在调用线程串行评分
-    std::size_t ErrorEvaluationWorkerCount{0};
-    // 关闭时不复制细分候选或划分任务，直接由主线程处理当前 Q_s
-    bool EnableParallelSplit{true};
+    TerrainLodPassPolicy PassPolicy{};
     // 默认由跨帧保留的细分队列保存分数，避免评分时随机写入节点池
     bool MirrorSplitScoresToNodePool{false};
     bool EnableLocalConstraints{true};
@@ -75,6 +72,7 @@ struct DataOrientedRoamStats
     std::uint64_t TopologyHash{0U};
     std::uint64_t ActiveLeafHash{0U};
     std::uint64_t MeshHash{0U};
+    std::uint64_t NormalizedMeshHash{0U};
     std::size_t TriangleBudget{0U};
     std::size_t QueueInvariantViolationCount{0U};
     float PassEvidenceMilliseconds{0.0F};

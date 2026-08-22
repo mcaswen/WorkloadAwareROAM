@@ -23,15 +23,62 @@ namespace
 {
 constexpr int MaximumSupportedDepth = 20;
 
-TerrainLodPassFallbackReason AutomaticFallback(std::size_t workCount, std::size_t workerCount)
+/// <summary>
+/// 将评分策略转换为阶段记录使用的统一动作
+/// </summary>
+TerrainLodPassAction RequestedScoreAction(TerrainLodScoreRefreshAction action)
 {
-    // 没有工作与工作量不足是两种不同事实
-    // 后续模型可以据此区分空阶段和串行更合适的小阶段
+    switch (action)
+    {
+    case TerrainLodScoreRefreshAction::Automatic: return TerrainLodPassAction::Automatic;
+    case TerrainLodScoreRefreshAction::SerialRefresh: return TerrainLodPassAction::SerialFullRefresh;
+    case TerrainLodScoreRefreshAction::ParallelRefresh: return TerrainLodPassAction::ParallelFullRefresh;
+    }
+    return TerrainLodPassAction::Automatic;
+}
+
+/// <summary>
+/// 将拓扑策略转换为阶段记录使用的统一动作
+/// </summary>
+TerrainLodPassAction RequestedTopologyAction(TerrainLodTopologyAction action)
+{
+    switch (action)
+    {
+    case TerrainLodTopologyAction::Automatic: return TerrainLodPassAction::Automatic;
+    case TerrainLodTopologyAction::SerialImmediate: return TerrainLodPassAction::SerialImmediate;
+    case TerrainLodTopologyAction::ParallelAssisted: return TerrainLodPassAction::ParallelAssisted;
+    }
+    return TerrainLodPassAction::Automatic;
+}
+
+/// <summary>
+/// 将网格提交策略转换为阶段记录使用的统一动作
+/// </summary>
+TerrainLodPassAction RequestedMeshAction(TerrainLodMeshEmitAction action)
+{
+    switch (action)
+    {
+    case TerrainLodMeshEmitAction::Automatic: return TerrainLodPassAction::Automatic;
+    case TerrainLodMeshEmitAction::SerialDirty: return TerrainLodPassAction::SerialDirty;
+    case TerrainLodMeshEmitAction::ParallelDirty: return TerrainLodPassAction::ParallelDirty;
+    case TerrainLodMeshEmitAction::SerialFull: return TerrainLodPassAction::SerialFull;
+    }
+    return TerrainLodPassAction::Automatic;
+}
+
+/// <summary>
+/// 根据工作量和实际线程数量解释并行请求为何退回串行
+/// </summary>
+TerrainLodPassFallbackReason PolicyFallback(
+    std::size_t workCount,
+    std::size_t workerCount,
+    bool mayRequestParallel)
+{
     if (workCount == 0U)
     {
         return TerrainLodPassFallbackReason::NoWork;
     }
-    return workerCount <= 1U
+    return mayRequestParallel && workerCount <= 1U
         ? TerrainLodPassFallbackReason::BelowParallelThreshold
         : TerrainLodPassFallbackReason::None;
 }
@@ -49,16 +96,20 @@ void FinalizePassTraces(DataOrientedRoamState& state)
     TerrainLodPassTrace& mergeScore = TerrainLodPassTraceFor(
         stats.PassTraces,
         TerrainLodPassId::MergeScore);
-    mergeScore.RequestedAction = TerrainLodPassAction::Automatic;
+    mergeScore.RequestedAction = RequestedScoreAction(state.Settings.PassPolicy.MergeScore);
     mergeScore.EffectiveAction = stats.MergeCandidateMarkWorkerCount > 1U
         ? TerrainLodPassAction::ParallelFullRefresh
         : TerrainLodPassAction::SerialFullRefresh;
-    mergeScore.FallbackReason = AutomaticFallback(
+    mergeScore.FallbackReason = PolicyFallback(
         stats.MergeScoreEntryCount,
-        stats.MergeCandidateMarkWorkerCount);
+        stats.MergeCandidateMarkWorkerCount,
+        state.Settings.PassPolicy.MergeScore != TerrainLodScoreRefreshAction::SerialRefresh);
     mergeScore.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
     mergeScore.PriorityRefresh = TerrainLodPriorityRefreshMode::FullAllCurrentEntries;
-    mergeScore.RequestedWorkerCount = state.Settings.ErrorEvaluationWorkerCount;
+    mergeScore.RequestedWorkerCount =
+        state.Settings.PassPolicy.MergeScore == TerrainLodScoreRefreshAction::SerialRefresh
+        ? 1U
+        : state.Settings.PassPolicy.MergeScoreWorkerCount;
     mergeScore.EffectiveWorkerCount = stats.MergeCandidateMarkWorkerCount;
     mergeScore.CandidateCount = stats.MergeScoreEntryCount;
     mergeScore.WallMilliseconds = stats.MergeCandidateMarkMilliseconds;
@@ -67,16 +118,20 @@ void FinalizePassTraces(DataOrientedRoamState& state)
     TerrainLodPassTrace& splitScore = TerrainLodPassTraceFor(
         stats.PassTraces,
         TerrainLodPassId::SplitScore);
-    splitScore.RequestedAction = TerrainLodPassAction::Automatic;
+    splitScore.RequestedAction = RequestedScoreAction(state.Settings.PassPolicy.SplitScore);
     splitScore.EffectiveAction = stats.SplitCandidateMarkWorkerCount > 1U
         ? TerrainLodPassAction::ParallelFullRefresh
         : TerrainLodPassAction::SerialFullRefresh;
-    splitScore.FallbackReason = AutomaticFallback(
+    splitScore.FallbackReason = PolicyFallback(
         stats.SplitScoreEntryCount,
-        stats.SplitCandidateMarkWorkerCount);
+        stats.SplitCandidateMarkWorkerCount,
+        state.Settings.PassPolicy.SplitScore != TerrainLodScoreRefreshAction::SerialRefresh);
     splitScore.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
     splitScore.PriorityRefresh = TerrainLodPriorityRefreshMode::FullAllCurrentEntries;
-    splitScore.RequestedWorkerCount = state.Settings.ErrorEvaluationWorkerCount;
+    splitScore.RequestedWorkerCount =
+        state.Settings.PassPolicy.SplitScore == TerrainLodScoreRefreshAction::SerialRefresh
+        ? 1U
+        : state.Settings.PassPolicy.SplitScoreWorkerCount;
     splitScore.EffectiveWorkerCount = stats.SplitCandidateMarkWorkerCount;
     splitScore.CandidateCount = stats.SplitScoreEntryCount;
     splitScore.WallMilliseconds = stats.SplitCandidateMarkMilliseconds;
@@ -86,18 +141,30 @@ void FinalizePassTraces(DataOrientedRoamState& state)
     TerrainLodPassTrace& mergeTopology = TerrainLodPassTraceFor(
         stats.PassTraces,
         TerrainLodPassId::MergeTopology);
-    mergeTopology.RequestedAction = TerrainLodPassAction::Automatic;
-    mergeTopology.EffectiveAction = stats.MergeTopologyCommitWorkerCount > 1U
+    mergeTopology.RequestedAction = RequestedTopologyAction(state.Settings.PassPolicy.MergeTopology);
+    const bool serialMergeTopology =
+        state.Settings.PassPolicy.MergeTopology == TerrainLodTopologyAction::SerialImmediate;
+    const std::size_t mergeTopologyCandidateCount = serialMergeTopology
+        ? stats.MergeScoreEntryCount
+        : stats.MergeCandidateCount;
+    const std::size_t mergeTopologyWorkerCount = serialMergeTopology
+        ? (mergeTopologyCandidateCount == 0U ? 0U : 1U)
+        : stats.MergeTopologyCommitWorkerCount;
+    mergeTopology.EffectiveAction = mergeTopologyWorkerCount > 1U
         ? TerrainLodPassAction::ParallelAssisted
         : TerrainLodPassAction::SerialImmediate;
-    mergeTopology.FallbackReason = AutomaticFallback(
-        stats.MergeCandidateCount,
-        stats.MergeTopologyCommitWorkerCount);
+    mergeTopology.FallbackReason = PolicyFallback(
+        mergeTopologyCandidateCount,
+        mergeTopologyWorkerCount,
+        state.Settings.PassPolicy.MergeTopology != TerrainLodTopologyAction::SerialImmediate);
     mergeTopology.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
     mergeTopology.DataUpdate = TerrainLodDataUpdateMode::Incremental;
-    mergeTopology.RequestedWorkerCount = state.Settings.ErrorEvaluationWorkerCount;
-    mergeTopology.EffectiveWorkerCount = stats.MergeTopologyCommitWorkerCount;
-    mergeTopology.CandidateCount = stats.MergeCandidateCount;
+    mergeTopology.RequestedWorkerCount =
+        state.Settings.PassPolicy.MergeTopology == TerrainLodTopologyAction::SerialImmediate
+        ? 1U
+        : state.Settings.PassPolicy.MergeTopologyWorkerCount;
+    mergeTopology.EffectiveWorkerCount = mergeTopologyWorkerCount;
+    mergeTopology.CandidateCount = mergeTopologyCandidateCount;
     mergeTopology.WallMilliseconds =
         stats.MergeTopologyChunkBuildMilliseconds +
         stats.MergeTopologyQueueInvalidationMilliseconds +
@@ -106,33 +173,32 @@ void FinalizePassTraces(DataOrientedRoamState& state)
         stats.MergeTopologyIndexQueueRefreshMilliseconds +
         stats.MergeTopologySerialConvergenceMilliseconds;
 
-    // 旧开关只控制细分候选快照和并行辅助部分
-    // 关闭时 Q_s 评分仍可能并行，因此这里只映射拓扑阶段
+    // 串行策略跳过候选快照和分块准备，直接由主线程读取 Q_s 收敛
     TerrainLodPassTrace& splitTopology = TerrainLodPassTraceFor(
         stats.PassTraces,
         TerrainLodPassId::SplitTopology);
-    splitTopology.RequestedAction = state.Settings.EnableParallelSplit
+    splitTopology.RequestedAction = RequestedTopologyAction(state.Settings.PassPolicy.SplitTopology);
+    const bool serialSplitTopology =
+        state.Settings.PassPolicy.SplitTopology == TerrainLodTopologyAction::SerialImmediate;
+    const std::size_t splitTopologyCandidateCount = serialSplitTopology
+        ? stats.SplitScoreEntryCount
+        : stats.SplitCandidateCount;
+    const std::size_t splitTopologyWorkerCount = serialSplitTopology
+        ? (splitTopologyCandidateCount == 0U ? 0U : 1U)
+        : stats.SplitTopologyCommitWorkerCount;
+    splitTopology.EffectiveAction = splitTopologyWorkerCount > 1U
         ? TerrainLodPassAction::ParallelAssisted
         : TerrainLodPassAction::SerialImmediate;
-    splitTopology.EffectiveAction = stats.SplitTopologyCommitWorkerCount > 1U
-        ? TerrainLodPassAction::ParallelAssisted
-        : TerrainLodPassAction::SerialImmediate;
-    const std::size_t splitTopologyCandidateCount = state.Settings.EnableParallelSplit
-        ? stats.SplitCandidateCount
-        : stats.SplitScoreEntryCount;
-    // 串行旧路径没有候选快照，只能记录本帧评分条目规模
-    // ParallelDisabled 不作为失败，因为这正是调用方请求的固定行为
-    splitTopology.FallbackReason = state.Settings.EnableParallelSplit
-        ? AutomaticFallback(splitTopologyCandidateCount, stats.SplitTopologyCommitWorkerCount)
-        : TerrainLodPassFallbackReason::None;
+    splitTopology.FallbackReason = PolicyFallback(
+        splitTopologyCandidateCount,
+        splitTopologyWorkerCount,
+        state.Settings.PassPolicy.SplitTopology != TerrainLodTopologyAction::SerialImmediate);
     splitTopology.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
     splitTopology.DataUpdate = TerrainLodDataUpdateMode::Incremental;
-    splitTopology.RequestedWorkerCount = state.Settings.EnableParallelSplit
-        ? state.Settings.ErrorEvaluationWorkerCount
-        : 1U;
-    splitTopology.EffectiveWorkerCount = state.Settings.EnableParallelSplit
-        ? stats.SplitTopologyCommitWorkerCount
-        : (splitTopologyCandidateCount == 0U ? 0U : 1U);
+    splitTopology.RequestedWorkerCount = serialSplitTopology
+        ? 1U
+        : state.Settings.PassPolicy.SplitTopologyWorkerCount;
+    splitTopology.EffectiveWorkerCount = splitTopologyWorkerCount;
     splitTopology.CandidateCount = splitTopologyCandidateCount;
     splitTopology.WallMilliseconds =
         stats.SplitTopologyChunkBuildMilliseconds +
@@ -142,22 +208,29 @@ void FinalizePassTraces(DataOrientedRoamState& state)
         stats.SplitTopologyIndexQueueRefreshMilliseconds +
         stats.SplitTopologySerialConvergenceMilliseconds;
 
-    // DOD 始终通过脏槽位写入网格，超过阈值时只改变写入线程数量
-    // 首帧的脏槽位覆盖完整活动网格，因此结果范围单独标为 Full
+    // 全量策略复用当前槽位和活动叶，只重写全部槽位内容
     TerrainLodPassTrace& meshEmit = TerrainLodPassTraceFor(
         stats.PassTraces,
         TerrainLodPassId::MeshEmit);
-    meshEmit.RequestedAction = TerrainLodPassAction::Automatic;
-    meshEmit.EffectiveAction = stats.EmitWorkerCount > 1U
-        ? TerrainLodPassAction::ParallelDirty
-        : TerrainLodPassAction::SerialDirty;
-    meshEmit.FallbackReason = AutomaticFallback(
+    meshEmit.RequestedAction = RequestedMeshAction(state.Settings.PassPolicy.MeshEmit);
+    meshEmit.EffectiveAction = state.Settings.PassPolicy.MeshEmit == TerrainLodMeshEmitAction::SerialFull
+        ? TerrainLodPassAction::SerialFull
+        : (stats.EmitWorkerCount > 1U
+            ? TerrainLodPassAction::ParallelDirty
+            : TerrainLodPassAction::SerialDirty);
+    meshEmit.FallbackReason = PolicyFallback(
         stats.MeshUpdatedTriangleCount,
-        stats.EmitWorkerCount);
+        stats.EmitWorkerCount,
+        state.Settings.PassPolicy.MeshEmit == TerrainLodMeshEmitAction::Automatic ||
+        state.Settings.PassPolicy.MeshEmit == TerrainLodMeshEmitAction::ParallelDirty);
     meshEmit.DataUpdate = stats.MeshFullRebuildCount == 0U
         ? TerrainLodDataUpdateMode::Incremental
         : TerrainLodDataUpdateMode::Full;
-    meshEmit.RequestedWorkerCount = state.Settings.ErrorEvaluationWorkerCount;
+    meshEmit.RequestedWorkerCount =
+        state.Settings.PassPolicy.MeshEmit == TerrainLodMeshEmitAction::SerialDirty ||
+        state.Settings.PassPolicy.MeshEmit == TerrainLodMeshEmitAction::SerialFull
+        ? 1U
+        : state.Settings.PassPolicy.MeshEmitWorkerCount;
     meshEmit.EffectiveWorkerCount = stats.EmitWorkerCount;
     meshEmit.DirtyItemCount = stats.MeshUpdatedTriangleCount;
     meshEmit.WallMilliseconds = stats.MeshEmitMilliseconds;
@@ -192,9 +265,23 @@ void CollectPassEvidence(DataOrientedRoamState& state)
             leafPathIds.push_back(state.Nodes.PathIdAt(node));
         }
     }
-    state.Stats.ActiveLeafHash = HashTerrainLodPathIds(std::move(leafPathIds));
-    // 当前阶段先保存精确网格顺序，后续策略比较再增加规范化等价哈希
+    state.Stats.ActiveLeafHash = HashTerrainLodPathIds(leafPathIds);
+
+    // 网格槽位顺序可能不同于活动叶数组，规范化时必须使用槽位对应的稳定路径
+    std::vector<std::uint64_t> slotPathIds;
+    slotPathIds.reserve(state.IncrementalMesh.SlotOwners.size());
+    for (const DataOrientedRoamNodeIndex node : state.IncrementalMesh.SlotOwners)
+    {
+        if (state.IsValidNode(node))
+        {
+            slotPathIds.push_back(state.Nodes.PathIdAt(node));
+        }
+    }
+    // 精确哈希用于同一实现重放，规范化哈希用于忽略槽位顺序比较策略结果
     state.Stats.MeshHash = HashTerrainLodMesh(state.IncrementalMesh.Data);
+    state.Stats.NormalizedMeshHash = HashTerrainLodNormalizedMesh(
+        state.IncrementalMesh.Data,
+        slotPathIds);
     if (!state.Settings.EnableTopologyValidation)
     {
         state.Stats.QueueInvariantViolationCount = CountPersistentQueueInvariantViolations(state);

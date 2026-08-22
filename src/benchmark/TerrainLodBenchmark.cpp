@@ -105,6 +105,8 @@ std::string ToString(BenchmarkProfile profile)
         return "incremental-emit";
     case BenchmarkProfile::PassTraceReplay:
         return "pass-trace-replay";
+    case BenchmarkProfile::PassPolicyReplay:
+        return "pass-policy-replay";
     case BenchmarkProfile::Standard:
         return "standard";
     }
@@ -125,6 +127,44 @@ std::string ToString(BenchmarkAlgorithmSelection selection)
     }
 
     return "unknown";
+}
+
+std::string ToString(BenchmarkPassPolicySelection selection)
+{
+    switch (selection)
+    {
+    case BenchmarkPassPolicySelection::Default: return "default";
+    case BenchmarkPassPolicySelection::SerialIncremental: return "serial-incremental";
+    case BenchmarkPassPolicySelection::MaximumParallelIncremental:
+        return "maximum-parallel-incremental";
+    case BenchmarkPassPolicySelection::SerialFull: return "serial-full";
+    case BenchmarkPassPolicySelection::MaximumParallelFull: return "maximum-parallel-full";
+    }
+    return "unknown";
+}
+
+void ApplyPassPolicy(
+    BenchmarkPassPolicySelection selection,
+    Algorithms::TerrainLodSettings& settings)
+{
+    switch (selection)
+    {
+    case BenchmarkPassPolicySelection::Default:
+        settings.PassPolicy = {};
+        break;
+    case BenchmarkPassPolicySelection::SerialIncremental:
+        settings.PassPolicy = Algorithms::MakeTerrainLodSerialIncrementalPolicy();
+        break;
+    case BenchmarkPassPolicySelection::MaximumParallelIncremental:
+        settings.PassPolicy = Algorithms::MakeTerrainLodMaximumSafeParallelIncrementalPolicy();
+        break;
+    case BenchmarkPassPolicySelection::SerialFull:
+        settings.PassPolicy = Algorithms::MakeTerrainLodSerialFullOutputPolicy();
+        break;
+    case BenchmarkPassPolicySelection::MaximumParallelFull:
+        settings.PassPolicy = Algorithms::MakeTerrainLodMaximumSafeParallelFullOutputPolicy();
+        break;
+    }
 }
 
 std::vector<BenchmarkCameraKeyframe> MakeStandardCameraPath()
@@ -245,7 +285,9 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
     scenario.Settings.EnableLocalConstraints = true;
     scenario.Settings.EnablePassEvidence = true;
 
-    if (profile == BenchmarkProfile::Smoke || profile == BenchmarkProfile::PassTraceReplay)
+    if (profile == BenchmarkProfile::Smoke ||
+        profile == BenchmarkProfile::PassTraceReplay ||
+        profile == BenchmarkProfile::PassPolicyReplay)
     {
         // Smoke 使用小高度图和代表性视点
         // 拓扑验证开启
@@ -433,6 +475,7 @@ bool ValidateFrame(
          stats.TopologyHash == 0U ||
          stats.ActiveLeafHash == 0U ||
          stats.MeshHash == 0U ||
+         stats.NormalizedMeshHash == 0U ||
          stats.TriangleBudget != scenario.Settings.TriangleBudget ||
          stats.BudgetViolationCount != 0U ||
          stats.QueueInvariantViolationCount != 0U ||
@@ -537,6 +580,7 @@ bool HasEquivalentReplay(
             left.TopologyHash != right.TopologyHash ||
             left.ActiveLeafHash != right.ActiveLeafHash ||
             left.MeshHash != right.MeshHash ||
+            left.NormalizedMeshHash != right.NormalizedMeshHash ||
             left.ActiveTriangleCount != right.ActiveTriangleCount ||
             left.TriangleBudget != right.TriangleBudget ||
             left.BudgetViolationCount != right.BudgetViolationCount ||
@@ -547,6 +591,133 @@ bool HasEquivalentReplay(
         }
     }
     return true;
+}
+
+bool HasEquivalentPolicyResults(
+    const BenchmarkAlgorithmRun& leftRun,
+    const BenchmarkAlgorithmRun& rightRun)
+{
+    if (!leftRun.Available || !rightRun.Available ||
+        !leftRun.Passed || !rightRun.Passed ||
+        leftRun.Frames.size() != rightRun.Frames.size())
+    {
+        return false;
+    }
+
+    for (std::size_t index = 0U; index < leftRun.Frames.size(); ++index)
+    {
+        const Algorithms::TerrainLodStats& left = leftRun.Frames[index].Stats;
+        const Algorithms::TerrainLodStats& right = rightRun.Frames[index].Stats;
+        if (left.TopologyHash != right.TopologyHash ||
+            left.ActiveLeafHash != right.ActiveLeafHash ||
+            left.NormalizedMeshHash != right.NormalizedMeshHash ||
+            left.ActiveTriangleCount != right.ActiveTriangleCount ||
+            left.TriangleBudget != right.TriangleBudget ||
+            left.BudgetViolationCount != right.BudgetViolationCount ||
+            left.QueueInvariantViolationCount != right.QueueInvariantViolationCount ||
+            left.ResourceValidationFailureCount != right.ResourceValidationFailureCount ||
+            left.TjunctionCount != right.TjunctionCount ||
+            left.InvalidNeighborCount != right.InvalidNeighborCount ||
+            left.InvalidTopologyCount != right.InvalidTopologyCount)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool HasExpectedPolicyTrace(
+    const BenchmarkAlgorithmRun& run,
+    BenchmarkPassPolicySelection policy)
+{
+    if (!run.Available || !run.Passed)
+    {
+        return false;
+    }
+
+    for (const BenchmarkFrameResult& frame : run.Frames)
+    {
+        const Algorithms::TerrainLodPassTrace& mergeScore = Algorithms::TerrainLodPassTraceFor(
+            frame.Stats.PassTraces,
+            Algorithms::TerrainLodPassId::MergeScore);
+        const Algorithms::TerrainLodPassTrace& splitScore = Algorithms::TerrainLodPassTraceFor(
+            frame.Stats.PassTraces,
+            Algorithms::TerrainLodPassId::SplitScore);
+        const Algorithms::TerrainLodPassTrace& mergeTopology = Algorithms::TerrainLodPassTraceFor(
+            frame.Stats.PassTraces,
+            Algorithms::TerrainLodPassId::MergeTopology);
+        const Algorithms::TerrainLodPassTrace& splitTopology = Algorithms::TerrainLodPassTraceFor(
+            frame.Stats.PassTraces,
+            Algorithms::TerrainLodPassId::SplitTopology);
+        const Algorithms::TerrainLodPassTrace& meshEmit = Algorithms::TerrainLodPassTraceFor(
+            frame.Stats.PassTraces,
+            Algorithms::TerrainLodPassId::MeshEmit);
+
+        const bool requestsParallelExecution =
+            policy == BenchmarkPassPolicySelection::MaximumParallelIncremental ||
+            policy == BenchmarkPassPolicySelection::MaximumParallelFull;
+        const bool requestsFullOutput =
+            policy == BenchmarkPassPolicySelection::SerialFull ||
+            policy == BenchmarkPassPolicySelection::MaximumParallelFull;
+        const Algorithms::TerrainLodPassAction expectedScoreAction = requestsParallelExecution
+            ? Algorithms::TerrainLodPassAction::ParallelFullRefresh
+            : Algorithms::TerrainLodPassAction::SerialFullRefresh;
+        const Algorithms::TerrainLodPassAction expectedTopologyAction = requestsParallelExecution
+            ? Algorithms::TerrainLodPassAction::ParallelAssisted
+            : Algorithms::TerrainLodPassAction::SerialImmediate;
+        const Algorithms::TerrainLodPassAction expectedMeshAction = requestsFullOutput
+            ? Algorithms::TerrainLodPassAction::SerialFull
+            : (requestsParallelExecution
+                ? Algorithms::TerrainLodPassAction::ParallelDirty
+                : Algorithms::TerrainLodPassAction::SerialDirty);
+        if (mergeScore.RequestedAction != expectedScoreAction ||
+            splitScore.RequestedAction != expectedScoreAction ||
+            mergeTopology.RequestedAction != expectedTopologyAction ||
+            splitTopology.RequestedAction != expectedTopologyAction ||
+            meshEmit.RequestedAction != expectedMeshAction)
+        {
+            return false;
+        }
+
+        // 两种固定串行预设都要求全部 CPU 算法阶段实际使用不超过一个线程
+        if (!requestsParallelExecution)
+        {
+            for (std::size_t passIndex = 0U;
+                 passIndex <= static_cast<std::size_t>(Algorithms::TerrainLodPassId::MeshEmit);
+                 ++passIndex)
+            {
+                const Algorithms::TerrainLodPassTrace& trace = frame.Stats.PassTraces[passIndex];
+                if (trace.EffectiveWorkerCount > 1U ||
+                    trace.EffectiveAction == Algorithms::TerrainLodPassAction::ParallelFullRefresh ||
+                    trace.EffectiveAction == Algorithms::TerrainLodPassAction::ParallelAssisted ||
+                    trace.EffectiveAction == Algorithms::TerrainLodPassAction::ParallelDirty)
+                {
+                    return false;
+                }
+            }
+        }
+
+        if (requestsFullOutput)
+        {
+            if (meshEmit.EffectiveAction != Algorithms::TerrainLodPassAction::SerialFull ||
+                meshEmit.DataUpdate != Algorithms::TerrainLodDataUpdateMode::Full ||
+                meshEmit.EffectiveWorkerCount > 1U ||
+                frame.Stats.CpuMeshFullRebuildCount != 1U)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void RelabelPolicyRun(BenchmarkAlgorithmRun& run, std::string_view policyName)
+{
+    run.AlgorithmName += "/" + std::string{policyName};
+    for (BenchmarkFrameResult& frame : run.Frames)
+    {
+        frame.AlgorithmName = run.AlgorithmName;
+    }
 }
 
 bool ValidateRunShape(const BenchmarkScenario& scenario, std::vector<BenchmarkFrameResult>& frames)
@@ -897,7 +1068,7 @@ bool WriteCsv(
            "cpuMergeTopologyIndexQueueRefreshMs,cpuMergeTopologySerialConvergenceMs,"
            "cpuFinalLeafCollectMs,cpuMeshEmitMs,cpuFinalizeMs,cpuUploadMs,renderMs,"
            "cpuGpuUploadBytes,cpuGpuReadbackBytes,buildWallMs,buildSequence,replayInputHash,"
-           "topologyHash,activeLeafHash,meshHash,evidenceTriangleBudget,budgetViolationCount,"
+           "topologyHash,activeLeafHash,meshHash,normalizedMeshHash,evidenceTriangleBudget,budgetViolationCount,"
            "queueInvariantViolationCount,resourceValidationFailureCount,passEvidenceMs";
     WritePassTraceCsvHeader(csv);
     csv << ",passed\n";
@@ -996,6 +1167,7 @@ bool WriteCsv(
                 << frame.Stats.TopologyHash << ','
                 << frame.Stats.ActiveLeafHash << ','
                 << frame.Stats.MeshHash << ','
+                << frame.Stats.NormalizedMeshHash << ','
                 << frame.Stats.TriangleBudget << ','
                 << frame.Stats.BudgetViolationCount << ','
                 << frame.Stats.QueueInvariantViolationCount << ','
@@ -1034,6 +1206,37 @@ bool ParseAlgorithm(std::string_view value, BenchmarkAlgorithmSelection& outSele
         return true;
     }
 
+    return false;
+}
+
+bool ParsePassPolicy(std::string_view value, BenchmarkPassPolicySelection& outSelection)
+{
+    if (value == "default")
+    {
+        outSelection = BenchmarkPassPolicySelection::Default;
+        return true;
+    }
+    if (value == "serial-incremental" || value == "serial")
+    {
+        outSelection = BenchmarkPassPolicySelection::SerialIncremental;
+        return true;
+    }
+    if (value == "maximum-parallel-incremental" ||
+        value == "maximum-parallel" || value == "parallel")
+    {
+        outSelection = BenchmarkPassPolicySelection::MaximumParallelIncremental;
+        return true;
+    }
+    if (value == "serial-full")
+    {
+        outSelection = BenchmarkPassPolicySelection::SerialFull;
+        return true;
+    }
+    if (value == "maximum-parallel-full" || value == "parallel-full")
+    {
+        outSelection = BenchmarkPassPolicySelection::MaximumParallelFull;
+        return true;
+    }
     return false;
 }
 
@@ -1076,13 +1279,20 @@ bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
         return true;
     }
 
+    if (value == "pass-policy-replay")
+    {
+        outProfile = BenchmarkProfile::PassPolicyReplay;
+        return true;
+    }
+
     return false;
 }
 } // 匿名命名空间
 
 int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 {
-    const BenchmarkScenario scenario = MakeScenario(options.Profile);
+    BenchmarkScenario scenario = MakeScenario(options.Profile);
+    ApplyPassPolicy(options.PassPolicy, scenario.Settings);
 
     Terrain::HeightMap heightMap;
     std::string errorMessage;
@@ -1096,6 +1306,7 @@ int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 
     std::cout << "Terrain LOD benchmark profile=" << scenario.Name
               << " algorithm=" << ToString(options.Algorithm)
+              << " policy=" << ToString(options.PassPolicy)
               << " heightmap=" << scenario.HeightMapPath
               << " frames=" << scenario.CameraPath.size()
               << " maxDepth=" << scenario.Settings.MaxDepth
@@ -1106,12 +1317,83 @@ int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 
     std::vector<BenchmarkAlgorithmRun> runs;
     const std::vector<BenchmarkAlgorithmSelection> selections = ExpandAlgorithmSelection(options.Algorithm);
-    runs.reserve(selections.size());
+    runs.reserve(
+        selections.size() *
+        (options.Profile == BenchmarkProfile::PassPolicyReplay ? 4U : 1U));
 
     bool anyAvailable = false;
     bool allAvailablePassed = true;
     for (BenchmarkAlgorithmSelection selection : selections)
     {
+        if (options.Profile == BenchmarkProfile::PassPolicyReplay)
+        {
+            BenchmarkScenario serialIncrementalScenario = scenario;
+            BenchmarkScenario parallelIncrementalScenario = scenario;
+            BenchmarkScenario serialFullScenario = scenario;
+            BenchmarkScenario parallelFullScenario = scenario;
+            ApplyPassPolicy(
+                BenchmarkPassPolicySelection::SerialIncremental,
+                serialIncrementalScenario.Settings);
+            ApplyPassPolicy(
+                BenchmarkPassPolicySelection::MaximumParallelIncremental,
+                parallelIncrementalScenario.Settings);
+            ApplyPassPolicy(BenchmarkPassPolicySelection::SerialFull, serialFullScenario.Settings);
+            ApplyPassPolicy(
+                BenchmarkPassPolicySelection::MaximumParallelFull,
+                parallelFullScenario.Settings);
+
+            BenchmarkAlgorithmRun serialIncrementalRun =
+                RunAlgorithm(selection, serialIncrementalScenario, heightMap);
+            BenchmarkAlgorithmRun parallelIncrementalRun =
+                RunAlgorithm(selection, parallelIncrementalScenario, heightMap);
+            BenchmarkAlgorithmRun serialFullRun = RunAlgorithm(selection, serialFullScenario, heightMap);
+            BenchmarkAlgorithmRun parallelFullRun =
+                RunAlgorithm(selection, parallelFullScenario, heightMap);
+            const bool policyMatched =
+                HasEquivalentPolicyResults(serialIncrementalRun, parallelIncrementalRun) &&
+                HasEquivalentPolicyResults(serialIncrementalRun, serialFullRun) &&
+                HasEquivalentPolicyResults(serialIncrementalRun, parallelFullRun) &&
+                HasExpectedPolicyTrace(
+                    serialIncrementalRun,
+                    BenchmarkPassPolicySelection::SerialIncremental) &&
+                HasExpectedPolicyTrace(
+                    parallelIncrementalRun,
+                    BenchmarkPassPolicySelection::MaximumParallelIncremental) &&
+                HasExpectedPolicyTrace(serialFullRun, BenchmarkPassPolicySelection::SerialFull) &&
+                HasExpectedPolicyTrace(
+                    parallelFullRun,
+                    BenchmarkPassPolicySelection::MaximumParallelFull);
+            serialIncrementalRun.Passed = serialIncrementalRun.Passed && policyMatched;
+            parallelIncrementalRun.Passed = parallelIncrementalRun.Passed && policyMatched;
+            serialFullRun.Passed = serialFullRun.Passed && policyMatched;
+            parallelFullRun.Passed = parallelFullRun.Passed && policyMatched;
+            std::cout << (policyMatched ? "[PASS] " : "[FAIL] ")
+                      << serialIncrementalRun.AlgorithmName
+                      << " pass policy equivalence\n";
+
+            RelabelPolicyRun(serialIncrementalRun, "serial-incremental");
+            RelabelPolicyRun(parallelIncrementalRun, "maximum-parallel-incremental");
+            RelabelPolicyRun(serialFullRun, "serial-full");
+            RelabelPolicyRun(parallelFullRun, "maximum-parallel-full");
+            PrintRunSummary(serialIncrementalRun);
+            PrintRunSummary(parallelIncrementalRun);
+            PrintRunSummary(serialFullRun);
+            PrintRunSummary(parallelFullRun);
+            anyAvailable = anyAvailable ||
+                serialIncrementalRun.Available || parallelIncrementalRun.Available ||
+                serialFullRun.Available || parallelFullRun.Available;
+            allAvailablePassed = allAvailablePassed &&
+                (!serialIncrementalRun.Available || serialIncrementalRun.Passed) &&
+                (!parallelIncrementalRun.Available || parallelIncrementalRun.Passed) &&
+                (!serialFullRun.Available || serialFullRun.Passed) &&
+                (!parallelFullRun.Available || parallelFullRun.Passed);
+            runs.push_back(std::move(serialIncrementalRun));
+            runs.push_back(std::move(parallelIncrementalRun));
+            runs.push_back(std::move(serialFullRun));
+            runs.push_back(std::move(parallelFullRun));
+            continue;
+        }
+
         // allAvailablePassed 只统计实际运行的算法
         BenchmarkAlgorithmRun run = RunAlgorithm(selection, scenario, heightMap);
         if (scenario.RequireDeterministicReplay && run.Available)
@@ -1215,6 +1497,24 @@ int RunTerrainLodBenchmarkFromCommandLine(int argc, char** argv)
             return 1;
         }
 
+        if (argument == "--pass-policy" && index + 1 < argc)
+        {
+            if (!ParsePassPolicy(argv[++index], options.PassPolicy))
+            {
+                std::cerr << "Unknown benchmark pass policy: " << argv[index] << '\n';
+                std::cerr << BenchmarkUsage();
+                return 1;
+            }
+            continue;
+        }
+
+        if (argument == "--pass-policy")
+        {
+            std::cerr << "--pass-policy requires a value.\n";
+            std::cerr << BenchmarkUsage();
+            return 1;
+        }
+
         if (argument == "--csv" && index + 1 < argc)
         {
             // CSV 路径可以指向尚不存在的父目录
@@ -1243,7 +1543,8 @@ int RunTerrainLodBenchmarkFromCommandLine(int argc, char** argv)
 std::string BenchmarkUsage()
 {
     return "Usage: ParallelROAM --benchmark [--algorithm classic|dod|all] "
-           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|standard] "
+           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|standard] "
+           "[--pass-policy default|serial-incremental|maximum-parallel-incremental|serial-full|maximum-parallel-full] "
            "[--csv path]\n";
 }
 } // 命名空间 ParallelRoam::Benchmark

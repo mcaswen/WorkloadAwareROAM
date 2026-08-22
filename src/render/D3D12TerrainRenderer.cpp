@@ -182,6 +182,7 @@ bool NeedsMeshRebuild(const TerrainRenderSettings& previous, const TerrainRender
            previous.RoamScreenSpaceMergeThresholdPixels != next.RoamScreenSpaceMergeThresholdPixels ||
            previous.RoamTriangleBudget != next.RoamTriangleBudget ||
            previous.RoamEnableParallelSplit != next.RoamEnableParallelSplit ||
+           previous.RoamPassPolicy != next.RoamPassPolicy ||
            previous.RoamEnableLocalConstraints != next.RoamEnableLocalConstraints ||
            previous.RoamEnableTopologyValidation != next.RoamEnableTopologyValidation ||
            previous.RoamEnablePassEvidence != next.RoamEnablePassEvidence;
@@ -917,6 +918,7 @@ TerrainRenderStats TerrainRenderer::Stats() const
     stats.RoamTopologyHash = _terrainLodStats.TopologyHash;
     stats.RoamActiveLeafHash = _terrainLodStats.ActiveLeafHash;
     stats.RoamMeshHash = _terrainLodStats.MeshHash;
+    stats.RoamNormalizedMeshHash = _terrainLodStats.NormalizedMeshHash;
     stats.RoamEvidenceTriangleBudget = _terrainLodStats.TriangleBudget;
     stats.RoamBudgetViolationCount = _terrainLodStats.BudgetViolationCount;
     stats.RoamQueueInvariantViolationCount = _terrainLodStats.QueueInvariantViolationCount;
@@ -1070,6 +1072,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     lodSettings.ScreenSpaceMergeThresholdPixels = _settings.RoamScreenSpaceMergeThresholdPixels;
     lodSettings.TriangleBudget = _settings.RoamTriangleBudget;
     lodSettings.EnableParallelSplit = _settings.RoamEnableParallelSplit;
+    lodSettings.PassPolicy = _settings.RoamPassPolicy;
     lodSettings.EnableLocalConstraints = _settings.RoamEnableLocalConstraints;
     lodSettings.EnableTopologyValidation = _settings.RoamEnableTopologyValidation;
     lodSettings.EnablePassEvidence = _settings.RoamEnablePassEvidence;
@@ -1136,6 +1139,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     if (!UploadMeshData(
             *cpuMesh,
             renderPacket.CpuMeshRequiresFullUpload,
+            renderPacket.CpuUploadAction,
             renderPacket.CpuMeshUpdateRanges,
             errorMessage))
     {
@@ -1161,12 +1165,18 @@ bool TerrainRenderer::UploadMesh(std::string* errorMessage)
         return false;
     }
     static const std::vector<Algorithms::TerrainLodCpuMeshUpdateRange> noUpdateRanges;
-    return UploadMeshData(_meshData, true, noUpdateRanges, errorMessage);
+    return UploadMeshData(
+        _meshData,
+        true,
+        Algorithms::TerrainLodCpuUploadAction::Automatic,
+        noUpdateRanges,
+        errorMessage);
 }
 
 bool TerrainRenderer::UploadMeshData(
     const Terrain::TerrainMeshData& meshData,
-    bool fullUpload,
+    bool meshRequiresFullUpload,
+    Algorithms::TerrainLodCpuUploadAction uploadAction,
     const std::vector<Algorithms::TerrainLodCpuMeshUpdateRange>& updateRanges,
     std::string* errorMessage)
 {
@@ -1176,11 +1186,15 @@ bool TerrainRenderer::UploadMeshData(
         return false;
     }
 
+    const bool forceFullUpload = meshRequiresFullUpload ||
+        uploadAction == Algorithms::TerrainLodCpuUploadAction::FullBuffer;
+    const bool requestedFullUpload = uploadAction == Algorithms::TerrainLodCpuUploadAction::FullBuffer ||
+        (uploadAction == Algorithms::TerrainLodCpuUploadAction::Automatic && meshRequiresFullUpload);
     // 新版本先上传当前帧，其他帧在轮转到来时按版本号补齐
     ++_d3d12State->MeshGeneration;
     for (D3D12MeshFrameResources& frame : _d3d12State->MeshFrames)
     {
-        if (fullUpload)
+        if (forceFullUpload)
         {
             frame.PendingFullUpload = true;
             frame.PendingUpdateRanges.clear();
@@ -1220,7 +1234,7 @@ bool TerrainRenderer::UploadMeshData(
         Algorithms::TerrainLodPassTrace& uploadTrace = Algorithms::TerrainLodPassTraceFor(
             _terrainLodStats.PassTraces,
             Algorithms::TerrainLodPassId::CpuUpload);
-        uploadTrace.RequestedAction = fullUpload
+        uploadTrace.RequestedAction = requestedFullUpload
             ? Algorithms::TerrainLodPassAction::FullBuffer
             : Algorithms::TerrainLodPassAction::DirtyRange;
         uploadTrace.EffectiveAction = uploadedAllVertices && uploadedAllIndices
@@ -1228,11 +1242,15 @@ bool TerrainRenderer::UploadMeshData(
             : (!uploadedAllVertices && !uploadedAllIndices
                 ? Algorithms::TerrainLodPassAction::DirtyRange
                 : Algorithms::TerrainLodPassAction::MixedUpload);
-        uploadTrace.FallbackReason = !fullUpload && (uploadedAllVertices || uploadedAllIndices)
-            ? (pendingFullUpload
-                ? Algorithms::TerrainLodPassFallbackReason::FrameSlotBacklog
-                : Algorithms::TerrainLodPassFallbackReason::ResourceCapacity)
-            : Algorithms::TerrainLodPassFallbackReason::None;
+        uploadTrace.FallbackReason = Algorithms::TerrainLodPassFallbackReason::None;
+        if (!requestedFullUpload && (uploadedAllVertices || uploadedAllIndices))
+        {
+            uploadTrace.FallbackReason = meshRequiresFullUpload
+                ? Algorithms::TerrainLodPassFallbackReason::MeshInitialization
+                : (pendingFullUpload
+                    ? Algorithms::TerrainLodPassFallbackReason::FrameSlotBacklog
+                    : Algorithms::TerrainLodPassFallbackReason::ResourceCapacity);
+        }
         uploadTrace.DataUpdate = uploadedAllVertices && uploadedAllIndices
             ? Algorithms::TerrainLodDataUpdateMode::Full
             : (!uploadedAllVertices && !uploadedAllIndices

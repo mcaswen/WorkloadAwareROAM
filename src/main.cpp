@@ -104,6 +104,38 @@ int main(int argc, char** argv)
         parseError = "Invalid height map for " + std::string{option} + ": " + value;
         return false;
     };
+    auto parsePassPolicyOption = [&parseError](
+        std::string_view value,
+        ParallelRoam::Algorithms::TerrainLodPassPolicy& output) -> bool {
+        if (value == "default")
+        {
+            output = {};
+            return true;
+        }
+        if (value == "serial-incremental" || value == "serial")
+        {
+            output = ParallelRoam::Algorithms::MakeTerrainLodSerialIncrementalPolicy();
+            return true;
+        }
+        if (value == "maximum-parallel-incremental" ||
+            value == "maximum-parallel" || value == "parallel")
+        {
+            output = ParallelRoam::Algorithms::MakeTerrainLodMaximumSafeParallelIncrementalPolicy();
+            return true;
+        }
+        if (value == "serial-full")
+        {
+            output = ParallelRoam::Algorithms::MakeTerrainLodSerialFullOutputPolicy();
+            return true;
+        }
+        if (value == "maximum-parallel-full" || value == "parallel-full")
+        {
+            output = ParallelRoam::Algorithms::MakeTerrainLodMaximumSafeParallelFullOutputPolicy();
+            return true;
+        }
+        parseError = "Invalid runtime benchmark policy: " + std::string{value};
+        return false;
+    };
     for (int index = 1; index < argc; ++index)
     {
         const std::string_view argument{argv[index]};
@@ -155,6 +187,19 @@ int main(int argc, char** argv)
                 break;
             }
             runtimeBenchmarkOverrides.HasPath = true;
+            hasRuntimeBenchmarkOverrides = true;
+            continue;
+        }
+
+        if (argument == "--runtime-benchmark-policy")
+        {
+            const char* value = requireValue(index, argument);
+            if (value == nullptr ||
+                !parsePassPolicyOption(value, runtimeBenchmarkOverrides.PassPolicy))
+            {
+                break;
+            }
+            runtimeBenchmarkOverrides.HasPassPolicy = true;
             hasRuntimeBenchmarkOverrides = true;
             continue;
         }

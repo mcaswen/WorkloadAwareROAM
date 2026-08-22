@@ -17,20 +17,27 @@ constexpr std::size_t VerticesPerTriangle = 3U;
 constexpr std::size_t MaxAutoEmitWorkerCount = 8U;
 constexpr std::size_t MinParallelEmitTriangleCount = 256U;
 
-std::size_t ResolveEmitWorkerCount(const DataOrientedRoamState& state, std::size_t triangleCount)
+/// <summary>
+/// 根据网格提交策略和待写槽位数量选择实际线程数量
+/// 串行脏数据与串行全量策略都明确限制为一个线程
+/// </summary>
+std::size_t ResolveEmitWorkerCount(
+    std::size_t triangleCount,
+    TerrainLodMeshEmitAction action,
+    std::size_t requestedWorkerCount)
 {
     if (triangleCount == 0U)
     {
         return 0U;
     }
 
-    if (state.Settings.ErrorEvaluationWorkerCount == 1U ||
-        triangleCount < MinParallelEmitTriangleCount)
+    if (action == TerrainLodMeshEmitAction::SerialDirty ||
+        action == TerrainLodMeshEmitAction::SerialFull ||
+        requestedWorkerCount == 1U || triangleCount < MinParallelEmitTriangleCount)
     {
         return 1U;
     }
 
-    std::size_t requestedWorkerCount = state.Settings.ErrorEvaluationWorkerCount;
     if (requestedWorkerCount == 0U)
     {
         const unsigned int hardwareWorkerCount = std::thread::hardware_concurrency();
@@ -43,6 +50,10 @@ std::size_t ResolveEmitWorkerCount(const DataOrientedRoamState& state, std::size
     return std::clamp(requestedWorkerCount, std::size_t{1U}, triangleCount);
 }
 
+/// <summary>
+/// 将一个活动叶节点写入指定网格槽位
+/// 槽位所有者决定几何内容，线程完成顺序不会改变输出位置
+/// </summary>
 void WriteDomainTriangle(
     const DataOrientedRoamState& state,
     DataOrientedRoamNodeIndex node,
@@ -309,10 +320,11 @@ void EmitDirtySlotRange(DataOrientedRoamState& state, std::size_t begin, std::si
 
 void EmitDirtyMeshSlots(DataOrientedRoamState& state)
 {
-    // 这里始终只处理 DirtySlots 中记录的槽位，不会因为变化比例较高就改为重写整个网格
-    // 变化槽位较多时只增加线程数，输出仍只包含需要更新的范围
     const std::size_t dirtyCount = state.IncrementalMesh.DirtySlots.size();
-    state.Stats.EmitWorkerCount = ResolveEmitWorkerCount(state, dirtyCount);
+    state.Stats.EmitWorkerCount = ResolveEmitWorkerCount(
+        dirtyCount,
+        state.Settings.PassPolicy.MeshEmit,
+        state.Settings.PassPolicy.MeshEmitWorkerCount);
     const std::size_t workerCount = state.Stats.EmitWorkerCount;
     if (workerCount == 0U)
     {
@@ -334,6 +346,25 @@ void EmitDirtyMeshSlots(DataOrientedRoamState& state)
             EmitDirtySlotRange(state, begin, end);
         }
     });
+}
+
+/// <summary>
+/// 按当前槽位所有者顺序重写完整网格
+/// 该对照只改变数据写入范围，不重建拓扑或槽位映射
+/// </summary>
+void EmitFullMeshSerial(DataOrientedRoamState& state)
+{
+    DataOrientedRoamIncrementalMesh& mesh = state.IncrementalMesh;
+    state.Stats.EmitWorkerCount = mesh.SlotOwners.empty() ? 0U : 1U;
+    for (std::size_t slot = 0U; slot < mesh.SlotOwners.size(); ++slot)
+    {
+        const DataOrientedRoamNodeIndex node = mesh.SlotOwners[slot];
+        if (state.IsLeaf(node))
+        {
+            WriteDomainTriangle(state, node, mesh.Data, slot);
+        }
+    }
+    mesh.RequiresFullUpload = true;
 }
 } // 匿名命名空间
 
@@ -435,7 +466,14 @@ void ApplyIncrementalMeshUpdates(DataOrientedRoamState& state)
     mesh.TopologyEdits.clear();
     mesh.TracksTopologyEdits = false;
     NormalizeDirtyMeshSlots(mesh);
-    EmitDirtyMeshSlots(state);
+    if (state.Settings.PassPolicy.MeshEmit == TerrainLodMeshEmitAction::SerialFull)
+    {
+        EmitFullMeshSerial(state);
+    }
+    else
+    {
+        EmitDirtyMeshSlots(state);
+    }
 }
 
 void FinalizeIncrementalMeshUpdate(DataOrientedRoamState& state)

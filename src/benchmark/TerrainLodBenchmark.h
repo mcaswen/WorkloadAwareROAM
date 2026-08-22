@@ -25,7 +25,17 @@ enum class BenchmarkProfile
     BudgetSaturation,
     IncrementalEmit,
     PassTraceReplay,
+    PassPolicyReplay,
     Standard,
+};
+
+enum class BenchmarkPassPolicySelection
+{
+    Default,
+    SerialIncremental,
+    MaximumParallelIncremental,
+    SerialFull,
+    MaximumParallelFull,
 };
 
 /// <summary>
@@ -35,6 +45,7 @@ struct BenchmarkOptions
 {
     BenchmarkAlgorithmSelection Algorithm{BenchmarkAlgorithmSelection::All};
     BenchmarkProfile Profile{BenchmarkProfile::Smoke};
+    BenchmarkPassPolicySelection PassPolicy{BenchmarkPassPolicySelection::Default};
     std::filesystem::path CsvPath;
 };
 

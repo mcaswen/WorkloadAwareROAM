@@ -59,6 +59,7 @@ struct ClassicRoamSettings
     bool EnableTopologyValidation{false};
     // 是否为固定轨迹重放计算结果哈希和队列完整性证据
     bool EnablePassEvidence{false};
+    TerrainLodPassPolicy PassPolicy{};
 };
 
 /// <summary>
@@ -72,6 +73,7 @@ struct ClassicRoamStats
     std::uint64_t TopologyHash{0U};
     std::uint64_t ActiveLeafHash{0U};
     std::uint64_t MeshHash{0U};
+    std::uint64_t NormalizedMeshHash{0U};
     std::size_t TriangleBudget{0U};
     std::size_t QueueInvariantViolationCount{0U};
     float PassEvidenceMilliseconds{0.0F};

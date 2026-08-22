@@ -411,7 +411,7 @@ void WriteDetailedCsv(
         << "frameFenceWaitMilliseconds,renderMilliseconds,"
         << "cpuGpuUploadBytes,cpuGpuReadbackBytes,splitMilliseconds,"
         << "mergeMilliseconds,emitMilliseconds,validateMilliseconds,maxDepthReached,"
-        << "buildSequence,replayInputHash,topologyHash,activeLeafHash,meshHash,"
+        << "buildSequence,replayInputHash,topologyHash,activeLeafHash,meshHash,normalizedMeshHash,"
         << "evidenceTriangleBudget,budgetViolationCount,queueInvariantViolationCount,"
         << "resourceValidationFailureCount,passEvidenceMilliseconds";
     WritePassTraceCsvHeader(csv);
@@ -508,6 +508,7 @@ void WriteDetailedCsv(
                 << stats.RoamTopologyHash << ','
                 << stats.RoamActiveLeafHash << ','
                 << stats.RoamMeshHash << ','
+                << stats.RoamNormalizedMeshHash << ','
                 << stats.RoamEvidenceTriangleBudget << ','
                 << stats.RoamBudgetViolationCount << ','
                 << stats.RoamQueueInvariantViolationCount << ','

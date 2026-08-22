@@ -63,6 +63,7 @@ struct TerrainLodSettings
     std::size_t TriangleBudget{20000U};
     // 控制 DOD 是否先把能够独立处理的细分分给多个线程，候选评分是否并行由另一项设置决定
     bool EnableParallelSplit{true};
+    TerrainLodPassPolicy PassPolicy{};
     bool EnableLocalConstraints{true};
     bool EnableTopologyValidation{false};
     // 基准测试开启后保存结果哈希并检查持久队列，普通交互帧默认关闭全量证据扫描
@@ -145,6 +146,17 @@ struct TerrainLodBuildInput
     AppendTerrainLodHash(hash, input.Settings.TriangleBudget);
     AppendTerrainLodHash(hash, input.Settings.EnableParallelSplit);
     AppendTerrainLodHash(hash, input.Settings.EnableLocalConstraints);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.MergeScore);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.SplitScore);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.MergeTopology);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.SplitTopology);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.MeshEmit);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.CpuUpload);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.MergeScoreWorkerCount);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.SplitScoreWorkerCount);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.MergeTopologyWorkerCount);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.SplitTopologyWorkerCount);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.MeshEmitWorkerCount);
     return hash;
 }
 
@@ -186,6 +198,7 @@ struct TerrainLodRenderPacket
     std::vector<TerrainLodCpuMeshUpdateRange> CpuMeshUpdateRanges;
     TerrainLodCpuMeshLifetime CpuMeshLifetime{TerrainLodCpuMeshLifetime::OwnedByPacket};
     bool CpuMeshRequiresFullUpload{true};
+    TerrainLodCpuUploadAction CpuUploadAction{TerrainLodCpuUploadAction::Automatic};
     std::uint64_t CpuMeshGeneration{0};
     std::string StatusMessage;
     std::size_t ActiveLeafCount{0};
@@ -254,6 +267,7 @@ struct TerrainLodStats
     std::uint64_t TopologyHash{0U};
     std::uint64_t ActiveLeafHash{0U};
     std::uint64_t MeshHash{0U};
+    std::uint64_t NormalizedMeshHash{0U};
     std::size_t TriangleBudget{0U};
     std::size_t BudgetViolationCount{0U};
     std::size_t QueueInvariantViolationCount{0U};

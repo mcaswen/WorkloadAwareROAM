@@ -219,7 +219,7 @@ Classic 的报告采用工程等价口径，不以论文完整证明为验收目
 
 该表分析稳定帧热路径。nested wedgie tree / `GeometricError` rebuild 属于初始化、地形切换或预计算深度失效后的 reset 路径，当前没有独立阶段计时；不能从稳定帧表中推断其成本，若要比较必须另建 initialization benchmark。
 
-统一 benchmark harness 对 Classic、DOD 和 GPU 名称都应用预算与 `center -> away` 视锥回收断言；对启用持久队列统计的 Classic/DOD，另外要求 `Q_s == ActiveTriangleCount <= TriangleBudget` 且单帧 `SplitCount + MergeCount <= ActiveNodeCount`。增量 Mesh 的 `updated+reused==active` 与 dirty range 约束只在算法实际报告这些字段时启用。`budget-reentry` profile 以低预算和原地小角度转向，要求 Classic/DOD 在转向后的第一次 Build 同时 merge 旧低分 diamond 并 split 新高分区域。`incremental-emit` 连续三次使用同一 Classic 视点：首帧必须 full rebuild，第二帧只允许增量调试属性过渡，第三帧必须零 split/merge、零 updated/dirty 并复用全部 leaf。无窗口模式因没有图形上下文通常跳过 GPU。应用级 `--gpu-smoke-test` 在 OpenGL 和 D3D12 上分别验证 GPU packet 非空、最终三角形不超预算，并检查 CPU DOD 持久拓扑的三类 issue 为零。这类正确性验证不替代 30-60 秒 runtime 性能采样。
+统一 benchmark harness 对 Classic、DOD 和 GPU 名称都应用预算与 `center -> away` 视锥回收断言；对启用持久队列统计的 Classic/DOD，另外要求 `Q_s == ActiveTriangleCount <= TriangleBudget` 且单帧 `SplitCount + MergeCount <= ActiveNodeCount`。增量 Mesh 的 `updated+reused==active` 与 dirty range 约束只在算法实际报告这些字段时启用。`budget-reentry` profile 以低预算和原地小角度转向，要求 Classic/DOD 在转向后的第一次 Build 同时 merge 旧低分 diamond 并 split 新高分区域。`incremental-emit` 连续三次使用同一视点，分别验证首次完整建立、一次调试属性过渡和随后零脏区间复用。`pass-trace-replay` 在重置后重复固定轨迹并比较精确结果哈希；`pass-policy-replay` 运行固定串行/最大安全并行与增量/全量输出组成的四种组合，比较拓扑、活动叶、预算与规范化网格，并验证两种固定串行组合的实际线程数量不超过一。无窗口模式因没有图形上下文通常跳过 GPU。应用级 `--gpu-smoke-test` 在 OpenGL 和 D3D12 上分别验证 GPU packet 非空、最终三角形不超预算，并检查 CPU DOD 持久拓扑的三类 issue 为零。这类正确性验证不替代正式运行时性能采样。
 
 ### DOD active internal 索引 A/B
 

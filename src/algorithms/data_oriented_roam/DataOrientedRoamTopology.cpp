@@ -270,10 +270,15 @@ bool NodeBelongsToChunk(
     return InteriorChunkIdForNode(state, node) == chunkId;
 }
 
+/// <summary>
+/// 根据单个拓扑阶段的策略、候选规模和非空分块数量选择线程数量
+/// 诊断开关或安全阈值不满足时仍会退回主线程处理
+/// </summary>
 std::size_t ResolveTopologyCommitWorkerCount(
     const DataOrientedRoamState& state,
     std::size_t candidateCount,
     std::size_t nonEmptyChunkCount,
+    std::size_t requestedWorkerCount,
     std::string_view phase)
 {
     if (!DiagnosticBuildAllowsParallelCommit(state, phase))
@@ -287,13 +292,11 @@ std::size_t ResolveTopologyCommitWorkerCount(
         return 1U;
     }
 
-    if (state.Settings.ErrorEvaluationWorkerCount == 1U)
+    if (requestedWorkerCount == 1U)
     {
-        // 拓扑修改沿用现有线程设置，避免增加新的界面参数
         return 1U;
     }
 
-    std::size_t requestedWorkerCount = state.Settings.ErrorEvaluationWorkerCount;
     if (requestedWorkerCount == 0U)
     {
         // 自动模式使用保守上限，避免拓扑修改占用过多线程
@@ -1155,6 +1158,7 @@ std::vector<CommittedSplit> CommitInteriorSplitChunks(
         state,
         candidateCount,
         nonEmptyChunkCount,
+        state.Settings.PassPolicy.SplitTopologyWorkerCount,
         "split");
     const std::size_t minimumCandidateCount = ResolveMinParallelCommitCandidateCount("split");
     state.Stats.TopologyCommitMinCandidateCount = minimumCandidateCount;
@@ -1266,6 +1270,7 @@ std::vector<CommittedMerge> CommitInteriorMergeChunks(
         state,
         candidateCount,
         nonEmptyChunkCount,
+        state.Settings.PassPolicy.MergeTopologyWorkerCount,
         "merge");
     const std::size_t minimumCandidateCount = ResolveMinParallelCommitCandidateCount("merge");
     state.Stats.TopologyCommitMinCandidateCount = minimumCandidateCount;
@@ -1376,7 +1381,7 @@ void RefineWithSplitQueue(DataOrientedRoamState& state)
     Tools::PerformanceTimer candidateMarkTimer;
     RefreshPersistentSplitQueuePriorities(state);
     state.Stats.SplitCandidateMarkMilliseconds = candidateMarkTimer.Stop();
-    if (state.Settings.EnableParallelSplit)
+    if (state.Settings.PassPolicy.SplitTopology != TerrainLodTopologyAction::SerialImmediate)
     {
         Tools::PerformanceTimer chunkBuildTimer;
         std::vector<DataOrientedRoamSplitCandidate> initialCandidates;
@@ -1489,21 +1494,28 @@ void MergeWithDiamondQueue(DataOrientedRoamState& state)
     Tools::PerformanceTimer queueRefreshTimer;
     RefreshPersistentMergeQueuePriorities(state);
     state.Stats.MergeCandidateMarkMilliseconds = queueRefreshTimer.Stop();
-    Tools::PerformanceTimer chunkBuildTimer;
-    std::vector<DataOrientedRoamMergeCandidate> candidates;
-    SnapshotPersistentMergeQueueCandidates(state, state.Settings.MergeThreshold, candidates);
-    state.Stats.MergeCandidateCount = candidates.size();
-    std::sort(
-        candidates.begin(),
-        candidates.end(),
-        [](const DataOrientedRoamMergeCandidate& left, const DataOrientedRoamMergeCandidate& right) {
-            return left.Score < right.Score;
-        });
+    if (state.Settings.PassPolicy.MergeTopology != TerrainLodTopologyAction::SerialImmediate)
+    {
+        Tools::PerformanceTimer chunkBuildTimer;
+        std::vector<DataOrientedRoamMergeCandidate> candidates;
+        SnapshotPersistentMergeQueueCandidates(state, state.Settings.MergeThreshold, candidates);
+        state.Stats.MergeCandidateCount = candidates.size();
+        std::sort(
+            candidates.begin(),
+            candidates.end(),
+            [](const DataOrientedRoamMergeCandidate& left, const DataOrientedRoamMergeCandidate& right) {
+                return left.Score < right.Score;
+            });
 
-    std::vector<std::vector<DataOrientedRoamMergeCandidate>> interiorChunks =
-        BuildInteriorMergeChunks(state, candidates);
-    state.Stats.MergeTopologyChunkBuildMilliseconds += chunkBuildTimer.Stop();
-    CommitInteriorMergeChunks(state, interiorChunks);
+        std::vector<std::vector<DataOrientedRoamMergeCandidate>> interiorChunks =
+            BuildInteriorMergeChunks(state, candidates);
+        state.Stats.MergeTopologyChunkBuildMilliseconds += chunkBuildTimer.Stop();
+        CommitInteriorMergeChunks(state, interiorChunks);
+    }
+    else
+    {
+        state.Stats.MergeCandidateCount = 0U;
+    }
 
     Tools::PerformanceTimer serialConvergenceTimer;
     while (TopPersistentMergeQueueScore(state) <= state.Settings.MergeThreshold)

@@ -117,6 +117,21 @@ void ClassicRoamMeshBuilder::ApplyIncrementalMeshUpdates()
         }
     }
     _meshTopologyEdits.clear();
+
+    if (_settings.PassPolicy.MeshEmit == TerrainLodMeshEmitAction::SerialFull)
+    {
+        // 全量对照沿用现有槽位所有者，不重新收集活动叶或改变槽位归属
+        // 每个槽位都由主线程重写，并生成覆盖完整网格的单一区间
+        for (std::size_t slot = 0U; slot < _meshSlotOwners.size(); ++slot)
+        {
+            ClassicRoamNode* node = _meshSlotOwners[slot];
+            if (node != nullptr && node->Active && IsLeaf(node))
+            {
+                WriteMeshLeaf(slot, *node);
+            }
+        }
+        _meshRequiresFullUpload = true;
+    }
 }
 
 /// <summary>

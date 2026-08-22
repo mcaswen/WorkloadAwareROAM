@@ -65,6 +65,7 @@ struct TerrainRenderSettings
     std::size_t RoamTriangleBudget{20000U};
     // DOD 专属实验开关；其他算法忽略该字段。
     bool RoamEnableParallelSplit{true};
+    Algorithms::TerrainLodPassPolicy RoamPassPolicy{};
 
     // 局部约束只做 baseNeighbor forced split，不执行全局 repair
     bool RoamEnableLocalConstraints{true};
@@ -93,6 +94,7 @@ struct TerrainRenderStats
     std::uint64_t RoamTopologyHash{0U};
     std::uint64_t RoamActiveLeafHash{0U};
     std::uint64_t RoamMeshHash{0U};
+    std::uint64_t RoamNormalizedMeshHash{0U};
     std::size_t RoamEvidenceTriangleBudget{0U};
     std::size_t RoamBudgetViolationCount{0U};
     std::size_t RoamQueueInvariantViolationCount{0U};
@@ -238,7 +240,8 @@ private:
     bool UploadMesh(std::string* errorMessage);
     bool UploadMeshData(
         const Terrain::TerrainMeshData& meshData,
-        bool fullUpload,
+        bool meshRequiresFullUpload,
+        Algorithms::TerrainLodCpuUploadAction uploadAction,
         const std::vector<Algorithms::TerrainLodCpuMeshUpdateRange>& updateRanges,
         std::string* errorMessage);
 #if defined(PARALLEL_ROAM_GRAPHICS_API_OPENGL)

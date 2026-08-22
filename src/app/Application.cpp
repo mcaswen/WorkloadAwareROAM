@@ -41,6 +41,31 @@ std::string BuildConfigurationName()
 #endif
 }
 
+std::string PassPolicyDisplayName(const Algorithms::TerrainLodPassPolicy& policy)
+{
+    if (policy == Algorithms::TerrainLodPassPolicy{})
+    {
+        return "默认自动策略";
+    }
+    if (policy == Algorithms::MakeTerrainLodSerialIncrementalPolicy())
+    {
+        return "固定串行 + 增量输出";
+    }
+    if (policy == Algorithms::MakeTerrainLodMaximumSafeParallelIncrementalPolicy())
+    {
+        return "最大安全并行 + 增量输出";
+    }
+    if (policy == Algorithms::MakeTerrainLodSerialFullOutputPolicy())
+    {
+        return "固定串行 + 全量输出";
+    }
+    if (policy == Algorithms::MakeTerrainLodMaximumSafeParallelFullOutputPolicy())
+    {
+        return "最大安全并行 + 全量输出";
+    }
+    return "自定义阶段策略";
+}
+
 std::pair<float, float> ComputeYawPitchForLookAt(const glm::vec3& position, const glm::vec3& target)
 {
     // 目标点与相机重合时返回默认姿态，避免 atan2/asin 输入退化
@@ -100,6 +125,7 @@ Render::TerrainRenderSettings ToRenderSettings(const Gui::TerrainPanelState& sta
     settings.RoamScreenSpaceMergeThresholdPixels = state.RoamScreenSpaceMergeThresholdPixels;
     settings.RoamTriangleBudget = static_cast<std::size_t>(std::max(state.RoamTriangleBudget, 2));
     settings.RoamEnableParallelSplit = state.RoamEnableParallelSplit;
+    settings.RoamPassPolicy = state.RoamPassPolicy;
     settings.RoamEnableLocalConstraints = state.RoamEnableLocalConstraints;
     settings.RoamEnableTopologyValidation = state.RoamEnableTopologyValidation;
     settings.LightDirection = state.LightDirection;
@@ -550,6 +576,11 @@ void Application::ApplyPendingRuntimeBenchmarkOverrides()
         _terrainPanelState.BenchmarkPath = overrides.Path;
     }
 
+    if (overrides.HasPassPolicy)
+    {
+        _terrainPanelState.RoamPassPolicy = overrides.PassPolicy;
+    }
+
     if (overrides.HasHeightMapIndex)
     {
         _terrainPanelState.HeightMapIndex =
@@ -650,6 +681,8 @@ void Application::StartRuntimeBenchmark()
     _runtimeBenchmark.Notes.push_back("图形后端：" + std::string{_graphicsBackend->Name()});
     _runtimeBenchmark.Notes.push_back(
         "图形适配器：" + _graphicsBackend->AdapterName() + " (" + _graphicsBackend->VersionString() + ")");
+    _runtimeBenchmark.Notes.push_back(
+        "阶段策略：" + PassPolicyDisplayName(_terrainPanelState.RoamPassPolicy));
     if (!_runtimeBenchmarkOverrides.Label.empty())
     {
         _runtimeBenchmark.Notes.push_back("Benchmark 标签：" + _runtimeBenchmarkOverrides.Label);

@@ -158,6 +158,22 @@ if(TARGET parallel_roam)
             --algorithm dod
             --profile pass-trace-replay
     )
+    add_test(
+        NAME roam_pass_policy_replay_classic
+        COMMAND
+            $<TARGET_FILE:parallel_roam>
+            --benchmark
+            --algorithm classic
+            --profile pass-policy-replay
+    )
+    add_test(
+        NAME roam_pass_policy_replay_dod
+        COMMAND
+            $<TARGET_FILE:parallel_roam>
+            --benchmark
+            --algorithm dod
+            --profile pass-policy-replay
+    )
     set_tests_properties(
         roam_budget_reentry_classic
         roam_budget_reentry_dod
@@ -166,6 +182,8 @@ if(TARGET parallel_roam)
         roam_incremental_mesh_emit_dod
         roam_pass_trace_replay_classic
         roam_pass_trace_replay_dod
+        roam_pass_policy_replay_classic
+        roam_pass_policy_replay_dod
         PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.."
     )
 endif()

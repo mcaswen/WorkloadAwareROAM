@@ -15,9 +15,14 @@ constexpr std::size_t MinParallelPriorityRefreshCount = 256U;
 constexpr std::size_t MaxPriorityRefreshWorkerCount = 8U;
 constexpr float BlockedSplitScore = -std::numeric_limits<float>::max();
 
+/// <summary>
+/// 根据单个评分阶段的策略和条目数量选择实际线程数量
+/// 固定串行策略始终返回一个线程，自动和并行策略仍保留小规模回退
+/// </summary>
 std::size_t ResolvePriorityRefreshWorkerCount(
-    const DataOrientedRoamState& state,
-    std::size_t entryCount)
+    std::size_t entryCount,
+    TerrainLodScoreRefreshAction action,
+    std::size_t requestedWorkerCount)
 {
     // 队列较小时保持串行，避免线程调度成本超过评分本身
     // 自动模式最多使用 8 个线程，与 DOD 其他批量阶段采用相同保守上限
@@ -26,13 +31,13 @@ std::size_t ResolvePriorityRefreshWorkerCount(
     {
         return 0U;
     }
-    if (state.Settings.ErrorEvaluationWorkerCount == 1U ||
-        entryCount < MinParallelPriorityRefreshCount)
+    if (action == TerrainLodScoreRefreshAction::SerialRefresh ||
+        requestedWorkerCount == 1U || entryCount < MinParallelPriorityRefreshCount)
     {
         return 1U;
     }
 
-    std::size_t requested = state.Settings.ErrorEvaluationWorkerCount;
+    std::size_t requested = requestedWorkerCount;
     if (requested == 0U)
     {
         const unsigned int hardwareCount = std::thread::hardware_concurrency();
@@ -457,7 +462,10 @@ void RefreshPersistentSplitQueuePriorities(DataOrientedRoamState& state)
     }
 
     const std::size_t entryCount = state.SplitQueue.size();
-    const std::size_t workerCount = ResolvePriorityRefreshWorkerCount(state, entryCount);
+    const std::size_t workerCount = ResolvePriorityRefreshWorkerCount(
+        entryCount,
+        state.Settings.PassPolicy.SplitScore,
+        state.Settings.PassPolicy.SplitScoreWorkerCount);
     state.Stats.SplitScoreEntryCount = entryCount;
     state.Stats.SplitCandidateMarkWorkerCount = workerCount;
     state.Stats.CollectWorkerCount = std::max(state.Stats.CollectWorkerCount, workerCount);
@@ -633,7 +641,10 @@ void InitializePersistentMergeQueue(DataOrientedRoamState& state)
 void RefreshPersistentMergeQueuePriorities(DataOrientedRoamState& state)
 {
     const std::size_t entryCount = state.MergeQueue.size();
-    const std::size_t workerCount = ResolvePriorityRefreshWorkerCount(state, entryCount);
+    const std::size_t workerCount = ResolvePriorityRefreshWorkerCount(
+        entryCount,
+        state.Settings.PassPolicy.MergeScore,
+        state.Settings.PassPolicy.MergeScoreWorkerCount);
     state.Stats.MergeScoreEntryCount = entryCount;
     state.Stats.MergeCandidateMarkWorkerCount = workerCount;
     state.Stats.CandidateMarkWorkerCount = std::max(

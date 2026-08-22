@@ -7,12 +7,118 @@
 #include <bit>
 #include <cstddef>
 #include <cstdint>
+#include <numeric>
 #include <string_view>
 #include <type_traits>
 #include <vector>
 
 namespace ParallelRoam::Algorithms
 {
+enum class TerrainLodScoreRefreshAction
+{
+    Automatic,
+    SerialRefresh,
+    ParallelRefresh,
+};
+
+enum class TerrainLodTopologyAction
+{
+    Automatic,
+    SerialImmediate,
+    ParallelAssisted,
+};
+
+enum class TerrainLodMeshEmitAction
+{
+    Automatic,
+    SerialDirty,
+    ParallelDirty,
+    SerialFull,
+};
+
+enum class TerrainLodCpuUploadAction
+{
+    Automatic,
+    DirtyRange,
+    FullBuffer,
+};
+
+/// <summary>
+/// 为每个可切换阶段保存独立策略和线程上限
+/// </summary>
+struct TerrainLodPassPolicy
+{
+    TerrainLodScoreRefreshAction MergeScore{TerrainLodScoreRefreshAction::Automatic};
+    TerrainLodScoreRefreshAction SplitScore{TerrainLodScoreRefreshAction::Automatic};
+    TerrainLodTopologyAction MergeTopology{TerrainLodTopologyAction::Automatic};
+    TerrainLodTopologyAction SplitTopology{TerrainLodTopologyAction::Automatic};
+    TerrainLodMeshEmitAction MeshEmit{TerrainLodMeshEmitAction::Automatic};
+    TerrainLodCpuUploadAction CpuUpload{TerrainLodCpuUploadAction::Automatic};
+    std::size_t MergeScoreWorkerCount{0U};
+    std::size_t SplitScoreWorkerCount{0U};
+    std::size_t MergeTopologyWorkerCount{0U};
+    std::size_t SplitTopologyWorkerCount{0U};
+    std::size_t MeshEmitWorkerCount{0U};
+
+    [[nodiscard]] bool operator==(const TerrainLodPassPolicy&) const = default;
+};
+
+[[nodiscard]] constexpr TerrainLodPassPolicy MakeTerrainLodSerialIncrementalPolicy()
+{
+    TerrainLodPassPolicy policy{};
+    policy.MergeScore = TerrainLodScoreRefreshAction::SerialRefresh;
+    policy.SplitScore = TerrainLodScoreRefreshAction::SerialRefresh;
+    policy.MergeTopology = TerrainLodTopologyAction::SerialImmediate;
+    policy.SplitTopology = TerrainLodTopologyAction::SerialImmediate;
+    policy.MeshEmit = TerrainLodMeshEmitAction::SerialDirty;
+    policy.CpuUpload = TerrainLodCpuUploadAction::DirtyRange;
+    return policy;
+}
+
+[[nodiscard]] constexpr TerrainLodPassPolicy MakeTerrainLodMaximumSafeParallelIncrementalPolicy()
+{
+    TerrainLodPassPolicy policy{};
+    policy.MergeScore = TerrainLodScoreRefreshAction::ParallelRefresh;
+    policy.SplitScore = TerrainLodScoreRefreshAction::ParallelRefresh;
+    policy.MergeTopology = TerrainLodTopologyAction::ParallelAssisted;
+    policy.SplitTopology = TerrainLodTopologyAction::ParallelAssisted;
+    policy.MeshEmit = TerrainLodMeshEmitAction::ParallelDirty;
+    policy.CpuUpload = TerrainLodCpuUploadAction::DirtyRange;
+    return policy;
+}
+
+[[nodiscard]] constexpr TerrainLodPassPolicy MakeTerrainLodSerialFullOutputPolicy()
+{
+    TerrainLodPassPolicy policy = MakeTerrainLodSerialIncrementalPolicy();
+    policy.MeshEmit = TerrainLodMeshEmitAction::SerialFull;
+    policy.CpuUpload = TerrainLodCpuUploadAction::FullBuffer;
+    return policy;
+}
+
+[[nodiscard]] constexpr TerrainLodPassPolicy MakeTerrainLodMaximumSafeParallelFullOutputPolicy()
+{
+    TerrainLodPassPolicy policy = MakeTerrainLodMaximumSafeParallelIncrementalPolicy();
+    // 当前全量网格写入只有串行实现，前面的评分与拓扑阶段仍采用最大安全并行
+    policy.MeshEmit = TerrainLodMeshEmitAction::SerialFull;
+    policy.CpuUpload = TerrainLodCpuUploadAction::FullBuffer;
+    return policy;
+}
+
+[[nodiscard]] constexpr TerrainLodPassPolicy MakeTerrainLodFixedSerialPolicy()
+{
+    return MakeTerrainLodSerialIncrementalPolicy();
+}
+
+[[nodiscard]] constexpr TerrainLodPassPolicy MakeTerrainLodMaximumParallelPolicy()
+{
+    return MakeTerrainLodMaximumSafeParallelIncrementalPolicy();
+}
+
+[[nodiscard]] constexpr TerrainLodPassPolicy MakeTerrainLodSerialFullPolicy()
+{
+    return MakeTerrainLodSerialFullOutputPolicy();
+}
+
 /// <summary>
 /// 标识研究计划中需要独立观察和比较的处理阶段
 /// </summary>
@@ -40,6 +146,7 @@ enum class TerrainLodPassAction
     ParallelAssisted,
     SerialDirty,
     ParallelDirty,
+    SerialFull,
     DirtyRange,
     FullBuffer,
     MixedUpload,
@@ -56,6 +163,7 @@ enum class TerrainLodPassFallbackReason
     BelowParallelThreshold,
     ResourceCapacity,
     FrameSlotBacklog,
+    MeshInitialization,
 };
 
 /// <summary>
@@ -161,6 +269,7 @@ using TerrainLodPassTraceArray = std::array<TerrainLodPassTrace, TerrainLodPassC
     case TerrainLodPassAction::ParallelAssisted: return "parallelAssisted";
     case TerrainLodPassAction::SerialDirty: return "serialDirty";
     case TerrainLodPassAction::ParallelDirty: return "parallelDirty";
+    case TerrainLodPassAction::SerialFull: return "serialFull";
     case TerrainLodPassAction::DirtyRange: return "dirtyRange";
     case TerrainLodPassAction::FullBuffer: return "fullBuffer";
     case TerrainLodPassAction::MixedUpload: return "mixedUpload";
@@ -178,6 +287,52 @@ using TerrainLodPassTraceArray = std::array<TerrainLodPassTrace, TerrainLodPassC
     case TerrainLodPassFallbackReason::BelowParallelThreshold: return "belowParallelThreshold";
     case TerrainLodPassFallbackReason::ResourceCapacity: return "resourceCapacity";
     case TerrainLodPassFallbackReason::FrameSlotBacklog: return "frameSlotBacklog";
+    case TerrainLodPassFallbackReason::MeshInitialization: return "meshInitialization";
+    }
+    return "unknown";
+}
+
+[[nodiscard]] constexpr std::string_view ToString(TerrainLodScoreRefreshAction value)
+{
+    switch (value)
+    {
+    case TerrainLodScoreRefreshAction::Automatic: return "automatic";
+    case TerrainLodScoreRefreshAction::SerialRefresh: return "serialRefresh";
+    case TerrainLodScoreRefreshAction::ParallelRefresh: return "parallelRefresh";
+    }
+    return "unknown";
+}
+
+[[nodiscard]] constexpr std::string_view ToString(TerrainLodTopologyAction value)
+{
+    switch (value)
+    {
+    case TerrainLodTopologyAction::Automatic: return "automatic";
+    case TerrainLodTopologyAction::SerialImmediate: return "serialImmediate";
+    case TerrainLodTopologyAction::ParallelAssisted: return "parallelAssisted";
+    }
+    return "unknown";
+}
+
+[[nodiscard]] constexpr std::string_view ToString(TerrainLodMeshEmitAction value)
+{
+    switch (value)
+    {
+    case TerrainLodMeshEmitAction::Automatic: return "automatic";
+    case TerrainLodMeshEmitAction::SerialDirty: return "serialDirty";
+    case TerrainLodMeshEmitAction::ParallelDirty: return "parallelDirty";
+    case TerrainLodMeshEmitAction::SerialFull: return "serialFull";
+    }
+    return "unknown";
+}
+
+[[nodiscard]] constexpr std::string_view ToString(TerrainLodCpuUploadAction value)
+{
+    switch (value)
+    {
+    case TerrainLodCpuUploadAction::Automatic: return "automatic";
+    case TerrainLodCpuUploadAction::DirtyRange: return "dirtyRange";
+    case TerrainLodCpuUploadAction::FullBuffer: return "fullBuffer";
     }
     return "unknown";
 }
@@ -279,6 +434,57 @@ inline void AppendTerrainLodHash(std::uint64_t& hash, std::string_view value)
     for (const std::uint32_t index : mesh.Indices)
     {
         AppendTerrainLodHash(hash, index);
+    }
+    return hash;
+}
+
+[[nodiscard]] inline std::uint64_t HashTerrainLodNormalizedMesh(
+    const Terrain::TerrainMeshData& mesh,
+    const std::vector<std::uint64_t>& slotPathIds)
+{
+    constexpr std::size_t verticesPerTriangle = 3U;
+    if (mesh.Vertices.size() != slotPathIds.size() * verticesPerTriangle ||
+        mesh.Indices.size() != slotPathIds.size() * verticesPerTriangle)
+    {
+        return 0U;
+    }
+
+    std::vector<std::size_t> slotOrder(slotPathIds.size());
+    std::iota(slotOrder.begin(), slotOrder.end(), 0U);
+    std::sort(
+        slotOrder.begin(),
+        slotOrder.end(),
+        [&slotPathIds](std::size_t left, std::size_t right) {
+            return slotPathIds[left] < slotPathIds[right];
+        });
+
+    std::uint64_t hash = TerrainLodHashOffset;
+    AppendTerrainLodHash(hash, slotPathIds.size());
+    AppendTerrainLodHash(hash, mesh.GridWidth);
+    AppendTerrainLodHash(hash, mesh.GridHeight);
+    AppendTerrainLodHash(hash, mesh.TerrainSize);
+    AppendTerrainLodHash(hash, mesh.HeightScale);
+    for (const std::size_t slot : slotOrder)
+    {
+        AppendTerrainLodHash(hash, slotPathIds[slot]);
+        const std::size_t baseIndex = slot * verticesPerTriangle;
+        for (std::size_t offset = 0U; offset < verticesPerTriangle; ++offset)
+        {
+            const Terrain::TerrainMeshVertex& vertex = mesh.Vertices[baseIndex + offset];
+            AppendTerrainLodHash(hash, vertex.Position.x);
+            AppendTerrainLodHash(hash, vertex.Position.y);
+            AppendTerrainLodHash(hash, vertex.Position.z);
+            AppendTerrainLodHash(hash, vertex.Normal.x);
+            AppendTerrainLodHash(hash, vertex.Normal.y);
+            AppendTerrainLodHash(hash, vertex.Normal.z);
+            AppendTerrainLodHash(hash, vertex.TexCoord.x);
+            AppendTerrainLodHash(hash, vertex.TexCoord.y);
+            AppendTerrainLodHash(hash, vertex.Height);
+            // 调试颜色记录网格变化过程，不属于策略之间需要保持一致的地形几何
+            const std::uint32_t relativeIndex = mesh.Indices[baseIndex + offset] -
+                static_cast<std::uint32_t>(baseIndex);
+            AppendTerrainLodHash(hash, relativeIndex);
+        }
     }
     return hash;
 }

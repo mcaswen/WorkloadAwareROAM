@@ -125,6 +125,7 @@ bool NeedsMeshRebuild(const TerrainRenderSettings& previous, const TerrainRender
            previous.RoamScreenSpaceMergeThresholdPixels != next.RoamScreenSpaceMergeThresholdPixels ||
            previous.RoamTriangleBudget != next.RoamTriangleBudget ||
            previous.RoamEnableParallelSplit != next.RoamEnableParallelSplit ||
+           previous.RoamPassPolicy != next.RoamPassPolicy ||
            previous.RoamEnableLocalConstraints != next.RoamEnableLocalConstraints ||
            previous.RoamEnableTopologyValidation != next.RoamEnableTopologyValidation ||
            previous.RoamEnablePassEvidence != next.RoamEnablePassEvidence;
@@ -460,6 +461,7 @@ TerrainRenderStats TerrainRenderer::Stats() const
     stats.RoamTopologyHash = _terrainLodStats.TopologyHash;
     stats.RoamActiveLeafHash = _terrainLodStats.ActiveLeafHash;
     stats.RoamMeshHash = _terrainLodStats.MeshHash;
+    stats.RoamNormalizedMeshHash = _terrainLodStats.NormalizedMeshHash;
     stats.RoamEvidenceTriangleBudget = _terrainLodStats.TriangleBudget;
     stats.RoamBudgetViolationCount = _terrainLodStats.BudgetViolationCount;
     stats.RoamQueueInvariantViolationCount = _terrainLodStats.QueueInvariantViolationCount;
@@ -629,6 +631,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     lodSettings.ScreenSpaceMergeThresholdPixels = _settings.RoamScreenSpaceMergeThresholdPixels;
     lodSettings.TriangleBudget = _settings.RoamTriangleBudget;
     lodSettings.EnableParallelSplit = _settings.RoamEnableParallelSplit;
+    lodSettings.PassPolicy = _settings.RoamPassPolicy;
     lodSettings.EnableLocalConstraints = _settings.RoamEnableLocalConstraints;
     lodSettings.EnableTopologyValidation = _settings.RoamEnableTopologyValidation;
     lodSettings.EnablePassEvidence = _settings.RoamEnablePassEvidence;
@@ -700,6 +703,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
         if (!UploadMeshData(
                 *cpuMesh,
                 renderPacket.CpuMeshRequiresFullUpload,
+                renderPacket.CpuUploadAction,
                 renderPacket.CpuMeshUpdateRanges,
                 errorMessage))
         {
@@ -729,12 +733,18 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
 bool TerrainRenderer::UploadMesh(std::string* errorMessage)
 {
     static const std::vector<Algorithms::TerrainLodCpuMeshUpdateRange> noUpdateRanges;
-    return UploadMeshData(_meshData, true, noUpdateRanges, errorMessage);
+    return UploadMeshData(
+        _meshData,
+        true,
+        Algorithms::TerrainLodCpuUploadAction::Automatic,
+        noUpdateRanges,
+        errorMessage);
 }
 
 bool TerrainRenderer::UploadMeshData(
     const Terrain::TerrainMeshData& meshData,
-    bool fullUpload,
+    bool meshRequiresFullUpload,
+    Algorithms::TerrainLodCpuUploadAction uploadAction,
     const std::vector<Algorithms::TerrainLodCpuMeshUpdateRange>& updateRanges,
     std::string* errorMessage)
 {
@@ -767,10 +777,13 @@ bool TerrainRenderer::UploadMeshData(
     // LOD mesh 会随相机更新
     // 规则网格只在参数变化时更新
     const GLenum bufferUsage = _settings.UseTerrainLod ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+    const bool forceFullUpload = meshRequiresFullUpload ||
+        uploadAction == Algorithms::TerrainLodCpuUploadAction::FullBuffer;
+    const bool requestedFullUpload = uploadAction == Algorithms::TerrainLodCpuUploadAction::FullBuffer ||
+        (uploadAction == Algorithms::TerrainLodCpuUploadAction::Automatic && meshRequiresFullUpload);
     std::size_t uploadedBytes = 0U;
     const std::size_t vertexBufferBytes = meshData.Vertices.size() * sizeof(Terrain::TerrainMeshVertex);
-    bool uploadAllVertices = fullUpload;
-    const bool vertexCapacityFallback = _vertexBufferCapacityBytes < vertexBufferBytes;
+    bool uploadAllVertices = forceFullUpload;
     if (_vertexBufferCapacityBytes < vertexBufferBytes)
     {
         glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexBufferBytes), nullptr, bufferUsage);
@@ -806,8 +819,7 @@ bool TerrainRenderer::UploadMeshData(
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBufferId);
     const std::size_t indexBufferBytes = meshData.Indices.size() * sizeof(std::uint32_t);
-    bool uploadAllIndices = fullUpload;
-    const bool indexCapacityFallback = _indexBufferCapacityBytes < indexBufferBytes;
+    bool uploadAllIndices = forceFullUpload;
     if (_indexBufferCapacityBytes < indexBufferBytes)
     {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(indexBufferBytes), nullptr, bufferUsage);
@@ -851,7 +863,7 @@ bool TerrainRenderer::UploadMeshData(
         Algorithms::TerrainLodPassTrace& uploadTrace = Algorithms::TerrainLodPassTraceFor(
             _terrainLodStats.PassTraces,
             Algorithms::TerrainLodPassId::CpuUpload);
-        uploadTrace.RequestedAction = fullUpload
+        uploadTrace.RequestedAction = requestedFullUpload
             ? Algorithms::TerrainLodPassAction::FullBuffer
             : Algorithms::TerrainLodPassAction::DirtyRange;
         uploadTrace.EffectiveAction = uploadAllVertices && uploadAllIndices
@@ -859,9 +871,13 @@ bool TerrainRenderer::UploadMeshData(
             : (!uploadAllVertices && !uploadAllIndices
                 ? Algorithms::TerrainLodPassAction::DirtyRange
                 : Algorithms::TerrainLodPassAction::MixedUpload);
-        uploadTrace.FallbackReason = !fullUpload && (vertexCapacityFallback || indexCapacityFallback)
-            ? Algorithms::TerrainLodPassFallbackReason::ResourceCapacity
-            : Algorithms::TerrainLodPassFallbackReason::None;
+        uploadTrace.FallbackReason = Algorithms::TerrainLodPassFallbackReason::None;
+        if (!requestedFullUpload && (uploadAllVertices || uploadAllIndices))
+        {
+            uploadTrace.FallbackReason = meshRequiresFullUpload
+                ? Algorithms::TerrainLodPassFallbackReason::MeshInitialization
+                : Algorithms::TerrainLodPassFallbackReason::ResourceCapacity;
+        }
         uploadTrace.DataUpdate = uploadAllVertices && uploadAllIndices
             ? Algorithms::TerrainLodDataUpdateMode::Full
             : (!uploadAllVertices && !uploadAllIndices
