@@ -458,6 +458,8 @@ void RefreshPersistentSplitQueuePriorities(DataOrientedRoamState& state)
 
     const std::size_t entryCount = state.SplitQueue.size();
     const std::size_t workerCount = ResolvePriorityRefreshWorkerCount(state, entryCount);
+    state.Stats.SplitScoreEntryCount = entryCount;
+    state.Stats.SplitCandidateMarkWorkerCount = workerCount;
     state.Stats.CollectWorkerCount = std::max(state.Stats.CollectWorkerCount, workerCount);
     state.Stats.ErrorEvaluationWorkerCount = workerCount;
     state.Stats.CandidateMarkWorkerCount = std::max(
@@ -632,6 +634,8 @@ void RefreshPersistentMergeQueuePriorities(DataOrientedRoamState& state)
 {
     const std::size_t entryCount = state.MergeQueue.size();
     const std::size_t workerCount = ResolvePriorityRefreshWorkerCount(state, entryCount);
+    state.Stats.MergeScoreEntryCount = entryCount;
+    state.Stats.MergeCandidateMarkWorkerCount = workerCount;
     state.Stats.CandidateMarkWorkerCount = std::max(
         state.Stats.CandidateMarkWorkerCount,
         workerCount);

@@ -131,6 +131,34 @@ int main(int argc, char** argv)
             continue;
         }
 
+        if (argument == "--runtime-benchmark-path")
+        {
+            const char* value = requireValue(index, argument);
+            if (value == nullptr)
+            {
+                break;
+            }
+            const std::string_view pathValue{value};
+            if (pathValue == "default")
+            {
+                runtimeBenchmarkOverrides.Path =
+                    ParallelRoam::Gui::TerrainPanelState::RuntimeBenchmarkPath::Default;
+            }
+            else if (pathValue == "budget-saturation" || pathValue == "stress")
+            {
+                runtimeBenchmarkOverrides.Path =
+                    ParallelRoam::Gui::TerrainPanelState::RuntimeBenchmarkPath::BudgetSaturation;
+            }
+            else
+            {
+                parseError = "Invalid runtime benchmark path: " + std::string{pathValue};
+                break;
+            }
+            runtimeBenchmarkOverrides.HasPath = true;
+            hasRuntimeBenchmarkOverrides = true;
+            continue;
+        }
+
         if (argument == "--runtime-benchmark-heightmap")
         {
             int value = 0;

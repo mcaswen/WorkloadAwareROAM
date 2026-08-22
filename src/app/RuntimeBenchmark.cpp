@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
+#include <string_view>
 
 namespace ParallelRoam::App
 {
@@ -334,6 +335,45 @@ RuntimeBenchmarkSummary SummaryForAlgorithm(
     return result == results.end() ? RuntimeBenchmarkSummary{} : SummarizeRuntimeBenchmark(*result);
 }
 
+void WritePassTraceCsvHeader(std::ostream& output)
+{
+    for (std::size_t index = 0U; index < Algorithms::TerrainLodPassCount; ++index)
+    {
+        const std::string_view name = Algorithms::ToString(static_cast<Algorithms::TerrainLodPassId>(index));
+        output << ",pass_" << name << "RequestedAction"
+               << ",pass_" << name << "EffectiveAction"
+               << ",pass_" << name << "FallbackReason"
+               << ",pass_" << name << "MembershipUpdate"
+               << ",pass_" << name << "PriorityRefresh"
+               << ",pass_" << name << "DataUpdate"
+               << ",pass_" << name << "RequestedWorkerCount"
+               << ",pass_" << name << "EffectiveWorkerCount"
+               << ",pass_" << name << "CandidateCount"
+               << ",pass_" << name << "DirtyItemCount"
+               << ",pass_" << name << "WallMs";
+    }
+}
+
+void WritePassTraceCsvValues(
+    std::ostream& output,
+    const Algorithms::TerrainLodPassTraceArray& traces)
+{
+    for (const Algorithms::TerrainLodPassTrace& trace : traces)
+    {
+        output << ',' << Algorithms::ToString(trace.RequestedAction)
+               << ',' << Algorithms::ToString(trace.EffectiveAction)
+               << ',' << Algorithms::ToString(trace.FallbackReason)
+               << ',' << Algorithms::ToString(trace.MembershipUpdate)
+               << ',' << Algorithms::ToString(trace.PriorityRefresh)
+               << ',' << Algorithms::ToString(trace.DataUpdate)
+               << ',' << trace.RequestedWorkerCount
+               << ',' << trace.EffectiveWorkerCount
+               << ',' << trace.CandidateCount
+               << ',' << trace.DirtyItemCount
+               << ',' << trace.WallMilliseconds;
+    }
+}
+
 void WriteDetailedCsv(
     const std::filesystem::path& csvPath,
     const std::vector<RuntimeBenchmarkAlgorithmResult>& results)
@@ -370,7 +410,12 @@ void WriteDetailedCsv(
         << "cpuUploadMilliseconds,"
         << "frameFenceWaitMilliseconds,renderMilliseconds,"
         << "cpuGpuUploadBytes,cpuGpuReadbackBytes,splitMilliseconds,"
-        << "mergeMilliseconds,emitMilliseconds,validateMilliseconds,maxDepthReached\n";
+        << "mergeMilliseconds,emitMilliseconds,validateMilliseconds,maxDepthReached,"
+        << "buildSequence,replayInputHash,topologyHash,activeLeafHash,meshHash,"
+        << "evidenceTriangleBudget,budgetViolationCount,queueInvariantViolationCount,"
+        << "resourceValidationFailureCount,passEvidenceMilliseconds";
+    WritePassTraceCsvHeader(csv);
+    csv << '\n';
 
     csv << std::fixed << std::setprecision(3);
     for (const RuntimeBenchmarkAlgorithmResult& result : results)
@@ -457,7 +502,19 @@ void WriteDetailedCsv(
                 << stats.RoamMergeMilliseconds << ','
                 << stats.RoamEmitMilliseconds << ','
                 << stats.RoamValidateMilliseconds << ','
-                << stats.RoamMaxDepthReached << '\n';
+                << stats.RoamMaxDepthReached << ','
+                << stats.RoamBuildSequence << ','
+                << stats.RoamReplayInputHash << ','
+                << stats.RoamTopologyHash << ','
+                << stats.RoamActiveLeafHash << ','
+                << stats.RoamMeshHash << ','
+                << stats.RoamEvidenceTriangleBudget << ','
+                << stats.RoamBudgetViolationCount << ','
+                << stats.RoamQueueInvariantViolationCount << ','
+                << stats.RoamResourceValidationFailureCount << ','
+                << stats.RoamPassEvidenceMilliseconds;
+            WritePassTraceCsvValues(csv, stats.RoamPassTraces);
+            csv << '\n';
         }
     }
 }

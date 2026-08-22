@@ -19,6 +19,10 @@ namespace ParallelRoam::App
 {
 struct RuntimeBenchmarkOverrides
 {
+    bool HasPath{false};
+    Gui::TerrainPanelState::RuntimeBenchmarkPath Path{
+        Gui::TerrainPanelState::RuntimeBenchmarkPath::Default};
+
     bool HasHeightMapIndex{false};
     int HeightMapIndex{0};
 

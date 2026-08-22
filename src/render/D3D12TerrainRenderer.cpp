@@ -183,7 +183,8 @@ bool NeedsMeshRebuild(const TerrainRenderSettings& previous, const TerrainRender
            previous.RoamTriangleBudget != next.RoamTriangleBudget ||
            previous.RoamEnableParallelSplit != next.RoamEnableParallelSplit ||
            previous.RoamEnableLocalConstraints != next.RoamEnableLocalConstraints ||
-           previous.RoamEnableTopologyValidation != next.RoamEnableTopologyValidation;
+           previous.RoamEnableTopologyValidation != next.RoamEnableTopologyValidation ||
+           previous.RoamEnablePassEvidence != next.RoamEnablePassEvidence;
 }
 
 bool RoamViewInputsChanged(const RenderContext& previous, const RenderContext& next)
@@ -536,8 +537,18 @@ bool UploadMeshForFrame(
     const Terrain::TerrainMeshData& meshData,
     std::uint32_t frameIndex,
     std::size_t* uploadedBytes,
+    bool* uploadedAllVertices,
+    bool* uploadedAllIndices,
     std::string* errorMessage)
 {
+    if (uploadedAllVertices != nullptr)
+    {
+        *uploadedAllVertices = false;
+    }
+    if (uploadedAllIndices != nullptr)
+    {
+        *uploadedAllIndices = false;
+    }
     D3D12MeshFrameResources& frame = state.MeshFrames[frameIndex];
     // 当前交换链帧已拥有该版本时不重复复制大型网格
     if (frame.MeshGeneration == state.MeshGeneration)
@@ -577,6 +588,14 @@ bool UploadMeshForFrame(
         }
         frame.IndexCapacityBytes = indexBytes;
         uploadAllIndices = true;
+    }
+    if (uploadedAllVertices != nullptr)
+    {
+        *uploadedAllVertices = uploadAllVertices;
+    }
+    if (uploadedAllIndices != nullptr)
+    {
+        *uploadedAllIndices = uploadAllIndices;
     }
 
     // 后端在复用帧索引前已经等待对应 fence，因此此处可直接写入
@@ -831,7 +850,14 @@ void TerrainRenderer::Render(const RenderContext& context)
             ? _borrowedCpuMeshData
             : &_meshData;
         if (cpuMesh == nullptr ||
-            !UploadMeshForFrame(*_d3d12State, *cpuMesh, frameIndex, nullptr, &uploadError))
+            !UploadMeshForFrame(
+                *_d3d12State,
+                *cpuMesh,
+                frameIndex,
+                nullptr,
+                nullptr,
+                nullptr,
+                &uploadError))
         {
             std::cerr << uploadError << '\n';
             return;
@@ -885,6 +911,17 @@ TerrainRenderStats TerrainRenderer::Stats() const
     stats.UseTerrainLod = _settings.UseTerrainLod;
     stats.TerrainLodAlgorithm = _settings.TerrainLodAlgorithm;
     stats.TerrainLodStatusMessage = _terrainLodStatusMessage;
+    stats.RoamPassTraces = _terrainLodStats.PassTraces;
+    stats.RoamBuildSequence = _terrainLodStats.BuildSequence;
+    stats.RoamReplayInputHash = _terrainLodStats.ReplayInputHash;
+    stats.RoamTopologyHash = _terrainLodStats.TopologyHash;
+    stats.RoamActiveLeafHash = _terrainLodStats.ActiveLeafHash;
+    stats.RoamMeshHash = _terrainLodStats.MeshHash;
+    stats.RoamEvidenceTriangleBudget = _terrainLodStats.TriangleBudget;
+    stats.RoamBudgetViolationCount = _terrainLodStats.BudgetViolationCount;
+    stats.RoamQueueInvariantViolationCount = _terrainLodStats.QueueInvariantViolationCount;
+    stats.RoamResourceValidationFailureCount = _terrainLodStats.ResourceValidationFailureCount;
+    stats.RoamPassEvidenceMilliseconds = _terrainLodStats.PassEvidenceMilliseconds;
     stats.RoamMaxDepthSetting = _settings.RoamMaxDepth;
     stats.RoamScreenSpaceSplitThresholdPixels = _settings.RoamScreenSpaceSplitThresholdPixels;
     stats.RoamScreenSpaceMergeThresholdPixels = _settings.RoamScreenSpaceMergeThresholdPixels;
@@ -1035,6 +1072,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     lodSettings.EnableParallelSplit = _settings.RoamEnableParallelSplit;
     lodSettings.EnableLocalConstraints = _settings.RoamEnableLocalConstraints;
     lodSettings.EnableTopologyValidation = _settings.RoamEnableTopologyValidation;
+    lodSettings.EnablePassEvidence = _settings.RoamEnablePassEvidence;
     Algorithms::TerrainLodBuildInput buildInput{};
     buildInput.HeightMap = &_heightMap;
     buildInput.View = Algorithms::BuildTerrainLodViewInput(
@@ -1105,6 +1143,11 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
         return false;
     }
     _terrainLodCpuUploadMilliseconds = uploadTimer.Stop();
+    _terrainLodStats.CpuUploadMilliseconds = _terrainLodCpuUploadMilliseconds;
+    Algorithms::TerrainLodPassTraceFor(
+        _terrainLodStats.PassTraces,
+        Algorithms::TerrainLodPassId::CpuUpload).WallMilliseconds =
+        _terrainLodCpuUploadMilliseconds;
     _meshDirty = false;
     _terrainLodTotalMilliseconds = rebuildTimer.Stop();
     return true;
@@ -1157,13 +1200,52 @@ bool TerrainRenderer::UploadMeshData(
     _drawIndexCount = meshData.Indices.size();
     _drawTriangleCount = meshData.Indices.size() / 3U;
     std::size_t uploadedBytes = 0U;
+    const std::uint32_t currentFrameIndex = _d3d12State->Backend->CurrentFrameIndex();
+    const D3D12MeshFrameResources& currentFrame = _d3d12State->MeshFrames[currentFrameIndex];
+    const bool pendingFullUpload = currentFrame.PendingFullUpload;
+    const std::size_t pendingRangeCount = currentFrame.PendingUpdateRanges.size();
+    bool uploadedAllVertices = false;
+    bool uploadedAllIndices = false;
     const bool uploaded = UploadMeshForFrame(
         *_d3d12State,
         meshData,
-        _d3d12State->Backend->CurrentFrameIndex(),
+        currentFrameIndex,
         &uploadedBytes,
+        &uploadedAllVertices,
+        &uploadedAllIndices,
         errorMessage);
     _terrainLodStats.CpuGpuUploadBytes = uploadedBytes;
+    if (_settings.UseTerrainLod)
+    {
+        Algorithms::TerrainLodPassTrace& uploadTrace = Algorithms::TerrainLodPassTraceFor(
+            _terrainLodStats.PassTraces,
+            Algorithms::TerrainLodPassId::CpuUpload);
+        uploadTrace.RequestedAction = fullUpload
+            ? Algorithms::TerrainLodPassAction::FullBuffer
+            : Algorithms::TerrainLodPassAction::DirtyRange;
+        uploadTrace.EffectiveAction = uploadedAllVertices && uploadedAllIndices
+            ? Algorithms::TerrainLodPassAction::FullBuffer
+            : (!uploadedAllVertices && !uploadedAllIndices
+                ? Algorithms::TerrainLodPassAction::DirtyRange
+                : Algorithms::TerrainLodPassAction::MixedUpload);
+        uploadTrace.FallbackReason = !fullUpload && (uploadedAllVertices || uploadedAllIndices)
+            ? (pendingFullUpload
+                ? Algorithms::TerrainLodPassFallbackReason::FrameSlotBacklog
+                : Algorithms::TerrainLodPassFallbackReason::ResourceCapacity)
+            : Algorithms::TerrainLodPassFallbackReason::None;
+        uploadTrace.DataUpdate = uploadedAllVertices && uploadedAllIndices
+            ? Algorithms::TerrainLodDataUpdateMode::Full
+            : (!uploadedAllVertices && !uploadedAllIndices
+                ? Algorithms::TerrainLodDataUpdateMode::Incremental
+                : Algorithms::TerrainLodDataUpdateMode::Mixed);
+        uploadTrace.RequestedWorkerCount = 1U;
+        uploadTrace.EffectiveWorkerCount = uploadedBytes == 0U ? 0U : 1U;
+        uploadTrace.DirtyItemCount = pendingRangeCount;
+        if (uploadedBytes == 0U)
+        {
+            uploadTrace.FallbackReason = Algorithms::TerrainLodPassFallbackReason::NoWork;
+        }
+    }
     return uploaded;
 }
 

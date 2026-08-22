@@ -22,6 +22,185 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
 namespace
 {
 constexpr int MaximumSupportedDepth = 20;
+
+TerrainLodPassFallbackReason AutomaticFallback(std::size_t workCount, std::size_t workerCount)
+{
+    // 没有工作与工作量不足是两种不同事实
+    // 后续模型可以据此区分空阶段和串行更合适的小阶段
+    if (workCount == 0U)
+    {
+        return TerrainLodPassFallbackReason::NoWork;
+    }
+    return workerCount <= 1U
+        ? TerrainLodPassFallbackReason::BelowParallelThreshold
+        : TerrainLodPassFallbackReason::None;
+}
+
+void FinalizePassTraces(DataOrientedRoamState& state)
+{
+    // 这里只把现有阈值和线程解析结果翻译成统一记录
+    // 不重新选择线程，也不改变已经完成的算法操作
+    DataOrientedRoamStats& stats = state.Stats;
+    stats.BuildSequence = state.BuildSequence;
+    stats.TriangleBudget = state.Settings.TriangleBudget;
+
+    // Q_m 成员局部维护，当前成员的视点相关分数每帧整批刷新
+    // effective 根据评分阶段实际使用的线程数量填写
+    TerrainLodPassTrace& mergeScore = TerrainLodPassTraceFor(
+        stats.PassTraces,
+        TerrainLodPassId::MergeScore);
+    mergeScore.RequestedAction = TerrainLodPassAction::Automatic;
+    mergeScore.EffectiveAction = stats.MergeCandidateMarkWorkerCount > 1U
+        ? TerrainLodPassAction::ParallelFullRefresh
+        : TerrainLodPassAction::SerialFullRefresh;
+    mergeScore.FallbackReason = AutomaticFallback(
+        stats.MergeScoreEntryCount,
+        stats.MergeCandidateMarkWorkerCount);
+    mergeScore.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
+    mergeScore.PriorityRefresh = TerrainLodPriorityRefreshMode::FullAllCurrentEntries;
+    mergeScore.RequestedWorkerCount = state.Settings.ErrorEvaluationWorkerCount;
+    mergeScore.EffectiveWorkerCount = stats.MergeCandidateMarkWorkerCount;
+    mergeScore.CandidateCount = stats.MergeScoreEntryCount;
+    mergeScore.WallMilliseconds = stats.MergeCandidateMarkMilliseconds;
+
+    // Q_s 与 Q_m 的刷新语义相同，分别保存条目数量和实际线程数量
+    TerrainLodPassTrace& splitScore = TerrainLodPassTraceFor(
+        stats.PassTraces,
+        TerrainLodPassId::SplitScore);
+    splitScore.RequestedAction = TerrainLodPassAction::Automatic;
+    splitScore.EffectiveAction = stats.SplitCandidateMarkWorkerCount > 1U
+        ? TerrainLodPassAction::ParallelFullRefresh
+        : TerrainLodPassAction::SerialFullRefresh;
+    splitScore.FallbackReason = AutomaticFallback(
+        stats.SplitScoreEntryCount,
+        stats.SplitCandidateMarkWorkerCount);
+    splitScore.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
+    splitScore.PriorityRefresh = TerrainLodPriorityRefreshMode::FullAllCurrentEntries;
+    splitScore.RequestedWorkerCount = state.Settings.ErrorEvaluationWorkerCount;
+    splitScore.EffectiveWorkerCount = stats.SplitCandidateMarkWorkerCount;
+    splitScore.CandidateCount = stats.SplitScoreEntryCount;
+    splitScore.WallMilliseconds = stats.SplitCandidateMarkMilliseconds;
+
+    // 合并只把安全候选交给线程处理
+    // 结果整理、索引队列刷新和最终收敛仍属于同一包络
+    TerrainLodPassTrace& mergeTopology = TerrainLodPassTraceFor(
+        stats.PassTraces,
+        TerrainLodPassId::MergeTopology);
+    mergeTopology.RequestedAction = TerrainLodPassAction::Automatic;
+    mergeTopology.EffectiveAction = stats.MergeTopologyCommitWorkerCount > 1U
+        ? TerrainLodPassAction::ParallelAssisted
+        : TerrainLodPassAction::SerialImmediate;
+    mergeTopology.FallbackReason = AutomaticFallback(
+        stats.MergeCandidateCount,
+        stats.MergeTopologyCommitWorkerCount);
+    mergeTopology.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
+    mergeTopology.DataUpdate = TerrainLodDataUpdateMode::Incremental;
+    mergeTopology.RequestedWorkerCount = state.Settings.ErrorEvaluationWorkerCount;
+    mergeTopology.EffectiveWorkerCount = stats.MergeTopologyCommitWorkerCount;
+    mergeTopology.CandidateCount = stats.MergeCandidateCount;
+    mergeTopology.WallMilliseconds =
+        stats.MergeTopologyChunkBuildMilliseconds +
+        stats.MergeTopologyQueueInvalidationMilliseconds +
+        stats.MergeTopologyParallelCommitMilliseconds +
+        stats.MergeTopologyResultMergeMilliseconds +
+        stats.MergeTopologyIndexQueueRefreshMilliseconds +
+        stats.MergeTopologySerialConvergenceMilliseconds;
+
+    // 旧开关只控制细分候选快照和并行辅助部分
+    // 关闭时 Q_s 评分仍可能并行，因此这里只映射拓扑阶段
+    TerrainLodPassTrace& splitTopology = TerrainLodPassTraceFor(
+        stats.PassTraces,
+        TerrainLodPassId::SplitTopology);
+    splitTopology.RequestedAction = state.Settings.EnableParallelSplit
+        ? TerrainLodPassAction::ParallelAssisted
+        : TerrainLodPassAction::SerialImmediate;
+    splitTopology.EffectiveAction = stats.SplitTopologyCommitWorkerCount > 1U
+        ? TerrainLodPassAction::ParallelAssisted
+        : TerrainLodPassAction::SerialImmediate;
+    const std::size_t splitTopologyCandidateCount = state.Settings.EnableParallelSplit
+        ? stats.SplitCandidateCount
+        : stats.SplitScoreEntryCount;
+    // 串行旧路径没有候选快照，只能记录本帧评分条目规模
+    // ParallelDisabled 不作为失败，因为这正是调用方请求的固定行为
+    splitTopology.FallbackReason = state.Settings.EnableParallelSplit
+        ? AutomaticFallback(splitTopologyCandidateCount, stats.SplitTopologyCommitWorkerCount)
+        : TerrainLodPassFallbackReason::None;
+    splitTopology.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
+    splitTopology.DataUpdate = TerrainLodDataUpdateMode::Incremental;
+    splitTopology.RequestedWorkerCount = state.Settings.EnableParallelSplit
+        ? state.Settings.ErrorEvaluationWorkerCount
+        : 1U;
+    splitTopology.EffectiveWorkerCount = state.Settings.EnableParallelSplit
+        ? stats.SplitTopologyCommitWorkerCount
+        : (splitTopologyCandidateCount == 0U ? 0U : 1U);
+    splitTopology.CandidateCount = splitTopologyCandidateCount;
+    splitTopology.WallMilliseconds =
+        stats.SplitTopologyChunkBuildMilliseconds +
+        stats.SplitTopologyQueueInvalidationMilliseconds +
+        stats.SplitTopologyParallelCommitMilliseconds +
+        stats.SplitTopologyResultMergeMilliseconds +
+        stats.SplitTopologyIndexQueueRefreshMilliseconds +
+        stats.SplitTopologySerialConvergenceMilliseconds;
+
+    // DOD 始终通过脏槽位写入网格，超过阈值时只改变写入线程数量
+    // 首帧的脏槽位覆盖完整活动网格，因此结果范围单独标为 Full
+    TerrainLodPassTrace& meshEmit = TerrainLodPassTraceFor(
+        stats.PassTraces,
+        TerrainLodPassId::MeshEmit);
+    meshEmit.RequestedAction = TerrainLodPassAction::Automatic;
+    meshEmit.EffectiveAction = stats.EmitWorkerCount > 1U
+        ? TerrainLodPassAction::ParallelDirty
+        : TerrainLodPassAction::SerialDirty;
+    meshEmit.FallbackReason = AutomaticFallback(
+        stats.MeshUpdatedTriangleCount,
+        stats.EmitWorkerCount);
+    meshEmit.DataUpdate = stats.MeshFullRebuildCount == 0U
+        ? TerrainLodDataUpdateMode::Incremental
+        : TerrainLodDataUpdateMode::Full;
+    meshEmit.RequestedWorkerCount = state.Settings.ErrorEvaluationWorkerCount;
+    meshEmit.EffectiveWorkerCount = stats.EmitWorkerCount;
+    meshEmit.DirtyItemCount = stats.MeshUpdatedTriangleCount;
+    meshEmit.WallMilliseconds = stats.MeshEmitMilliseconds;
+}
+
+void CollectPassEvidence(DataOrientedRoamState& state)
+{
+    // 哈希和队列检查需要遍历当前状态，只在研究基准中开启
+    // 额外耗时单独保存，不进入任一可比较阶段
+    if (!state.Settings.EnablePassEvidence)
+    {
+        return;
+    }
+
+    Tools::PerformanceTimer evidenceTimer;
+    // 拓扑哈希只使用稳定 PathId，不使用节点池下标或线程完成顺序
+    std::vector<std::uint64_t> splitPathIds;
+    splitPathIds.reserve(state.CurrentSplitPaths.size());
+    splitPathIds.insert(
+        splitPathIds.end(),
+        state.CurrentSplitPaths.begin(),
+        state.CurrentSplitPaths.end());
+    state.Stats.TopologyHash = HashTerrainLodPathIds(std::move(splitPathIds));
+
+    // 活动叶数组允许因提交顺序不同而重排，哈希前统一按 PathId 排序
+    std::vector<std::uint64_t> leafPathIds;
+    leafPathIds.reserve(state.ActiveLeafNodes.size());
+    for (const DataOrientedRoamNodeIndex node : state.ActiveLeafNodes)
+    {
+        if (state.IsValidNode(node))
+        {
+            leafPathIds.push_back(state.Nodes.PathIdAt(node));
+        }
+    }
+    state.Stats.ActiveLeafHash = HashTerrainLodPathIds(std::move(leafPathIds));
+    // 当前阶段先保存精确网格顺序，后续策略比较再增加规范化等价哈希
+    state.Stats.MeshHash = HashTerrainLodMesh(state.IncrementalMesh.Data);
+    if (!state.Settings.EnableTopologyValidation)
+    {
+        state.Stats.QueueInvariantViolationCount = CountPersistentQueueInvariantViolations(state);
+    }
+    state.Stats.PassEvidenceMilliseconds = evidenceTimer.Stop();
+}
 }
 
 DataOrientedRoamPipeline::DataOrientedRoamPipeline()
@@ -186,6 +365,8 @@ void DataOrientedRoamPipeline::BuildInternal(
     state.TopologyMaxDepth = state.Settings.MaxDepth;
     state.Stats.FinalizeMilliseconds = finalizeTimer.Stop();
     state.Stats.UpdateMilliseconds = updateTimer.Stop();
+    FinalizePassTraces(state);
+    CollectPassEvidence(state);
 }
 
 const DataOrientedRoamStats& DataOrientedRoamPipeline::Stats() const

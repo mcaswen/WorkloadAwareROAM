@@ -71,6 +71,8 @@ struct TerrainRenderSettings
 
     // 拓扑验证会触发全局扫描，只用于 debug
     bool RoamEnableTopologyValidation{false};
+    // 运行研究基准时保存阶段哈希和队列完整性证据
+    bool RoamEnablePassEvidence{false};
 
     // 光照参数只影响表现，不触发 terrain mesh 重建
     glm::vec3 LightDirection{-0.45F, -1.0F, -0.35F};
@@ -85,6 +87,17 @@ struct TerrainRenderSettings
 /// </summary>
 struct TerrainRenderStats
 {
+    Algorithms::TerrainLodPassTraceArray RoamPassTraces{Algorithms::MakeTerrainLodPassTraces()};
+    std::uint64_t RoamBuildSequence{0U};
+    std::uint64_t RoamReplayInputHash{0U};
+    std::uint64_t RoamTopologyHash{0U};
+    std::uint64_t RoamActiveLeafHash{0U};
+    std::uint64_t RoamMeshHash{0U};
+    std::size_t RoamEvidenceTriangleBudget{0U};
+    std::size_t RoamBudgetViolationCount{0U};
+    std::size_t RoamQueueInvariantViolationCount{0U};
+    std::size_t RoamResourceValidationFailureCount{0U};
+    float RoamPassEvidenceMilliseconds{0.0F};
     // 输入资源和实际绘制规模用于保证 benchmark 样本可追溯
     std::filesystem::path HeightMapPath;
     int HeightMapWidth{0};

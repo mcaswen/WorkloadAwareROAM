@@ -519,6 +519,8 @@ void Application::RenderFrame(const FrameTiming& frameTiming)
 void Application::ApplyTerrainPanelSettings()
 {
     _terrainSettings = ToRenderSettings(_terrainPanelState);
+    // 结果哈希和队列全量检查只在运行时基准期间开启
+    _terrainSettings.RoamEnablePassEvidence = _runtimeBenchmark.Active;
 
     std::string settingsError;
     if (!_terrainRenderer.ApplySettings(_terrainSettings, &settingsError))
@@ -543,6 +545,11 @@ void Application::ApplyPendingRuntimeBenchmarkOverrides()
     }
 
     const RuntimeBenchmarkOverrides& overrides = _runtimeBenchmarkOverrides;
+    if (overrides.HasPath)
+    {
+        _terrainPanelState.BenchmarkPath = overrides.Path;
+    }
+
     if (overrides.HasHeightMapIndex)
     {
         _terrainPanelState.HeightMapIndex =

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "algorithms/TerrainLodPassTrace.h"
 #include "terrain/HeightMap.h"
 #include "terrain/TerrainMeshBuilder.h"
 
@@ -56,6 +57,8 @@ struct ClassicRoamSettings
     bool EnableLocalConstraints{true};
     // 是否在更新后运行完整拓扑检查
     bool EnableTopologyValidation{false};
+    // 是否为固定轨迹重放计算结果哈希和队列完整性证据
+    bool EnablePassEvidence{false};
 };
 
 /// <summary>
@@ -64,6 +67,14 @@ struct ClassicRoamSettings
 /// </summary>
 struct ClassicRoamStats
 {
+    TerrainLodPassTraceArray PassTraces{MakeTerrainLodPassTraces()};
+    std::uint64_t BuildSequence{0U};
+    std::uint64_t TopologyHash{0U};
+    std::uint64_t ActiveLeafHash{0U};
+    std::uint64_t MeshHash{0U};
+    std::size_t TriangleBudget{0U};
+    std::size_t QueueInvariantViolationCount{0U};
+    float PassEvidenceMilliseconds{0.0F};
     // 节点池总数，包括内部节点和叶节点
     std::size_t NodeCount{0};
     // 当前用于渲染的活动叶三角形数量
@@ -88,6 +99,9 @@ struct ClassicRoamStats
     std::size_t ConstraintPassCount{0};
     // 两个跨帧保留队列的成员数量峰值之和
     std::size_t CandidatePeakCount{0};
+    // 本帧整批重新评分的细分和合并队列条目数量
+    std::size_t SplitScoreEntryCount{0U};
+    std::size_t MergeScoreEntryCount{0U};
     // 更新结束时细分队列中的节点数量
     std::size_t PersistentSplitQueueSize{0};
     // 更新结束时合并队列中的菱形数量

@@ -446,6 +446,7 @@ void ClassicRoamMeshBuilder::RefreshMergeQueueNeighborhood(
 
 void ClassicRoamMeshBuilder::RefreshPersistentQueuePriorities()
 {
+    _stats.SplitScoreEntryCount = _splitQueue.size();
     Tools::PerformanceTimer splitTimer;
     for (SplitQueueEntry& entry : _splitQueue)
     {
@@ -454,6 +455,7 @@ void ClassicRoamMeshBuilder::RefreshPersistentQueuePriorities()
     HeapifySplitQueue();
     _stats.SplitInitialScanMilliseconds = splitTimer.Stop();
 
+    _stats.MergeScoreEntryCount = _mergeQueue.size();
     Tools::PerformanceTimer mergeTimer;
     for (MergeQueueEntry& entry : _mergeQueue)
     {

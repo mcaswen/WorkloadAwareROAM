@@ -70,9 +70,14 @@ bool ClassicRoamTerrainLodAlgorithm::BuildRenderData(
     }
     const TerrainLodCpuSample cpuSampleEnd = CaptureTerrainLodCpuSample();
     _stats = ToTerrainLodStats(_builder.Stats());
+    if (input.Settings.EnablePassEvidence)
+    {
+        _stats.ReplayInputHash = HashTerrainLodBuildInput(input);
+    }
     _stats.CpuUtilizationPercent = ComputeCpuUtilizationPercent(cpuSampleStart, cpuSampleEnd);
     outPacket.ActiveTriangleCount = _stats.ActiveTriangleCount;
     outPacket.IndexCount = meshData.Indices.size();
+    _stats.ResourceValidationFailureCount = outPacket.HasConsistentResourceContract() ? 0U : 1U;
     return !meshData.Vertices.empty() && !meshData.Indices.empty();
 }
 
@@ -98,6 +103,7 @@ ClassicRoamSettings ClassicRoamTerrainLodAlgorithm::ToClassicSettings(const Terr
     classicSettings.TriangleBudget = settings.TriangleBudget;
     classicSettings.EnableLocalConstraints = settings.EnableLocalConstraints;
     classicSettings.EnableTopologyValidation = settings.EnableTopologyValidation;
+    classicSettings.EnablePassEvidence = settings.EnablePassEvidence;
     return classicSettings;
 }
 
@@ -105,6 +111,14 @@ TerrainLodStats ClassicRoamTerrainLodAlgorithm::ToTerrainLodStats(const ClassicR
 {
     // 将 Classic 统计映射到公共字段，使基准测试 CSV 可以直接比较不同实现
     TerrainLodStats lodStats{};
+    lodStats.PassTraces = stats.PassTraces;
+    lodStats.BuildSequence = stats.BuildSequence;
+    lodStats.TopologyHash = stats.TopologyHash;
+    lodStats.ActiveLeafHash = stats.ActiveLeafHash;
+    lodStats.MeshHash = stats.MeshHash;
+    lodStats.TriangleBudget = stats.TriangleBudget;
+    lodStats.QueueInvariantViolationCount = stats.QueueInvariantViolationCount;
+    lodStats.PassEvidenceMilliseconds = stats.PassEvidenceMilliseconds;
     lodStats.ActiveTriangleCount = stats.ActiveTriangleCount;
     lodStats.ActiveNodeCount = stats.NodeCount;
     lodStats.OriginalTriangleCount = stats.OriginalTriangleCount;
@@ -150,6 +164,7 @@ TerrainLodStats ClassicRoamTerrainLodAlgorithm::ToTerrainLodStats(const ClassicR
     lodStats.EmitMilliseconds = stats.EmitMilliseconds;
     lodStats.ValidateMilliseconds = stats.ValidateMilliseconds;
     lodStats.MaxActiveDepth = stats.MaxDepthReached;
+    lodStats.BudgetViolationCount = lodStats.ActiveTriangleCount > lodStats.TriangleBudget ? 1U : 0U;
     return lodStats;
 }
 } // 命名空间 ParallelRoam::Algorithms::ClassicRoam

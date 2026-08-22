@@ -54,6 +54,8 @@ struct BenchmarkScenario
     bool RequireImmediateBudgetReallocation{false};
     // 预算饱和场景要求整条相机路径都维持在配置的活动叶三角形上限
     bool RequireBudgetSaturation{false};
+    // 重置算法后重复固定轨迹，并逐帧比较输入与结果哈希
+    bool RequireDeterministicReplay{false};
 };
 
 // smoke、budget-reentry 和 incremental-emit 偏回归测试，standard 偏性能样本
@@ -101,6 +103,8 @@ std::string ToString(BenchmarkProfile profile)
         return "budget-saturation";
     case BenchmarkProfile::IncrementalEmit:
         return "incremental-emit";
+    case BenchmarkProfile::PassTraceReplay:
+        return "pass-trace-replay";
     case BenchmarkProfile::Standard:
         return "standard";
     }
@@ -239,8 +243,9 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
     scenario.Settings.ScreenSpaceMergeThresholdPixels = 2.0F;
     scenario.Settings.TriangleBudget = 20000U;
     scenario.Settings.EnableLocalConstraints = true;
+    scenario.Settings.EnablePassEvidence = true;
 
-    if (profile == BenchmarkProfile::Smoke)
+    if (profile == BenchmarkProfile::Smoke || profile == BenchmarkProfile::PassTraceReplay)
     {
         // Smoke 使用小高度图和代表性视点
         // 拓扑验证开启
@@ -249,6 +254,7 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
         scenario.Settings.EnableTopologyValidation = true;
         scenario.RequireTopologyClean = true;
         scenario.RequireNearDetailIncrease = true;
+        scenario.RequireDeterministicReplay = profile == BenchmarkProfile::PassTraceReplay;
         scenario.CameraPath = {
             // far 建立远处低细节基线
             BenchmarkCameraKeyframe{"far", glm::vec3{0.0F, 14.0F, 28.0F}, 0.0F},
@@ -421,6 +427,61 @@ bool ValidateFrame(
         return false;
     }
 
+    if (scenario.Settings.EnablePassEvidence &&
+        (stats.BuildSequence == 0U ||
+         stats.ReplayInputHash == 0U ||
+         stats.TopologyHash == 0U ||
+         stats.ActiveLeafHash == 0U ||
+         stats.MeshHash == 0U ||
+         stats.TriangleBudget != scenario.Settings.TriangleBudget ||
+         stats.BudgetViolationCount != 0U ||
+         stats.QueueInvariantViolationCount != 0U ||
+         stats.ResourceValidationFailureCount != 0U))
+    {
+        return false;
+    }
+
+    if (scenario.Settings.EnablePassEvidence)
+    {
+        for (std::size_t passIndex = 0U;
+             passIndex < static_cast<std::size_t>(Algorithms::TerrainLodPassId::CpuUpload);
+             ++passIndex)
+        {
+            const Algorithms::TerrainLodPassTrace& trace = stats.PassTraces[passIndex];
+            if (trace.Id != static_cast<Algorithms::TerrainLodPassId>(passIndex) ||
+                trace.RequestedAction == Algorithms::TerrainLodPassAction::NotRun ||
+                trace.EffectiveAction == Algorithms::TerrainLodPassAction::NotRun)
+            {
+                return false;
+            }
+        }
+        const Algorithms::TerrainLodPassTrace& mergeScore = Algorithms::TerrainLodPassTraceFor(
+            stats.PassTraces,
+            Algorithms::TerrainLodPassId::MergeScore);
+        const Algorithms::TerrainLodPassTrace& splitScore = Algorithms::TerrainLodPassTraceFor(
+            stats.PassTraces,
+            Algorithms::TerrainLodPassId::SplitScore);
+        const Algorithms::TerrainLodPassTrace& mergeTopology = Algorithms::TerrainLodPassTraceFor(
+            stats.PassTraces,
+            Algorithms::TerrainLodPassId::MergeTopology);
+        const Algorithms::TerrainLodPassTrace& splitTopology = Algorithms::TerrainLodPassTraceFor(
+            stats.PassTraces,
+            Algorithms::TerrainLodPassId::SplitTopology);
+        const Algorithms::TerrainLodPassTrace& meshEmit = Algorithms::TerrainLodPassTraceFor(
+            stats.PassTraces,
+            Algorithms::TerrainLodPassId::MeshEmit);
+        if (mergeScore.MembershipUpdate != Algorithms::TerrainLodMembershipUpdateMode::Incremental ||
+            splitScore.MembershipUpdate != Algorithms::TerrainLodMembershipUpdateMode::Incremental ||
+            mergeScore.PriorityRefresh != Algorithms::TerrainLodPriorityRefreshMode::FullAllCurrentEntries ||
+            splitScore.PriorityRefresh != Algorithms::TerrainLodPriorityRefreshMode::FullAllCurrentEntries ||
+            mergeTopology.DataUpdate != Algorithms::TerrainLodDataUpdateMode::Incremental ||
+            splitTopology.DataUpdate != Algorithms::TerrainLodDataUpdateMode::Incremental ||
+            meshEmit.DataUpdate == Algorithms::TerrainLodDataUpdateMode::NotApplicable)
+        {
+            return false;
+        }
+    }
+
     if (renderPacket.Mode == Algorithms::TerrainLodRenderMode::CpuMesh &&
         (cpuMesh->Vertices.size() != stats.ActiveTriangleCount * 3U ||
          cpuMesh->Indices.size() != stats.ActiveTriangleCount * 3U ||
@@ -455,6 +516,37 @@ bool ValidateFrame(
     }
 
     return !scenario.RequireTopologyClean || !HasInvalidTopology(stats);
+}
+
+bool HasEquivalentReplay(
+    const BenchmarkAlgorithmRun& first,
+    const BenchmarkAlgorithmRun& replay)
+{
+    if (!first.Available || !replay.Available || !replay.Passed ||
+        first.Frames.size() != replay.Frames.size())
+    {
+        return false;
+    }
+
+    for (std::size_t index = 0U; index < first.Frames.size(); ++index)
+    {
+        const Algorithms::TerrainLodStats& left = first.Frames[index].Stats;
+        const Algorithms::TerrainLodStats& right = replay.Frames[index].Stats;
+        if (left.BuildSequence != right.BuildSequence ||
+            left.ReplayInputHash != right.ReplayInputHash ||
+            left.TopologyHash != right.TopologyHash ||
+            left.ActiveLeafHash != right.ActiveLeafHash ||
+            left.MeshHash != right.MeshHash ||
+            left.ActiveTriangleCount != right.ActiveTriangleCount ||
+            left.TriangleBudget != right.TriangleBudget ||
+            left.BudgetViolationCount != right.BudgetViolationCount ||
+            left.QueueInvariantViolationCount != right.QueueInvariantViolationCount ||
+            left.ResourceValidationFailureCount != right.ResourceValidationFailureCount)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool ValidateRunShape(const BenchmarkScenario& scenario, std::vector<BenchmarkFrameResult>& frames)
@@ -718,6 +810,45 @@ void PrintRunSummary(const BenchmarkAlgorithmRun& run)
               << '\n';
 }
 
+void WritePassTraceCsvHeader(std::ostream& output)
+{
+    for (std::size_t index = 0U; index < Algorithms::TerrainLodPassCount; ++index)
+    {
+        const std::string_view name = Algorithms::ToString(static_cast<Algorithms::TerrainLodPassId>(index));
+        output << ",pass_" << name << "RequestedAction"
+               << ",pass_" << name << "EffectiveAction"
+               << ",pass_" << name << "FallbackReason"
+               << ",pass_" << name << "MembershipUpdate"
+               << ",pass_" << name << "PriorityRefresh"
+               << ",pass_" << name << "DataUpdate"
+               << ",pass_" << name << "RequestedWorkerCount"
+               << ",pass_" << name << "EffectiveWorkerCount"
+               << ",pass_" << name << "CandidateCount"
+               << ",pass_" << name << "DirtyItemCount"
+               << ",pass_" << name << "WallMs";
+    }
+}
+
+void WritePassTraceCsvValues(
+    std::ostream& output,
+    const Algorithms::TerrainLodPassTraceArray& traces)
+{
+    for (const Algorithms::TerrainLodPassTrace& trace : traces)
+    {
+        output << ',' << Algorithms::ToString(trace.RequestedAction)
+               << ',' << Algorithms::ToString(trace.EffectiveAction)
+               << ',' << Algorithms::ToString(trace.FallbackReason)
+               << ',' << Algorithms::ToString(trace.MembershipUpdate)
+               << ',' << Algorithms::ToString(trace.PriorityRefresh)
+               << ',' << Algorithms::ToString(trace.DataUpdate)
+               << ',' << trace.RequestedWorkerCount
+               << ',' << trace.EffectiveWorkerCount
+               << ',' << trace.CandidateCount
+               << ',' << trace.DirtyItemCount
+               << ',' << trace.WallMilliseconds;
+    }
+}
+
 bool WriteCsv(
     const std::filesystem::path& csvPath,
     const BenchmarkScenario& scenario,
@@ -765,7 +896,11 @@ bool WriteCsv(
            "cpuMergeTopologyParallelCommitMs,cpuMergeTopologyResultMergeMs,"
            "cpuMergeTopologyIndexQueueRefreshMs,cpuMergeTopologySerialConvergenceMs,"
            "cpuFinalLeafCollectMs,cpuMeshEmitMs,cpuFinalizeMs,cpuUploadMs,renderMs,"
-           "cpuGpuUploadBytes,cpuGpuReadbackBytes,buildWallMs,passed\n";
+           "cpuGpuUploadBytes,cpuGpuReadbackBytes,buildWallMs,buildSequence,replayInputHash,"
+           "topologyHash,activeLeafHash,meshHash,evidenceTriangleBudget,budgetViolationCount,"
+           "queueInvariantViolationCount,resourceValidationFailureCount,passEvidenceMs";
+    WritePassTraceCsvHeader(csv);
+    csv << ",passed\n";
 
     for (const BenchmarkAlgorithmRun& run : runs)
     {
@@ -856,7 +991,18 @@ bool WriteCsv(
                 << frame.Stats.CpuGpuUploadBytes << ','
                 << frame.Stats.CpuGpuReadbackBytes << ','
                 << frame.BuildWallMilliseconds << ','
-                << (frame.Passed ? 1 : 0)
+                << frame.Stats.BuildSequence << ','
+                << frame.Stats.ReplayInputHash << ','
+                << frame.Stats.TopologyHash << ','
+                << frame.Stats.ActiveLeafHash << ','
+                << frame.Stats.MeshHash << ','
+                << frame.Stats.TriangleBudget << ','
+                << frame.Stats.BudgetViolationCount << ','
+                << frame.Stats.QueueInvariantViolationCount << ','
+                << frame.Stats.ResourceValidationFailureCount << ','
+                << frame.Stats.PassEvidenceMilliseconds;
+            WritePassTraceCsvValues(csv, frame.Stats.PassTraces);
+            csv << ',' << (frame.Passed ? 1 : 0)
                 << '\n';
         }
     }
@@ -924,6 +1070,12 @@ bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
         return true;
     }
 
+    if (value == "pass-trace-replay")
+    {
+        outProfile = BenchmarkProfile::PassTraceReplay;
+        return true;
+    }
+
     return false;
 }
 } // 匿名命名空间
@@ -962,6 +1114,15 @@ int RunTerrainLodBenchmark(const BenchmarkOptions& options)
     {
         // allAvailablePassed 只统计实际运行的算法
         BenchmarkAlgorithmRun run = RunAlgorithm(selection, scenario, heightMap);
+        if (scenario.RequireDeterministicReplay && run.Available)
+        {
+            const BenchmarkAlgorithmRun replay = RunAlgorithm(selection, scenario, heightMap);
+            const bool replayMatched = HasEquivalentReplay(run, replay);
+            run.Passed = run.Passed && replayMatched;
+            std::cout << (replayMatched ? "[PASS] " : "[FAIL] ")
+                      << run.AlgorithmName
+                      << " deterministic replay hashes\n";
+        }
         PrintRunSummary(run);
         anyAvailable = anyAvailable || run.Available;
         allAvailablePassed = allAvailablePassed && (!run.Available || run.Passed);
@@ -1082,6 +1243,7 @@ int RunTerrainLodBenchmarkFromCommandLine(int argc, char** argv)
 std::string BenchmarkUsage()
 {
     return "Usage: ParallelROAM --benchmark [--algorithm classic|dod|all] "
-           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|standard] [--csv path]\n";
+           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|standard] "
+           "[--csv path]\n";
 }
 } // 命名空间 ParallelRoam::Benchmark

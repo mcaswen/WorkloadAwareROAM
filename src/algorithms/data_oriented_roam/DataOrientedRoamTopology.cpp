@@ -1375,14 +1375,13 @@ void RefineWithSplitQueue(DataOrientedRoamState& state)
         DataOrientedRoamTopologyChunkGridSize * DataOrientedRoamTopologyChunkGridSize);
     Tools::PerformanceTimer candidateMarkTimer;
     RefreshPersistentSplitQueuePriorities(state);
+    state.Stats.SplitCandidateMarkMilliseconds = candidateMarkTimer.Stop();
     if (state.Settings.EnableParallelSplit)
     {
+        Tools::PerformanceTimer chunkBuildTimer;
         std::vector<DataOrientedRoamSplitCandidate> initialCandidates;
         SnapshotPersistentSplitQueueCandidates(state, initialCandidates);
         state.Stats.SplitCandidateCount = initialCandidates.size();
-        state.Stats.SplitCandidateMarkMilliseconds = candidateMarkTimer.Stop();
-
-        Tools::PerformanceTimer chunkBuildTimer;
         std::vector<std::vector<DataOrientedRoamSplitCandidate>> interiorChunks =
             BuildInteriorSplitChunks(state, initialCandidates);
         state.Stats.SplitTopologyChunkBuildMilliseconds += chunkBuildTimer.Stop();
@@ -1392,7 +1391,6 @@ void RefineWithSplitQueue(DataOrientedRoamState& state)
     {
         // 即使拓扑只由主线程修改，Q_s 的分数仍可由多个线程刷新，但不会复制、排序或划分候选
         state.Stats.SplitCandidateCount = 0U;
-        state.Stats.SplitCandidateMarkMilliseconds = candidateMarkTimer.Stop();
     }
     // 其他线程结束后只根据最终叶数量恢复一次普通预算，之后的细分和合并不再访问原子计数
     SynchronizeSerialSplitBudget(state);
@@ -1490,11 +1488,11 @@ void MergeWithDiamondQueue(DataOrientedRoamState& state)
         DataOrientedRoamTopologyChunkGridSize * DataOrientedRoamTopologyChunkGridSize);
     Tools::PerformanceTimer queueRefreshTimer;
     RefreshPersistentMergeQueuePriorities(state);
+    state.Stats.MergeCandidateMarkMilliseconds = queueRefreshTimer.Stop();
+    Tools::PerformanceTimer chunkBuildTimer;
     std::vector<DataOrientedRoamMergeCandidate> candidates;
     SnapshotPersistentMergeQueueCandidates(state, state.Settings.MergeThreshold, candidates);
     state.Stats.MergeCandidateCount = candidates.size();
-    state.Stats.MergeCandidateMarkMilliseconds = queueRefreshTimer.Stop();
-    Tools::PerformanceTimer chunkBuildTimer;
     std::sort(
         candidates.begin(),
         candidates.end(),

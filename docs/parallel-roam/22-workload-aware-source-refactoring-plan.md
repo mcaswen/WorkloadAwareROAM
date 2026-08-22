@@ -59,6 +59,8 @@ MeshEmitExecution = Serial | Parallel
 
 ### Phase 0：冻结当前实现并建立 pass 证据
 
+**状态：已完成（2026-08-22）**
+
 目标是先回答“当前到底是什么”，不改变算法结果。
 
 1. 在 DOD `BuildInternal`、Classic `Build` 和 renderer 上传周围保存统一 `PassTrace`：pass id、requested/effective action、线程数量、候选数量、dirty 数量、fallback reason、wall time。
@@ -68,6 +70,16 @@ MeshEmitExecution = Serial | Parallel
 5. 为目标帧提供“保存状态”或“由固定 trajectory 确定性重建状态”中的至少一种 replay 入口；没有 replay 的 pass 不进入配对性能结论。
 
 Phase 0 的结果是当前实现状态表和回归基线，不引入 adaptive。
+
+当前实现结果：
+
+- Classic、DOD 和渲染器共用固定大小的 `TerrainLodPassTrace`，记录请求/实际方式、线程数量、候选数量、脏数据数量、回退原因和包络耗时
+- Q_s/Q_m 明确输出 `membershipUpdate=incremental` 与 `priorityRefresh=fullAllCurrentEntries`，网格和上传单独输出增量、全量或混合状态
+- 研究基准按需计算重放输入、拓扑、活动叶和网格哈希，并保存预算、队列不变量、验证计数与证据采集耗时
+- `pass-trace-replay` 在算法 `Reset` 后确定性重建同一固定轨迹，逐帧比较上述输入和结果哈希
+- 证据全量扫描只在基准测试中开启，普通交互帧不承担队列检查与完整网格哈希成本
+- 阶段验收分别运行默认 600 点路径与预算饱和 64 点压力路径，压力路径可通过 `--runtime-benchmark-path budget-saturation` 自动选择
+- 2026-08-22 的阶段 0 验收中，两种算法完整通过默认路径和压力路径；所有帧的预算越界、队列不变量错误、资源验证失败、非法邻接和 T 形裂缝数量均为零
 
 ### Phase 1：建立 pass policy 和可重复串行路径
 

@@ -5,6 +5,7 @@
 #include "tools/PerformanceTimer.h"
 
 #include <algorithm>
+#include <vector>
 
 namespace ParallelRoam::Algorithms::ClassicRoam
 {
@@ -115,6 +116,135 @@ const Terrain::TerrainMeshData& ClassicRoamMeshBuilder::Build(
     _stats.FinalizeMilliseconds = finalizeTimer.Stop();
     // 总更新时间覆盖本次完整更新，可用于核对各阶段计时是否完整
     _stats.UpdateMilliseconds = updateTimer.Stop();
+    FinalizePassTraces();
+    CollectPassEvidence();
     return _meshData;
+}
+
+void ClassicRoamMeshBuilder::FinalizePassTraces()
+{
+    // Classic 的所有算法阶段都固定在调用线程执行
+    // requested 与 effective 相同，作为 DOD 内部策略的外部串行对照
+    _stats.BuildSequence = _buildSequence;
+    _stats.TriangleBudget = _settings.TriangleBudget;
+
+    // 队列成员随拓扑局部维护，但相机变化后会重新评分全部现有成员
+    TerrainLodPassTrace& mergeScore = TerrainLodPassTraceFor(
+        _stats.PassTraces,
+        TerrainLodPassId::MergeScore);
+    mergeScore.RequestedAction = TerrainLodPassAction::SerialFullRefresh;
+    mergeScore.EffectiveAction = TerrainLodPassAction::SerialFullRefresh;
+    mergeScore.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
+    mergeScore.PriorityRefresh = TerrainLodPriorityRefreshMode::FullAllCurrentEntries;
+    mergeScore.RequestedWorkerCount = 1U;
+    mergeScore.EffectiveWorkerCount = _stats.MergeScoreEntryCount == 0U ? 0U : 1U;
+    mergeScore.CandidateCount = _stats.MergeScoreEntryCount;
+    mergeScore.FallbackReason = _stats.MergeScoreEntryCount == 0U
+        ? TerrainLodPassFallbackReason::NoWork
+        : TerrainLodPassFallbackReason::None;
+    mergeScore.WallMilliseconds = _stats.MergeCandidateMarkMilliseconds;
+
+    // Q_s 评分和 Q_m 使用相同语义，只是处理的成员集合不同
+    TerrainLodPassTrace& splitScore = TerrainLodPassTraceFor(
+        _stats.PassTraces,
+        TerrainLodPassId::SplitScore);
+    splitScore.RequestedAction = TerrainLodPassAction::SerialFullRefresh;
+    splitScore.EffectiveAction = TerrainLodPassAction::SerialFullRefresh;
+    splitScore.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
+    splitScore.PriorityRefresh = TerrainLodPriorityRefreshMode::FullAllCurrentEntries;
+    splitScore.RequestedWorkerCount = 1U;
+    splitScore.EffectiveWorkerCount = _stats.SplitScoreEntryCount == 0U ? 0U : 1U;
+    splitScore.CandidateCount = _stats.SplitScoreEntryCount;
+    splitScore.FallbackReason = _stats.SplitScoreEntryCount == 0U
+        ? TerrainLodPassFallbackReason::NoWork
+        : TerrainLodPassFallbackReason::None;
+    splitScore.WallMilliseconds = _stats.SplitInitialScanMilliseconds;
+
+    // Classic 在一个收敛循环中交叉处理合并和细分
+    // 两类事务仍使用各自已有计时，不能把整段循环重复计入两边
+    TerrainLodPassTrace& mergeTopology = TerrainLodPassTraceFor(
+        _stats.PassTraces,
+        TerrainLodPassId::MergeTopology);
+    mergeTopology.RequestedAction = TerrainLodPassAction::SerialImmediate;
+    mergeTopology.EffectiveAction = TerrainLodPassAction::SerialImmediate;
+    mergeTopology.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
+    mergeTopology.DataUpdate = TerrainLodDataUpdateMode::Incremental;
+    mergeTopology.RequestedWorkerCount = 1U;
+    mergeTopology.EffectiveWorkerCount = _stats.MergeScoreEntryCount == 0U ? 0U : 1U;
+    mergeTopology.CandidateCount = _stats.MergeScoreEntryCount;
+    mergeTopology.FallbackReason = _stats.MergeScoreEntryCount == 0U
+        ? TerrainLodPassFallbackReason::NoWork
+        : TerrainLodPassFallbackReason::None;
+    mergeTopology.WallMilliseconds = _stats.MergeTopologyMilliseconds;
+
+    // 强制细分和预算交换都属于串行细分拓扑包络
+    TerrainLodPassTrace& splitTopology = TerrainLodPassTraceFor(
+        _stats.PassTraces,
+        TerrainLodPassId::SplitTopology);
+    splitTopology.RequestedAction = TerrainLodPassAction::SerialImmediate;
+    splitTopology.EffectiveAction = TerrainLodPassAction::SerialImmediate;
+    splitTopology.MembershipUpdate = TerrainLodMembershipUpdateMode::Incremental;
+    splitTopology.DataUpdate = TerrainLodDataUpdateMode::Incremental;
+    splitTopology.RequestedWorkerCount = 1U;
+    splitTopology.EffectiveWorkerCount = _stats.SplitScoreEntryCount == 0U ? 0U : 1U;
+    splitTopology.CandidateCount = _stats.SplitScoreEntryCount;
+    splitTopology.FallbackReason = _stats.SplitScoreEntryCount == 0U
+        ? TerrainLodPassFallbackReason::NoWork
+        : TerrainLodPassFallbackReason::None;
+    splitTopology.WallMilliseconds = _stats.SplitSerialConvergenceMilliseconds;
+
+    // 首帧仍走脏槽位提交机制，但脏集合覆盖全部活动叶
+    // DataUpdate 单独记录该帧在结果范围上属于全量初始化
+    TerrainLodPassTrace& meshEmit = TerrainLodPassTraceFor(
+        _stats.PassTraces,
+        TerrainLodPassId::MeshEmit);
+    meshEmit.RequestedAction = TerrainLodPassAction::SerialDirty;
+    meshEmit.EffectiveAction = TerrainLodPassAction::SerialDirty;
+    meshEmit.DataUpdate = _stats.MeshFullRebuildCount == 0U
+        ? TerrainLodDataUpdateMode::Incremental
+        : TerrainLodDataUpdateMode::Full;
+    meshEmit.RequestedWorkerCount = 1U;
+    meshEmit.EffectiveWorkerCount = _stats.MeshUpdatedTriangleCount == 0U ? 0U : 1U;
+    meshEmit.DirtyItemCount = _stats.MeshUpdatedTriangleCount;
+    meshEmit.FallbackReason = _stats.MeshUpdatedTriangleCount == 0U
+        ? TerrainLodPassFallbackReason::NoWork
+        : TerrainLodPassFallbackReason::None;
+    meshEmit.WallMilliseconds = _stats.MeshEmitMilliseconds;
+}
+
+void ClassicRoamMeshBuilder::CollectPassEvidence()
+{
+    // 普通交互帧不执行下面的全量遍历
+    // 基准测试会把这段额外成本单独记录，避免混入算法阶段耗时
+    if (!_settings.EnablePassEvidence)
+    {
+        return;
+    }
+
+    Tools::PerformanceTimer evidenceTimer;
+    // 活动内部路径不依赖指针地址，排序后可跨 Reset 比较
+    std::vector<std::uint64_t> splitPathIds;
+    splitPathIds.reserve(_currentSplitPaths.size());
+    splitPathIds.insert(splitPathIds.end(), _currentSplitPaths.begin(), _currentSplitPaths.end());
+    _stats.TopologyHash = HashTerrainLodPathIds(std::move(splitPathIds));
+
+    // 活动叶按 PathId 规范化，网格槽位交换不会改变该哈希
+    std::vector<std::uint64_t> leafPathIds;
+    leafPathIds.reserve(_meshSlotOwners.size());
+    for (const ClassicRoamNode* node : _meshSlotOwners)
+    {
+        if (node != nullptr)
+        {
+            leafPathIds.push_back(node->PathId);
+        }
+    }
+    _stats.ActiveLeafHash = HashTerrainLodPathIds(std::move(leafPathIds));
+    // 网格哈希保留当前顶点和索引顺序，用于同一算法的确定性重放
+    _stats.MeshHash = HashTerrainLodMesh(_meshData);
+    if (!_settings.EnableTopologyValidation)
+    {
+        _stats.QueueInvariantViolationCount = CountPersistentQueueInvariantViolations(_meshSlotOwners);
+    }
+    _stats.PassEvidenceMilliseconds = evidenceTimer.Stop();
 }
 } // 命名空间 ParallelRoam::Algorithms::ClassicRoam

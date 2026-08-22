@@ -226,9 +226,15 @@ private:
         const Terrain::TerrainMeshData& meshData,
         const std::vector<ClassicRoamNode*>& leafNodes);
 
+    // 将现有固定实现映射为统一阶段记录，并按需生成重放证据
+    void FinalizePassTraces();
+    void CollectPassEvidence();
+
     // 验证器只报告当前拓扑问题，不在正常更新路径中修改状态
     void ValidateTopology();
     void ValidatePersistentQueues(const std::vector<ClassicRoamNode*>& leafNodes);
+    [[nodiscard]] std::size_t CountPersistentQueueInvariantViolations(
+        const std::vector<ClassicRoamNode*>& leafNodes) const;
     void ValidateIncrementalMesh(const std::vector<ClassicRoamNode*>& leafNodes);
 
     // 让每个活动叶节点占用一个稠密网格槽位，拓扑变化时只重写受影响部分

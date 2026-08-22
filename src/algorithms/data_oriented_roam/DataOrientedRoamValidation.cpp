@@ -384,7 +384,9 @@ void ValidateTopology(DataOrientedRoamState& state)
     }
 
     // 堆顺序、反向位置、菱形代表节点和成员完整性由队列模块统一检查
-    state.Stats.InvalidTopologyCount += CountPersistentQueueInvariantViolations(state);
+    const std::size_t queueViolations = CountPersistentQueueInvariantViolations(state);
+    state.Stats.QueueInvariantViolationCount = queueViolations;
+    state.Stats.InvalidTopologyCount += queueViolations;
 }
 
 void ValidateIncrementalMesh(DataOrientedRoamState& state)

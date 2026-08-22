@@ -1,5 +1,6 @@
 #pragma once
 
+#include "algorithms/TerrainLodPassTrace.h"
 #include "terrain/HeightMap.h"
 #include "terrain/TerrainMeshBuilder.h"
 
@@ -59,6 +60,8 @@ struct DataOrientedRoamSettings
     bool MirrorSplitScoresToNodePool{false};
     bool EnableLocalConstraints{true};
     bool EnableTopologyValidation{false};
+    // 只在研究基准中计算结果哈希并执行持久队列全量检查
+    bool EnablePassEvidence{false};
 };
 
 /// <summary>
@@ -67,6 +70,14 @@ struct DataOrientedRoamSettings
 /// </summary>
 struct DataOrientedRoamStats
 {
+    TerrainLodPassTraceArray PassTraces{MakeTerrainLodPassTraces()};
+    std::uint64_t BuildSequence{0U};
+    std::uint64_t TopologyHash{0U};
+    std::uint64_t ActiveLeafHash{0U};
+    std::uint64_t MeshHash{0U};
+    std::size_t TriangleBudget{0U};
+    std::size_t QueueInvariantViolationCount{0U};
+    float PassEvidenceMilliseconds{0.0F};
     // 节点池当前规模、预留容量和 SoA 数组内存占用
     std::size_t NodeCount{0};
     std::size_t ReservedNodeCapacity{0};
@@ -96,6 +107,11 @@ struct DataOrientedRoamStats
     std::size_t InvalidTopologyCount{0};
     // Q_s 刷新时实际重新评分的活动叶节点数量
     std::size_t ErrorEvaluationCount{0};
+    // Q_s/Q_m 本帧整批重新评分的条目数量和各自实际线程数量
+    std::size_t SplitScoreEntryCount{0U};
+    std::size_t MergeScoreEntryCount{0U};
+    std::size_t SplitCandidateMarkWorkerCount{0U};
+    std::size_t MergeCandidateMarkWorkerCount{0U};
     // 本帧候选评分实际使用的线程数量
     std::size_t ErrorEvaluationWorkerCount{0};
     // 保留收集和候选评分线程数，供公共统计接口区分阶段

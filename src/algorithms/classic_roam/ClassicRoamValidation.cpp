@@ -311,12 +311,21 @@ void ClassicRoamMeshBuilder::ValidateTopology()
 
 void ClassicRoamMeshBuilder::ValidatePersistentQueues(const std::vector<ClassicRoamNode*>& leafNodes)
 {
+    const std::size_t violations = CountPersistentQueueInvariantViolations(leafNodes);
+    _stats.QueueInvariantViolationCount = violations;
+    _stats.InvalidTopologyCount += violations;
+}
+
+std::size_t ClassicRoamMeshBuilder::CountPersistentQueueInvariantViolations(
+    const std::vector<ClassicRoamNode*>& leafNodes) const
+{
+    std::size_t violations = 0U;
     // Q_s 必须与当前活动叶集合一一对应，不能包含已经停用的历史子节点
     std::unordered_set<const ClassicRoamNode*> splitMembers;
     splitMembers.reserve(_splitQueue.size());
     if (_splitQueue.size() != leafNodes.size() || _splitQueue.size() > _settings.TriangleBudget)
     {
-        ++_stats.InvalidTopologyCount;
+        ++violations;
     }
     for (std::size_t index = 0U; index < _splitQueue.size(); ++index)
     {
@@ -324,18 +333,18 @@ void ClassicRoamMeshBuilder::ValidatePersistentQueues(const std::vector<ClassicR
         if (node == nullptr || !node->Active || !IsLeaf(node) || node->SplitQueueIndex != index ||
             !splitMembers.insert(node).second)
         {
-            ++_stats.InvalidTopologyCount;
+            ++violations;
         }
         if (index > 0U && SplitEntryPrecedes(_splitQueue[index], _splitQueue[(index - 1U) / 2U]))
         {
-            ++_stats.InvalidTopologyCount;
+            ++violations;
         }
     }
     for (const ClassicRoamNode* leaf : leafNodes)
     {
         if (!leaf->Active || splitMembers.find(leaf) == splitMembers.end())
         {
-            ++_stats.InvalidTopologyCount;
+            ++violations;
         }
     }
 
@@ -351,7 +360,7 @@ void ClassicRoamMeshBuilder::ValidatePersistentQueues(const std::vector<ClassicR
     }
     if (expectedMergeMembers.size() != _mergeQueue.size())
     {
-        ++_stats.InvalidTopologyCount;
+        ++violations;
     }
     for (std::size_t index = 0U; index < _mergeQueue.size(); ++index)
     {
@@ -360,18 +369,19 @@ void ClassicRoamMeshBuilder::ValidatePersistentQueues(const std::vector<ClassicR
             representative->MergeQueueRepresentative != representative ||
             expectedMergeMembers.find(representative) == expectedMergeMembers.end())
         {
-            ++_stats.InvalidTopologyCount;
+            ++violations;
         }
         if (representative != nullptr && representative->MergeQueuePartner != nullptr &&
             representative->MergeQueuePartner->MergeQueueRepresentative != representative)
         {
-            ++_stats.InvalidTopologyCount;
+            ++violations;
         }
         if (index > 0U && MergeEntryPrecedes(_mergeQueue[index], _mergeQueue[(index - 1U) / 2U]))
         {
-            ++_stats.InvalidTopologyCount;
+            ++violations;
         }
     }
+    return violations;
 }
 
 void ClassicRoamMeshBuilder::ValidateIncrementalMesh(const std::vector<ClassicRoamNode*>& leafNodes)

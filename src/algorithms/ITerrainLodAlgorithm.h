@@ -1,5 +1,6 @@
 #pragma once
 
+#include "algorithms/TerrainLodPassTrace.h"
 #include "terrain/HeightMap.h"
 #include "terrain/TerrainMeshBuilder.h"
 
@@ -64,6 +65,8 @@ struct TerrainLodSettings
     bool EnableParallelSplit{true};
     bool EnableLocalConstraints{true};
     bool EnableTopologyValidation{false};
+    // 基准测试开启后保存结果哈希并检查持久队列，普通交互帧默认关闭全量证据扫描
+    bool EnablePassEvidence{false};
 };
 
 /// <summary>
@@ -104,6 +107,46 @@ struct TerrainLodBuildInput
     TerrainLodViewInput View;
     TerrainLodSettings Settings;
 };
+
+/// <summary>
+/// 为固定高度图、相机和算法设置生成可重放输入编号
+/// </summary>
+[[nodiscard]] inline std::uint64_t HashTerrainLodBuildInput(const TerrainLodBuildInput& input)
+{
+    std::uint64_t hash = TerrainLodHashOffset;
+    if (input.HeightMap != nullptr)
+    {
+        const std::string sourcePath = input.HeightMap->SourcePath().generic_string();
+        AppendTerrainLodHash(hash, std::string_view{sourcePath});
+        AppendTerrainLodHash(hash, input.HeightMap->Width());
+        AppendTerrainLodHash(hash, input.HeightMap->Height());
+    }
+    for (int column = 0; column < 4; ++column)
+    {
+        for (int row = 0; row < 4; ++row)
+        {
+            AppendTerrainLodHash(hash, input.View.ViewProjection[column][row]);
+        }
+    }
+    for (const glm::vec4& plane : input.View.FrustumPlanes)
+    {
+        AppendTerrainLodHash(hash, plane.x);
+        AppendTerrainLodHash(hash, plane.y);
+        AppendTerrainLodHash(hash, plane.z);
+        AppendTerrainLodHash(hash, plane.w);
+    }
+    AppendTerrainLodHash(hash, input.View.DrawableWidth);
+    AppendTerrainLodHash(hash, input.View.DrawableHeight);
+    AppendTerrainLodHash(hash, input.Settings.TerrainSize);
+    AppendTerrainLodHash(hash, input.Settings.HeightScale);
+    AppendTerrainLodHash(hash, input.Settings.MaxDepth);
+    AppendTerrainLodHash(hash, input.Settings.ScreenSpaceSplitThresholdPixels);
+    AppendTerrainLodHash(hash, input.Settings.ScreenSpaceMergeThresholdPixels);
+    AppendTerrainLodHash(hash, input.Settings.TriangleBudget);
+    AppendTerrainLodHash(hash, input.Settings.EnableParallelSplit);
+    AppendTerrainLodHash(hash, input.Settings.EnableLocalConstraints);
+    return hash;
+}
 
 /// <summary>
 /// 区分可直接渲染的 CPU 网格输出和只提供状态的调试输出
@@ -203,6 +246,19 @@ struct TerrainLodRenderPacket
 /// </summary>
 struct TerrainLodStats
 {
+    // 阶段记录只描述当前真实实现，不会改变算法选择和执行顺序
+    TerrainLodPassTraceArray PassTraces{MakeTerrainLodPassTraces()};
+    // 证据字段用于固定轨迹重放，关闭 EnablePassEvidence 时保持为零
+    std::uint64_t BuildSequence{0U};
+    std::uint64_t ReplayInputHash{0U};
+    std::uint64_t TopologyHash{0U};
+    std::uint64_t ActiveLeafHash{0U};
+    std::uint64_t MeshHash{0U};
+    std::size_t TriangleBudget{0U};
+    std::size_t BudgetViolationCount{0U};
+    std::size_t QueueInvariantViolationCount{0U};
+    std::size_t ResourceValidationFailureCount{0U};
+    float PassEvidenceMilliseconds{0.0F};
     std::size_t ActiveTriangleCount{0};
     std::size_t ActiveNodeCount{0};
     std::size_t OriginalTriangleCount{0};
@@ -251,6 +307,7 @@ struct TerrainLodStats
     // CpuUtilizationPercent 以单个逻辑核心满载为 100%，多线程运行时可以超过 100%
     float CpuUtilizationPercent{0.0F};
     float CpuPrepareMilliseconds{0.0F};
+    // 对应合并评分阶段，只包含当前 Q_m 条目的评分刷新与建堆
     float CpuMergeCandidateMarkMilliseconds{0.0F};
     float CpuMergeTopologyMilliseconds{0.0F};
     // 以下字段分别记录细分和合并的准备、并行处理及后续串行处理耗时
@@ -269,9 +326,11 @@ struct TerrainLodStats
     float CpuMergeTopologySerialConvergenceMilliseconds{0.0F};
     float CpuBudgetLeafCollectMilliseconds{0.0F};
     float CpuErrorEvalMilliseconds{0.0F};
+    // 对应细分扫描与评分阶段，只包含当前 Q_s 条目的评分刷新与建堆
     float CpuSplitCandidateMarkMilliseconds{0.0F};
     float CpuSplitTopologyMilliseconds{0.0F};
     float CpuFinalLeafCollectMilliseconds{0.0F};
+    // 只记录 CPU 网格提交，不包含后续图形缓冲上传
     float CpuMeshEmitMilliseconds{0.0F};
     float CpuFinalizeMilliseconds{0.0F};
     float CpuUploadMilliseconds{0.0F};

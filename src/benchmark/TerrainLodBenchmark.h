@@ -24,6 +24,7 @@ enum class BenchmarkProfile
     BudgetReentry,
     BudgetSaturation,
     IncrementalEmit,
+    PassTraceReplay,
     Standard,
 };
 

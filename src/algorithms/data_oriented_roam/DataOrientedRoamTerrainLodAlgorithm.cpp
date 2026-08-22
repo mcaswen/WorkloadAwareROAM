@@ -83,9 +83,14 @@ bool DataOrientedRoamTerrainLodAlgorithm::BuildRenderData(
     }
     const TerrainLodCpuSample cpuSampleEnd = CaptureTerrainLodCpuSample();
     _stats = ToTerrainLodStats(_pipeline.Stats());
+    if (input.Settings.EnablePassEvidence)
+    {
+        _stats.ReplayInputHash = HashTerrainLodBuildInput(input);
+    }
     _stats.CpuUtilizationPercent = ComputeCpuUtilizationPercent(cpuSampleStart, cpuSampleEnd);
     outPacket.ActiveTriangleCount = _stats.ActiveTriangleCount;
     outPacket.IndexCount = meshData.Indices.size();
+    _stats.ResourceValidationFailureCount = outPacket.HasConsistentResourceContract() ? 0U : 1U;
     return !meshData.Vertices.empty() && !meshData.Indices.empty();
 }
 
@@ -115,6 +120,7 @@ DataOrientedRoamSettings DataOrientedRoamTerrainLodAlgorithm::ToDataOrientedSett
     dataSettings.EnableParallelSplit = settings.EnableParallelSplit;
     dataSettings.EnableLocalConstraints = settings.EnableLocalConstraints;
     dataSettings.EnableTopologyValidation = settings.EnableTopologyValidation;
+    dataSettings.EnablePassEvidence = settings.EnablePassEvidence;
     return dataSettings;
 }
 
@@ -122,6 +128,14 @@ TerrainLodStats DataOrientedRoamTerrainLodAlgorithm::ToTerrainLodStats(const Dat
 {
     // 将 DOD 私有统计映射到公共字段，CSV 无需了解节点池实现细节
     TerrainLodStats lodStats{};
+    lodStats.PassTraces = stats.PassTraces;
+    lodStats.BuildSequence = stats.BuildSequence;
+    lodStats.TopologyHash = stats.TopologyHash;
+    lodStats.ActiveLeafHash = stats.ActiveLeafHash;
+    lodStats.MeshHash = stats.MeshHash;
+    lodStats.TriangleBudget = stats.TriangleBudget;
+    lodStats.QueueInvariantViolationCount = stats.QueueInvariantViolationCount;
+    lodStats.PassEvidenceMilliseconds = stats.PassEvidenceMilliseconds;
     lodStats.ActiveTriangleCount = stats.ActiveTriangleCount;
     lodStats.ActiveNodeCount = stats.NodeCount;
     lodStats.OriginalTriangleCount = stats.OriginalTriangleCount;
@@ -215,6 +229,7 @@ TerrainLodStats DataOrientedRoamTerrainLodAlgorithm::ToTerrainLodStats(const Dat
     lodStats.EmitMilliseconds = stats.EmitMilliseconds;
     lodStats.ValidateMilliseconds = stats.ValidateMilliseconds;
     lodStats.MaxActiveDepth = stats.MaxDepthReached;
+    lodStats.BudgetViolationCount = lodStats.ActiveTriangleCount > lodStats.TriangleBudget ? 1U : 0U;
     return lodStats;
 }
 } // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam
