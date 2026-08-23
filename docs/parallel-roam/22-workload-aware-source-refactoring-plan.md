@@ -110,6 +110,8 @@ Phase 1 的验收是所有策略在固定输入下拓扑、预算和规范化 me
 
 ### Phase 2：固定 Decision pass 的真实语义
 
+**状态：已完成（2026-08-23）**
+
 普通 camera/view 变化会使全部屏幕 score 失效，因此主线只实现 `FullScoreRefresh` 的 serial/parallel 对照，不把持久 queue membership 写成 incremental score。
 
 1. Q_s/Q_m serial 与 parallel action 使用相同 entry 集合、score 函数和 heapify。
@@ -117,6 +119,17 @@ Phase 1 的验收是所有策略在固定输入下拓扑、预算和规范化 me
 3. Q_s/Q_m membership 继续由拓扑 transaction 局部维护，并单独记录 membership update 数量/cost。
 4. 候选 snapshot 属于拓扑 planning；若模型使用 snapshot 后才能获得的特征，必须把 snapshot 成本计入决策开销。
 5. Incremental score refresh 不属于主重构。只有未来出现“view 不变且可证明部分 score 未失效”的独立研究场景时再立项，不能作为当前论文的必做 action。
+
+当前实现结果：
+
+- Classic 和 DOD 的 `Q_s/Q_m` 都把纯评分、线性建堆和完整刷新包络分别记录到统一阶段信息中；串行与并行评分继续使用同一队列条目、评分函数和主线程建堆
+- DOD 的细分与合并候选快照已经从评分计时中移出，单独记录在对应拓扑规划阶段；固定串行拓扑不创建候选快照
+- `Q_s/Q_m` 的插入和删除继续由现有拓扑事务立即执行，没有新增延迟维护或全量重建；两类队列分别记录局部成员更新数量和测量成本
+- 普通交互帧不承担局部成员维护的高精度计时；无窗口基准测试和运行时基准测试启用阶段证据后才采集该成本，避免观测功能改变默认交互路径的固定开销
+- 无窗口与运行时 CSV 为每个阶段新增 `ScoreMs`、`HeapifyMs`、`CandidateSnapshotMs`、`MembershipUpdateCount` 和 `MembershipUpdateMs`，运行时 Markdown 同时输出面向人工检查的 `Q_s/Q_m` 决策阶段表
+- 回归验证要求评分阶段的完整刷新耗时等于评分与建堆之和、评分阶段不包含候选快照、两类队列的成员更新数量之和等于公共成员更新总数，并检查候选快照已计入拓扑包络
+- OpenGL 默认路径验收报告为 `runtime-benchmark-20260823-175153`，Classic 和 DOD 各完成 600 个采样点；预算饱和验收报告为 `runtime-benchmark-20260823-175252`，两种算法各完成 64 个采样点
+- 两份验收报告共 1328 帧，预算越界、队列不变量错误、资源验证失败、非法邻接、非法拓扑、T 形裂缝和阶段 2 语义检查失败均为零；OpenGL 与 D3D12 构建均通过
 
 ### Phase 3：拆分拓扑修改的串行与并行辅助
 

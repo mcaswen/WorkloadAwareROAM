@@ -90,6 +90,18 @@ struct RuntimeBenchmarkSummary
     std::size_t MaxInvalidTopologyCount{0};
 };
 
+struct RuntimeBenchmarkDecisionPassSummary
+{
+    double AverageEntryCount{0.0};
+    double AverageWorkerCount{0.0};
+    double AverageMembershipUpdateCount{0.0};
+    float AverageScoreMilliseconds{0.0F};
+    float AverageHeapifyMilliseconds{0.0F};
+    float AverageRefreshMilliseconds{0.0F};
+    float AverageMembershipUpdateMilliseconds{0.0F};
+    float AverageSnapshotMilliseconds{0.0F};
+};
+
 std::tm ToLocalTime(std::time_t timestamp)
 {
     // localtime_r/localtime_s 避免使用带静态存储的 localtime
@@ -335,6 +347,48 @@ RuntimeBenchmarkSummary SummaryForAlgorithm(
     return result == results.end() ? RuntimeBenchmarkSummary{} : SummarizeRuntimeBenchmark(*result);
 }
 
+RuntimeBenchmarkDecisionPassSummary SummarizeDecisionPass(
+    const RuntimeBenchmarkAlgorithmResult& result,
+    Algorithms::TerrainLodPassId scorePassId,
+    Algorithms::TerrainLodPassId topologyPassId)
+{
+    RuntimeBenchmarkDecisionPassSummary summary{};
+    if (result.Samples.empty())
+    {
+        return summary;
+    }
+
+    for (const RuntimeBenchmarkSample& sample : result.Samples)
+    {
+        const Algorithms::TerrainLodPassTrace& score = Algorithms::TerrainLodPassTraceFor(
+            sample.Stats.RoamPassTraces,
+            scorePassId);
+        const Algorithms::TerrainLodPassTrace& topology = Algorithms::TerrainLodPassTraceFor(
+            sample.Stats.RoamPassTraces,
+            topologyPassId);
+        summary.AverageEntryCount += static_cast<double>(score.CandidateCount);
+        summary.AverageWorkerCount += static_cast<double>(score.EffectiveWorkerCount);
+        summary.AverageMembershipUpdateCount += static_cast<double>(score.MembershipUpdateCount);
+        summary.AverageScoreMilliseconds += score.ScoreMilliseconds;
+        summary.AverageHeapifyMilliseconds += score.HeapifyMilliseconds;
+        summary.AverageRefreshMilliseconds += score.WallMilliseconds;
+        summary.AverageMembershipUpdateMilliseconds += score.MembershipUpdateMilliseconds;
+        summary.AverageSnapshotMilliseconds += topology.CandidateSnapshotMilliseconds;
+    }
+
+    const double sampleCount = static_cast<double>(result.Samples.size());
+    const float floatSampleCount = static_cast<float>(result.Samples.size());
+    summary.AverageEntryCount /= sampleCount;
+    summary.AverageWorkerCount /= sampleCount;
+    summary.AverageMembershipUpdateCount /= sampleCount;
+    summary.AverageScoreMilliseconds /= floatSampleCount;
+    summary.AverageHeapifyMilliseconds /= floatSampleCount;
+    summary.AverageRefreshMilliseconds /= floatSampleCount;
+    summary.AverageMembershipUpdateMilliseconds /= floatSampleCount;
+    summary.AverageSnapshotMilliseconds /= floatSampleCount;
+    return summary;
+}
+
 void WritePassTraceCsvHeader(std::ostream& output)
 {
     for (std::size_t index = 0U; index < Algorithms::TerrainLodPassCount; ++index)
@@ -350,6 +404,11 @@ void WritePassTraceCsvHeader(std::ostream& output)
                << ",pass_" << name << "EffectiveWorkerCount"
                << ",pass_" << name << "CandidateCount"
                << ",pass_" << name << "DirtyItemCount"
+               << ",pass_" << name << "ScoreMs"
+               << ",pass_" << name << "HeapifyMs"
+               << ",pass_" << name << "CandidateSnapshotMs"
+               << ",pass_" << name << "MembershipUpdateCount"
+               << ",pass_" << name << "MembershipUpdateMs"
                << ",pass_" << name << "WallMs";
     }
 }
@@ -370,6 +429,11 @@ void WritePassTraceCsvValues(
                << ',' << trace.EffectiveWorkerCount
                << ',' << trace.CandidateCount
                << ',' << trace.DirtyItemCount
+               << ',' << trace.ScoreMilliseconds
+               << ',' << trace.HeapifyMilliseconds
+               << ',' << trace.CandidateSnapshotMilliseconds
+               << ',' << trace.MembershipUpdateCount
+               << ',' << trace.MembershipUpdateMilliseconds
                << ',' << trace.WallMilliseconds;
     }
 }
@@ -649,9 +713,9 @@ void WriteSummaryMarkdown(
     markdown << "| 视点相关 leaf error / 视锥测试 | " << classicSummary.AverageCpuErrorEvalMilliseconds
              << " | " << dodSummary.AverageCpuErrorEvalMilliseconds
              << " | 计入持久 Q_s 优先级刷新，因此独立字段为 0 |\n";
-    markdown << "| Split 扫描/标记 | " << classicSummary.AverageCpuSplitCandidateMarkMilliseconds
+    markdown << "| Split 扫描/评分 | " << classicSummary.AverageCpuSplitCandidateMarkMilliseconds
              << " | " << dodSummary.AverageCpuSplitCandidateMarkMilliseconds
-             << " | 刷新 Q_s、建堆并生成提交候选 |\n";
+             << " | 刷新 Q_s 分数并原地建堆 |\n";
     markdown << "| Split 拓扑 / 裂缝约束提交 | " << classicSummary.AverageCpuSplitTopologyMilliseconds
              << " | " << dodSummary.AverageCpuSplitTopologyMilliseconds
              << " | 按同一预算与 forced-split 约束提交 |\n";
@@ -668,12 +732,12 @@ void WriteSummaryMarkdown(
     markdown << "\n## CPU 实现阶段\n\n";
     markdown << "`CPU update` 包含下表中互斥的物理执行区间；`CPU upload` 是算法返回后的 renderer 上传。"
              << "Classic 与 DOD 都持久维护 Q_s/Q_m，并在每个 Build 刷新现有成员的优先级。DOD 对两队列的评分并行化，"
-             << "`Split scan/mark` 包含 Q_s 优先级刷新、原地建堆和提交快照生成，`Merge mark` 对应 Q_m 的同类工作。"
+             << "`Split scan/mark` 只包含 Q_s 优先级刷新和原地建堆，候选快照计入拓扑规划；`Merge mark` 对应 Q_m 的同类工作。"
              << "DOD 满预算时持续执行 merge-first 资源交换，直到 max(Q_s) 不再高于 min(Q_m)。"
              << "两者单独的 `Error eval` 都为零；Classic 与 DOD 的 `Mesh emit` 都是 dirty-slot 增量更新，"
              << "DOD 对较大的 dirty 批次沿用 worker 分段，因此两者差异不能解释为增量与全量策略差异。\n\n";
     markdown << "| Algorithm | CPU update | Prepare | Merge mark | Merge topology | Budget leaf collect | "
-             << "Error eval | Split scan/mark | Split topology | Final leaf collect/view | Mesh emit | "
+             << "Error eval | Split scan/score | Split topology | Final leaf collect/view | Mesh emit | "
              << "Finalize | CPU upload |\n";
     markdown << "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n";
     for (const RuntimeBenchmarkAlgorithmResult& result : results)
@@ -692,6 +756,44 @@ void WriteSummaryMarkdown(
                  << " | " << summary.AverageCpuMeshEmitMilliseconds
                  << " | " << summary.AverageCpuFinalizeMilliseconds
                  << " | " << summary.AverageCpuUploadMilliseconds << " |\n";
+    }
+
+    markdown << "\n### Q_s/Q_m 决策阶段语义\n\n";
+    markdown << "评分耗时只包含现有队列条目的全量分数重算，建堆耗时单独列出。"
+             << "队列成员由拓扑修改局部维护，其数量和耗时不计入评分刷新。"
+             << "候选快照属于并行辅助拓扑规划，固定串行拓扑不会生成快照。\n\n";
+    markdown << "| 算法 | 队列 | 平均条目数 | 平均评分线程数 | 评分 ms | 建堆 ms | "
+             << "全量刷新 ms | 局部成员更新数 | 局部成员维护 ms | 候选快照 ms |\n";
+    markdown << "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n";
+    for (const RuntimeBenchmarkAlgorithmResult& result : results)
+    {
+        const auto writeDecisionRow = [&](std::string_view queueName,
+                                          Algorithms::TerrainLodPassId scorePassId,
+                                          Algorithms::TerrainLodPassId topologyPassId) {
+            const RuntimeBenchmarkDecisionPassSummary summary = SummarizeDecisionPass(
+                result,
+                scorePassId,
+                topologyPassId);
+            markdown << "| " << result.AlgorithmName
+                     << " | " << queueName
+                     << " | " << summary.AverageEntryCount
+                     << " | " << summary.AverageWorkerCount
+                     << " | " << summary.AverageScoreMilliseconds
+                     << " | " << summary.AverageHeapifyMilliseconds
+                     << " | " << summary.AverageRefreshMilliseconds
+                     << " | " << summary.AverageMembershipUpdateCount
+                     << " | " << summary.AverageMembershipUpdateMilliseconds
+                     << " | " << summary.AverageSnapshotMilliseconds
+                     << " |\n";
+        };
+        writeDecisionRow(
+            "Q_m",
+            Algorithms::TerrainLodPassId::MergeScore,
+            Algorithms::TerrainLodPassId::MergeTopology);
+        writeDecisionRow(
+            "Q_s",
+            Algorithms::TerrainLodPassId::SplitScore,
+            Algorithms::TerrainLodPassId::SplitTopology);
     }
 
     const float classicSplitTopologyDetailSum =
@@ -713,7 +815,7 @@ void WriteSummaryMarkdown(
     markdown << "\n### CPU Split 拓扑阶段计时（统一口径）\n\n";
     markdown << "六段均为互斥执行区间。Classic 不执行并行预提交，因此前五项为 0；它与 DOD 的"
              << "`串行收敛` 都从候选刷新结束后开始，并扣除循环中执行的 merge。`六段合计` 与"
-             << "`Topology total` 的差值是函数调用、worker 数决策和少量循环控制等尚未单列的开销。\n\n";
+             << "`Topology total` 的差值还包含上表单列的候选快照、函数调用、线程数量决策和少量循环控制开销。\n\n";
     markdown << "| 操作 | 候选排序/分桶 | 队列邻域失效 | chunk 并行提交 | worker 结果汇总 | "
              << "活动叶索引/队列刷新 | 串行收敛 | 六段合计 | Topology total |\n";
     markdown << "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n";

@@ -1378,15 +1378,15 @@ void RefineWithSplitQueue(DataOrientedRoamState& state)
 {
     state.Stats.TopologyChunkCount = static_cast<std::size_t>(
         DataOrientedRoamTopologyChunkGridSize * DataOrientedRoamTopologyChunkGridSize);
-    Tools::PerformanceTimer candidateMarkTimer;
     RefreshPersistentSplitQueuePriorities(state);
-    state.Stats.SplitCandidateMarkMilliseconds = candidateMarkTimer.Stop();
     if (state.Settings.PassPolicy.SplitTopology != TerrainLodTopologyAction::SerialImmediate)
     {
-        Tools::PerformanceTimer chunkBuildTimer;
         std::vector<DataOrientedRoamSplitCandidate> initialCandidates;
+        Tools::PerformanceTimer snapshotTimer;
         SnapshotPersistentSplitQueueCandidates(state, initialCandidates);
+        state.Stats.SplitCandidateSnapshotMilliseconds += snapshotTimer.Stop();
         state.Stats.SplitCandidateCount = initialCandidates.size();
+        Tools::PerformanceTimer chunkBuildTimer;
         std::vector<std::vector<DataOrientedRoamSplitCandidate>> interiorChunks =
             BuildInteriorSplitChunks(state, initialCandidates);
         state.Stats.SplitTopologyChunkBuildMilliseconds += chunkBuildTimer.Stop();
@@ -1491,15 +1491,15 @@ void MergeWithDiamondQueue(DataOrientedRoamState& state)
 {
     state.Stats.TopologyChunkCount = static_cast<std::size_t>(
         DataOrientedRoamTopologyChunkGridSize * DataOrientedRoamTopologyChunkGridSize);
-    Tools::PerformanceTimer queueRefreshTimer;
     RefreshPersistentMergeQueuePriorities(state);
-    state.Stats.MergeCandidateMarkMilliseconds = queueRefreshTimer.Stop();
     if (state.Settings.PassPolicy.MergeTopology != TerrainLodTopologyAction::SerialImmediate)
     {
-        Tools::PerformanceTimer chunkBuildTimer;
         std::vector<DataOrientedRoamMergeCandidate> candidates;
+        Tools::PerformanceTimer snapshotTimer;
         SnapshotPersistentMergeQueueCandidates(state, state.Settings.MergeThreshold, candidates);
+        state.Stats.MergeCandidateSnapshotMilliseconds += snapshotTimer.Stop();
         state.Stats.MergeCandidateCount = candidates.size();
+        Tools::PerformanceTimer chunkBuildTimer;
         std::sort(
             candidates.begin(),
             candidates.end(),

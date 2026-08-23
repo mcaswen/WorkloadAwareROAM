@@ -11,6 +11,20 @@ namespace
 {
 constexpr std::size_t InvalidQueueIndex = std::numeric_limits<std::size_t>::max();
 constexpr float BlockedSplitScore = -std::numeric_limits<float>::max();
+
+Tools::PerformanceTimer::TimePoint BeginQueueMembershipTiming(bool enabled)
+{
+    // 普通交互帧不读取高精度时钟，避免观测功能形成固定开销
+    return enabled ? Tools::PerformanceTimer::Now() : Tools::PerformanceTimer::TimePoint{};
+}
+
+float EndQueueMembershipTiming(bool enabled, Tools::PerformanceTimer::TimePoint start)
+{
+    // 禁用阶段证据时传入的是空时间点，此处直接返回零
+    return enabled
+        ? Tools::PerformanceTimer::ElapsedMilliseconds(start, Tools::PerformanceTimer::Now())
+        : 0.0F;
+}
 } // 匿名命名空间
 
 void ClassicRoamMeshBuilder::InitializePersistentQueues()
@@ -231,13 +245,20 @@ void ClassicRoamMeshBuilder::InsertSplitQueueNode(ClassicRoamNode* node)
         return;
     }
 
+    // 插入成本包含评分、追加条目和向上修复堆
+    const Tools::PerformanceTimer::TimePoint membershipStart =
+        BeginQueueMembershipTiming(_settings.EnablePassEvidence);
     node->SplitQueueIndex = _splitQueue.size();
     _splitQueue.push_back(SplitQueueEntry{node, SplitQueueScore(*node)});
     SiftSplitQueueUp(node->SplitQueueIndex);
     ++_stats.QueueMembershipUpdateCount;
+    ++_stats.SplitQueueMembershipUpdateCount;
     _stats.CandidatePeakCount = std::max(
         _stats.CandidatePeakCount,
         _splitQueue.size() + _mergeQueue.size());
+    _stats.SplitQueueMembershipUpdateMilliseconds += EndQueueMembershipTiming(
+        _settings.EnablePassEvidence,
+        membershipStart);
 }
 
 void ClassicRoamMeshBuilder::RemoveSplitQueueNode(ClassicRoamNode* node)
@@ -247,6 +268,9 @@ void ClassicRoamMeshBuilder::RemoveSplitQueueNode(ClassicRoamNode* node)
         return;
     }
 
+    // 删除成本包含末尾换位和换入条目的堆修复
+    const Tools::PerformanceTimer::TimePoint membershipStart =
+        BeginQueueMembershipTiming(_settings.EnablePassEvidence);
     const std::size_t index = node->SplitQueueIndex;
     const std::size_t last = _splitQueue.size() - 1U;
     if (index != last)
@@ -257,6 +281,10 @@ void ClassicRoamMeshBuilder::RemoveSplitQueueNode(ClassicRoamNode* node)
     node->SplitQueueIndex = InvalidQueueIndex;
     RestoreSplitQueueAt(index);
     ++_stats.QueueMembershipUpdateCount;
+    ++_stats.SplitQueueMembershipUpdateCount;
+    _stats.SplitQueueMembershipUpdateMilliseconds += EndQueueMembershipTiming(
+        _settings.EnablePassEvidence,
+        membershipStart);
 }
 
 void ClassicRoamMeshBuilder::UpdateSplitQueueScore(ClassicRoamNode* node, float score)
@@ -332,6 +360,8 @@ void ClassicRoamMeshBuilder::InsertMergeQueueNodeIfEligible(ClassicRoamNode* nod
         RemoveMergeQueueCandidate(partner);
     }
 
+    const Tools::PerformanceTimer::TimePoint membershipStart =
+        BeginQueueMembershipTiming(_settings.EnablePassEvidence);
     representative->MergeQueueRepresentative = representative;
     representative->MergeQueuePartner = partner;
     if (partner != nullptr)
@@ -342,9 +372,13 @@ void ClassicRoamMeshBuilder::InsertMergeQueueNodeIfEligible(ClassicRoamNode* nod
     _mergeQueue.push_back(MergeQueueEntry{representative, MergeQueueScore(*representative)});
     SiftMergeQueueUp(representative->MergeQueueIndex);
     ++_stats.QueueMembershipUpdateCount;
+    ++_stats.MergeQueueMembershipUpdateCount;
     _stats.CandidatePeakCount = std::max(
         _stats.CandidatePeakCount,
         _splitQueue.size() + _mergeQueue.size());
+    _stats.MergeQueueMembershipUpdateMilliseconds += EndQueueMembershipTiming(
+        _settings.EnablePassEvidence,
+        membershipStart);
 }
 
 void ClassicRoamMeshBuilder::RemoveMergeQueueCandidate(ClassicRoamNode* node)
@@ -357,7 +391,11 @@ void ClassicRoamMeshBuilder::RemoveMergeQueueCandidate(ClassicRoamNode* node)
     ClassicRoamNode* representative = node->MergeQueueRepresentative;
     ClassicRoamNode* partner = representative->MergeQueuePartner;
     const std::size_t index = representative->MergeQueueIndex;
-    if (index != InvalidQueueIndex && index < _mergeQueue.size())
+    const bool removesQueueEntry = index != InvalidQueueIndex && index < _mergeQueue.size();
+    const Tools::PerformanceTimer::TimePoint membershipStart = removesQueueEntry
+        ? BeginQueueMembershipTiming(_settings.EnablePassEvidence)
+        : Tools::PerformanceTimer::TimePoint{};
+    if (removesQueueEntry)
     {
         const std::size_t last = _mergeQueue.size() - 1U;
         if (index != last)
@@ -367,6 +405,7 @@ void ClassicRoamMeshBuilder::RemoveMergeQueueCandidate(ClassicRoamNode* node)
         _mergeQueue.pop_back();
         RestoreMergeQueueAt(index);
         ++_stats.QueueMembershipUpdateCount;
+        ++_stats.MergeQueueMembershipUpdateCount;
     }
 
     representative->MergeQueueIndex = InvalidQueueIndex;
@@ -375,6 +414,12 @@ void ClassicRoamMeshBuilder::RemoveMergeQueueCandidate(ClassicRoamNode* node)
     if (partner != nullptr)
     {
         partner->MergeQueueRepresentative = nullptr;
+    }
+    if (removesQueueEntry)
+    {
+        _stats.MergeQueueMembershipUpdateMilliseconds += EndQueueMembershipTiming(
+            _settings.EnablePassEvidence,
+            membershipStart);
     }
 }
 
@@ -447,22 +492,34 @@ void ClassicRoamMeshBuilder::RefreshMergeQueueNeighborhood(
 void ClassicRoamMeshBuilder::RefreshPersistentQueuePriorities()
 {
     _stats.SplitScoreEntryCount = _splitQueue.size();
-    Tools::PerformanceTimer splitTimer;
+    // 分数重算和原地建堆严格分段，完整刷新耗时由两者相加得到
+    // 刷新期间不会插入或删除队列成员
+    Tools::PerformanceTimer splitScoreTimer;
     for (SplitQueueEntry& entry : _splitQueue)
     {
         entry.Score = SplitQueueScore(*entry.Node);
     }
+    _stats.SplitScoreMilliseconds = splitScoreTimer.Stop();
+    Tools::PerformanceTimer splitHeapifyTimer;
     HeapifySplitQueue();
-    _stats.SplitInitialScanMilliseconds = splitTimer.Stop();
+    _stats.SplitHeapifyMilliseconds = splitHeapifyTimer.Stop();
+    _stats.SplitInitialScanMilliseconds =
+        _stats.SplitScoreMilliseconds + _stats.SplitHeapifyMilliseconds;
 
     _stats.MergeScoreEntryCount = _mergeQueue.size();
-    Tools::PerformanceTimer mergeTimer;
+    // Q_m 使用同一计时边界，菱形成员集合在本阶段保持不变
+    // 每个菱形仍只计算代表节点的合并损失
+    Tools::PerformanceTimer mergeScoreTimer;
     for (MergeQueueEntry& entry : _mergeQueue)
     {
         entry.Score = MergeQueueScore(*entry.Node);
     }
+    _stats.MergeScoreMilliseconds = mergeScoreTimer.Stop();
+    Tools::PerformanceTimer mergeHeapifyTimer;
     HeapifyMergeQueue();
-    _stats.MergeCandidateMarkMilliseconds = mergeTimer.Stop();
+    _stats.MergeHeapifyMilliseconds = mergeHeapifyTimer.Stop();
+    _stats.MergeCandidateMarkMilliseconds =
+        _stats.MergeScoreMilliseconds + _stats.MergeHeapifyMilliseconds;
 }
 
 void ClassicRoamMeshBuilder::OptimizeWithPersistentDualQueues()

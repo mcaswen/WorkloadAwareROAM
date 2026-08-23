@@ -211,6 +211,8 @@ cpuGpuReadbackBytes
 
 `cpuUtilizationPercent` 使用进程 CPU time / build wall time 的口径，单个逻辑核心满载约为 100%，多线程算法可以超过 100%。
 
+`Q_s/Q_m` 的阶段信息进一步拆分 `ScoreMs`、`HeapifyMs`、`CandidateSnapshotMs`、`MembershipUpdateCount` 和 `MembershipUpdateMs`。评分阶段的 `WallMs` 只等于分数重算与原地建堆之和；候选快照属于并行辅助拓扑规划，队列成员更新属于拓扑事务触发的局部维护，两者都不能混入全量评分刷新。成员维护耗时只在启用阶段证据的基准测试中采集，普通交互帧仍保留更新数量但不增加高精度计时。
+
 CPU 阶段按互斥执行区间记录，阶段和应接近 `cpuUpdateMs`；原生 `split/merge/emit/validate` 仍作为重叠的 pass 包络保留，不能与互斥阶段重复相加。Classic 的 `cpuMeshEmitMs` 现在只包含 topology edit replay、dirty slot 写入和 range 合并；必须结合四个 `cpuMesh*Count` 以及 renderer 实际记录的 `cpuGpuUploadBytes` 解读，不能再把它当作每帧全量 Mesh 构建。OpenGL 的上传字节直接对应当前 Build ranges；D3D12 每个 frame slot 延迟消费两次使用之间累积的 ranges 并集，因此实际上传量可能大于当前 Build 的 dirty slots，但不应超过当前完整 Mesh。GPU 不再只报告设备总时间：OpenGL 使用八个顺序 `GL_TIME_ELAPSED` query，D3D12 使用九个 timestamp 边界，分别得到 split 前活动叶收集、活动叶像素误差/视锥测试、split 候选标记、merge parent 评分、split/direct-diamond 提交、活动叶计数重置、split 后活动叶收集和 mesh/indirect-args 输出。`gpuPassSumMs` 只是八段之和，不含 CPU dispatch wall、query/readback wait 或 render。
 
 Classic 的报告采用工程等价口径，不以论文完整证明为验收目标。公式 (1)-(3) 用于统一误差尺度，forced split/diamond merge 用于保持连续拓扑，持久队列 membership 和增量 Mesh 用于减少局部变化后的重复工作。报告可以分别分析这些阶段与变化量的关系，但由于优先级仍按全部队列成员刷新，不得把局部 emit/upload 的下降写成整次 Build 已达到论文严格 `O(Delta N)`，也不得使用“给定预算下全局最优”作为结论。
@@ -219,7 +221,7 @@ Classic 的报告采用工程等价口径，不以论文完整证明为验收目
 
 该表分析稳定帧热路径。nested wedgie tree / `GeometricError` rebuild 属于初始化、地形切换或预计算深度失效后的 reset 路径，当前没有独立阶段计时；不能从稳定帧表中推断其成本，若要比较必须另建 initialization benchmark。
 
-统一 benchmark harness 对 Classic、DOD 和 GPU 名称都应用预算与 `center -> away` 视锥回收断言；对启用持久队列统计的 Classic/DOD，另外要求 `Q_s == ActiveTriangleCount <= TriangleBudget` 且单帧 `SplitCount + MergeCount <= ActiveNodeCount`。增量 Mesh 的 `updated+reused==active` 与 dirty range 约束只在算法实际报告这些字段时启用。`budget-reentry` profile 以低预算和原地小角度转向，要求 Classic/DOD 在转向后的第一次 Build 同时 merge 旧低分 diamond 并 split 新高分区域。`incremental-emit` 连续三次使用同一视点，分别验证首次完整建立、一次调试属性过渡和随后零脏区间复用。`pass-trace-replay` 在重置后重复固定轨迹并比较精确结果哈希；`pass-policy-replay` 运行固定串行/最大安全并行与增量/全量输出组成的四种组合，比较拓扑、活动叶、预算与规范化网格，并验证两种固定串行组合的实际线程数量不超过一。无窗口模式因没有图形上下文通常跳过 GPU。应用级 `--gpu-smoke-test` 在 OpenGL 和 D3D12 上分别验证 GPU packet 非空、最终三角形不超预算，并检查 CPU DOD 持久拓扑的三类 issue 为零。这类正确性验证不替代正式运行时性能采样。
+统一 benchmark harness 对 Classic、DOD 和 GPU 名称都应用预算与 `center -> away` 视锥回收断言；对启用持久队列统计的 Classic/DOD，另外要求 `Q_s == ActiveTriangleCount <= TriangleBudget` 且单帧 `SplitCount + MergeCount <= ActiveNodeCount`。增量 Mesh 的 `updated+reused==active` 与 dirty range 约束只在算法实际报告这些字段时启用。`budget-reentry` profile 以低预算和原地小角度转向，要求 Classic/DOD 在转向后的第一次 Build 同时 merge 旧低分 diamond 并 split 新高分区域。`incremental-emit` 连续三次使用同一视点，分别验证首次完整建立、一次调试属性过渡和随后零脏区间复用。`pass-trace-replay` 在重置后重复固定轨迹并比较精确结果哈希；`pass-policy-replay` 运行固定串行/最大安全并行与增量/全量输出组成的四种组合，比较拓扑、活动叶、预算与规范化网格，并验证两种固定串行组合的实际线程数量不超过一。阶段证据回归还要求评分与建堆之和等于完整评分刷新耗时、评分不包含候选快照，并检查 `Q_s/Q_m` 局部成员更新数量能够还原公共总数。无窗口模式因没有图形上下文通常跳过 GPU。应用级 `--gpu-smoke-test` 在 OpenGL 和 D3D12 上分别验证 GPU packet 非空、最终三角形不超预算，并检查 CPU DOD 持久拓扑的三类 issue 为零。这类正确性验证不替代正式运行时性能采样。
 
 ### DOD active internal 索引 A/B
 
@@ -272,7 +274,7 @@ Classic 的报告采用工程等价口径，不以论文完整证明为验收目
 
 有限资源交换版本又重复两轮，CPU update p50 分别为 124.221 ms 和 135.202 ms，p95 分别为 199.818 ms 和 194.404 ms。三轮 p50 均低于旧对照，但该上限减少了 DOD 实际执行的拓扑事务，使其无法与持续收敛的 Classic 进行同等工作量比较。因此主线已撤销 128 次限制，这三轮数据只保留为调度策略 A/B，不再代表当前实现性能。撤销上限后的 24 帧复测保持 199999–200000 个活动叶三角形，crossover 为 0–16762、稳态中位数 13576，拓扑错误为 0，证明当前路径不再受固定交换次数限制。
 
-当前 `CpuSplitCandidateMarkMilliseconds` 表示持久 `Q_s` 全成员的并行 SSE/视锥优先级刷新、原地建堆与并行提交快照生成；`CpuMergeCandidateMarkMilliseconds` 对应持久 `Q_m` 的同类工作，其中每个 diamond 只保留一个代表节点。拓扑事务只局部维护队列成员。DOD 现已持续执行资源交换直至队首条件收敛，但仍没有实现 ROAM 1997 的优先级延期列表及全部最优性证明前提，因此只能按当前真实队列和拓扑语义评价。
+当前 `CpuSplitCandidateMarkMilliseconds` 表示持久 `Q_s` 全成员的 SSE/视锥优先级刷新与原地建堆；`CpuMergeCandidateMarkMilliseconds` 对应持久 `Q_m` 的同类工作，其中每个 diamond 只保留一个代表节点。并行辅助路径需要的候选快照已经移入拓扑规划计时，拓扑事务触发的队列成员增删也分别记录数量和成本。DOD 现已持续执行资源交换直至队首条件收敛，但仍没有实现 ROAM 1997 的优先级延期列表及全部最优性证明前提，因此只能按当前真实队列和拓扑语义评价。
 
 原始数据：`benchmark-output/budget-saturation-dod.csv`、`benchmark-output/budget-saturation-dod-persistent-qm-parallel.csv`、`benchmark-output/budget-saturation-dod-dual-queues.csv`、`benchmark-output/budget-saturation-dod-dual-queues-bounded.csv`、`benchmark-output/budget-saturation-dod-dual-queues-bounded-run2.csv`、`benchmark-output/budget-saturation-dod-dual-queues-bounded-run3.csv`、`benchmark-output/budget-saturation-dod-dual-queues-unbounded-final.csv`。
 

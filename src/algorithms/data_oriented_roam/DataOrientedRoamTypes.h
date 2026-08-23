@@ -130,6 +130,9 @@ struct DataOrientedRoamStats
     std::size_t PersistentMergeQueueSize{0};
     std::size_t QueueCrossoverCount{0};
     std::size_t QueueMembershipUpdateCount{0};
+    // 分项数量用于核对 Q_s 与 Q_m 的局部更新之和
+    std::size_t SplitQueueMembershipUpdateCount{0U};
+    std::size_t MergeQueueMembershipUpdateCount{0U};
     // 拓扑分块总数和提交阶段的实际线程数量
     std::size_t TopologyChunkCount{0};
     std::size_t TopologyCommitWorkerCount{0};
@@ -165,6 +168,18 @@ struct DataOrientedRoamStats
     float ActiveLeafCollectMilliseconds{0.0F};
     float SplitCandidateMarkMilliseconds{0.0F};
     float MergeCandidateMarkMilliseconds{0.0F};
+    // 评分耗时包含线程调度和各条目的屏幕误差计算
+    float SplitScoreMilliseconds{0.0F};
+    // 建堆在全部评分线程结束后由主线程执行
+    float SplitHeapifyMilliseconds{0.0F};
+    float MergeScoreMilliseconds{0.0F};
+    float MergeHeapifyMilliseconds{0.0F};
+    // 局部成员维护成本只在启用阶段证据时采集
+    float SplitQueueMembershipUpdateMilliseconds{0.0F};
+    float MergeQueueMembershipUpdateMilliseconds{0.0F};
+    // 候选快照属于拓扑规划，不计入 Q_s/Q_m 的全量评分刷新
+    float SplitCandidateSnapshotMilliseconds{0.0F};
+    float MergeCandidateSnapshotMilliseconds{0.0F};
     // 分别记录细分候选分块、暂时移出队列、线程处理、主线程整理结果、更新索引和继续串行处理的耗时
     float SplitTopologyChunkBuildMilliseconds{0.0F};
     float SplitTopologyQueueInvalidationMilliseconds{0.0F};

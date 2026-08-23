@@ -112,6 +112,9 @@ struct ClassicRoamStats
     std::size_t QueueCrossoverCount{0};
     // 队列成员发生局部变更的次数
     std::size_t QueueMembershipUpdateCount{0};
+    // 两个分项用于确认公共总数来自哪一个持久队列
+    std::size_t SplitQueueMembershipUpdateCount{0U};
+    std::size_t MergeQueueMembershipUpdateCount{0U};
     // 完整重建 CPU 网格的次数
     std::size_t MeshFullRebuildCount{0};
     // 本次重新写入 CPU 网格的三角形数量
@@ -139,6 +142,16 @@ struct ClassicRoamStats
     float PrepareMilliseconds{0.0F};
     // 合并候选评分耗时
     float MergeCandidateMarkMilliseconds{0.0F};
+    // 评分计时只覆盖屏幕误差和视锥优先级计算
+    float SplitScoreMilliseconds{0.0F};
+    // 建堆计时覆盖评分结束后的串行原地排序
+    float SplitHeapifyMilliseconds{0.0F};
+    // 合并队列使用相同口径，便于和 DOD 的串行刷新直接核对
+    float MergeScoreMilliseconds{0.0F};
+    float MergeHeapifyMilliseconds{0.0F};
+    // 成员维护成本只在启用阶段证据时采集
+    float SplitQueueMembershipUpdateMilliseconds{0.0F};
+    float MergeQueueMembershipUpdateMilliseconds{0.0F};
     // 实际执行合并并维护拓扑的耗时
     float MergeTopologyMilliseconds{0.0F};
     // 活动叶收集耗时

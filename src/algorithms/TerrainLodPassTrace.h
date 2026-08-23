@@ -197,7 +197,7 @@ enum class TerrainLodDataUpdateMode
 };
 
 /// <summary>
-/// 保存单个处理阶段的请求方式、实际方式、输入规模和完整包络耗时
+/// 保存单个处理阶段的请求方式、实际方式、输入规模和内部成本
 /// </summary>
 struct TerrainLodPassTrace
 {
@@ -212,6 +212,13 @@ struct TerrainLodPassTrace
     std::size_t EffectiveWorkerCount{0U};
     std::size_t CandidateCount{0U};
     std::size_t DirtyItemCount{0U};
+    // 评分与建堆只用于全量优先级刷新，候选快照属于后续拓扑规划
+    float ScoreMilliseconds{0.0F};
+    float HeapifyMilliseconds{0.0F};
+    float CandidateSnapshotMilliseconds{0.0F};
+    // 队列成员由拓扑修改局部维护，不计入评分阶段的包络耗时
+    std::size_t MembershipUpdateCount{0U};
+    float MembershipUpdateMilliseconds{0.0F};
     float WallMilliseconds{0.0F};
 };
 

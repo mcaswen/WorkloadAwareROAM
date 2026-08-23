@@ -513,10 +513,27 @@ bool ValidateFrame(
         const Algorithms::TerrainLodPassTrace& meshEmit = Algorithms::TerrainLodPassTraceFor(
             stats.PassTraces,
             Algorithms::TerrainLodPassId::MeshEmit);
+        const auto validScoreBreakdown = [](const Algorithms::TerrainLodPassTrace& trace) {
+            constexpr float timingToleranceMilliseconds = 0.001F;
+            return trace.CandidateSnapshotMilliseconds == 0.0F &&
+                trace.ScoreMilliseconds >= 0.0F &&
+                trace.HeapifyMilliseconds >= 0.0F &&
+                trace.MembershipUpdateMilliseconds >= 0.0F &&
+                std::abs(
+                    trace.WallMilliseconds -
+                    (trace.ScoreMilliseconds + trace.HeapifyMilliseconds)) <=
+                    timingToleranceMilliseconds;
+        };
         if (mergeScore.MembershipUpdate != Algorithms::TerrainLodMembershipUpdateMode::Incremental ||
             splitScore.MembershipUpdate != Algorithms::TerrainLodMembershipUpdateMode::Incremental ||
             mergeScore.PriorityRefresh != Algorithms::TerrainLodPriorityRefreshMode::FullAllCurrentEntries ||
             splitScore.PriorityRefresh != Algorithms::TerrainLodPriorityRefreshMode::FullAllCurrentEntries ||
+            !validScoreBreakdown(mergeScore) ||
+            !validScoreBreakdown(splitScore) ||
+            mergeScore.MembershipUpdateCount + splitScore.MembershipUpdateCount !=
+                stats.QueueMembershipUpdateCount ||
+            mergeTopology.CandidateSnapshotMilliseconds > mergeTopology.WallMilliseconds + 0.001F ||
+            splitTopology.CandidateSnapshotMilliseconds > splitTopology.WallMilliseconds + 0.001F ||
             mergeTopology.DataUpdate != Algorithms::TerrainLodDataUpdateMode::Incremental ||
             splitTopology.DataUpdate != Algorithms::TerrainLodDataUpdateMode::Incremental ||
             meshEmit.DataUpdate == Algorithms::TerrainLodDataUpdateMode::NotApplicable)
@@ -608,9 +625,23 @@ bool HasEquivalentPolicyResults(
     {
         const Algorithms::TerrainLodStats& left = leftRun.Frames[index].Stats;
         const Algorithms::TerrainLodStats& right = rightRun.Frames[index].Stats;
+        const Algorithms::TerrainLodPassTrace& leftMergeScore = Algorithms::TerrainLodPassTraceFor(
+            left.PassTraces,
+            Algorithms::TerrainLodPassId::MergeScore);
+        const Algorithms::TerrainLodPassTrace& rightMergeScore = Algorithms::TerrainLodPassTraceFor(
+            right.PassTraces,
+            Algorithms::TerrainLodPassId::MergeScore);
+        const Algorithms::TerrainLodPassTrace& leftSplitScore = Algorithms::TerrainLodPassTraceFor(
+            left.PassTraces,
+            Algorithms::TerrainLodPassId::SplitScore);
+        const Algorithms::TerrainLodPassTrace& rightSplitScore = Algorithms::TerrainLodPassTraceFor(
+            right.PassTraces,
+            Algorithms::TerrainLodPassId::SplitScore);
         if (left.TopologyHash != right.TopologyHash ||
             left.ActiveLeafHash != right.ActiveLeafHash ||
             left.NormalizedMeshHash != right.NormalizedMeshHash ||
+            leftMergeScore.CandidateCount != rightMergeScore.CandidateCount ||
+            leftSplitScore.CandidateCount != rightSplitScore.CandidateCount ||
             left.ActiveTriangleCount != right.ActiveTriangleCount ||
             left.TriangleBudget != right.TriangleBudget ||
             left.BudgetViolationCount != right.BudgetViolationCount ||
@@ -996,6 +1027,11 @@ void WritePassTraceCsvHeader(std::ostream& output)
                << ",pass_" << name << "EffectiveWorkerCount"
                << ",pass_" << name << "CandidateCount"
                << ",pass_" << name << "DirtyItemCount"
+               << ",pass_" << name << "ScoreMs"
+               << ",pass_" << name << "HeapifyMs"
+               << ",pass_" << name << "CandidateSnapshotMs"
+               << ",pass_" << name << "MembershipUpdateCount"
+               << ",pass_" << name << "MembershipUpdateMs"
                << ",pass_" << name << "WallMs";
     }
 }
@@ -1016,6 +1052,11 @@ void WritePassTraceCsvValues(
                << ',' << trace.EffectiveWorkerCount
                << ',' << trace.CandidateCount
                << ',' << trace.DirtyItemCount
+               << ',' << trace.ScoreMilliseconds
+               << ',' << trace.HeapifyMilliseconds
+               << ',' << trace.CandidateSnapshotMilliseconds
+               << ',' << trace.MembershipUpdateCount
+               << ',' << trace.MembershipUpdateMilliseconds
                << ',' << trace.WallMilliseconds;
     }
 }

@@ -171,6 +171,10 @@ void ClassicRoamMeshBuilder::FinalizePassTraces()
     mergeScore.RequestedWorkerCount = 1U;
     mergeScore.EffectiveWorkerCount = _stats.MergeScoreEntryCount == 0U ? 0U : 1U;
     mergeScore.CandidateCount = _stats.MergeScoreEntryCount;
+    mergeScore.ScoreMilliseconds = _stats.MergeScoreMilliseconds;
+    mergeScore.HeapifyMilliseconds = _stats.MergeHeapifyMilliseconds;
+    mergeScore.MembershipUpdateCount = _stats.MergeQueueMembershipUpdateCount;
+    mergeScore.MembershipUpdateMilliseconds = _stats.MergeQueueMembershipUpdateMilliseconds;
     mergeScore.FallbackReason = serialFallback(
         _stats.MergeScoreEntryCount,
         _settings.PassPolicy.MergeScore == TerrainLodScoreRefreshAction::ParallelRefresh);
@@ -187,6 +191,10 @@ void ClassicRoamMeshBuilder::FinalizePassTraces()
     splitScore.RequestedWorkerCount = 1U;
     splitScore.EffectiveWorkerCount = _stats.SplitScoreEntryCount == 0U ? 0U : 1U;
     splitScore.CandidateCount = _stats.SplitScoreEntryCount;
+    splitScore.ScoreMilliseconds = _stats.SplitScoreMilliseconds;
+    splitScore.HeapifyMilliseconds = _stats.SplitHeapifyMilliseconds;
+    splitScore.MembershipUpdateCount = _stats.SplitQueueMembershipUpdateCount;
+    splitScore.MembershipUpdateMilliseconds = _stats.SplitQueueMembershipUpdateMilliseconds;
     splitScore.FallbackReason = serialFallback(
         _stats.SplitScoreEntryCount,
         _settings.PassPolicy.SplitScore == TerrainLodScoreRefreshAction::ParallelRefresh);

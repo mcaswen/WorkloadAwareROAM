@@ -1,6 +1,7 @@
 #include "algorithms/data_oriented_roam/DataOrientedRoamQueues.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamScoring.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamParallel.h"
+#include "tools/PerformanceTimer.h"
 
 #include <algorithm>
 #include <limits>
@@ -14,6 +15,24 @@ constexpr DataOrientedRoamPosition InvalidQueuePosition = InvalidDataOrientedRoa
 constexpr std::size_t MinParallelPriorityRefreshCount = 256U;
 constexpr std::size_t MaxPriorityRefreshWorkerCount = 8U;
 constexpr float BlockedSplitScore = -std::numeric_limits<float>::max();
+
+Tools::PerformanceTimer::TimePoint BeginQueueMembershipTiming(const DataOrientedRoamState& state)
+{
+    // 普通交互帧跳过高精度时钟读取，只保留成员更新数量
+    return state.Settings.EnablePassEvidence
+        ? Tools::PerformanceTimer::Now()
+        : Tools::PerformanceTimer::TimePoint{};
+}
+
+float EndQueueMembershipTiming(
+    const DataOrientedRoamState& state,
+    Tools::PerformanceTimer::TimePoint start)
+{
+    // 基准测试启用阶段证据后才计算局部成员维护耗时
+    return state.Settings.EnablePassEvidence
+        ? Tools::PerformanceTimer::ElapsedMilliseconds(start, Tools::PerformanceTimer::Now())
+        : 0.0F;
+}
 
 /// <summary>
 /// 根据单个评分阶段的策略和条目数量选择实际线程数量
@@ -379,6 +398,7 @@ void InsertMergeQueueNodeIfEligible(DataOrientedRoamState& state, DataOrientedRo
         RemovePersistentMergeQueueCandidate(state, partner);
     }
 
+    const Tools::PerformanceTimer::TimePoint membershipStart = BeginQueueMembershipTiming(state);
     state.NodeMembership[representative].MergeQueueRepresentative = representative;
     state.NodeMembership[representative].MergeQueuePartner = partner;
     if (state.IsValidNode(partner))
@@ -395,9 +415,12 @@ void InsertMergeQueueNodeIfEligible(DataOrientedRoamState& state, DataOrientedRo
         DataOrientedRoamMergeQueueEntry{MergeQueueScore(state, representative), representative});
     SiftMergeQueueUp(state, position);
     ++state.Stats.QueueMembershipUpdateCount;
+    ++state.Stats.MergeQueueMembershipUpdateCount;
     state.Stats.CandidatePeakCount = std::max(
         state.Stats.CandidatePeakCount,
         state.ActiveLeafNodes.size() + state.MergeQueue.size());
+    state.Stats.MergeQueueMembershipUpdateMilliseconds +=
+        EndQueueMembershipTiming(state, membershipStart);
 }
 
 // 多个线程收集时可以暂时出现重复节点，主线程汇总后再统一排序去重
@@ -483,6 +506,8 @@ void RefreshPersistentSplitQueuePriorities(DataOrientedRoamState& state)
             MirrorSplitQueueScore(state, entry.Node, entry.Score);
         }
     };
+    // 线程只负责刷新分数，计时在全部线程返回后停止
+    Tools::PerformanceTimer scoreTimer;
     if (workerCount <= 1U)
     {
         refreshRange(0U, entryCount);
@@ -499,12 +524,18 @@ void RefreshPersistentSplitQueuePriorities(DataOrientedRoamState& state)
             }
         });
     }
+    state.Stats.SplitScoreMilliseconds = scoreTimer.Stop();
 
     // 自底向上建堆为 O(N)，低于逐个重新插入全部叶节点的 O(N log N)
+    // 建堆由主线程单独计时，不能把这部分写成并行评分收益
+    Tools::PerformanceTimer heapifyTimer;
     for (std::size_t index = state.SplitQueue.size() / 2U; index > 0U; --index)
     {
         SiftSplitQueueDown(state, index - 1U);
     }
+    state.Stats.SplitHeapifyMilliseconds = heapifyTimer.Stop();
+    state.Stats.SplitCandidateMarkMilliseconds =
+        state.Stats.SplitScoreMilliseconds + state.Stats.SplitHeapifyMilliseconds;
     if (state.Settings.EnableTopologyValidation &&
         state.ActiveLeafNodes != activeLeafOrderBeforeRefresh)
     {
@@ -531,12 +562,16 @@ void InsertPersistentSplitQueueNode(DataOrientedRoamState& state, DataOrientedRo
     }
 
     const std::size_t position = state.SplitQueue.size();
+    const Tools::PerformanceTimer::TimePoint membershipStart = BeginQueueMembershipTiming(state);
     const float score = SplitQueueScore(state, node);
     MirrorSplitQueueScore(state, node, score);
     state.NodeMembership[node].SplitQueuePosition = static_cast<DataOrientedRoamPosition>(position);
     state.SplitQueue.push_back(DataOrientedRoamSplitQueueEntry{score, node});
     SiftSplitQueueUp(state, position);
     ++state.Stats.QueueMembershipUpdateCount;
+    ++state.Stats.SplitQueueMembershipUpdateCount;
+    state.Stats.SplitQueueMembershipUpdateMilliseconds +=
+        EndQueueMembershipTiming(state, membershipStart);
 }
 
 void RemovePersistentSplitQueueNode(DataOrientedRoamState& state, DataOrientedRoamNodeIndex node)
@@ -553,6 +588,7 @@ void RemovePersistentSplitQueueNode(DataOrientedRoamState& state, DataOrientedRo
         return;
     }
 
+    const Tools::PerformanceTimer::TimePoint membershipStart = BeginQueueMembershipTiming(state);
     // 用末尾条目填补空位可以保持存储连续，只需修复换入条目的堆位置
     const std::size_t last = state.SplitQueue.size() - 1U;
     if (position != last)
@@ -563,6 +599,9 @@ void RemovePersistentSplitQueueNode(DataOrientedRoamState& state, DataOrientedRo
     state.NodeMembership[node].SplitQueuePosition = InvalidQueuePosition;
     RestoreSplitQueueAt(state, position);
     ++state.Stats.QueueMembershipUpdateCount;
+    ++state.Stats.SplitQueueMembershipUpdateCount;
+    state.Stats.SplitQueueMembershipUpdateMilliseconds +=
+        EndQueueMembershipTiming(state, membershipStart);
 }
 
 void BlockPersistentSplitQueueNodeForCurrentBuild(
@@ -659,6 +698,8 @@ void RefreshPersistentMergeQueuePriorities(DataOrientedRoamState& state)
             entry.Score = MergeQueueScore(state, entry.Node);
         }
     };
+    // Q_m 与 Q_s 使用相同的评分计时边界
+    Tools::PerformanceTimer scoreTimer;
     if (workerCount <= 1U)
     {
         refreshRange(0U, entryCount);
@@ -675,12 +716,17 @@ void RefreshPersistentMergeQueuePriorities(DataOrientedRoamState& state)
             }
         });
     }
+    state.Stats.MergeScoreMilliseconds = scoreTimer.Stop();
 
     // 必须等待全部并行评分完成后才能原地建堆
+    Tools::PerformanceTimer heapifyTimer;
     for (std::size_t index = state.MergeQueue.size() / 2U; index > 0U; --index)
     {
         SiftMergeQueueDown(state, index - 1U);
     }
+    state.Stats.MergeHeapifyMilliseconds = heapifyTimer.Stop();
+    state.Stats.MergeCandidateMarkMilliseconds =
+        state.Stats.MergeScoreMilliseconds + state.Stats.MergeHeapifyMilliseconds;
 }
 
 // 可合并性取决于被修改节点、亲属节点、直接邻居以及第一圈节点的父节点和底边关系
@@ -817,7 +863,11 @@ void RemovePersistentMergeQueueCandidate(
     const DataOrientedRoamNodeIndex partner =
         state.NodeMembership[representative].MergeQueuePartner;
     const std::size_t position = state.NodeMembership[representative].MergeQueuePosition;
-    if (position != InvalidQueuePosition && position < state.MergeQueue.size())
+    const bool removesQueueEntry = position != InvalidQueuePosition && position < state.MergeQueue.size();
+    const Tools::PerformanceTimer::TimePoint membershipStart = removesQueueEntry
+        ? BeginQueueMembershipTiming(state)
+        : Tools::PerformanceTimer::TimePoint{};
+    if (removesQueueEntry)
     {
         // 将末尾条目移入空位，再修复其堆关系
         const std::size_t last = state.MergeQueue.size() - 1U;
@@ -828,6 +878,7 @@ void RemovePersistentMergeQueueCandidate(
         state.MergeQueue.pop_back();
         RestoreMergeQueueAt(state, position);
         ++state.Stats.QueueMembershipUpdateCount;
+        ++state.Stats.MergeQueueMembershipUpdateCount;
     }
 
     state.NodeMembership[representative].MergeQueuePosition = InvalidQueuePosition;
@@ -839,6 +890,11 @@ void RemovePersistentMergeQueueCandidate(
     {
         state.NodeMembership[partner].MergeQueueRepresentative =
             InvalidDataOrientedRoamNodeIndex;
+    }
+    if (removesQueueEntry)
+    {
+        state.Stats.MergeQueueMembershipUpdateMilliseconds +=
+            EndQueueMembershipTiming(state, membershipStart);
     }
 }
 

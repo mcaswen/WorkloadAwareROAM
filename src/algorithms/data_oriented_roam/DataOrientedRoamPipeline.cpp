@@ -112,6 +112,10 @@ void FinalizePassTraces(DataOrientedRoamState& state)
         : state.Settings.PassPolicy.MergeScoreWorkerCount;
     mergeScore.EffectiveWorkerCount = stats.MergeCandidateMarkWorkerCount;
     mergeScore.CandidateCount = stats.MergeScoreEntryCount;
+    mergeScore.ScoreMilliseconds = stats.MergeScoreMilliseconds;
+    mergeScore.HeapifyMilliseconds = stats.MergeHeapifyMilliseconds;
+    mergeScore.MembershipUpdateCount = stats.MergeQueueMembershipUpdateCount;
+    mergeScore.MembershipUpdateMilliseconds = stats.MergeQueueMembershipUpdateMilliseconds;
     mergeScore.WallMilliseconds = stats.MergeCandidateMarkMilliseconds;
 
     // Q_s 与 Q_m 的刷新语义相同，分别保存条目数量和实际线程数量
@@ -134,6 +138,10 @@ void FinalizePassTraces(DataOrientedRoamState& state)
         : state.Settings.PassPolicy.SplitScoreWorkerCount;
     splitScore.EffectiveWorkerCount = stats.SplitCandidateMarkWorkerCount;
     splitScore.CandidateCount = stats.SplitScoreEntryCount;
+    splitScore.ScoreMilliseconds = stats.SplitScoreMilliseconds;
+    splitScore.HeapifyMilliseconds = stats.SplitHeapifyMilliseconds;
+    splitScore.MembershipUpdateCount = stats.SplitQueueMembershipUpdateCount;
+    splitScore.MembershipUpdateMilliseconds = stats.SplitQueueMembershipUpdateMilliseconds;
     splitScore.WallMilliseconds = stats.SplitCandidateMarkMilliseconds;
 
     // 合并只把安全候选交给线程处理
@@ -165,7 +173,9 @@ void FinalizePassTraces(DataOrientedRoamState& state)
         : state.Settings.PassPolicy.MergeTopologyWorkerCount;
     mergeTopology.EffectiveWorkerCount = mergeTopologyWorkerCount;
     mergeTopology.CandidateCount = mergeTopologyCandidateCount;
+    mergeTopology.CandidateSnapshotMilliseconds = stats.MergeCandidateSnapshotMilliseconds;
     mergeTopology.WallMilliseconds =
+        stats.MergeCandidateSnapshotMilliseconds +
         stats.MergeTopologyChunkBuildMilliseconds +
         stats.MergeTopologyQueueInvalidationMilliseconds +
         stats.MergeTopologyParallelCommitMilliseconds +
@@ -200,7 +210,9 @@ void FinalizePassTraces(DataOrientedRoamState& state)
         : state.Settings.PassPolicy.SplitTopologyWorkerCount;
     splitTopology.EffectiveWorkerCount = splitTopologyWorkerCount;
     splitTopology.CandidateCount = splitTopologyCandidateCount;
+    splitTopology.CandidateSnapshotMilliseconds = stats.SplitCandidateSnapshotMilliseconds;
     splitTopology.WallMilliseconds =
+        stats.SplitCandidateSnapshotMilliseconds +
         stats.SplitTopologyChunkBuildMilliseconds +
         stats.SplitTopologyQueueInvalidationMilliseconds +
         stats.SplitTopologyParallelCommitMilliseconds +
