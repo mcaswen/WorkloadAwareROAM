@@ -3,6 +3,7 @@
 #include "app/CameraController.h"
 #include "app/InputState.h"
 #include "app/RuntimeBenchmark.h"
+#include "app/RuntimeBenchmarkConfig.h"
 #include "gui/ImGuiLayer.h"
 #include "platform/Window.h"
 #include "render/GraphicsBackend.h"
@@ -17,58 +18,6 @@
 
 namespace ParallelRoam::App
 {
-struct RuntimeBenchmarkOverrides
-{
-    bool HasPath{false};
-    Gui::TerrainPanelState::RuntimeBenchmarkPath Path{
-        Gui::TerrainPanelState::RuntimeBenchmarkPath::Default};
-
-    bool HasPassPolicy{false};
-    Algorithms::TerrainLodPassPolicy PassPolicy{};
-
-    bool HasSplitTopologyMinParallelCandidateCount{false};
-    std::size_t SplitTopologyMinParallelCandidateCount{32U};
-
-    bool HasMergeTopologyMinParallelCandidateCount{false};
-    std::size_t MergeTopologyMinParallelCandidateCount{160U};
-
-    bool HasParallelTopologyTargetBuild{false};
-    std::size_t ParallelTopologyTargetBuild{0U};
-
-    bool HasParallelTopologyPhase{false};
-    Algorithms::TerrainLodParallelTopologyPhase ParallelTopologyPhase{
-        Algorithms::TerrainLodParallelTopologyPhase::Both};
-
-    bool HasHeightMapIndex{false};
-    int HeightMapIndex{0};
-
-    bool HasTerrainSize{false};
-    float TerrainSize{30.0F};
-
-    bool HasHeightScale{false};
-    float HeightScale{4.0F};
-
-    bool HasMaxDepth{false};
-    int MaxDepth{14};
-
-    bool HasScreenSpaceSplitThresholdPixels{false};
-    float ScreenSpaceSplitThresholdPixels{4.0F};
-
-    bool HasScreenSpaceMergeThresholdPixels{false};
-    float ScreenSpaceMergeThresholdPixels{2.0F};
-
-    bool HasSampleCount{false};
-    std::size_t SampleCount{0};
-
-    bool HasWarmupSampleCount{false};
-    std::size_t WarmupSampleCount{0U};
-
-    bool HasAlgorithmOrderRotation{false};
-    std::size_t AlgorithmOrderRotation{0U};
-
-    std::string Label;
-};
-
 /// <summary>
 /// 协调平台层、输入层、渲染层和 GUI 层的应用主循环
 /// </summary>

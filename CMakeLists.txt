@@ -64,6 +64,7 @@ if(PARALLEL_ROAM_BUILD_APP)
             APPEND
             PARALLEL_ROAM_APP_SOURCES
                 src/app/Application.cpp
+                src/app/ApplicationCommandLine.cpp
                 src/app/CameraController.cpp
                 src/app/InputState.cpp
                 src/app/RuntimeBenchmark.cpp
@@ -110,6 +111,7 @@ if(PARALLEL_ROAM_BUILD_APP)
             APPEND
             PARALLEL_ROAM_APP_SOURCES
                 src/app/Application.cpp
+                src/app/ApplicationCommandLine.cpp
                 src/app/CameraController.cpp
                 src/app/InputState.cpp
                 src/app/RuntimeBenchmark.cpp

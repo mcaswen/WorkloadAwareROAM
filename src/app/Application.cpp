@@ -592,7 +592,11 @@ void Application::ApplyPendingRuntimeBenchmarkOverrides()
     const RuntimeBenchmarkOverrides& overrides = _runtimeBenchmarkOverrides;
     if (overrides.HasPath)
     {
-        _terrainPanelState.BenchmarkPath = overrides.Path;
+        // 命令行配置不依赖界面类型，在应用层转换为面板实际使用的路径
+        _terrainPanelState.BenchmarkPath =
+            overrides.Path == RuntimeBenchmarkPath::BudgetSaturation
+                ? Gui::TerrainPanelState::RuntimeBenchmarkPath::BudgetSaturation
+                : Gui::TerrainPanelState::RuntimeBenchmarkPath::Default;
     }
 
     if (overrides.HasPassPolicy)
@@ -794,7 +798,7 @@ void Application::StartRuntimeBenchmark()
 
     if (_runtimeBenchmark.Path == Gui::TerrainPanelState::RuntimeBenchmarkPath::BudgetSaturation)
     {
-        // 压力路径使用已验证能吃满 200000 三角形的固定场景参数。
+        // 压力路径使用固定场景参数，能够稳定达到 200000 个活动三角形
         _terrainPanelState.HeightMapIndex = 1;
         _terrainPanelState.TerrainSize = 80.0F;
         _terrainPanelState.HeightScale = 12.0F;
@@ -1060,7 +1064,7 @@ void Application::FinishRuntimeBenchmark()
     _terrainPanelState.StartBenchmarkRequested = false;
     ApplyWindowPanelSettings();
     _camera.SetPose(previousCameraPose.Position, previousCameraPose.YawDegrees, previousCameraPose.PitchDegrees);
-    // 压力路径会临时切换 HeightMap；恢复面板状态时必须同步恢复 renderer 实际资源。
+    // 压力路径会临时切换高度图，恢复面板状态时也要同步恢复渲染器资源
     ApplyHeightMapSelection();
     // 恢复设置后强制重建一次，防止画面停留在 benchmark 的算法 mesh
     ApplyTerrainPanelSettings();

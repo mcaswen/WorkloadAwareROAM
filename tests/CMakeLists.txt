@@ -122,6 +122,27 @@ target_link_libraries(
 
 add_test(NAME terrain_lod_experiment_csv COMMAND parallel_roam_experiment_csv_tests)
 
+add_executable(
+    parallel_roam_application_command_line_tests
+    ApplicationCommandLineTests.cpp
+    ../src/app/ApplicationCommandLine.cpp
+)
+
+target_include_directories(
+    parallel_roam_application_command_line_tests
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src"
+)
+
+target_link_libraries(
+    parallel_roam_application_command_line_tests
+    PRIVATE
+        parallel_roam_project_options
+        parallel_roam_project_warnings
+        ParallelROAM::GLM
+)
+
+add_test(NAME application_command_line COMMAND parallel_roam_application_command_line_tests)
+
 if(TARGET parallel_roam)
     add_test(
         NAME roam_budget_reentry_classic
