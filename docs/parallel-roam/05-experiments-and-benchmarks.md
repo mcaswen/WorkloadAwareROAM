@@ -133,7 +133,7 @@ Debug View 的价值不只是展示效果，也用于定位算法问题。比如
 
 推荐流程：
 
-1. 启动后先 warm-up 3 到 5 秒，不记录数据；
+1. 每种算法独立预热，不记录数据；预热结束后重置算法，再从相同拓扑和路径起点开始正式采样；
 2. 把固定相机路径离散为足够密集的采样点，并让所有算法按相同 `sampleIndex` 执行；
 3. 每个采样点记录一次统计数据，同时保留实际墙钟时间但不让它驱动路径；
 4. 分别输出平均值、p50、p95、最大值；
@@ -145,6 +145,7 @@ Debug View 的价值不只是展示效果，也用于定位算法问题。比如
 
 ```text
 frameIndex
+experimentSchemaVersion
 pathSampleIndex
 pathSampleCount
 pathProgress
@@ -156,6 +157,13 @@ maxDepth
 screenSpaceSplitThresholdPixels
 screenSpaceMergeThresholdPixels
 triangleBudget
+splitTopologyMinParallelCandidateCount
+mergeTopologyMinParallelCandidateCount
+parallelTopologyTargetBuild
+parallelTopologyPhase
+warmupSampleCount
+executionOrderIndex
+algorithmOrderRotation
 budgetRejectedSplitCount
 verticalFovDegrees
 drawableWidth
@@ -165,6 +173,10 @@ cpuUtilizationPercent
 activeTriangleCount
 activeNodeCount
 candidatePeakCount
+interiorSplitCandidateCount
+boundarySplitCandidateCount
+interiorMergeCandidateCount
+boundaryMergeCandidateCount
 persistentSplitQueueSize
 persistentMergeQueueSize
 queueCrossoverCount
@@ -208,6 +220,10 @@ fps
 cpuGpuUploadBytes
 cpuGpuReadbackBytes
 ```
+
+无窗口和运行时 CSV 的算法设置、公共统计及阶段记录由同一字段表生成。运行时 CSV 只在公共字段前增加图形后端、相机、帧耗时、预热和顺序信息，避免两个实验入口分别维护算法列。
+
+并行拓扑候选阈值、限定更新编号和限定阶段都是显式策略参数，并进入输入哈希和实验报告。运行器不再读取 `PARALLEL_ROAM_DOD_MIN_PARALLEL_COMMIT_CANDIDATES`、`PARALLEL_ROAM_DOD_PARALLEL_COMMIT_BUILD` 或 `PARALLEL_ROAM_DOD_PARALLEL_COMMIT_PHASE`。
 
 `cpuUtilizationPercent` 使用进程 CPU time / build wall time 的口径，单个逻辑核心满载约为 100%，多线程算法可以超过 100%。
 

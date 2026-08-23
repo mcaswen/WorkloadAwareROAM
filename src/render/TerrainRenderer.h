@@ -88,6 +88,8 @@ struct TerrainRenderSettings
 /// </summary>
 struct TerrainRenderStats
 {
+    // 实验报告直接读取完整公共统计，界面专用字段只保留显示兼容性
+    Algorithms::TerrainLodStats RoamLodStats{};
     Algorithms::TerrainLodPassTraceArray RoamPassTraces{Algorithms::MakeTerrainLodPassTraces()};
     std::uint64_t RoamBuildSequence{0U};
     std::uint64_t RoamReplayInputHash{0U};

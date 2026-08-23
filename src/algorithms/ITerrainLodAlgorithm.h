@@ -157,6 +157,10 @@ struct TerrainLodBuildInput
     AppendTerrainLodHash(hash, input.Settings.PassPolicy.MergeTopologyWorkerCount);
     AppendTerrainLodHash(hash, input.Settings.PassPolicy.SplitTopologyWorkerCount);
     AppendTerrainLodHash(hash, input.Settings.PassPolicy.MeshEmitWorkerCount);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.SplitTopologyMinParallelCandidateCount);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.MergeTopologyMinParallelCandidateCount);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.ParallelTopologyTargetBuild);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.ParallelTopologyPhase);
     return hash;
 }
 
@@ -317,6 +321,11 @@ struct TerrainLodStats
     std::size_t MergeTopologyNonEmptyChunkCount{0};
     std::size_t MergeTopologyCommitWorkerCount{0};
     std::size_t ParallelMergeCommitCount{0};
+    // 区分可以交给独立分块处理的候选和必须由主线程处理的跨分块候选
+    std::size_t InteriorSplitCandidateCount{0};
+    std::size_t BoundarySplitCandidateCount{0};
+    std::size_t InteriorMergeCandidateCount{0};
+    std::size_t BoundaryMergeCandidateCount{0};
     float CpuUpdateMilliseconds{0.0F};
     // CpuUtilizationPercent 以单个逻辑核心满载为 100%，多线程运行时可以超过 100%
     float CpuUtilizationPercent{0.0F};

@@ -4,6 +4,7 @@
 #include "algorithms/TerrainLodView.h"
 #include "algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.h"
+#include "experiment/TerrainLodExperimentCsv.h"
 #include "terrain/HeightMap.h"
 #include "tools/PerformanceTimer.h"
 
@@ -12,6 +13,7 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
@@ -147,6 +149,11 @@ void ApplyPassPolicy(
     BenchmarkPassPolicySelection selection,
     Algorithms::TerrainLodSettings& settings)
 {
+    const std::size_t splitMinimum = settings.PassPolicy.SplitTopologyMinParallelCandidateCount;
+    const std::size_t mergeMinimum = settings.PassPolicy.MergeTopologyMinParallelCandidateCount;
+    const std::size_t targetBuild = settings.PassPolicy.ParallelTopologyTargetBuild;
+    const Algorithms::TerrainLodParallelTopologyPhase phase =
+        settings.PassPolicy.ParallelTopologyPhase;
     switch (selection)
     {
     case BenchmarkPassPolicySelection::Default:
@@ -165,6 +172,54 @@ void ApplyPassPolicy(
         settings.PassPolicy = Algorithms::MakeTerrainLodMaximumSafeParallelFullOutputPolicy();
         break;
     }
+    settings.PassPolicy.SplitTopologyMinParallelCandidateCount = splitMinimum;
+    settings.PassPolicy.MergeTopologyMinParallelCandidateCount = mergeMinimum;
+    settings.PassPolicy.ParallelTopologyTargetBuild = targetBuild;
+    settings.PassPolicy.ParallelTopologyPhase = phase;
+}
+
+void ApplyTopologyExperimentSettings(
+    const BenchmarkOptions& options,
+    Algorithms::TerrainLodSettings& settings)
+{
+    settings.PassPolicy.SplitTopologyMinParallelCandidateCount =
+        options.SplitTopologyMinParallelCandidateCount;
+    settings.PassPolicy.MergeTopologyMinParallelCandidateCount =
+        options.MergeTopologyMinParallelCandidateCount;
+    settings.PassPolicy.ParallelTopologyTargetBuild = options.ParallelTopologyTargetBuild;
+    settings.PassPolicy.ParallelTopologyPhase = options.ParallelTopologyPhase;
+}
+
+bool ParseSize(std::string_view value, std::size_t& output)
+{
+    if (value.empty())
+    {
+        return false;
+    }
+    const auto [end, error] = std::from_chars(value.data(), value.data() + value.size(), output);
+    return error == std::errc{} && end == value.data() + value.size();
+}
+
+bool ParseParallelTopologyPhase(
+    std::string_view value,
+    Algorithms::TerrainLodParallelTopologyPhase& output)
+{
+    if (value == "both")
+    {
+        output = Algorithms::TerrainLodParallelTopologyPhase::Both;
+        return true;
+    }
+    if (value == "split")
+    {
+        output = Algorithms::TerrainLodParallelTopologyPhase::SplitOnly;
+        return true;
+    }
+    if (value == "merge")
+    {
+        output = Algorithms::TerrainLodParallelTopologyPhase::MergeOnly;
+        return true;
+    }
+    return false;
 }
 
 std::vector<BenchmarkCameraKeyframe> MakeStandardCameraPath()
@@ -1012,55 +1067,6 @@ void PrintRunSummary(const BenchmarkAlgorithmRun& run)
               << '\n';
 }
 
-void WritePassTraceCsvHeader(std::ostream& output)
-{
-    for (std::size_t index = 0U; index < Algorithms::TerrainLodPassCount; ++index)
-    {
-        const std::string_view name = Algorithms::ToString(static_cast<Algorithms::TerrainLodPassId>(index));
-        output << ",pass_" << name << "RequestedAction"
-               << ",pass_" << name << "EffectiveAction"
-               << ",pass_" << name << "FallbackReason"
-               << ",pass_" << name << "MembershipUpdate"
-               << ",pass_" << name << "PriorityRefresh"
-               << ",pass_" << name << "DataUpdate"
-               << ",pass_" << name << "RequestedWorkerCount"
-               << ",pass_" << name << "EffectiveWorkerCount"
-               << ",pass_" << name << "CandidateCount"
-               << ",pass_" << name << "DirtyItemCount"
-               << ",pass_" << name << "ScoreMs"
-               << ",pass_" << name << "HeapifyMs"
-               << ",pass_" << name << "CandidateSnapshotMs"
-               << ",pass_" << name << "MembershipUpdateCount"
-               << ",pass_" << name << "MembershipUpdateMs"
-               << ",pass_" << name << "WallMs";
-    }
-}
-
-void WritePassTraceCsvValues(
-    std::ostream& output,
-    const Algorithms::TerrainLodPassTraceArray& traces)
-{
-    for (const Algorithms::TerrainLodPassTrace& trace : traces)
-    {
-        output << ',' << Algorithms::ToString(trace.RequestedAction)
-               << ',' << Algorithms::ToString(trace.EffectiveAction)
-               << ',' << Algorithms::ToString(trace.FallbackReason)
-               << ',' << Algorithms::ToString(trace.MembershipUpdate)
-               << ',' << Algorithms::ToString(trace.PriorityRefresh)
-               << ',' << Algorithms::ToString(trace.DataUpdate)
-               << ',' << trace.RequestedWorkerCount
-               << ',' << trace.EffectiveWorkerCount
-               << ',' << trace.CandidateCount
-               << ',' << trace.DirtyItemCount
-               << ',' << trace.ScoreMilliseconds
-               << ',' << trace.HeapifyMilliseconds
-               << ',' << trace.CandidateSnapshotMilliseconds
-               << ',' << trace.MembershipUpdateCount
-               << ',' << trace.MembershipUpdateMilliseconds
-               << ',' << trace.WallMilliseconds;
-    }
-}
-
 bool WriteCsv(
     const std::filesystem::path& csvPath,
     const BenchmarkScenario& scenario,
@@ -1084,34 +1090,11 @@ bool WriteCsv(
         return false;
     }
 
-    // 表头覆盖三类算法的共同统计字段
-    // GPU 字段现在可为 0，后续实现后不需要改 CSV 契约
     csv << "profile,algorithm,frameIndex,timeSeconds,cameraName,cameraX,cameraY,cameraZ,"
-           "heightMapWidth,heightMapHeight,terrainSize,heightScale,maxDepth,"
-           "screenSpaceSplitThresholdPixels,screenSpaceMergeThresholdPixels,triangleBudget,"
-           "dodParallelSplitEnabled,"
-           "activeTriangleCount,activeNodeCount,splitCount,forcedSplitCount,mergeCount,candidatePeakCount,"
-           "persistentSplitQueueSize,persistentMergeQueueSize,queueCrossoverCount,queueMembershipUpdateCount,"
-           "cpuMeshFullRebuildCount,cpuMeshUpdatedTriangleCount,cpuMeshReusedTriangleCount,cpuMeshDirtyRangeCount,"
-           "budgetRejectedSplitCount,"
-           "tjunctionCount,invalidNeighborCount,invalidTopologyCount,cpuWorkerCount,cpuUtilizationPercent,"
-           "topologyCommitMinCandidateCount,splitTopologyCommitMinCandidateCount,"
-           "mergeTopologyCommitMinCandidateCount,splitTopologyCandidateCount,splitTopologyNonEmptyChunkCount,"
-           "splitTopologyCommitWorkerCount,parallelSplitCommitCount,mergeTopologyCandidateCount,"
-           "mergeTopologyNonEmptyChunkCount,mergeTopologyCommitWorkerCount,parallelMergeCommitCount,"
-           "cpuUpdateMs,cpuPrepareMs,cpuMergeCandidateMarkMs,cpuMergeTopologyMs,"
-           "cpuBudgetLeafCollectMs,cpuErrorEvalMs,cpuSplitCandidateMarkMs,cpuSplitTopologyMs,"
-           "cpuSplitTopologyChunkBuildMs,cpuSplitTopologyQueueInvalidationMs,"
-           "cpuSplitTopologyParallelCommitMs,cpuSplitTopologyResultMergeMs,"
-           "cpuSplitTopologyIndexQueueRefreshMs,cpuSplitTopologySerialConvergenceMs,"
-           "cpuMergeTopologyChunkBuildMs,cpuMergeTopologyQueueInvalidationMs,"
-           "cpuMergeTopologyParallelCommitMs,cpuMergeTopologyResultMergeMs,"
-           "cpuMergeTopologyIndexQueueRefreshMs,cpuMergeTopologySerialConvergenceMs,"
-           "cpuFinalLeafCollectMs,cpuMeshEmitMs,cpuFinalizeMs,cpuUploadMs,renderMs,"
-           "cpuGpuUploadBytes,cpuGpuReadbackBytes,buildWallMs,buildSequence,replayInputHash,"
-           "topologyHash,activeLeafHash,meshHash,normalizedMeshHash,evidenceTriangleBudget,budgetViolationCount,"
-           "queueInvariantViolationCount,resourceValidationFailureCount,passEvidenceMs";
-    WritePassTraceCsvHeader(csv);
+           "heightMapWidth,heightMapHeight,vertexCount,indexCount,buildWallMilliseconds,";
+    Experiment::WriteTerrainLodSettingsCsvHeader(csv);
+    csv << ',';
+    Experiment::WriteTerrainLodStatsCsvHeader(csv);
     csv << ",passed\n";
 
     for (const BenchmarkAlgorithmRun& run : runs)
@@ -1137,84 +1120,12 @@ bool WriteCsv(
                 << frame.CameraPosition.z << ','
                 << frame.HeightMapWidth << ','
                 << frame.HeightMapHeight << ','
-                << scenario.Settings.TerrainSize << ','
-                << scenario.Settings.HeightScale << ','
-                << scenario.Settings.MaxDepth << ','
-                << scenario.Settings.ScreenSpaceSplitThresholdPixels << ','
-                << scenario.Settings.ScreenSpaceMergeThresholdPixels << ','
-                << scenario.Settings.TriangleBudget << ','
-                << (scenario.Settings.EnableParallelSplit ? "true" : "false") << ','
-                << frame.TriangleCount << ','
-                << frame.Stats.ActiveNodeCount << ','
-                << frame.Stats.SplitCount << ','
-                << frame.Stats.ForcedSplitCount << ','
-                << frame.Stats.MergeCount << ','
-                << frame.Stats.CandidatePeakCount << ','
-                << frame.Stats.PersistentSplitQueueSize << ','
-                << frame.Stats.PersistentMergeQueueSize << ','
-                << frame.Stats.QueueCrossoverCount << ','
-                << frame.Stats.QueueMembershipUpdateCount << ','
-                << frame.Stats.CpuMeshFullRebuildCount << ','
-                << frame.Stats.CpuMeshUpdatedTriangleCount << ','
-                << frame.Stats.CpuMeshReusedTriangleCount << ','
-                << frame.Stats.CpuMeshDirtyRangeCount << ','
-                << frame.Stats.BudgetRejectedSplitCount << ','
-                << frame.Stats.TjunctionCount << ','
-                << frame.Stats.InvalidNeighborCount << ','
-                << frame.Stats.InvalidTopologyCount << ','
-                << frame.Stats.CpuWorkerCount << ','
-                << frame.Stats.CpuUtilizationPercent << ','
-                << frame.Stats.TopologyCommitMinCandidateCount << ','
-                << frame.Stats.SplitTopologyCommitMinCandidateCount << ','
-                << frame.Stats.MergeTopologyCommitMinCandidateCount << ','
-                << frame.Stats.SplitTopologyCandidateCount << ','
-                << frame.Stats.SplitTopologyNonEmptyChunkCount << ','
-                << frame.Stats.SplitTopologyCommitWorkerCount << ','
-                << frame.Stats.ParallelSplitCommitCount << ','
-                << frame.Stats.MergeTopologyCandidateCount << ','
-                << frame.Stats.MergeTopologyNonEmptyChunkCount << ','
-                << frame.Stats.MergeTopologyCommitWorkerCount << ','
-                << frame.Stats.ParallelMergeCommitCount << ','
-                << frame.Stats.CpuUpdateMilliseconds << ','
-                << frame.Stats.CpuPrepareMilliseconds << ','
-                << frame.Stats.CpuMergeCandidateMarkMilliseconds << ','
-                << frame.Stats.CpuMergeTopologyMilliseconds << ','
-                << frame.Stats.CpuBudgetLeafCollectMilliseconds << ','
-                << frame.Stats.CpuErrorEvalMilliseconds << ','
-                << frame.Stats.CpuSplitCandidateMarkMilliseconds << ','
-                << frame.Stats.CpuSplitTopologyMilliseconds << ','
-                << frame.Stats.CpuSplitTopologyChunkBuildMilliseconds << ','
-                << frame.Stats.CpuSplitTopologyQueueInvalidationMilliseconds << ','
-                << frame.Stats.CpuSplitTopologyParallelCommitMilliseconds << ','
-                << frame.Stats.CpuSplitTopologyResultMergeMilliseconds << ','
-                << frame.Stats.CpuSplitTopologyIndexQueueRefreshMilliseconds << ','
-                << frame.Stats.CpuSplitTopologySerialConvergenceMilliseconds << ','
-                << frame.Stats.CpuMergeTopologyChunkBuildMilliseconds << ','
-                << frame.Stats.CpuMergeTopologyQueueInvalidationMilliseconds << ','
-                << frame.Stats.CpuMergeTopologyParallelCommitMilliseconds << ','
-                << frame.Stats.CpuMergeTopologyResultMergeMilliseconds << ','
-                << frame.Stats.CpuMergeTopologyIndexQueueRefreshMilliseconds << ','
-                << frame.Stats.CpuMergeTopologySerialConvergenceMilliseconds << ','
-                << frame.Stats.CpuFinalLeafCollectMilliseconds << ','
-                << frame.Stats.CpuMeshEmitMilliseconds << ','
-                << frame.Stats.CpuFinalizeMilliseconds << ','
-                << frame.Stats.CpuUploadMilliseconds << ','
-                << frame.Stats.RenderMilliseconds << ','
-                << frame.Stats.CpuGpuUploadBytes << ','
-                << frame.Stats.CpuGpuReadbackBytes << ','
-                << frame.BuildWallMilliseconds << ','
-                << frame.Stats.BuildSequence << ','
-                << frame.Stats.ReplayInputHash << ','
-                << frame.Stats.TopologyHash << ','
-                << frame.Stats.ActiveLeafHash << ','
-                << frame.Stats.MeshHash << ','
-                << frame.Stats.NormalizedMeshHash << ','
-                << frame.Stats.TriangleBudget << ','
-                << frame.Stats.BudgetViolationCount << ','
-                << frame.Stats.QueueInvariantViolationCount << ','
-                << frame.Stats.ResourceValidationFailureCount << ','
-                << frame.Stats.PassEvidenceMilliseconds;
-            WritePassTraceCsvValues(csv, frame.Stats.PassTraces);
+                << frame.VertexCount << ','
+                << frame.IndexCount << ','
+                << frame.BuildWallMilliseconds << ',';
+            Experiment::WriteTerrainLodSettingsCsvValues(csv, scenario.Settings);
+            csv << ',';
+            Experiment::WriteTerrainLodStatsCsvValues(csv, frame.Stats);
             csv << ',' << (frame.Passed ? 1 : 0)
                 << '\n';
         }
@@ -1334,6 +1245,7 @@ int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 {
     BenchmarkScenario scenario = MakeScenario(options.Profile);
     ApplyPassPolicy(options.PassPolicy, scenario.Settings);
+    ApplyTopologyExperimentSettings(options, scenario.Settings);
 
     Terrain::HeightMap heightMap;
     std::string errorMessage;
@@ -1354,6 +1266,14 @@ int RunTerrainLodBenchmark(const BenchmarkOptions& options)
               << " screenSpaceSplitPixels=" << scenario.Settings.ScreenSpaceSplitThresholdPixels
               << " screenSpaceMergePixels=" << scenario.Settings.ScreenSpaceMergeThresholdPixels
               << " triangleBudget=" << scenario.Settings.TriangleBudget
+              << " splitTopologyMinCandidates="
+              << scenario.Settings.PassPolicy.SplitTopologyMinParallelCandidateCount
+              << " mergeTopologyMinCandidates="
+              << scenario.Settings.PassPolicy.MergeTopologyMinParallelCandidateCount
+              << " parallelTopologyTargetBuild="
+              << scenario.Settings.PassPolicy.ParallelTopologyTargetBuild
+              << " parallelTopologyPhase="
+              << Algorithms::ToString(scenario.Settings.PassPolicy.ParallelTopologyPhase)
               << '\n';
 
     std::vector<BenchmarkAlgorithmRun> runs;
@@ -1556,6 +1476,55 @@ int RunTerrainLodBenchmarkFromCommandLine(int argc, char** argv)
             return 1;
         }
 
+        if (argument == "--split-topology-min-candidates" && index + 1 < argc)
+        {
+            if (!ParseSize(argv[++index], options.SplitTopologyMinParallelCandidateCount))
+            {
+                std::cerr << "Invalid --split-topology-min-candidates value: " << argv[index] << '\n';
+                return 1;
+            }
+            continue;
+        }
+
+        if (argument == "--merge-topology-min-candidates" && index + 1 < argc)
+        {
+            if (!ParseSize(argv[++index], options.MergeTopologyMinParallelCandidateCount))
+            {
+                std::cerr << "Invalid --merge-topology-min-candidates value: " << argv[index] << '\n';
+                return 1;
+            }
+            continue;
+        }
+
+        if (argument == "--parallel-topology-target-build" && index + 1 < argc)
+        {
+            if (!ParseSize(argv[++index], options.ParallelTopologyTargetBuild))
+            {
+                std::cerr << "Invalid --parallel-topology-target-build value: " << argv[index] << '\n';
+                return 1;
+            }
+            continue;
+        }
+
+        if (argument == "--parallel-topology-phase" && index + 1 < argc)
+        {
+            if (!ParseParallelTopologyPhase(argv[++index], options.ParallelTopologyPhase))
+            {
+                std::cerr << "Invalid --parallel-topology-phase value: " << argv[index] << '\n';
+                return 1;
+            }
+            continue;
+        }
+
+        if (argument == "--split-topology-min-candidates" ||
+            argument == "--merge-topology-min-candidates" ||
+            argument == "--parallel-topology-target-build" ||
+            argument == "--parallel-topology-phase")
+        {
+            std::cerr << argument << " requires a value.\n";
+            return 1;
+        }
+
         if (argument == "--csv" && index + 1 < argc)
         {
             // CSV 路径可以指向尚不存在的父目录
@@ -1586,6 +1555,8 @@ std::string BenchmarkUsage()
     return "Usage: ParallelROAM --benchmark [--algorithm classic|dod|all] "
            "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|standard] "
            "[--pass-policy default|serial-incremental|maximum-parallel-incremental|serial-full|maximum-parallel-full] "
+           "[--split-topology-min-candidates count] [--merge-topology-min-candidates count] "
+           "[--parallel-topology-target-build build] [--parallel-topology-phase both|split|merge] "
            "[--csv path]\n";
 }
 } // 命名空间 ParallelRoam::Benchmark

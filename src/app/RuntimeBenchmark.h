@@ -52,6 +52,12 @@ struct RuntimeBenchmarkAlgorithmResult
     // AlgorithmName 写进 UI 和输出文件，避免报告依赖枚举值
     std::string AlgorithmName;
 
+    // 设置和执行顺序在开始该算法前冻结，CSV 每行都能独立还原实验条件
+    Algorithms::TerrainLodSettings Settings;
+    std::size_t WarmupSampleCount{0U};
+    std::size_t ExecutionOrderIndex{0U};
+    std::size_t AlgorithmOrderRotation{0U};
+
     // Samples 保留逐帧明细，汇总表只从这里二次聚合
     std::vector<RuntimeBenchmarkSample> Samples;
 };

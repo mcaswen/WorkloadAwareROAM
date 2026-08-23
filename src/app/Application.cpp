@@ -109,6 +109,25 @@ BudgetSaturationCameraPose ComputeBudgetSaturationCameraPose(float normalizedTim
 // benchmark 路径是有限的相机姿态序列；压力路径的单点成本更高，因此使用较少采样点
 constexpr std::size_t DefaultRuntimeBenchmarkSampleCount = 600;
 constexpr std::size_t BudgetSaturationRuntimeBenchmarkSampleCount = 64;
+constexpr std::size_t DefaultRuntimeBenchmarkWarmupSampleCount = 32;
+constexpr std::size_t BudgetSaturationRuntimeBenchmarkWarmupSampleCount = 4;
+
+Algorithms::TerrainLodSettings ToTerrainLodSettings(const Gui::TerrainPanelState& state)
+{
+    Algorithms::TerrainLodSettings settings{};
+    settings.TerrainSize = state.TerrainSize;
+    settings.HeightScale = state.HeightScale;
+    settings.MaxDepth = state.RoamMaxDepth;
+    settings.ScreenSpaceSplitThresholdPixels = state.RoamScreenSpaceSplitThresholdPixels;
+    settings.ScreenSpaceMergeThresholdPixels = state.RoamScreenSpaceMergeThresholdPixels;
+    settings.TriangleBudget = static_cast<std::size_t>(std::max(state.RoamTriangleBudget, 2));
+    settings.EnableParallelSplit = state.RoamEnableParallelSplit;
+    settings.PassPolicy = state.RoamPassPolicy;
+    settings.EnableLocalConstraints = state.RoamEnableLocalConstraints;
+    settings.EnableTopologyValidation = state.RoamEnableTopologyValidation;
+    settings.EnablePassEvidence = true;
+    return settings;
+}
 
 Render::TerrainRenderSettings ToRenderSettings(const Gui::TerrainPanelState& state)
 {
@@ -581,6 +600,29 @@ void Application::ApplyPendingRuntimeBenchmarkOverrides()
         _terrainPanelState.RoamPassPolicy = overrides.PassPolicy;
     }
 
+    if (overrides.HasSplitTopologyMinParallelCandidateCount)
+    {
+        _terrainPanelState.RoamPassPolicy.SplitTopologyMinParallelCandidateCount =
+            overrides.SplitTopologyMinParallelCandidateCount;
+    }
+
+    if (overrides.HasMergeTopologyMinParallelCandidateCount)
+    {
+        _terrainPanelState.RoamPassPolicy.MergeTopologyMinParallelCandidateCount =
+            overrides.MergeTopologyMinParallelCandidateCount;
+    }
+
+    if (overrides.HasParallelTopologyTargetBuild)
+    {
+        _terrainPanelState.RoamPassPolicy.ParallelTopologyTargetBuild =
+            overrides.ParallelTopologyTargetBuild;
+    }
+
+    if (overrides.HasParallelTopologyPhase)
+    {
+        _terrainPanelState.RoamPassPolicy.ParallelTopologyPhase = overrides.ParallelTopologyPhase;
+    }
+
     if (overrides.HasHeightMapIndex)
     {
         _terrainPanelState.HeightMapIndex =
@@ -659,6 +701,8 @@ void Application::StartRuntimeBenchmark()
     // 每轮 benchmark 都重新生成结果，保留上一次输出路径供 UI 展示
     _runtimeBenchmark.Active = true;
     _runtimeBenchmark.HasPreparedFirstFrame = false;
+    _runtimeBenchmark.WarmingUp = false;
+    _runtimeBenchmark.WarmupSampleIndex = 0U;
     _runtimeBenchmark.AlgorithmIndex = 0;
     _runtimeBenchmark.ElapsedSeconds = 0.0F;
     _runtimeBenchmark.PathSampleIndex = 0;
@@ -677,12 +721,31 @@ void Application::StartRuntimeBenchmark()
             _runtimeBenchmarkOverrides.SampleCount,
             static_cast<std::size_t>(2));
     }
+    _runtimeBenchmark.WarmupSampleCount =
+        _runtimeBenchmark.Path == Gui::TerrainPanelState::RuntimeBenchmarkPath::BudgetSaturation
+        ? BudgetSaturationRuntimeBenchmarkWarmupSampleCount
+        : DefaultRuntimeBenchmarkWarmupSampleCount;
+    if (_runtimeBenchmarkOverrides.HasWarmupSampleCount)
+    {
+        _runtimeBenchmark.WarmupSampleCount = _runtimeBenchmarkOverrides.WarmupSampleCount;
+    }
     _runtimeBenchmark.Notes.push_back("构建配置：" + BuildConfigurationName());
     _runtimeBenchmark.Notes.push_back("图形后端：" + std::string{_graphicsBackend->Name()});
     _runtimeBenchmark.Notes.push_back(
         "图形适配器：" + _graphicsBackend->AdapterName() + " (" + _graphicsBackend->VersionString() + ")");
     _runtimeBenchmark.Notes.push_back(
         "阶段策略：" + PassPolicyDisplayName(_terrainPanelState.RoamPassPolicy));
+    _runtimeBenchmark.Notes.push_back(
+        "并行拓扑候选阈值：细分 " +
+        std::to_string(_terrainPanelState.RoamPassPolicy.SplitTopologyMinParallelCandidateCount) +
+        "，合并 " +
+        std::to_string(_terrainPanelState.RoamPassPolicy.MergeTopologyMinParallelCandidateCount));
+    _runtimeBenchmark.Notes.push_back(
+        "并行拓扑限定：更新 " +
+        std::to_string(_terrainPanelState.RoamPassPolicy.ParallelTopologyTargetBuild) +
+        "，阶段 " +
+        std::string{Algorithms::ToString(_terrainPanelState.RoamPassPolicy.ParallelTopologyPhase)} +
+        "；更新 0 表示每次更新均允许");
     if (!_runtimeBenchmarkOverrides.Label.empty())
     {
         _runtimeBenchmark.Notes.push_back("Benchmark 标签：" + _runtimeBenchmarkOverrides.Label);
@@ -691,6 +754,36 @@ void Application::StartRuntimeBenchmark()
         Algorithms::TerrainLodAlgorithmId::ClassicCpuRoam,
         Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam,
     };
+    const std::size_t algorithmCount = _runtimeBenchmark.AlgorithmSequence.size();
+    _runtimeBenchmark.AlgorithmOrderRotation = algorithmCount == 0U
+        ? 0U
+        : (_runtimeBenchmarkOverrides.HasAlgorithmOrderRotation
+            ? _runtimeBenchmarkOverrides.AlgorithmOrderRotation
+            : _runtimeBenchmarkRunCount) % algorithmCount;
+    if (_runtimeBenchmark.AlgorithmOrderRotation != 0U)
+    {
+        std::rotate(
+            _runtimeBenchmark.AlgorithmSequence.begin(),
+            _runtimeBenchmark.AlgorithmSequence.begin() +
+                static_cast<std::ptrdiff_t>(_runtimeBenchmark.AlgorithmOrderRotation),
+            _runtimeBenchmark.AlgorithmSequence.end());
+    }
+    ++_runtimeBenchmarkRunCount;
+    std::string algorithmOrder;
+    for (const Algorithms::TerrainLodAlgorithmId algorithmId : _runtimeBenchmark.AlgorithmSequence)
+    {
+        if (!algorithmOrder.empty())
+        {
+            algorithmOrder += " -> ";
+        }
+        algorithmOrder += RuntimeBenchmarkAlgorithmDisplayName(algorithmId);
+    }
+    _runtimeBenchmark.Notes.push_back(
+        "算法顺序：" + algorithmOrder + "；轮换偏移 " +
+        std::to_string(_runtimeBenchmark.AlgorithmOrderRotation));
+    _runtimeBenchmark.Notes.push_back(
+        "独立预热：每种算法 " + std::to_string(_runtimeBenchmark.WarmupSampleCount) +
+        " 个不计入结果的采样点，预热后重置拓扑再开始记录");
     _runtimeBenchmark.PreviousTerrainPanelState = _terrainPanelState;
     _runtimeBenchmark.PreviousTerrainPanelState.StartBenchmarkRequested = false;
     _runtimeBenchmark.PreviousCameraPose = CameraPose{
@@ -745,6 +838,10 @@ void Application::BeginRuntimeBenchmarkAlgorithm()
     RuntimeBenchmarkAlgorithmResult result{};
     result.AlgorithmId = algorithmId;
     result.AlgorithmName = RuntimeBenchmarkAlgorithmDisplayName(algorithmId);
+    result.Settings = ToTerrainLodSettings(_terrainPanelState);
+    result.WarmupSampleCount = _runtimeBenchmark.WarmupSampleCount;
+    result.ExecutionOrderIndex = _runtimeBenchmark.AlgorithmIndex;
+    result.AlgorithmOrderRotation = _runtimeBenchmark.AlgorithmOrderRotation;
     result.Samples.reserve(_runtimeBenchmark.PathSampleCount);
     _runtimeBenchmark.Results.push_back(std::move(result));
 
@@ -773,6 +870,8 @@ void Application::BeginRuntimeBenchmarkAlgorithm()
     _runtimeBenchmark.ElapsedSeconds = 0.0F;
     _runtimeBenchmark.PathSampleIndex = 0;
     _runtimeBenchmark.HasPreparedFirstFrame = false;
+    _runtimeBenchmark.WarmingUp = _runtimeBenchmark.WarmupSampleCount > 0U;
+    _runtimeBenchmark.WarmupSampleIndex = 0U;
 
     _terrainPanelState.UseTerrainLod = true;
     _terrainPanelState.TerrainLodAlgorithm = algorithmId;
@@ -802,10 +901,16 @@ void Application::PrepareRuntimeBenchmarkFrame(const FrameTiming& frameTiming)
         _runtimeBenchmark.HasPreparedFirstFrame = true;
     }
 
-    const float t = _runtimeBenchmark.PathSampleCount <= 1U
+    const std::size_t currentSampleCount = _runtimeBenchmark.WarmingUp
+        ? _runtimeBenchmark.WarmupSampleCount
+        : _runtimeBenchmark.PathSampleCount;
+    const std::size_t currentSampleIndex = _runtimeBenchmark.WarmingUp
+        ? _runtimeBenchmark.WarmupSampleIndex
+        : _runtimeBenchmark.PathSampleIndex;
+    const float t = currentSampleCount <= 1U
         ? 0.0F
-        : static_cast<float>(_runtimeBenchmark.PathSampleIndex) /
-            static_cast<float>(_runtimeBenchmark.PathSampleCount - 1U);
+        : static_cast<float>(currentSampleIndex) /
+            static_cast<float>(currentSampleCount - 1U);
     if (_runtimeBenchmark.Path == Gui::TerrainPanelState::RuntimeBenchmarkPath::BudgetSaturation)
     {
         const BudgetSaturationCameraPose pose = ComputeBudgetSaturationCameraPose(t);
@@ -832,6 +937,30 @@ void Application::CompleteRuntimeBenchmarkFrame()
     if (_runtimeBenchmark.Failed)
     {
         FinishRuntimeBenchmark();
+        return;
+    }
+
+    if (_runtimeBenchmark.WarmingUp)
+    {
+        if (_runtimeBenchmark.WarmupSampleIndex + 1U < _runtimeBenchmark.WarmupSampleCount)
+        {
+            ++_runtimeBenchmark.WarmupSampleIndex;
+            return;
+        }
+
+        // 预热只保留代码、分配器和图形管线的热状态，正式样本从干净拓扑重新开始
+        _runtimeBenchmark.WarmingUp = false;
+        _runtimeBenchmark.WarmupSampleIndex = 0U;
+        _runtimeBenchmark.PathSampleIndex = 0U;
+        _runtimeBenchmark.ElapsedSeconds = 0.0F;
+        _runtimeBenchmark.HasPreparedFirstFrame = false;
+        ApplyTerrainPanelSettings();
+        _terrainRenderer.ResetTerrainLodAlgorithm();
+        _terrainRenderer.RequestMeshRebuild();
+        _camera.SetPose(
+            _runtimeBenchmark.StartPosition,
+            _runtimeBenchmark.YawDegrees,
+            _runtimeBenchmark.PitchDegrees);
         return;
     }
 
@@ -865,7 +994,8 @@ void Application::RecordRuntimeBenchmarkSample(
     const Render::TerrainRenderStats& terrainStats,
     const glm::vec3& cameraPosition)
 {
-    if (!_runtimeBenchmark.Active || _runtimeBenchmark.Failed || _runtimeBenchmark.Results.empty())
+    if (!_runtimeBenchmark.Active || _runtimeBenchmark.WarmingUp ||
+        _runtimeBenchmark.Failed || _runtimeBenchmark.Results.empty())
     {
         return;
     }
@@ -921,6 +1051,8 @@ void Application::FinishRuntimeBenchmark()
     // 先退出 Active，再恢复 UI 状态，避免 DrawDebugOverlay 继续锁定控件
     _runtimeBenchmark.Active = false;
     _runtimeBenchmark.HasPreparedFirstFrame = false;
+    _runtimeBenchmark.WarmingUp = false;
+    _runtimeBenchmark.WarmupSampleIndex = 0U;
     _runtimeBenchmark.ElapsedSeconds = 0.0F;
     _runtimeBenchmark.PathSampleIndex = 0;
 
@@ -949,7 +1081,13 @@ std::string Application::CurrentRuntimeBenchmarkAlgorithmName() const
         return {};
     }
 
-    return RuntimeBenchmarkAlgorithmDisplayName(_runtimeBenchmark.AlgorithmSequence[_runtimeBenchmark.AlgorithmIndex]);
+    std::string name = RuntimeBenchmarkAlgorithmDisplayName(
+        _runtimeBenchmark.AlgorithmSequence[_runtimeBenchmark.AlgorithmIndex]);
+    if (_runtimeBenchmark.WarmingUp)
+    {
+        name += "（预热）";
+    }
+    return name;
 }
 
 float Application::RuntimeBenchmarkProgress() const
@@ -960,12 +1098,16 @@ float Application::RuntimeBenchmarkProgress() const
         return 0.0F;
     }
 
-    // 进度按算法数量和离散相机采样点归一化，不受算法本身速度影响
-    const float localProgress = _runtimeBenchmark.PathSampleCount == 0U
+    // 预热和正式采样都计入进度，但只有正式采样写入报告
+    const std::size_t localTotal =
+        _runtimeBenchmark.WarmupSampleCount + _runtimeBenchmark.PathSampleCount;
+    const std::size_t localCompleted = _runtimeBenchmark.WarmingUp
+        ? _runtimeBenchmark.WarmupSampleIndex + 1U
+        : _runtimeBenchmark.WarmupSampleCount + _runtimeBenchmark.PathSampleIndex + 1U;
+    const float localProgress = localTotal == 0U
         ? 0.0F
         : std::clamp(
-            static_cast<float>(_runtimeBenchmark.PathSampleIndex + 1U) /
-                static_cast<float>(_runtimeBenchmark.PathSampleCount),
+            static_cast<float>(localCompleted) / static_cast<float>(localTotal),
             0.0F,
             1.0F);
     const float completedAlgorithms = static_cast<float>(_runtimeBenchmark.AlgorithmIndex);

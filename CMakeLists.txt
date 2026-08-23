@@ -88,6 +88,7 @@ if(PARALLEL_ROAM_BUILD_APP)
                 src/algorithms/data_oriented_roam/DataOrientedRoamValidation.cpp
                 src/benchmark/TerrainLodBenchmark.cpp
                 src/benchmark/RoamProbe.cpp
+                src/experiment/TerrainLodExperimentCsv.cpp
                 src/gui/ImGuiLayer.cpp
                 src/platform/Window.cpp
                 src/render/Shader.cpp
@@ -133,6 +134,7 @@ if(PARALLEL_ROAM_BUILD_APP)
                 src/algorithms/data_oriented_roam/DataOrientedRoamValidation.cpp
                 src/benchmark/TerrainLodBenchmark.cpp
                 src/benchmark/RoamProbe.cpp
+                src/experiment/TerrainLodExperimentCsv.cpp
                 src/gui/ImGuiLayer.cpp
                 src/platform/Window.cpp
                 src/render/GraphicsBackend.cpp

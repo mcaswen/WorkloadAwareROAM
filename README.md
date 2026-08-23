@@ -255,7 +255,7 @@ ctest `
 .\build\relwithdebinfo-fetch\bin\ParallelROAM.exe --runtime-benchmark
 ```
 
-运行时基准测试会让可用算法依次经过相同的离散相机采样点，并在 `benchmark-output/` 生成：
+运行时基准测试会让可用算法分别预热，重置拓扑后再经过相同的离散相机采样点，并在 `benchmark-output/` 生成：
 
 - `runtime-benchmark-<timestamp>.md`：中文汇总和阶段对比
 - `runtime-benchmark-<timestamp>.csv`：逐帧原始数据
@@ -271,7 +271,17 @@ ctest `
 - `--runtime-benchmark-split-pixels`
 - `--runtime-benchmark-merge-pixels`
 - `--runtime-benchmark-samples`
+- `--runtime-benchmark-warmup-samples`
+- `--runtime-benchmark-order-rotation`
+- `--runtime-benchmark-split-topology-min-candidates`
+- `--runtime-benchmark-merge-topology-min-candidates`
+- `--runtime-benchmark-parallel-topology-target-build`
+- `--runtime-benchmark-parallel-topology-phase both|split|merge`
 - `--runtime-benchmark-label`
+
+默认路径为每种算法预热 32 个采样点，预算饱和路径预热 4 个采样点。预热帧不写入 CSV；预热结束后会重置算法，使正式采样仍从相同的根拓扑和路径起点开始。重复从界面启动实验时会自动轮换算法顺序；独立进程实验可用 `--runtime-benchmark-order-rotation 0|1` 固定轮换偏移，并在 Markdown 与 CSV 中记录实际顺序。
+
+并行拓扑候选阈值、限定更新编号和限定阶段已经改为显式策略参数，不再读取进程环境变量。更新编号为 `0` 表示每次更新均允许并行辅助拓扑。
 
 阶段改造的应用级验收必须同时运行两条路径：
 
@@ -291,7 +301,7 @@ ctest `
 
 旧参数 `--runtime-benchmark-duration` 仅为兼容保留，每个名义秒换算为 60 个离散采样点。
 
-正式研究实验不会只比较一次运行结果。每个实现需要独立预热，成对轮换或随机化执行顺序，重复运行并报告中位数、P95 和置信区间，同时把准备、调度、合并、同步、策略选择与图形上传成本计入对应结果。
+正式研究实验不会只比较一次运行结果。运行器已经提供独立预热和可复现的顺序轮换；正式结论仍需重复运行并报告中位数、P95 和置信区间，同时把准备、调度、合并、同步、策略选择与图形上传成本计入对应结果。
 
 现有实验口径和历史结果见[实验与基准测试](docs/parallel-roam/05-experiments-and-benchmarks.md)。
 

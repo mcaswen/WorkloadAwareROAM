@@ -1,5 +1,8 @@
 #pragma once
 
+#include "algorithms/TerrainLodPassTrace.h"
+
+#include <cstddef>
 #include <filesystem>
 #include <string>
 
@@ -46,6 +49,11 @@ struct BenchmarkOptions
     BenchmarkAlgorithmSelection Algorithm{BenchmarkAlgorithmSelection::All};
     BenchmarkProfile Profile{BenchmarkProfile::Smoke};
     BenchmarkPassPolicySelection PassPolicy{BenchmarkPassPolicySelection::Default};
+    std::size_t SplitTopologyMinParallelCandidateCount{32U};
+    std::size_t MergeTopologyMinParallelCandidateCount{160U};
+    std::size_t ParallelTopologyTargetBuild{0U};
+    Algorithms::TerrainLodParallelTopologyPhase ParallelTopologyPhase{
+        Algorithms::TerrainLodParallelTopologyPhase::Both};
     std::filesystem::path CsvPath;
 };
 

@@ -8,12 +8,9 @@
 #include "tools/PerformanceTimer.h"
 
 #include <algorithm>
-#include <charconv>
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
 #include <limits>
-#include <string>
 #include <string_view>
 #include <thread>
 #include <vector>
@@ -23,77 +20,43 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
 namespace
 {
 constexpr std::size_t MaxTopologyCommitWorkerCount = 8;
-// 细分候选通常较少，因此沿用原阈值；合并阈值来自相同输入下串行与并行结果的对照实验
-constexpr std::size_t MinParallelSplitCommitCandidateCount = 32;
-constexpr std::size_t MinParallelMergeCommitCandidateCount = 160;
 
 void NormalizeQueueNeighborhood(std::vector<DataOrientedRoamNodeIndex>& nodes);
 
-// 以下环境变量只用于基准测试中的独立进程配对实验
-// 它们可以固定候选阈值，并将多线程拓扑处理限制到指定更新和指定阶段
-// 未设置时使用上面的默认值，不会改变正常运行路径
-std::string ReadDiagnosticEnvironmentVariable(const char* name)
+// 并行候选阈值来自当前实验设置，因此同一设置可以被输入哈希和报告完整记录
+// 细分与合并保留独立阈值，因为两类候选的数量分布和线程调度成本不同
+std::size_t ResolveMinParallelCommitCandidateCount(
+    const DataOrientedRoamState& state,
+    std::string_view phase)
 {
-#if defined(_MSC_VER)
-    char* rawValue = nullptr;
-    std::size_t rawValueLength = 0U;
-    if (_dupenv_s(&rawValue, &rawValueLength, name) != 0 || rawValue == nullptr)
-    {
-        return {};
-    }
-    std::string value{rawValue};
-    std::free(rawValue);
-    return value;
-#else
-    const char* rawValue = std::getenv(name);
-    return rawValue == nullptr ? std::string{} : std::string{rawValue};
-#endif
+    return phase == "merge"
+        ? state.Settings.PassPolicy.MergeTopologyMinParallelCandidateCount
+        : state.Settings.PassPolicy.SplitTopologyMinParallelCandidateCount;
 }
 
-std::size_t ParseDiagnosticSize(const char* name, std::size_t fallback)
+// 限定更新编号用于单独测量某次拓扑提交，0 表示不限制更新编号
+// 限定阶段只关闭不需要测量的并行辅助入口，后续串行收敛仍会照常执行
+bool PassPolicyAllowsParallelCommit(const DataOrientedRoamState& state, std::string_view phase)
 {
-    const std::string ownedValue = ReadDiagnosticEnvironmentVariable(name);
-    const std::string_view value{ownedValue};
-    if (value.empty())
-    {
-        return fallback;
-    }
-
-    std::size_t parsed = 0U;
-    const auto [end, error] = std::from_chars(value.data(), value.data() + value.size(), parsed);
-    return error == std::errc{} && end == value.data() + value.size() ? parsed : fallback;
-}
-
-std::size_t ResolveMinParallelCommitCandidateCount(std::string_view phase)
-{
-    // 实验设置只在进程首次访问时读取，未设置或值无效时保持默认配置
-    static const std::size_t splitThreshold = ParseDiagnosticSize(
-        "PARALLEL_ROAM_DOD_MIN_PARALLEL_COMMIT_CANDIDATES",
-        MinParallelSplitCommitCandidateCount);
-    static const std::size_t mergeThreshold = ParseDiagnosticSize(
-        "PARALLEL_ROAM_DOD_MIN_PARALLEL_COMMIT_CANDIDATES",
-        MinParallelMergeCommitCandidateCount);
-    return phase == "merge" ? mergeThreshold : splitThreshold;
-}
-
-bool DiagnosticBuildAllowsParallelCommit(const DataOrientedRoamState& state, std::string_view phase)
-{
-    // 更新编号为 0 时影响每次更新，非零值只改变指定更新的拓扑处理方式
-    static const std::size_t targetBuild = ParseDiagnosticSize(
-        "PARALLEL_ROAM_DOD_PARALLEL_COMMIT_BUILD",
-        0U);
+    const std::size_t targetBuild = state.Settings.PassPolicy.ParallelTopologyTargetBuild;
     if (targetBuild != 0U && state.BuildSequence != targetBuild)
     {
         return false;
     }
 
-    // 阶段参数默认同时影响细分和合并，也可只启用其中一项以便单独测量
-    static const std::string selectedPhase = []() {
-        const std::string value = ReadDiagnosticEnvironmentVariable(
-            "PARALLEL_ROAM_DOD_PARALLEL_COMMIT_PHASE");
-        return value.empty() ? std::string{"both"} : value;
-    }();
-    return selectedPhase == "both" || selectedPhase == phase;
+    switch (state.Settings.PassPolicy.ParallelTopologyPhase)
+    {
+    case TerrainLodParallelTopologyPhase::Both:
+        // 默认允许细分和合并分别根据各自阈值决定线程数量
+        return true;
+    case TerrainLodParallelTopologyPhase::SplitOnly:
+        // 只测量细分时，合并候选继续交给主线程处理
+        return phase == "split";
+    case TerrainLodParallelTopologyPhase::MergeOnly:
+        // 只测量合并时，细分候选继续交给主线程处理
+        return phase == "merge";
+    }
+    return false;
 }
 
 /// <summary>
@@ -281,12 +244,12 @@ std::size_t ResolveTopologyCommitWorkerCount(
     std::size_t requestedWorkerCount,
     std::string_view phase)
 {
-    if (!DiagnosticBuildAllowsParallelCommit(state, phase))
+    if (!PassPolicyAllowsParallelCommit(state, phase))
     {
         return 1U;
     }
 
-    if (candidateCount < ResolveMinParallelCommitCandidateCount(phase) || nonEmptyChunkCount < 2U)
+    if (candidateCount < ResolveMinParallelCommitCandidateCount(state, phase) || nonEmptyChunkCount < 2U)
     {
         // 只有一个非空分块或候选过少时，多线程节省的时间无法抵消调度成本
         return 1U;
@@ -1160,7 +1123,7 @@ std::vector<CommittedSplit> CommitInteriorSplitChunks(
         nonEmptyChunkCount,
         state.Settings.PassPolicy.SplitTopologyWorkerCount,
         "split");
-    const std::size_t minimumCandidateCount = ResolveMinParallelCommitCandidateCount("split");
+    const std::size_t minimumCandidateCount = ResolveMinParallelCommitCandidateCount(state, "split");
     state.Stats.TopologyCommitMinCandidateCount = minimumCandidateCount;
     state.Stats.SplitTopologyCommitMinCandidateCount = minimumCandidateCount;
     state.Stats.SplitTopologyCandidateCount = candidateCount;
@@ -1272,7 +1235,7 @@ std::vector<CommittedMerge> CommitInteriorMergeChunks(
         nonEmptyChunkCount,
         state.Settings.PassPolicy.MergeTopologyWorkerCount,
         "merge");
-    const std::size_t minimumCandidateCount = ResolveMinParallelCommitCandidateCount("merge");
+    const std::size_t minimumCandidateCount = ResolveMinParallelCommitCandidateCount(state, "merge");
     state.Stats.TopologyCommitMinCandidateCount = minimumCandidateCount;
     state.Stats.MergeTopologyCommitMinCandidateCount = minimumCandidateCount;
     state.Stats.MergeTopologyCandidateCount = candidateCount;

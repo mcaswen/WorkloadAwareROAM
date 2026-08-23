@@ -442,6 +442,7 @@ void TerrainRenderer::Render(const RenderContext& context)
 TerrainRenderStats TerrainRenderer::Stats() const
 {
     TerrainRenderStats stats{};
+    stats.RoamLodStats = _terrainLodStats;
     // GUI 只读取汇总后的 TerrainRenderStats
     // 避免面板直接依赖算法内部类型
     stats.HeightMapPath = _heightMapPath;

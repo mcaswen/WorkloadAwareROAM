@@ -1,5 +1,7 @@
 #include "app/RuntimeBenchmark.h"
 
+#include "experiment/TerrainLodExperimentCsv.h"
+
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
@@ -389,55 +391,6 @@ RuntimeBenchmarkDecisionPassSummary SummarizeDecisionPass(
     return summary;
 }
 
-void WritePassTraceCsvHeader(std::ostream& output)
-{
-    for (std::size_t index = 0U; index < Algorithms::TerrainLodPassCount; ++index)
-    {
-        const std::string_view name = Algorithms::ToString(static_cast<Algorithms::TerrainLodPassId>(index));
-        output << ",pass_" << name << "RequestedAction"
-               << ",pass_" << name << "EffectiveAction"
-               << ",pass_" << name << "FallbackReason"
-               << ",pass_" << name << "MembershipUpdate"
-               << ",pass_" << name << "PriorityRefresh"
-               << ",pass_" << name << "DataUpdate"
-               << ",pass_" << name << "RequestedWorkerCount"
-               << ",pass_" << name << "EffectiveWorkerCount"
-               << ",pass_" << name << "CandidateCount"
-               << ",pass_" << name << "DirtyItemCount"
-               << ",pass_" << name << "ScoreMs"
-               << ",pass_" << name << "HeapifyMs"
-               << ",pass_" << name << "CandidateSnapshotMs"
-               << ",pass_" << name << "MembershipUpdateCount"
-               << ",pass_" << name << "MembershipUpdateMs"
-               << ",pass_" << name << "WallMs";
-    }
-}
-
-void WritePassTraceCsvValues(
-    std::ostream& output,
-    const Algorithms::TerrainLodPassTraceArray& traces)
-{
-    for (const Algorithms::TerrainLodPassTrace& trace : traces)
-    {
-        output << ',' << Algorithms::ToString(trace.RequestedAction)
-               << ',' << Algorithms::ToString(trace.EffectiveAction)
-               << ',' << Algorithms::ToString(trace.FallbackReason)
-               << ',' << Algorithms::ToString(trace.MembershipUpdate)
-               << ',' << Algorithms::ToString(trace.PriorityRefresh)
-               << ',' << Algorithms::ToString(trace.DataUpdate)
-               << ',' << trace.RequestedWorkerCount
-               << ',' << trace.EffectiveWorkerCount
-               << ',' << trace.CandidateCount
-               << ',' << trace.DirtyItemCount
-               << ',' << trace.ScoreMilliseconds
-               << ',' << trace.HeapifyMilliseconds
-               << ',' << trace.CandidateSnapshotMilliseconds
-               << ',' << trace.MembershipUpdateCount
-               << ',' << trace.MembershipUpdateMilliseconds
-               << ',' << trace.WallMilliseconds;
-    }
-}
-
 void WriteDetailedCsv(
     const std::filesystem::path& csvPath,
     const std::vector<RuntimeBenchmarkAlgorithmResult>& results)
@@ -449,36 +402,14 @@ void WriteDetailedCsv(
         throw std::runtime_error{"Failed to create runtime benchmark CSV: " + csvPath.string()};
     }
 
-    // 配置字段放在时间序列前，方便按高度图和参数筛选
-    csv << "algorithm,buildConfiguration,graphicsBackend,graphicsAdapter,graphicsVersion,vSyncEnabled,"
-        << "heightMapPath,heightMapWidth,heightMapHeight,terrainSize,heightScale,"
-        << "maxDepthSetting,screenSpaceSplitThresholdPixels,"
-        << "screenSpaceMergeThresholdPixels,triangleBudget,dodParallelSplitEnabled,"
-        << "pathSampleIndex,pathSampleCount,pathProgress,timeSeconds,"
-        << "cameraX,cameraY,cameraZ,frameMilliseconds,triangles,nodes,"
-        << "activeSplits,splits,forcedSplits,merges,candidatePeak,persistentSplitQueueSize,persistentMergeQueueSize,"
-        << "queueCrossoverCount,queueMembershipUpdateCount,cpuMeshFullRebuildCount,"
-        << "cpuMeshUpdatedTriangleCount,cpuMeshReusedTriangleCount,cpuMeshDirtyRangeCount,"
-        << "budgetRejectedSplits,tjunctions,invalidNeighbors,"
-        << "invalidTopology,cpuWorkers,cpuUtilizationPercent,lodTotalMilliseconds,"
-        << "cpuUpdateMilliseconds,cpuPrepareMilliseconds,cpuMergeCandidateMarkMilliseconds,"
-        << "cpuMergeTopologyMilliseconds,cpuBudgetLeafCollectMilliseconds,cpuErrorEvalMilliseconds,"
-        << "cpuSplitCandidateMarkMilliseconds,cpuSplitTopologyMilliseconds,"
-        << "cpuSplitTopologyChunkBuildMilliseconds,cpuSplitTopologyQueueInvalidationMilliseconds,"
-        << "cpuSplitTopologyParallelCommitMilliseconds,cpuSplitTopologyResultMergeMilliseconds,"
-        << "cpuSplitTopologyIndexQueueRefreshMilliseconds,cpuSplitTopologySerialConvergenceMilliseconds,"
-        << "cpuMergeTopologyChunkBuildMilliseconds,cpuMergeTopologyQueueInvalidationMilliseconds,"
-        << "cpuMergeTopologyParallelCommitMilliseconds,cpuMergeTopologyResultMergeMilliseconds,"
-        << "cpuMergeTopologyIndexQueueRefreshMilliseconds,cpuMergeTopologySerialConvergenceMilliseconds,"
-        << "cpuFinalLeafCollectMilliseconds,cpuMeshEmitMilliseconds,cpuFinalizeMilliseconds,"
-        << "cpuUploadMilliseconds,"
-        << "frameFenceWaitMilliseconds,renderMilliseconds,"
-        << "cpuGpuUploadBytes,cpuGpuReadbackBytes,splitMilliseconds,"
-        << "mergeMilliseconds,emitMilliseconds,validateMilliseconds,maxDepthReached,"
-        << "buildSequence,replayInputHash,topologyHash,activeLeafHash,meshHash,normalizedMeshHash,"
-        << "evidenceTriangleBudget,budgetViolationCount,queueInvariantViolationCount,"
-        << "resourceValidationFailureCount,passEvidenceMilliseconds";
-    WritePassTraceCsvHeader(csv);
+    csv << "algorithm,executionOrderIndex,algorithmOrderRotation,warmupSampleCount,"
+        << "buildConfiguration,graphicsBackend,graphicsAdapter,graphicsVersion,vSyncEnabled,"
+        << "heightMapPath,heightMapWidth,heightMapHeight,rendererVertexCount,rendererTriangleCount,drawCallCount,"
+        << "pathSampleIndex,pathSampleCount,pathProgress,timeSeconds,cameraX,cameraY,cameraZ,"
+        << "frameMilliseconds,frameFenceWaitMilliseconds,rendererRenderMilliseconds,lodTotalMilliseconds,";
+    Experiment::WriteTerrainLodSettingsCsvHeader(csv);
+    csv << ',';
+    Experiment::WriteTerrainLodStatsCsvHeader(csv);
     csv << '\n';
 
     csv << std::fixed << std::setprecision(3);
@@ -489,6 +420,9 @@ void WriteDetailedCsv(
         {
             const Render::TerrainRenderStats& stats = sample.Stats;
             csv << result.AlgorithmName << ','
+                << result.ExecutionOrderIndex << ','
+                << result.AlgorithmOrderRotation << ','
+                << result.WarmupSampleCount << ','
                 << sample.BuildConfiguration << ','
                 << sample.GraphicsBackend << ','
                 << sample.GraphicsAdapter << ','
@@ -497,13 +431,9 @@ void WriteDetailedCsv(
                 << stats.HeightMapPath.generic_string() << ','
                 << stats.HeightMapWidth << ','
                 << stats.HeightMapHeight << ','
-                << stats.TerrainSize << ','
-                << stats.HeightScale << ','
-                << stats.RoamMaxDepthSetting << ','
-                << stats.RoamScreenSpaceSplitThresholdPixels << ','
-                << stats.RoamScreenSpaceMergeThresholdPixels << ','
-                << stats.RoamTriangleBudgetSetting << ','
-                << (stats.RoamParallelSplitEnabled ? "true" : "false") << ','
+                << stats.VertexCount << ','
+                << stats.TriangleCount << ','
+                << stats.DrawCallCount << ','
                 << sample.PathSampleIndex << ','
                 << sample.PathSampleCount << ','
                 << sample.PathProgress << ','
@@ -512,73 +442,12 @@ void WriteDetailedCsv(
                 << sample.CameraPosition.y << ','
                 << sample.CameraPosition.z << ','
                 << sample.FrameMilliseconds << ','
-                << stats.TriangleCount << ','
-                << stats.RoamNodeCount << ','
-                << stats.RoamActiveSplitCount << ','
-                << stats.RoamSplitCount << ','
-                << stats.RoamForcedSplitCount << ','
-                << stats.RoamMergeCount << ','
-                << stats.RoamCandidatePeakCount << ','
-                << stats.RoamPersistentSplitQueueSize << ','
-                << stats.RoamPersistentMergeQueueSize << ','
-                << stats.RoamQueueCrossoverCount << ','
-                << stats.RoamQueueMembershipUpdateCount << ','
-                << stats.RoamCpuMeshFullRebuildCount << ','
-                << stats.RoamCpuMeshUpdatedTriangleCount << ','
-                << stats.RoamCpuMeshReusedTriangleCount << ','
-                << stats.RoamCpuMeshDirtyRangeCount << ','
-                << stats.RoamBudgetRejectedSplitCount << ','
-                << stats.RoamTjunctionCount << ','
-                << stats.RoamInvalidNeighborCount << ','
-                << stats.RoamInvalidTopologyCount << ','
-                << stats.RoamCpuWorkerCount << ','
-                << stats.RoamCpuUtilizationPercent << ','
-                << stats.RoamTotalMilliseconds << ','
-                << stats.RoamUpdateMilliseconds << ','
-                << stats.RoamCpuPrepareMilliseconds << ','
-                << stats.RoamCpuMergeCandidateMarkMilliseconds << ','
-                << stats.RoamCpuMergeTopologyMilliseconds << ','
-                << stats.RoamCpuBudgetLeafCollectMilliseconds << ','
-                << stats.RoamCpuErrorEvalMilliseconds << ','
-                << stats.RoamCpuSplitCandidateMarkMilliseconds << ','
-                << stats.RoamCpuSplitTopologyMilliseconds << ','
-                << stats.RoamCpuSplitTopologyChunkBuildMilliseconds << ','
-                << stats.RoamCpuSplitTopologyQueueInvalidationMilliseconds << ','
-                << stats.RoamCpuSplitTopologyParallelCommitMilliseconds << ','
-                << stats.RoamCpuSplitTopologyResultMergeMilliseconds << ','
-                << stats.RoamCpuSplitTopologyIndexQueueRefreshMilliseconds << ','
-                << stats.RoamCpuSplitTopologySerialConvergenceMilliseconds << ','
-                << stats.RoamCpuMergeTopologyChunkBuildMilliseconds << ','
-                << stats.RoamCpuMergeTopologyQueueInvalidationMilliseconds << ','
-                << stats.RoamCpuMergeTopologyParallelCommitMilliseconds << ','
-                << stats.RoamCpuMergeTopologyResultMergeMilliseconds << ','
-                << stats.RoamCpuMergeTopologyIndexQueueRefreshMilliseconds << ','
-                << stats.RoamCpuMergeTopologySerialConvergenceMilliseconds << ','
-                << stats.RoamCpuFinalLeafCollectMilliseconds << ','
-                << stats.RoamCpuMeshEmitMilliseconds << ','
-                << stats.RoamCpuFinalizeMilliseconds << ','
-                << stats.RoamCpuUploadMilliseconds << ','
                 << stats.RoamFrameFenceWaitMilliseconds << ','
                 << stats.RoamRenderMilliseconds << ','
-                << stats.RoamCpuGpuUploadBytes << ','
-                << stats.RoamCpuGpuReadbackBytes << ','
-                << stats.RoamSplitMilliseconds << ','
-                << stats.RoamMergeMilliseconds << ','
-                << stats.RoamEmitMilliseconds << ','
-                << stats.RoamValidateMilliseconds << ','
-                << stats.RoamMaxDepthReached << ','
-                << stats.RoamBuildSequence << ','
-                << stats.RoamReplayInputHash << ','
-                << stats.RoamTopologyHash << ','
-                << stats.RoamActiveLeafHash << ','
-                << stats.RoamMeshHash << ','
-                << stats.RoamNormalizedMeshHash << ','
-                << stats.RoamEvidenceTriangleBudget << ','
-                << stats.RoamBudgetViolationCount << ','
-                << stats.RoamQueueInvariantViolationCount << ','
-                << stats.RoamResourceValidationFailureCount << ','
-                << stats.RoamPassEvidenceMilliseconds;
-            WritePassTraceCsvValues(csv, stats.RoamPassTraces);
+                << stats.RoamTotalMilliseconds << ',';
+            Experiment::WriteTerrainLodSettingsCsvValues(csv, result.Settings);
+            csv << ',';
+            Experiment::WriteTerrainLodStatsCsvValues(csv, stats.RoamLodStats);
             csv << '\n';
         }
     }

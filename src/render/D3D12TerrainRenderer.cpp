@@ -901,6 +901,7 @@ void TerrainRenderer::Render(const RenderContext& context)
 TerrainRenderStats TerrainRenderer::Stats() const
 {
     TerrainRenderStats stats{};
+    stats.RoamLodStats = _terrainLodStats;
     stats.HeightMapPath = _heightMapPath;
     stats.HeightMapWidth = _heightMap.Width();
     stats.HeightMapHeight = _heightMap.Height();

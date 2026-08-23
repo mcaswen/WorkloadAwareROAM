@@ -188,6 +188,10 @@ TerrainLodStats DataOrientedRoamTerrainLodAlgorithm::ToTerrainLodStats(const Dat
     lodStats.MergeTopologyNonEmptyChunkCount = stats.MergeTopologyNonEmptyChunkCount;
     lodStats.MergeTopologyCommitWorkerCount = stats.MergeTopologyCommitWorkerCount;
     lodStats.ParallelMergeCommitCount = stats.ParallelMergeCommitCount;
+    lodStats.InteriorSplitCandidateCount = stats.InteriorSplitCandidateCount;
+    lodStats.BoundarySplitCandidateCount = stats.BoundarySplitCandidateCount;
+    lodStats.InteriorMergeCandidateCount = stats.InteriorMergeCandidateCount;
+    lodStats.BoundaryMergeCandidateCount = stats.BoundaryMergeCandidateCount;
     // Q_s 刷新已经包含评分与预算统计，独立误差评估和叶收集时间保持为零
     const float errorEvaluationMilliseconds = ErrorEvaluationMilliseconds(stats);
     const float splitCollectMilliseconds =

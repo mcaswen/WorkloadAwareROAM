@@ -43,6 +43,13 @@ enum class TerrainLodCpuUploadAction
     FullBuffer,
 };
 
+enum class TerrainLodParallelTopologyPhase
+{
+    Both,
+    SplitOnly,
+    MergeOnly,
+};
+
 /// <summary>
 /// 为每个可切换阶段保存独立策略和线程上限
 /// </summary>
@@ -59,6 +66,12 @@ struct TerrainLodPassPolicy
     std::size_t MergeTopologyWorkerCount{0U};
     std::size_t SplitTopologyWorkerCount{0U};
     std::size_t MeshEmitWorkerCount{0U};
+    // 这组参数只决定并行辅助拓扑何时启用，不改变串行收敛和拓扑正确性规则
+    std::size_t SplitTopologyMinParallelCandidateCount{32U};
+    std::size_t MergeTopologyMinParallelCandidateCount{160U};
+    // 0 表示每次更新都允许；非零值只允许对应 BuildSequence 使用并行辅助拓扑
+    std::size_t ParallelTopologyTargetBuild{0U};
+    TerrainLodParallelTopologyPhase ParallelTopologyPhase{TerrainLodParallelTopologyPhase::Both};
 
     [[nodiscard]] bool operator==(const TerrainLodPassPolicy&) const = default;
 };
@@ -340,6 +353,17 @@ using TerrainLodPassTraceArray = std::array<TerrainLodPassTrace, TerrainLodPassC
     case TerrainLodCpuUploadAction::Automatic: return "automatic";
     case TerrainLodCpuUploadAction::DirtyRange: return "dirtyRange";
     case TerrainLodCpuUploadAction::FullBuffer: return "fullBuffer";
+    }
+    return "unknown";
+}
+
+[[nodiscard]] constexpr std::string_view ToString(TerrainLodParallelTopologyPhase value)
+{
+    switch (value)
+    {
+    case TerrainLodParallelTopologyPhase::Both: return "both";
+    case TerrainLodParallelTopologyPhase::SplitOnly: return "split";
+    case TerrainLodParallelTopologyPhase::MergeOnly: return "merge";
     }
     return "unknown";
 }

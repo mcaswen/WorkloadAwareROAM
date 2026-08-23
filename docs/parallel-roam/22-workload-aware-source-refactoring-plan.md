@@ -53,7 +53,7 @@ MeshEmitExecution = Serial | Parallel
 
 ### 3. 把环境变量诊断开关迁移到显式策略
 
-`PARALLEL_ROAM_DOD_PARALLEL_COMMIT_PHASE`、`PARALLEL_ROAM_DOD_PARALLEL_COMMIT_BUILD` 和并行候选阈值仍可用于临时诊断，但不再是实验的唯一控制面。基准测试现在通过设置或命令行选择策略，并把请求值、实际值和回退原因写入 CSV；环境变量只保留为调试覆盖。
+环境变量诊断入口已经移除。细分/合并的并行候选阈值、限定更新编号和限定阶段现在属于 `TerrainLodPassPolicy`，可以通过无窗口或运行时命令行显式设置，并进入输入哈希、Markdown 元数据和统一 CSV。相同命令不再受进程外环境状态影响。
 
 ## 分阶段改造计划
 

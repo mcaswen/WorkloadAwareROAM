@@ -26,6 +26,19 @@ struct RuntimeBenchmarkOverrides
     bool HasPassPolicy{false};
     Algorithms::TerrainLodPassPolicy PassPolicy{};
 
+    bool HasSplitTopologyMinParallelCandidateCount{false};
+    std::size_t SplitTopologyMinParallelCandidateCount{32U};
+
+    bool HasMergeTopologyMinParallelCandidateCount{false};
+    std::size_t MergeTopologyMinParallelCandidateCount{160U};
+
+    bool HasParallelTopologyTargetBuild{false};
+    std::size_t ParallelTopologyTargetBuild{0U};
+
+    bool HasParallelTopologyPhase{false};
+    Algorithms::TerrainLodParallelTopologyPhase ParallelTopologyPhase{
+        Algorithms::TerrainLodParallelTopologyPhase::Both};
+
     bool HasHeightMapIndex{false};
     int HeightMapIndex{0};
 
@@ -46,6 +59,12 @@ struct RuntimeBenchmarkOverrides
 
     bool HasSampleCount{false};
     std::size_t SampleCount{0};
+
+    bool HasWarmupSampleCount{false};
+    std::size_t WarmupSampleCount{0U};
+
+    bool HasAlgorithmOrderRotation{false};
+    std::size_t AlgorithmOrderRotation{0U};
 
     std::string Label;
 };
@@ -111,11 +130,17 @@ private:
         // 第一帧必须采样 t=0，不能先累加 delta
         bool HasPreparedFirstFrame{false};
 
+        // 每种算法先独立走完预热路径，再重置算法并从同一起点开始记录
+        bool WarmingUp{false};
+        std::size_t WarmupSampleCount{0U};
+        std::size_t WarmupSampleIndex{0U};
+
         bool Failed{false};
         std::string FailureMessage;
 
         // 算法顺序固定，输出表格才能横向对齐
         std::vector<Algorithms::TerrainLodAlgorithmId> AlgorithmSequence;
+        std::size_t AlgorithmOrderRotation{0U};
 
         // Notes 记录构建、后端和可选算法 capability 信息
         std::vector<std::string> Notes;
@@ -213,6 +238,7 @@ private:
     bool _automaticRuntimeBenchmarkFailed{false};
     bool _hasRuntimeBenchmarkOverrides{false};
     RuntimeBenchmarkOverrides _runtimeBenchmarkOverrides;
+    std::size_t _runtimeBenchmarkRunCount{0U};
     float _framesPerSecond{0.0F};
     float _frameTimeMilliseconds{0.0F};
 };

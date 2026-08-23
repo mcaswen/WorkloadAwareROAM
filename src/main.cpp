@@ -136,6 +136,27 @@ int main(int argc, char** argv)
         parseError = "Invalid runtime benchmark policy: " + std::string{value};
         return false;
     };
+    auto parseParallelTopologyPhase = [&parseError](
+        std::string_view value,
+        ParallelRoam::Algorithms::TerrainLodParallelTopologyPhase& output) -> bool {
+        if (value == "both")
+        {
+            output = ParallelRoam::Algorithms::TerrainLodParallelTopologyPhase::Both;
+            return true;
+        }
+        if (value == "split")
+        {
+            output = ParallelRoam::Algorithms::TerrainLodParallelTopologyPhase::SplitOnly;
+            return true;
+        }
+        if (value == "merge")
+        {
+            output = ParallelRoam::Algorithms::TerrainLodParallelTopologyPhase::MergeOnly;
+            return true;
+        }
+        parseError = "Invalid parallel topology phase: " + std::string{value};
+        return false;
+    };
     for (int index = 1; index < argc; ++index)
     {
         const std::string_view argument{argv[index]};
@@ -200,6 +221,75 @@ int main(int argc, char** argv)
                 break;
             }
             runtimeBenchmarkOverrides.HasPassPolicy = true;
+            hasRuntimeBenchmarkOverrides = true;
+            continue;
+        }
+
+        if (argument == "--runtime-benchmark-split-topology-min-candidates")
+        {
+            int value = 0;
+            if (!parseIntOption(index, argument, value))
+            {
+                break;
+            }
+            if (value < 0)
+            {
+                parseError = std::string{argument} + " must be non-negative";
+                break;
+            }
+            runtimeBenchmarkOverrides.HasSplitTopologyMinParallelCandidateCount = true;
+            runtimeBenchmarkOverrides.SplitTopologyMinParallelCandidateCount =
+                static_cast<std::size_t>(value);
+            hasRuntimeBenchmarkOverrides = true;
+            continue;
+        }
+
+        if (argument == "--runtime-benchmark-merge-topology-min-candidates")
+        {
+            int value = 0;
+            if (!parseIntOption(index, argument, value))
+            {
+                break;
+            }
+            if (value < 0)
+            {
+                parseError = std::string{argument} + " must be non-negative";
+                break;
+            }
+            runtimeBenchmarkOverrides.HasMergeTopologyMinParallelCandidateCount = true;
+            runtimeBenchmarkOverrides.MergeTopologyMinParallelCandidateCount =
+                static_cast<std::size_t>(value);
+            hasRuntimeBenchmarkOverrides = true;
+            continue;
+        }
+
+        if (argument == "--runtime-benchmark-parallel-topology-target-build")
+        {
+            int value = 0;
+            if (!parseIntOption(index, argument, value))
+            {
+                break;
+            }
+            if (value < 0)
+            {
+                parseError = std::string{argument} + " must be non-negative";
+                break;
+            }
+            runtimeBenchmarkOverrides.HasParallelTopologyTargetBuild = true;
+            runtimeBenchmarkOverrides.ParallelTopologyTargetBuild = static_cast<std::size_t>(value);
+            hasRuntimeBenchmarkOverrides = true;
+            continue;
+        }
+
+        if (argument == "--runtime-benchmark-parallel-topology-phase")
+        {
+            const char* value = requireValue(index, argument);
+            if (value == nullptr ||
+                !parseParallelTopologyPhase(value, runtimeBenchmarkOverrides.ParallelTopologyPhase))
+            {
+                break;
+            }
+            runtimeBenchmarkOverrides.HasParallelTopologyPhase = true;
             hasRuntimeBenchmarkOverrides = true;
             continue;
         }
@@ -299,6 +389,42 @@ int main(int argc, char** argv)
             }
             runtimeBenchmarkOverrides.HasSampleCount = true;
             runtimeBenchmarkOverrides.SampleCount = static_cast<std::size_t>(std::max(value, 2));
+            hasRuntimeBenchmarkOverrides = true;
+            continue;
+        }
+
+        if (argument == "--runtime-benchmark-warmup-samples")
+        {
+            int value = 0;
+            if (!parseIntOption(index, argument, value))
+            {
+                break;
+            }
+            if (value < 0)
+            {
+                parseError = std::string{argument} + " must be non-negative";
+                break;
+            }
+            runtimeBenchmarkOverrides.HasWarmupSampleCount = true;
+            runtimeBenchmarkOverrides.WarmupSampleCount = static_cast<std::size_t>(value);
+            hasRuntimeBenchmarkOverrides = true;
+            continue;
+        }
+
+        if (argument == "--runtime-benchmark-order-rotation")
+        {
+            int value = 0;
+            if (!parseIntOption(index, argument, value))
+            {
+                break;
+            }
+            if (value < 0)
+            {
+                parseError = std::string{argument} + " must be non-negative";
+                break;
+            }
+            runtimeBenchmarkOverrides.HasAlgorithmOrderRotation = true;
+            runtimeBenchmarkOverrides.AlgorithmOrderRotation = static_cast<std::size_t>(value);
             hasRuntimeBenchmarkOverrides = true;
             continue;
         }
