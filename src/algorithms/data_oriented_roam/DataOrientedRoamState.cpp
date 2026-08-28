@@ -77,6 +77,40 @@ void CollectActiveSplitPathsFrom(DataOrientedRoamState& state, DataOrientedRoamN
 }
 } // 匿名命名空间
 
+DataOrientedRoamState::DataOrientedRoamState(const DataOrientedRoamState& source)
+    : HeightMap(source.HeightMap),
+      Settings(source.Settings),
+      Stats(source.Stats),
+      Nodes(source.Nodes),
+      VarianceTrees(source.VarianceTrees),
+      VarianceHeightMap(source.VarianceHeightMap),
+      VarianceTreeMaxDepth(source.VarianceTreeMaxDepth),
+      PreviousSplitPaths(source.PreviousSplitPaths),
+      CurrentSplitPaths(source.CurrentSplitPaths),
+      ActiveInternalNodes(source.ActiveInternalNodes),
+      ActiveLeafNodes(source.ActiveLeafNodes),
+      NodeMembership(source.NodeMembership),
+      IncrementalMesh(source.IncrementalMesh),
+      SplitQueue(source.SplitQueue),
+      SplitQueueBlockedBuildIds(source.SplitQueueBlockedBuildIds),
+      MergeQueue(source.MergeQueue),
+      RootA(source.RootA),
+      RootB(source.RootB),
+      ViewProjection(source.ViewProjection),
+      FrustumPlanes(source.FrustumPlanes),
+      DrawableWidth(source.DrawableWidth),
+      DrawableHeight(source.DrawableHeight),
+      RemainingSerialSplitBudget(source.RemainingSerialSplitBudget),
+      RemainingParallelSplitBudget(
+          source.RemainingParallelSplitBudget.load(std::memory_order_relaxed)),
+      TerrainSize(source.TerrainSize),
+      HeightScale(source.HeightScale),
+      TopologyMaxDepth(source.TopologyMaxDepth),
+      BuildSequence(source.BuildSequence),
+      ThreadPool(source.ThreadPool)
+{
+}
+
 DataOrientedRoamNodeRef::operator DataOrientedRoamNodeConstRef() const
 {
     return DataOrientedRoamNodeConstRef{

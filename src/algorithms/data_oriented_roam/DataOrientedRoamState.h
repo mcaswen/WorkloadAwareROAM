@@ -380,6 +380,15 @@ struct DataOrientedRoamNodePool
 /// </summary>
 struct DataOrientedRoamState
 {
+    DataOrientedRoamState() = default;
+
+    /// <summary>
+    /// 深拷贝拓扑和派生索引，供冻结输入配对回归使用
+    /// 高度图和线程池仍是只读借用，不转移资源所有权
+    /// </summary>
+    DataOrientedRoamState(const DataOrientedRoamState& source);
+    DataOrientedRoamState& operator=(const DataOrientedRoamState&) = delete;
+
     // HeightMap 和 ThreadPool 只在当前更新期间有效
     const Terrain::HeightMap* HeightMap{nullptr};
     DataOrientedRoamSettings Settings;

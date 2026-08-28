@@ -126,6 +126,7 @@ DataOrientedRoamSettings DataOrientedRoamTerrainLodAlgorithm::ToDataOrientedSett
     dataSettings.EnableLocalConstraints = settings.EnableLocalConstraints;
     dataSettings.EnableTopologyValidation = settings.EnableTopologyValidation;
     dataSettings.EnablePassEvidence = settings.EnablePassEvidence;
+    dataSettings.EnableTopologyPairEvidence = settings.EnableTopologyPairEvidence;
     return dataSettings;
 }
 
@@ -134,6 +135,8 @@ TerrainLodStats DataOrientedRoamTerrainLodAlgorithm::ToTerrainLodStats(const Dat
     // 将 DOD 私有统计映射到公共字段，CSV 无需了解节点池实现细节
     TerrainLodStats lodStats{};
     lodStats.PassTraces = stats.PassTraces;
+    lodStats.MergeTopologyPair = stats.MergeTopologyPair;
+    lodStats.SplitTopologyPair = stats.SplitTopologyPair;
     lodStats.BuildSequence = stats.BuildSequence;
     lodStats.TopologyHash = stats.TopologyHash;
     lodStats.ActiveLeafHash = stats.ActiveLeafHash;

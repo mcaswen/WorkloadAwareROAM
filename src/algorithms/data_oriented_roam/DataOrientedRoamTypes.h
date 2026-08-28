@@ -59,6 +59,8 @@ struct DataOrientedRoamSettings
     bool EnableTopologyValidation{false};
     // 只在研究基准中计算结果哈希并执行持久队列全量检查
     bool EnablePassEvidence{false};
+    // 冻结拓扑状态并运行串行与并行辅助配对，只用于专项回归
+    bool EnableTopologyPairEvidence{false};
 };
 
 /// <summary>
@@ -76,6 +78,8 @@ struct DataOrientedRoamStats
     std::size_t TriangleBudget{0U};
     std::size_t QueueInvariantViolationCount{0U};
     float PassEvidenceMilliseconds{0.0F};
+    TerrainLodTopologyPairEvidence MergeTopologyPair;
+    TerrainLodTopologyPairEvidence SplitTopologyPair;
     // 节点池当前规模、预留容量和 SoA 数组内存占用
     std::size_t NodeCount{0};
     std::size_t ReservedNodeCapacity{0};
@@ -182,6 +186,7 @@ struct DataOrientedRoamStats
     float MergeCandidateSnapshotMilliseconds{0.0F};
     // 分别记录细分候选分块、暂时移出队列、线程处理、主线程整理结果、更新索引和继续串行处理的耗时
     float SplitTopologyChunkBuildMilliseconds{0.0F};
+    float SplitTopologySerialCommitMilliseconds{0.0F};
     float SplitTopologyQueueInvalidationMilliseconds{0.0F};
     float SplitTopologyParallelCommitMilliseconds{0.0F};
     float SplitTopologyResultMergeMilliseconds{0.0F};
@@ -190,6 +195,7 @@ struct DataOrientedRoamStats
     // 合并使用相同的六段计时，并额外记录为了腾出细分预算而执行合并的耗时
     float MergeCrossoverMilliseconds{0.0F};
     float MergeTopologyChunkBuildMilliseconds{0.0F};
+    float MergeTopologySerialCommitMilliseconds{0.0F};
     float MergeTopologyQueueInvalidationMilliseconds{0.0F};
     float MergeTopologyParallelCommitMilliseconds{0.0F};
     float MergeTopologyResultMergeMilliseconds{0.0F};

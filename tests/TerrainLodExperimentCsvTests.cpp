@@ -69,6 +69,7 @@ int main()
     settings.PassPolicy.ParallelTopologyTargetBuild = 5U;
     settings.PassPolicy.ParallelTopologyPhase =
         ParallelRoam::Algorithms::TerrainLodParallelTopologyPhase::MergeOnly;
+    settings.EnableTopologyPairEvidence = true;
 
     std::ostringstream settingsHeader;
     std::ostringstream settingsValues;
@@ -78,7 +79,8 @@ int main()
             SplitCsv(settingsHeader.str()),
             SplitCsv(settingsValues.str()),
             {
-                {"experimentSchemaVersion", "1"},
+                {"experimentSchemaVersion", "2"},
+                {"topologyPairEvidenceEnabled", "true"},
                 {"splitTopologyMinParallelCandidateCount", "7"},
                 {"mergeTopologyMinParallelCandidateCount", "13"},
                 {"parallelTopologyTargetBuild", "5"},
@@ -94,6 +96,12 @@ int main()
     stats.InteriorMergeCandidateCount = 23U;
     stats.BoundaryMergeCandidateCount = 29U;
     stats.PassTraces[0].CandidateCount = 31U;
+    stats.SplitTopologyPair.Evaluated = true;
+    stats.SplitTopologyPair.Equivalent = true;
+    stats.SplitTopologyPair.FrozenCandidateHash = 37U;
+    stats.SplitTopologyPair.FrozenCandidateCount = 41U;
+    stats.SplitTopologyPair.Serial.EffectiveWorkerCount = 1U;
+    stats.SplitTopologyPair.Parallel.EffectiveWorkerCount = 4U;
 
     std::ostringstream statsHeader;
     std::ostringstream statsValues;
@@ -108,6 +116,12 @@ int main()
                 {"interiorMergeCandidateCount", "23"},
                 {"boundaryMergeCandidateCount", "29"},
                 {"pass_mergeScoreCandidateCount", "31"},
+                {"splitTopologyPairEvaluated", "true"},
+                {"splitTopologyPairEquivalent", "true"},
+                {"splitTopologyPairFrozenCandidateHash", "37"},
+                {"splitTopologyPairFrozenCandidateCount", "41"},
+                {"splitTopologyPairSerialEffectiveWorkerCount", "1"},
+                {"splitTopologyPairParallelEffectiveWorkerCount", "4"},
             }))
     {
         return 1;

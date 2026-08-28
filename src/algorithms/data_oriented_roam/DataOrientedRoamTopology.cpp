@@ -5,6 +5,7 @@
 #include "algorithms/data_oriented_roam/DataOrientedRoamScoring.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamStateOps.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamTopology.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamValidation.h"
 #include "tools/PerformanceTimer.h"
 
 #include <algorithm>
@@ -13,6 +14,7 @@
 #include <limits>
 #include <string_view>
 #include <thread>
+#include <utility>
 #include <vector>
 
 namespace ParallelRoam::Algorithms::DataOrientedRoam
@@ -1031,6 +1033,8 @@ std::vector<std::vector<DataOrientedRoamSplitCandidate>> BuildInteriorSplitChunk
     std::vector<std::vector<DataOrientedRoamSplitCandidate>> chunks(
         static_cast<std::size_t>(
             DataOrientedRoamTopologyChunkGridSize * DataOrientedRoamTopologyChunkGridSize));
+    const std::size_t earlyCommitBudget = state.RemainingSerialSplitBudget;
+    std::size_t scheduledInteriorCount = 0U;
     for (const DataOrientedRoamSplitCandidate& candidate : sortedCandidates)
     {
         const DataOrientedRoamChunkId chunkId = SafeInteriorSplitChunkId(state, candidate.Node);
@@ -1041,9 +1045,16 @@ std::vector<std::vector<DataOrientedRoamSplitCandidate>> BuildInteriorSplitChunk
             continue;
         }
 
-        // 分块下标决定由哪个线程单独处理该候选
-        chunks[chunkId].push_back(candidate);
         ++state.Stats.InteriorSplitCandidateCount;
+        if (scheduledInteriorCount >= earlyCommitBudget)
+        {
+            // 超出剩余预算的安全内部候选仍留在长期队列，由串行收敛继续比较
+            continue;
+        }
+
+        // 先按全局优先级截取预算内候选，再用分块下标分配给独立线程
+        chunks[chunkId].push_back(candidate);
+        ++scheduledInteriorCount;
     }
 
     return chunks;
@@ -1077,8 +1088,11 @@ std::vector<std::vector<DataOrientedRoamMergeCandidate>> BuildInteriorMergeChunk
     return chunks;
 }
 
-std::size_t CountNonEmptyChunks(auto& chunks)
+std::size_t CountNonEmptyChunks(const auto& chunks)
 {
+    // 空分块不需要建立任务
+    // 这里只统计真正含有安全内部候选的分块
+    // 调度器据此限制实际线程数量
     std::size_t nonEmptyChunkCount = 0U;
     for (const auto& chunk : chunks)
     {
@@ -1092,8 +1106,11 @@ std::size_t CountNonEmptyChunks(auto& chunks)
     return nonEmptyChunkCount;
 }
 
-std::size_t CountChunkCandidates(auto& chunks)
+std::size_t CountChunkCandidates(const auto& chunks)
 {
+    // 分块建立后需要区分原始候选和提前提交候选
+    // 原始候选还包含边界项和预算外项目
+    // 这里返回的只是进入安全提前提交集合的数量
     std::size_t candidateCount = 0U;
     for (const auto& chunk : chunks)
     {
@@ -1106,8 +1123,125 @@ std::size_t CountChunkCandidates(auto& chunks)
 
 void NormalizeQueueNeighborhood(std::vector<DataOrientedRoamNodeIndex>& nodes)
 {
+    // 多个拓扑修改可能触及同一个队列成员
+    // 主线程刷新前先排序去重
+    // 这样不会重复删除或重新插入同一节点
     std::sort(nodes.begin(), nodes.end());
     nodes.erase(std::unique(nodes.begin(), nodes.end()), nodes.end());
+}
+
+std::vector<DataOrientedRoamSplitCandidate> FlattenSplitChunks(
+    const std::vector<std::vector<DataOrientedRoamSplitCandidate>>& chunks)
+{
+    // 串行配对不能沿用分块遍历顺序
+    // 先恢复冻结快照中的全局优先级顺序
+    // 同分项继续使用稳定序号决定先后
+    std::vector<DataOrientedRoamSplitCandidate> candidates;
+    candidates.reserve(CountChunkCandidates(chunks));
+    for (const auto& chunk : chunks)
+    {
+        candidates.insert(candidates.end(), chunk.begin(), chunk.end());
+    }
+    std::sort(
+        candidates.begin(),
+        candidates.end(),
+        [](const DataOrientedRoamSplitCandidate& left,
+           const DataOrientedRoamSplitCandidate& right) {
+            return left.Score == right.Score
+                ? left.Sequence < right.Sequence
+                : left.Score > right.Score;
+        });
+    return candidates;
+}
+
+std::vector<DataOrientedRoamMergeCandidate> FlattenMergeChunks(
+    const DataOrientedRoamState& state,
+    const std::vector<std::vector<DataOrientedRoamMergeCandidate>>& chunks)
+{
+    // 合并路径同样需要从分块集合恢复全局顺序
+    // 低分项优先回收以减少细节损失
+    // 同分项使用稳定路径编号消除容器顺序影响
+    std::vector<DataOrientedRoamMergeCandidate> candidates;
+    candidates.reserve(CountChunkCandidates(chunks));
+    for (const auto& chunk : chunks)
+    {
+        candidates.insert(candidates.end(), chunk.begin(), chunk.end());
+    }
+    std::sort(
+        candidates.begin(),
+        candidates.end(),
+        [&state](const DataOrientedRoamMergeCandidate& left,
+                 const DataOrientedRoamMergeCandidate& right) {
+            return left.Score == right.Score
+                ? state.Nodes.PathIdAt(left.Node) < state.Nodes.PathIdAt(right.Node)
+                : left.Score < right.Score;
+        });
+    return candidates;
+}
+
+std::size_t CommitInteriorSplitChunksSerial(
+    DataOrientedRoamState& state,
+    const std::vector<std::vector<DataOrientedRoamSplitCandidate>>& chunks)
+{
+    // 串行回放只消费与并行路径相同的安全内部集合
+    // 每次提交仍调用正式的串行拓扑事务
+    // 动态失效项不强行修改，随后由长期队列继续收敛
+    const std::size_t candidateCount = CountChunkCandidates(chunks);
+    state.Stats.SplitTopologyCandidateCount = candidateCount;
+    state.Stats.SplitTopologyNonEmptyChunkCount = CountNonEmptyChunks(chunks);
+    state.Stats.SplitTopologyCommitWorkerCount = candidateCount == 0U ? 0U : 1U;
+    state.Stats.TopologyCommitWorkerCount = std::max(
+        state.Stats.TopologyCommitWorkerCount,
+        state.Stats.SplitTopologyCommitWorkerCount);
+
+    const std::size_t splitCountBefore = state.Stats.SplitCount;
+    Tools::PerformanceTimer commitTimer;
+    for (const DataOrientedRoamSplitCandidate& candidate : FlattenSplitChunks(chunks))
+    {
+        if (SafeInteriorSplitChunkId(state, candidate.Node) == InvalidDataOrientedRoamChunkId)
+        {
+            // 前面的提交可能改变同一分块中的邻接关系，失败候选留给串行收敛
+            continue;
+        }
+        SplitNodeSerial(
+            state,
+            candidate.Node,
+            DataOrientedRoamSplitReason::Requested,
+            InvalidDataOrientedRoamNodeIndex);
+    }
+    state.Stats.SplitTopologySerialCommitMilliseconds += commitTimer.Stop();
+    return state.Stats.SplitCount - splitCountBefore;
+}
+
+std::size_t CommitInteriorMergeChunksSerial(
+    DataOrientedRoamState& state,
+    const std::vector<std::vector<DataOrientedRoamMergeCandidate>>& chunks)
+{
+    // 串行合并回放沿用与并行路径相同的资格筛选
+    // 不创建线程任务，也不经过线程本地统计
+    // 返回值表示进入普通收敛前已经完成的合并数量
+    const std::size_t candidateCount = CountChunkCandidates(chunks);
+    state.Stats.MergeTopologyCandidateCount = candidateCount;
+    state.Stats.MergeTopologyNonEmptyChunkCount = CountNonEmptyChunks(chunks);
+    state.Stats.MergeTopologyCommitWorkerCount = candidateCount == 0U ? 0U : 1U;
+    state.Stats.TopologyCommitWorkerCount = std::max(
+        state.Stats.TopologyCommitWorkerCount,
+        state.Stats.MergeTopologyCommitWorkerCount);
+
+    const std::size_t mergeCountBefore = state.Stats.MergeCount;
+    Tools::PerformanceTimer commitTimer;
+    for (const DataOrientedRoamMergeCandidate& candidate : FlattenMergeChunks(state, chunks))
+    {
+        if (SafeInteriorMergeChunkId(state, candidate.Node, true) ==
+            InvalidDataOrientedRoamChunkId)
+        {
+            // 动态失效候选仍保留在长期队列中，由后续串行收敛重新判断
+            continue;
+        }
+        MergeNodeOrDiamondSerial(state, candidate.Node);
+    }
+    state.Stats.MergeTopologySerialCommitMilliseconds += commitTimer.Stop();
+    return state.Stats.MergeCount - mergeCountBefore;
 }
 
 std::vector<CommittedSplit> CommitInteriorSplitChunks(
@@ -1335,33 +1469,12 @@ std::vector<CommittedMerge> CommitInteriorMergeChunks(
 
     return committedMerges;
 }
-} // 匿名命名空间
 
-void RefineWithSplitQueue(DataOrientedRoamState& state)
+void RunSplitSerialConvergence(DataOrientedRoamState& state)
 {
-    state.Stats.TopologyChunkCount = static_cast<std::size_t>(
-        DataOrientedRoamTopologyChunkGridSize * DataOrientedRoamTopologyChunkGridSize);
-    RefreshPersistentSplitQueuePriorities(state);
-    if (state.Settings.PassPolicy.SplitTopology != TerrainLodTopologyAction::SerialImmediate)
-    {
-        std::vector<DataOrientedRoamSplitCandidate> initialCandidates;
-        Tools::PerformanceTimer snapshotTimer;
-        SnapshotPersistentSplitQueueCandidates(state, initialCandidates);
-        state.Stats.SplitCandidateSnapshotMilliseconds += snapshotTimer.Stop();
-        state.Stats.SplitCandidateCount = initialCandidates.size();
-        Tools::PerformanceTimer chunkBuildTimer;
-        std::vector<std::vector<DataOrientedRoamSplitCandidate>> interiorChunks =
-            BuildInteriorSplitChunks(state, initialCandidates);
-        state.Stats.SplitTopologyChunkBuildMilliseconds += chunkBuildTimer.Stop();
-        CommitInteriorSplitChunks(state, interiorChunks);
-    }
-    else
-    {
-        // 即使拓扑只由主线程修改，Q_s 的分数仍可由多个线程刷新，但不会复制、排序或划分候选
-        state.Stats.SplitCandidateCount = 0U;
-    }
-    // 其他线程结束后只根据最终叶数量恢复一次普通预算，之后的细分和合并不再访问原子计数
-    SynchronizeSerialSplitBudget(state);
+    // 提前提交只负责不会相互冲突的内部候选
+    // 预算交换、强制闭合和全部边界项仍在这里按队首顺序完成
+    // 正式执行与两条冻结回放路径共同使用这一收尾过程
     state.Stats.CandidatePeakCount = std::max(
         state.Stats.CandidatePeakCount,
         state.ActiveLeafNodes.size() + state.MergeQueue.size());
@@ -1384,7 +1497,8 @@ void RefineWithSplitQueue(DataOrientedRoamState& state)
             state.Stats.MergeTopologySerialConvergenceMilliseconds += elapsedMilliseconds;
             return merged;
         };
-    // 多线程处理结束后，主线程继续读取当前 Q_s 和 Q_m 的堆顶，按全局分数顺序细分或合并
+
+    // 提前提交结束后仍由主线程按全局队首顺序完成预算交换和强制闭合
     Tools::PerformanceTimer serialConvergenceTimer;
     while (iteration++ < maximumIterations)
     {
@@ -1431,17 +1545,15 @@ void RefineWithSplitQueue(DataOrientedRoamState& state)
             }
             RemovePersistentMergeQueueCandidate(state, mergeNode);
             ++state.Stats.RejectedMergeCount;
-            // 当前 Q_m 堆顶已经不再满足合并条件，移除后继续检查下一个候选
             continue;
         }
 
         if (closureNeedsBudget)
         {
-            // 没有画质损失更低的菱形可以合并时，当前预算下已经无法继续调整
             break;
         }
 
-        // 补齐相邻三角形所需的连锁细分失败后，节点仍属于 Q_s，但本次更新不能让它在堆顶反复重试
+        // 非预算失败在本次更新内不应反复占据队首
         BlockPersistentSplitQueueNodeForCurrentBuild(state, splitNode);
     }
     const float totalConvergenceMilliseconds = serialConvergenceTimer.Stop();
@@ -1450,36 +1562,11 @@ void RefineWithSplitQueue(DataOrientedRoamState& state)
         totalConvergenceMilliseconds - crossoverMergeMilliseconds);
 }
 
-void MergeWithDiamondQueue(DataOrientedRoamState& state)
+void RunMergeSerialConvergence(DataOrientedRoamState& state)
 {
-    state.Stats.TopologyChunkCount = static_cast<std::size_t>(
-        DataOrientedRoamTopologyChunkGridSize * DataOrientedRoamTopologyChunkGridSize);
-    RefreshPersistentMergeQueuePriorities(state);
-    if (state.Settings.PassPolicy.MergeTopology != TerrainLodTopologyAction::SerialImmediate)
-    {
-        std::vector<DataOrientedRoamMergeCandidate> candidates;
-        Tools::PerformanceTimer snapshotTimer;
-        SnapshotPersistentMergeQueueCandidates(state, state.Settings.MergeThreshold, candidates);
-        state.Stats.MergeCandidateSnapshotMilliseconds += snapshotTimer.Stop();
-        state.Stats.MergeCandidateCount = candidates.size();
-        Tools::PerformanceTimer chunkBuildTimer;
-        std::sort(
-            candidates.begin(),
-            candidates.end(),
-            [](const DataOrientedRoamMergeCandidate& left, const DataOrientedRoamMergeCandidate& right) {
-                return left.Score < right.Score;
-            });
-
-        std::vector<std::vector<DataOrientedRoamMergeCandidate>> interiorChunks =
-            BuildInteriorMergeChunks(state, candidates);
-        state.Stats.MergeTopologyChunkBuildMilliseconds += chunkBuildTimer.Stop();
-        CommitInteriorMergeChunks(state, interiorChunks);
-    }
-    else
-    {
-        state.Stats.MergeCandidateCount = 0U;
-    }
-
+    // 提前合并结束后重新读取长期合并队列
+    // 动态失效项会被移除，仍满足阈值的项目继续顺序提交
+    // 循环结束代表当前合并队首已经收敛
     Tools::PerformanceTimer serialConvergenceTimer;
     while (TopPersistentMergeQueueScore(state) <= state.Settings.MergeThreshold)
     {
@@ -1495,6 +1582,573 @@ void MergeWithDiamondQueue(DataOrientedRoamState& state)
         }
     }
     state.Stats.MergeTopologySerialConvergenceMilliseconds += serialConvergenceTimer.Stop();
+}
 
+std::uint64_t HashFrozenSplitCandidates(
+    const DataOrientedRoamState& state,
+    const std::vector<DataOrientedRoamSplitCandidate>& candidates)
+{
+    // 候选哈希证明两条回放消费的是同一份冻结输入
+    // 节点下标可能受历史分配影响，因此改用稳定路径编号
+    // 分数和稳定序号也进入哈希以保留完整排序语义
+    std::vector<DataOrientedRoamSplitCandidate> ordered = candidates;
+    std::sort(
+        ordered.begin(),
+        ordered.end(),
+        [](const DataOrientedRoamSplitCandidate& left,
+           const DataOrientedRoamSplitCandidate& right) {
+            return left.Score == right.Score
+                ? left.Sequence < right.Sequence
+                : left.Score > right.Score;
+        });
+    std::uint64_t hash = TerrainLodHashOffset;
+    AppendTerrainLodHash(hash, ordered.size());
+    for (const DataOrientedRoamSplitCandidate& candidate : ordered)
+    {
+        AppendTerrainLodHash(hash, state.Nodes.PathIdAt(candidate.Node));
+        AppendTerrainLodHash(hash, candidate.Score);
+        AppendTerrainLodHash(hash, candidate.Sequence);
+    }
+    return hash;
+}
+
+std::uint64_t HashFrozenMergeCandidates(
+    const DataOrientedRoamState& state,
+    const std::vector<DataOrientedRoamMergeCandidate>& candidates)
+{
+    // 合并候选按照低分优先的规则规范化
+    // 同分项目由路径编号稳定排序
+    // 哈希既描述成员集合也描述用于裁决的分数
+    std::vector<DataOrientedRoamMergeCandidate> ordered = candidates;
+    std::sort(
+        ordered.begin(),
+        ordered.end(),
+        [&state](const DataOrientedRoamMergeCandidate& left,
+                 const DataOrientedRoamMergeCandidate& right) {
+            return left.Score == right.Score
+                ? state.Nodes.PathIdAt(left.Node) < state.Nodes.PathIdAt(right.Node)
+                : left.Score < right.Score;
+        });
+    std::uint64_t hash = TerrainLodHashOffset;
+    AppendTerrainLodHash(hash, ordered.size());
+    for (const DataOrientedRoamMergeCandidate& candidate : ordered)
+    {
+        AppendTerrainLodHash(hash, state.Nodes.PathIdAt(candidate.Node));
+        AppendTerrainLodHash(hash, candidate.Score);
+    }
+    return hash;
+}
+
+std::uint64_t HashCurrentTopology(const DataOrientedRoamState& state)
+{
+    // 当前拓扑由所有已经展开的父节点唯一描述
+    // 遍历节点池不会依赖活动内部数组的排列顺序
+    // 最终再按路径编号规范化以便比较两条执行方式
+    std::vector<std::uint64_t> pathIds;
+    pathIds.reserve(state.ActiveInternalNodes.size());
+    for (DataOrientedRoamNodeIndex node = 0U;
+         node < static_cast<DataOrientedRoamNodeIndex>(state.Nodes.size());
+         ++node)
+    {
+        if (state.Nodes.IsSplitAt(node))
+        {
+            pathIds.push_back(state.Nodes.PathIdAt(node));
+        }
+    }
+    return HashTerrainLodPathIds(std::move(pathIds));
+}
+
+std::uint64_t HashActiveLeaves(const DataOrientedRoamState& state)
+{
+    // 活动叶数组允许通过末尾填洞改变内部顺序
+    // 研究结果关心的是活动切分集合
+    // 因此只对稳定路径编号排序后计算哈希
+    std::vector<std::uint64_t> pathIds;
+    pathIds.reserve(state.ActiveLeafNodes.size());
+    for (const DataOrientedRoamNodeIndex node : state.ActiveLeafNodes)
+    {
+        pathIds.push_back(state.Nodes.PathIdAt(node));
+    }
+    return HashTerrainLodPathIds(std::move(pathIds));
+}
+
+std::uint64_t HashQueueMembership(const DataOrientedRoamState& state)
+{
+    // 长期队列的堆排列不属于算法结果
+    // 这里只比较两个队列各自包含哪些稳定路径
+    // 队列不变量由独立检查继续验证
+    std::vector<std::uint64_t> splitPaths;
+    splitPaths.reserve(state.SplitQueue.size());
+    for (const DataOrientedRoamSplitQueueEntry& entry : state.SplitQueue)
+    {
+        splitPaths.push_back(state.Nodes.PathIdAt(entry.Node));
+    }
+    std::sort(splitPaths.begin(), splitPaths.end());
+
+    std::vector<std::uint64_t> mergePaths;
+    mergePaths.reserve(state.MergeQueue.size());
+    for (const DataOrientedRoamMergeQueueEntry& entry : state.MergeQueue)
+    {
+        mergePaths.push_back(state.Nodes.PathIdAt(entry.Node));
+    }
+    std::sort(mergePaths.begin(), mergePaths.end());
+
+    std::uint64_t hash = TerrainLodHashOffset;
+    AppendTerrainLodHash(hash, splitPaths.size());
+    for (const std::uint64_t pathId : splitPaths)
+    {
+        AppendTerrainLodHash(hash, pathId);
+    }
+    AppendTerrainLodHash(hash, mergePaths.size());
+    for (const std::uint64_t pathId : mergePaths)
+    {
+        AppendTerrainLodHash(hash, pathId);
+    }
+    return hash;
+}
+
+std::uint64_t HashMeshEdits(const DataOrientedRoamState& state)
+{
+    // 不同合法提交顺序可能产生不同的编辑记录顺序
+    // 网格结果只要求相同节点发生相同类型的修改
+    // 排序后的类型和路径组合提供规范化比较依据
+    std::vector<std::pair<std::uint8_t, std::uint64_t>> edits;
+    edits.reserve(state.IncrementalMesh.TopologyEdits.size());
+    for (const DataOrientedRoamMeshTopologyEdit& edit : state.IncrementalMesh.TopologyEdits)
+    {
+        edits.emplace_back(
+            static_cast<std::uint8_t>(edit.Type),
+            state.Nodes.PathIdAt(edit.Node));
+    }
+    std::sort(edits.begin(), edits.end());
+
+    std::uint64_t hash = TerrainLodHashOffset;
+    AppendTerrainLodHash(hash, edits.size());
+    for (const auto& [type, pathId] : edits)
+    {
+        AppendTerrainLodHash(hash, type);
+        AppendTerrainLodHash(hash, pathId);
+    }
+    return hash;
+}
+
+struct FrozenTopologyExecutionSummary
+{
+    // 提前提交数量用于确认并行辅助路径是否真正做了工作
+    std::size_t EarlyCommitCount{0U};
+    // 总耗时只包住回放本身，不包含状态复制
+    float WallMilliseconds{0.0F};
+};
+
+void PrepareFrozenReplayState(DataOrientedRoamState& state)
+{
+    // 回放副本保留冻结时的拓扑、队列和预算
+    // 清空本帧统计与编辑记录，避免把正式路径的旧数据带入结果
+    // 回放内部关闭再次配对，防止递归复制状态
+    state.Stats = {};
+    state.IncrementalMesh.TopologyEdits.clear();
+    state.IncrementalMesh.TracksTopologyEdits = true;
+    state.Settings.EnableTopologyPairEvidence = false;
+    state.Settings.EnableTopologyValidation = true;
+}
+
+FrozenTopologyExecutionSummary ExecuteFrozenSplitTopology(
+    DataOrientedRoamState& state,
+    const std::vector<DataOrientedRoamSplitCandidate>& candidates,
+    bool parallel)
+{
+    // 两种执行方式都从调用方提供的同一候选快照开始
+    // 唯一区别是安全内部集合由主线程还是多个线程提前提交
+    // 提前阶段结束后共同进入原有串行收敛流程
+    PrepareFrozenReplayState(state);
+    state.Settings.PassPolicy.SplitTopology = parallel
+        ? TerrainLodTopologyAction::ParallelAssisted
+        : TerrainLodTopologyAction::SerialImmediate;
+    state.Settings.PassPolicy.ParallelTopologyTargetBuild = 0U;
+    state.Settings.PassPolicy.ParallelTopologyPhase = TerrainLodParallelTopologyPhase::Both;
+    state.Settings.PassPolicy.SplitTopologyMinParallelCandidateCount = 0U;
+    if (parallel)
+    {
+        // 配对实验需要尝试可用的最大安全线程数量
+        // 最终实际数量仍受非空分块数量限制
+        state.Settings.PassPolicy.SplitTopologyWorkerCount = MaxTopologyCommitWorkerCount;
+    }
+    state.RemainingParallelSplitBudget.store(
+        state.RemainingSerialSplitBudget,
+        std::memory_order_relaxed);
+
+    Tools::PerformanceTimer wallTimer;
+    Tools::PerformanceTimer chunkBuildTimer;
+    std::vector<std::vector<DataOrientedRoamSplitCandidate>> chunks =
+        BuildInteriorSplitChunks(state, candidates);
+    state.Stats.SplitTopologyChunkBuildMilliseconds = chunkBuildTimer.Stop();
+
+    FrozenTopologyExecutionSummary summary{};
+    if (parallel)
+    {
+        // 并行统计来自线程本地结果在主线程上的汇总
+        CommitInteriorSplitChunks(state, chunks);
+        summary.EarlyCommitCount = state.Stats.ParallelSplitCommitCount;
+    }
+    else
+    {
+        // 串行路径跳过线程任务但保留相同候选资格
+        summary.EarlyCommitCount = CommitInteriorSplitChunksSerial(state, chunks);
+    }
+    SynchronizeSerialSplitBudget(state);
+    RunSplitSerialConvergence(state);
+    summary.WallMilliseconds = wallTimer.Stop();
+    return summary;
+}
+
+FrozenTopologyExecutionSummary ExecuteFrozenMergeTopology(
+    DataOrientedRoamState& state,
+    const std::vector<DataOrientedRoamMergeCandidate>& candidates,
+    bool parallel)
+{
+    // 合并回放与细分回放使用相同的实验结构
+    // 候选筛选、普通事务和最终收敛规则都不随执行方式改变
+    // 这使分项耗时和结果证据能够直接配对
+    PrepareFrozenReplayState(state);
+    state.Settings.PassPolicy.MergeTopology = parallel
+        ? TerrainLodTopologyAction::ParallelAssisted
+        : TerrainLodTopologyAction::SerialImmediate;
+    state.Settings.PassPolicy.ParallelTopologyTargetBuild = 0U;
+    state.Settings.PassPolicy.ParallelTopologyPhase = TerrainLodParallelTopologyPhase::Both;
+    state.Settings.PassPolicy.MergeTopologyMinParallelCandidateCount = 0U;
+    if (parallel)
+    {
+        // 最大请求值只表达实验意图
+        // 安全分块不足时实现仍会退回较少线程
+        state.Settings.PassPolicy.MergeTopologyWorkerCount = MaxTopologyCommitWorkerCount;
+    }
+
+    Tools::PerformanceTimer wallTimer;
+    Tools::PerformanceTimer chunkBuildTimer;
+    std::vector<std::vector<DataOrientedRoamMergeCandidate>> chunks =
+        BuildInteriorMergeChunks(state, candidates);
+    state.Stats.MergeTopologyChunkBuildMilliseconds = chunkBuildTimer.Stop();
+
+    FrozenTopologyExecutionSummary summary{};
+    if (parallel)
+    {
+        CommitInteriorMergeChunks(state, chunks);
+        summary.EarlyCommitCount = state.Stats.ParallelMergeCommitCount;
+    }
+    else
+    {
+        summary.EarlyCommitCount = CommitInteriorMergeChunksSerial(state, chunks);
+    }
+    RunMergeSerialConvergence(state);
+    summary.WallMilliseconds = wallTimer.Stop();
+    return summary;
+}
+
+TerrainLodTopologyReplayEvidence CollectFrozenReplayEvidence(
+    DataOrientedRoamState& state,
+    bool splitPhase,
+    bool parallel,
+    const FrozenTopologyExecutionSummary& summary,
+    float cloneMilliseconds)
+{
+    // 验证在副本内执行，不会改变正式算法状态
+    // 结果同时保存规范化哈希、不变量和各子阶段耗时
+    // 状态复制成本单列，避免被误当成拓扑实现自身成本
+    ValidateTopology(state);
+
+    TerrainLodTopologyReplayEvidence evidence{};
+    evidence.Action = parallel
+        ? TerrainLodPassAction::ParallelAssisted
+        : TerrainLodPassAction::SerialImmediate;
+    evidence.TopologyHash = HashCurrentTopology(state);
+    evidence.ActiveLeafHash = HashActiveLeaves(state);
+    evidence.QueueMembershipHash = HashQueueMembership(state);
+    evidence.MeshEditHash = HashMeshEdits(state);
+    evidence.ActiveTriangleCount = state.ActiveLeafNodes.size();
+    evidence.InteriorCandidateCount = splitPhase
+        ? state.Stats.InteriorSplitCandidateCount
+        : state.Stats.InteriorMergeCandidateCount;
+    evidence.BoundaryCandidateCount = splitPhase
+        ? state.Stats.BoundarySplitCandidateCount
+        : state.Stats.BoundaryMergeCandidateCount;
+    evidence.EffectiveWorkerCount = splitPhase
+        ? state.Stats.SplitTopologyCommitWorkerCount
+        : state.Stats.MergeTopologyCommitWorkerCount;
+    evidence.EarlyCommitCount = summary.EarlyCommitCount;
+    evidence.BudgetViolationCount = state.ActiveLeafNodes.size() > state.Settings.TriangleBudget
+        ? 1U
+        : 0U;
+    evidence.QueueInvariantViolationCount = CountPersistentQueueInvariantViolations(state);
+    evidence.TjunctionCount = state.Stats.TjunctionCount;
+    evidence.InvalidNeighborCount = state.Stats.InvalidNeighborCount;
+    evidence.InvalidTopologyCount = state.Stats.InvalidTopologyCount;
+    evidence.StateCloneMilliseconds = cloneMilliseconds;
+    evidence.ChunkBuildMilliseconds = splitPhase
+        ? state.Stats.SplitTopologyChunkBuildMilliseconds
+        : state.Stats.MergeTopologyChunkBuildMilliseconds;
+    evidence.QueueInvalidationMilliseconds = splitPhase
+        ? state.Stats.SplitTopologyQueueInvalidationMilliseconds
+        : state.Stats.MergeTopologyQueueInvalidationMilliseconds;
+    evidence.CommitMilliseconds = parallel
+        ? (splitPhase
+            ? state.Stats.SplitTopologyParallelCommitMilliseconds
+            : state.Stats.MergeTopologyParallelCommitMilliseconds)
+        : (splitPhase
+            ? state.Stats.SplitTopologySerialCommitMilliseconds
+            : state.Stats.MergeTopologySerialCommitMilliseconds);
+    evidence.ResultMergeMilliseconds = splitPhase
+        ? state.Stats.SplitTopologyResultMergeMilliseconds
+        : state.Stats.MergeTopologyResultMergeMilliseconds;
+    evidence.IndexQueueRefreshMilliseconds = splitPhase
+        ? state.Stats.SplitTopologyIndexQueueRefreshMilliseconds
+        : state.Stats.MergeTopologyIndexQueueRefreshMilliseconds;
+    evidence.SerialConvergenceMilliseconds = splitPhase
+        ? state.Stats.SplitTopologySerialConvergenceMilliseconds
+        : state.Stats.MergeTopologySerialConvergenceMilliseconds;
+    evidence.WallMilliseconds = summary.WallMilliseconds;
+    return evidence;
+}
+
+bool HasEquivalentFrozenTopologyResults(const TerrainLodTopologyPairEvidence& evidence)
+{
+    // 三角形数量相同不足以证明拓扑等价
+    // 这里同时比较展开父节点、活动叶、队列成员和网格编辑集合
+    // 任一路径出现预算外的结构错误都会使配对失败
+    const TerrainLodTopologyReplayEvidence& serial = evidence.Serial;
+    const TerrainLodTopologyReplayEvidence& parallel = evidence.Parallel;
+    return serial.TopologyHash == parallel.TopologyHash &&
+        serial.ActiveLeafHash == parallel.ActiveLeafHash &&
+        serial.QueueMembershipHash == parallel.QueueMembershipHash &&
+        serial.MeshEditHash == parallel.MeshEditHash &&
+        serial.ActiveTriangleCount == parallel.ActiveTriangleCount &&
+        serial.InteriorCandidateCount == parallel.InteriorCandidateCount &&
+        serial.BoundaryCandidateCount == parallel.BoundaryCandidateCount &&
+        serial.InteriorCandidateCount + serial.BoundaryCandidateCount ==
+            evidence.FrozenCandidateCount &&
+        parallel.InteriorCandidateCount + parallel.BoundaryCandidateCount ==
+            evidence.FrozenCandidateCount &&
+        serial.BudgetViolationCount == 0U &&
+        parallel.BudgetViolationCount == 0U &&
+        serial.QueueInvariantViolationCount == 0U &&
+        parallel.QueueInvariantViolationCount == 0U &&
+        serial.TjunctionCount == 0U &&
+        parallel.TjunctionCount == 0U &&
+        serial.InvalidNeighborCount == 0U &&
+        parallel.InvalidNeighborCount == 0U &&
+        serial.InvalidTopologyCount == 0U &&
+        parallel.InvalidTopologyCount == 0U;
+}
+
+TerrainLodTopologyPairEvidence ReplayFrozenSplitTopologyPair(
+    const DataOrientedRoamState& source,
+    const std::vector<DataOrientedRoamSplitCandidate>& candidates,
+    float snapshotMilliseconds)
+{
+    // 来源状态只读，串行与并行辅助分别使用自己的深复制副本
+    // 两个副本接收完全相同的候选数组
+    // 配对结果不会替换或推进正式算法拓扑
+    TerrainLodTopologyPairEvidence evidence{};
+    evidence.Evaluated = true;
+    evidence.FrozenCandidateHash = HashFrozenSplitCandidates(source, candidates);
+    evidence.FrozenCandidateCount = candidates.size();
+    evidence.CandidateSnapshotMilliseconds = snapshotMilliseconds;
+    Tools::PerformanceTimer evidenceTimer;
+
+    {
+        // 复制计时在回放总耗时之外单独保存
+        Tools::PerformanceTimer cloneTimer;
+        DataOrientedRoamState serialState{source};
+        const float cloneMilliseconds = cloneTimer.Stop();
+        const FrozenTopologyExecutionSummary summary = ExecuteFrozenSplitTopology(
+            serialState,
+            candidates,
+            false);
+        evidence.Serial = CollectFrozenReplayEvidence(
+            serialState,
+            true,
+            false,
+            summary,
+            cloneMilliseconds);
+    }
+    {
+        // 第二个副本从同一来源创建，不继承串行回放结果
+        Tools::PerformanceTimer cloneTimer;
+        DataOrientedRoamState parallelState{source};
+        const float cloneMilliseconds = cloneTimer.Stop();
+        const FrozenTopologyExecutionSummary summary = ExecuteFrozenSplitTopology(
+            parallelState,
+            candidates,
+            true);
+        evidence.Parallel = CollectFrozenReplayEvidence(
+            parallelState,
+            true,
+            true,
+            summary,
+            cloneMilliseconds);
+    }
+
+    evidence.Equivalent = HasEquivalentFrozenTopologyResults(evidence);
+    evidence.EvidenceMilliseconds = evidenceTimer.Stop();
+    return evidence;
+}
+
+TerrainLodTopologyPairEvidence ReplayFrozenMergeTopologyPair(
+    const DataOrientedRoamState& source,
+    const std::vector<DataOrientedRoamMergeCandidate>& candidates,
+    float snapshotMilliseconds)
+{
+    // 合并配对沿用细分配对的隔离方式
+    // 来源状态、候选成员和候选顺序在两次回放之间保持不变
+    // 最终只把证据结构写回正式统计
+    TerrainLodTopologyPairEvidence evidence{};
+    evidence.Evaluated = true;
+    evidence.FrozenCandidateHash = HashFrozenMergeCandidates(source, candidates);
+    evidence.FrozenCandidateCount = candidates.size();
+    evidence.CandidateSnapshotMilliseconds = snapshotMilliseconds;
+    Tools::PerformanceTimer evidenceTimer;
+
+    {
+        // 串行副本完全跳过其他线程
+        Tools::PerformanceTimer cloneTimer;
+        DataOrientedRoamState serialState{source};
+        const float cloneMilliseconds = cloneTimer.Stop();
+        const FrozenTopologyExecutionSummary summary = ExecuteFrozenMergeTopology(
+            serialState,
+            candidates,
+            false);
+        evidence.Serial = CollectFrozenReplayEvidence(
+            serialState,
+            false,
+            false,
+            summary,
+            cloneMilliseconds);
+    }
+    {
+        // 并行副本只让安全内部集合提前提交
+        Tools::PerformanceTimer cloneTimer;
+        DataOrientedRoamState parallelState{source};
+        const float cloneMilliseconds = cloneTimer.Stop();
+        const FrozenTopologyExecutionSummary summary = ExecuteFrozenMergeTopology(
+            parallelState,
+            candidates,
+            true);
+        evidence.Parallel = CollectFrozenReplayEvidence(
+            parallelState,
+            false,
+            true,
+            summary,
+            cloneMilliseconds);
+    }
+
+    evidence.Equivalent = HasEquivalentFrozenTopologyResults(evidence);
+    evidence.EvidenceMilliseconds = evidenceTimer.Stop();
+    return evidence;
+}
+} // 匿名命名空间
+
+void RefineWithSplitQueue(DataOrientedRoamState& state)
+{
+    // 正式细分路径仍以长期细分队列作为唯一决策来源
+    // 只有请求并行辅助或显式证据时才复制候选
+    // 配对回放在副本中执行，随后正式状态按原策略继续
+    state.Stats.TopologyChunkCount = static_cast<std::size_t>(
+        DataOrientedRoamTopologyChunkGridSize * DataOrientedRoamTopologyChunkGridSize);
+    RefreshPersistentSplitQueuePriorities(state);
+
+    const bool parallelAssisted =
+        state.Settings.PassPolicy.SplitTopology != TerrainLodTopologyAction::SerialImmediate;
+    std::vector<DataOrientedRoamSplitCandidate> initialCandidates;
+    float snapshotMilliseconds = 0.0F;
+    if (parallelAssisted || state.Settings.EnableTopologyPairEvidence)
+    {
+        Tools::PerformanceTimer snapshotTimer;
+        SnapshotPersistentSplitQueueCandidates(state, initialCandidates);
+        snapshotMilliseconds = snapshotTimer.Stop();
+    }
+
+    if (state.Settings.EnableTopologyPairEvidence)
+    {
+        // 证据模式只用于研究回归，普通交互默认关闭
+        state.Stats.SplitTopologyPair = ReplayFrozenSplitTopologyPair(
+            state,
+            initialCandidates,
+            snapshotMilliseconds);
+    }
+
+    if (parallelAssisted)
+    {
+        // 正式并行路径的快照和分块成本继续进入本帧阶段统计
+        state.Stats.SplitCandidateSnapshotMilliseconds += snapshotMilliseconds;
+        state.Stats.SplitCandidateCount = initialCandidates.size();
+        Tools::PerformanceTimer chunkBuildTimer;
+        std::vector<std::vector<DataOrientedRoamSplitCandidate>> interiorChunks =
+            BuildInteriorSplitChunks(state, initialCandidates);
+        state.Stats.SplitTopologyChunkBuildMilliseconds += chunkBuildTimer.Stop();
+        CommitInteriorSplitChunks(state, interiorChunks);
+    }
+    else
+    {
+        // 即使拓扑只由主线程修改，Q_s 的分数仍可由多个线程刷新，但不会复制、排序或划分候选
+        state.Stats.SplitCandidateCount = 0U;
+    }
+    // 其他线程结束后只根据最终叶数量恢复一次普通预算，之后的细分和合并不再访问原子计数
+    SynchronizeSerialSplitBudget(state);
+    RunSplitSerialConvergence(state);
+}
+
+void MergeWithDiamondQueue(DataOrientedRoamState& state)
+{
+    // 正式合并路径先刷新长期合并队列的分数
+    // 候选快照只在并行辅助或证据模式下建立
+    // 配对完成后仍由调用方选择的正式策略修改真实状态
+    state.Stats.TopologyChunkCount = static_cast<std::size_t>(
+        DataOrientedRoamTopologyChunkGridSize * DataOrientedRoamTopologyChunkGridSize);
+    RefreshPersistentMergeQueuePriorities(state);
+
+    const bool parallelAssisted =
+        state.Settings.PassPolicy.MergeTopology != TerrainLodTopologyAction::SerialImmediate;
+    std::vector<DataOrientedRoamMergeCandidate> candidates;
+    float snapshotMilliseconds = 0.0F;
+    if (parallelAssisted || state.Settings.EnableTopologyPairEvidence)
+    {
+        Tools::PerformanceTimer snapshotTimer;
+        SnapshotPersistentMergeQueueCandidates(state, state.Settings.MergeThreshold, candidates);
+        snapshotMilliseconds = snapshotTimer.Stop();
+        std::sort(
+            candidates.begin(),
+            candidates.end(),
+            [&state](const DataOrientedRoamMergeCandidate& left,
+                     const DataOrientedRoamMergeCandidate& right) {
+                return left.Score == right.Score
+                    ? state.Nodes.PathIdAt(left.Node) < state.Nodes.PathIdAt(right.Node)
+                    : left.Score < right.Score;
+            });
+    }
+
+    if (state.Settings.EnableTopologyPairEvidence)
+    {
+        // 合并证据和细分证据分别保存，避免混淆两个阶段的输入
+        state.Stats.MergeTopologyPair = ReplayFrozenMergeTopologyPair(
+            state,
+            candidates,
+            snapshotMilliseconds);
+    }
+
+    if (parallelAssisted)
+    {
+        // 只有正式并行辅助路径才把候选准备成本算入阶段包络
+        state.Stats.MergeCandidateSnapshotMilliseconds += snapshotMilliseconds;
+        state.Stats.MergeCandidateCount = candidates.size();
+        Tools::PerformanceTimer chunkBuildTimer;
+        std::vector<std::vector<DataOrientedRoamMergeCandidate>> interiorChunks =
+            BuildInteriorMergeChunks(state, candidates);
+        state.Stats.MergeTopologyChunkBuildMilliseconds += chunkBuildTimer.Stop();
+        CommitInteriorMergeChunks(state, interiorChunks);
+    }
+    else
+    {
+        state.Stats.MergeCandidateCount = 0U;
+    }
+    RunMergeSerialConvergence(state);
 }
 } // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

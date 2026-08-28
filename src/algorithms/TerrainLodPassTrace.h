@@ -235,6 +235,51 @@ struct TerrainLodPassTrace
     float WallMilliseconds{0.0F};
 };
 
+/// <summary>
+/// 保存一次冻结拓扑输入在指定执行方式下的结果和分项耗时
+/// </summary>
+struct TerrainLodTopologyReplayEvidence
+{
+    TerrainLodPassAction Action{TerrainLodPassAction::NotRun};
+    std::uint64_t TopologyHash{0U};
+    std::uint64_t ActiveLeafHash{0U};
+    std::uint64_t QueueMembershipHash{0U};
+    std::uint64_t MeshEditHash{0U};
+    std::size_t ActiveTriangleCount{0U};
+    std::size_t InteriorCandidateCount{0U};
+    std::size_t BoundaryCandidateCount{0U};
+    std::size_t EffectiveWorkerCount{0U};
+    std::size_t EarlyCommitCount{0U};
+    std::size_t BudgetViolationCount{0U};
+    std::size_t QueueInvariantViolationCount{0U};
+    std::size_t TjunctionCount{0U};
+    std::size_t InvalidNeighborCount{0U};
+    std::size_t InvalidTopologyCount{0U};
+    float StateCloneMilliseconds{0.0F};
+    float ChunkBuildMilliseconds{0.0F};
+    float QueueInvalidationMilliseconds{0.0F};
+    float CommitMilliseconds{0.0F};
+    float ResultMergeMilliseconds{0.0F};
+    float IndexQueueRefreshMilliseconds{0.0F};
+    float SerialConvergenceMilliseconds{0.0F};
+    float WallMilliseconds{0.0F};
+};
+
+/// <summary>
+/// 记录同一候选快照分别走串行和并行辅助路径后的配对证据
+/// </summary>
+struct TerrainLodTopologyPairEvidence
+{
+    bool Evaluated{false};
+    bool Equivalent{false};
+    std::uint64_t FrozenCandidateHash{0U};
+    std::size_t FrozenCandidateCount{0U};
+    float CandidateSnapshotMilliseconds{0.0F};
+    float EvidenceMilliseconds{0.0F};
+    TerrainLodTopologyReplayEvidence Serial;
+    TerrainLodTopologyReplayEvidence Parallel;
+};
+
 inline constexpr std::size_t TerrainLodPassCount = static_cast<std::size_t>(TerrainLodPassId::Count);
 using TerrainLodPassTraceArray = std::array<TerrainLodPassTrace, TerrainLodPassCount>;
 

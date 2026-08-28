@@ -70,6 +70,96 @@ void WritePassTraceCsvValues(
     }
 }
 
+void WriteTopologyReplayCsvHeader(
+    std::ostream& output,
+    bool& first,
+    const std::string& prefix)
+{
+    WriteCsvField(output, first, prefix + "Action");
+    WriteCsvField(output, first, prefix + "TopologyHash");
+    WriteCsvField(output, first, prefix + "ActiveLeafHash");
+    WriteCsvField(output, first, prefix + "QueueMembershipHash");
+    WriteCsvField(output, first, prefix + "MeshEditHash");
+    WriteCsvField(output, first, prefix + "ActiveTriangleCount");
+    WriteCsvField(output, first, prefix + "InteriorCandidateCount");
+    WriteCsvField(output, first, prefix + "BoundaryCandidateCount");
+    WriteCsvField(output, first, prefix + "EffectiveWorkerCount");
+    WriteCsvField(output, first, prefix + "EarlyCommitCount");
+    WriteCsvField(output, first, prefix + "BudgetViolationCount");
+    WriteCsvField(output, first, prefix + "QueueInvariantViolationCount");
+    WriteCsvField(output, first, prefix + "TjunctionCount");
+    WriteCsvField(output, first, prefix + "InvalidNeighborCount");
+    WriteCsvField(output, first, prefix + "InvalidTopologyCount");
+    WriteCsvField(output, first, prefix + "StateCloneMs");
+    WriteCsvField(output, first, prefix + "ChunkBuildMs");
+    WriteCsvField(output, first, prefix + "QueueInvalidationMs");
+    WriteCsvField(output, first, prefix + "CommitMs");
+    WriteCsvField(output, first, prefix + "ResultMergeMs");
+    WriteCsvField(output, first, prefix + "IndexQueueRefreshMs");
+    WriteCsvField(output, first, prefix + "SerialConvergenceMs");
+    WriteCsvField(output, first, prefix + "WallMs");
+}
+
+void WriteTopologyReplayCsvValues(
+    std::ostream& output,
+    bool& first,
+    const Algorithms::TerrainLodTopologyReplayEvidence& evidence)
+{
+    WriteCsvField(output, first, Algorithms::ToString(evidence.Action));
+    WriteCsvField(output, first, evidence.TopologyHash);
+    WriteCsvField(output, first, evidence.ActiveLeafHash);
+    WriteCsvField(output, first, evidence.QueueMembershipHash);
+    WriteCsvField(output, first, evidence.MeshEditHash);
+    WriteCsvField(output, first, evidence.ActiveTriangleCount);
+    WriteCsvField(output, first, evidence.InteriorCandidateCount);
+    WriteCsvField(output, first, evidence.BoundaryCandidateCount);
+    WriteCsvField(output, first, evidence.EffectiveWorkerCount);
+    WriteCsvField(output, first, evidence.EarlyCommitCount);
+    WriteCsvField(output, first, evidence.BudgetViolationCount);
+    WriteCsvField(output, first, evidence.QueueInvariantViolationCount);
+    WriteCsvField(output, first, evidence.TjunctionCount);
+    WriteCsvField(output, first, evidence.InvalidNeighborCount);
+    WriteCsvField(output, first, evidence.InvalidTopologyCount);
+    WriteCsvField(output, first, evidence.StateCloneMilliseconds);
+    WriteCsvField(output, first, evidence.ChunkBuildMilliseconds);
+    WriteCsvField(output, first, evidence.QueueInvalidationMilliseconds);
+    WriteCsvField(output, first, evidence.CommitMilliseconds);
+    WriteCsvField(output, first, evidence.ResultMergeMilliseconds);
+    WriteCsvField(output, first, evidence.IndexQueueRefreshMilliseconds);
+    WriteCsvField(output, first, evidence.SerialConvergenceMilliseconds);
+    WriteCsvField(output, first, evidence.WallMilliseconds);
+}
+
+void WriteTopologyPairCsvHeader(
+    std::ostream& output,
+    bool& first,
+    const std::string& prefix)
+{
+    WriteCsvField(output, first, prefix + "Evaluated");
+    WriteCsvField(output, first, prefix + "Equivalent");
+    WriteCsvField(output, first, prefix + "FrozenCandidateHash");
+    WriteCsvField(output, first, prefix + "FrozenCandidateCount");
+    WriteCsvField(output, first, prefix + "CandidateSnapshotMs");
+    WriteCsvField(output, first, prefix + "EvidenceMs");
+    WriteTopologyReplayCsvHeader(output, first, prefix + "Serial");
+    WriteTopologyReplayCsvHeader(output, first, prefix + "Parallel");
+}
+
+void WriteTopologyPairCsvValues(
+    std::ostream& output,
+    bool& first,
+    const Algorithms::TerrainLodTopologyPairEvidence& evidence)
+{
+    WriteCsvField(output, first, evidence.Evaluated ? "true" : "false");
+    WriteCsvField(output, first, evidence.Equivalent ? "true" : "false");
+    WriteCsvField(output, first, evidence.FrozenCandidateHash);
+    WriteCsvField(output, first, evidence.FrozenCandidateCount);
+    WriteCsvField(output, first, evidence.CandidateSnapshotMilliseconds);
+    WriteCsvField(output, first, evidence.EvidenceMilliseconds);
+    WriteTopologyReplayCsvValues(output, first, evidence.Serial);
+    WriteTopologyReplayCsvValues(output, first, evidence.Parallel);
+}
+
 // 成员名与 CSV 名在同一张表中定义，新增统计时只需补一行
 #define TERRAIN_LOD_STAT_FIELDS(X) \
     X(BuildSequence, buildSequence) \
@@ -174,6 +264,7 @@ void WriteTerrainLodSettingsCsvHeader(std::ostream& output)
     WriteCsvField(output, first, "localConstraintsEnabled");
     WriteCsvField(output, first, "topologyValidationEnabled");
     WriteCsvField(output, first, "passEvidenceEnabled");
+    WriteCsvField(output, first, "topologyPairEvidenceEnabled");
     WriteCsvField(output, first, "mergeScoreAction");
     WriteCsvField(output, first, "splitScoreAction");
     WriteCsvField(output, first, "mergeTopologyAction");
@@ -208,6 +299,7 @@ void WriteTerrainLodSettingsCsvValues(
     WriteCsvField(output, first, settings.EnableLocalConstraints ? "true" : "false");
     WriteCsvField(output, first, settings.EnableTopologyValidation ? "true" : "false");
     WriteCsvField(output, first, settings.EnablePassEvidence ? "true" : "false");
+    WriteCsvField(output, first, settings.EnableTopologyPairEvidence ? "true" : "false");
     WriteCsvField(output, first, Algorithms::ToString(policy.MergeScore));
     WriteCsvField(output, first, Algorithms::ToString(policy.SplitScore));
     WriteCsvField(output, first, Algorithms::ToString(policy.MergeTopology));
@@ -231,6 +323,8 @@ void WriteTerrainLodStatsCsvHeader(std::ostream& output)
 #define WRITE_STAT_HEADER(member, name) WriteCsvField(output, first, #name);
     TERRAIN_LOD_STAT_FIELDS(WRITE_STAT_HEADER)
 #undef WRITE_STAT_HEADER
+    WriteTopologyPairCsvHeader(output, first, "mergeTopologyPair");
+    WriteTopologyPairCsvHeader(output, first, "splitTopologyPair");
     WritePassTraceCsvHeader(output, first);
 }
 
@@ -242,6 +336,8 @@ void WriteTerrainLodStatsCsvValues(
 #define WRITE_STAT_VALUE(member, name) WriteCsvField(output, first, stats.member);
     TERRAIN_LOD_STAT_FIELDS(WRITE_STAT_VALUE)
 #undef WRITE_STAT_VALUE
+    WriteTopologyPairCsvValues(output, first, stats.MergeTopologyPair);
+    WriteTopologyPairCsvValues(output, first, stats.SplitTopologyPair);
     WritePassTraceCsvValues(output, first, stats.PassTraces);
 }
 

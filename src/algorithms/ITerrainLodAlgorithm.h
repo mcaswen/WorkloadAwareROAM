@@ -68,6 +68,8 @@ struct TerrainLodSettings
     bool EnableTopologyValidation{false};
     // 基准测试开启后保存结果哈希并检查持久队列，普通交互帧默认关闭全量证据扫描
     bool EnablePassEvidence{false};
+    // 只在拓扑配对回归中复制冻结状态，普通实验不得开启
+    bool EnableTopologyPairEvidence{false};
 };
 
 /// <summary>
@@ -277,6 +279,8 @@ struct TerrainLodStats
     std::size_t QueueInvariantViolationCount{0U};
     std::size_t ResourceValidationFailureCount{0U};
     float PassEvidenceMilliseconds{0.0F};
+    TerrainLodTopologyPairEvidence MergeTopologyPair;
+    TerrainLodTopologyPairEvidence SplitTopologyPair;
     std::size_t ActiveTriangleCount{0};
     std::size_t ActiveNodeCount{0};
     std::size_t OriginalTriangleCount{0};

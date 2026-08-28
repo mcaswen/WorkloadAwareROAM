@@ -29,6 +29,7 @@ enum class BenchmarkProfile
     IncrementalEmit,
     PassTraceReplay,
     PassPolicyReplay,
+    TopologyPairReplay,
     Standard,
 };
 

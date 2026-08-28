@@ -133,12 +133,26 @@ Phase 1 的验收是所有策略在固定输入下拓扑、预算和规范化 me
 
 ### Phase 3：拆分拓扑修改的串行与并行辅助
 
+**状态：已完成（2026-08-25）**
+
 1. 以 `RefineWithSplitQueue` 和 `MergeWithDiamondQueue` 为 pass 外壳，将候选 snapshot、chunk build、queue invalidation、parallel commit、result merge、index/queue refresh 和 serial convergence 统一包络计时。
 2. `SerialCommit` 路径必须跳过 parallel chunk 线程，但仍执行同一候选资格、预算、forced closure、queue invariant 和 mesh edit 记录。
 3. `ParallelAssistedCommit` 只提交 `SafeInterior*` 候选；`SplitWouldNeedForcedNeighbor`、不可复用 child、跨 chunk 边界、预算闭包和所有动态失败候选回到串行尾部。
 4. 保留 `SerialTopologyCommitPolicy` 和 `ParallelTopologyCommitPolicy` 的共享事务逻辑；线程只写局部 counters/result，join 后由主线程更新 active indexes 和持久队列。
 5. 不实现全量拓扑：拓扑修改是对持久状态的增量事务，重新遍历并重建完整拓扑会改变研究对象和执行语义。
 6. 对同一冻结候选快照分别运行 serial 和 parallel-assisted；若合法 tie 顺序导致 active cut 不唯一，使用规范化等价条件，不用“最终三角形数量相同”替代拓扑等价。
+
+当前实现结果：
+
+- DOD 在显式证据模式下深复制阶段开始时的节点池、活动索引、长期队列、预算和增量网格状态，串行与并行辅助回放消费同一候选数组，回放副本不会修改正式算法状态
+- 细分和合并都复用 `SerialTopologyCommitPolicy`、`ParallelTopologyCommitPolicy` 及原有串行收敛逻辑；串行提前提交不创建线程任务，并行提前提交只处理经过 `SafeInterior*` 检查的分块候选
+- 细分提前提交先按全局优先级截取剩余预算内候选，再分配到互不冲突的分块，避免由原子预算竞争决定满载时的入选集合；预算外项目继续保留在长期队列中
+- 配对证据分别保存冻结候选哈希、状态复制、候选快照、分块建立、队列失效、提交、结果整理、索引与队列刷新、串行收敛和总耗时
+- 结果等价同时比较规范化拓扑、活动叶、长期队列成员和网格编辑哈希，并要求队列不变量、T 形裂缝、非法邻接和非法拓扑数量为零，不以三角形数量相同替代结构等价
+- 统一 CSV 架构升级为版本 2，写入配对开关、两条回放的执行方式、工作量、线程数量、结果哈希、正确性计数和分项耗时
+- 新增 DOD 专用 `topology-pair-replay` 无窗口回归；六个固定视点中每帧的两条回放均等价，合并阶段实际使用最多 8 个线程，细分候选按照现有安全规则回到串行尾部
+- OpenGL 默认路径验收报告为 `runtime-benchmark-20260825-213017`，Classic 和 DOD 各完成 600 个采样点；预算饱和验收报告为 `runtime-benchmark-20260825-213127`，两种算法各完成 64 个采样点
+- 两份应用级报告共 1328 帧，预算越界、队列不变量错误、资源验证失败、非法邻接、非法拓扑和 T 形裂缝均为零；17 项 CTest 与 OpenGL、D3D12 构建均通过
 
 ### Phase 4：Classic 对照和统一结果契约
 

@@ -58,6 +58,8 @@ struct BenchmarkScenario
     bool RequireBudgetSaturation{false};
     // 重置算法后重复固定轨迹，并逐帧比较输入与结果哈希
     bool RequireDeterministicReplay{false};
+    // 阶段 3 回归要求同一冻结候选的串行与并行辅助结果一致
+    bool RequireTopologyPairEvidence{false};
 };
 
 // smoke、budget-reentry 和 incremental-emit 偏回归测试，standard 偏性能样本
@@ -109,6 +111,8 @@ std::string ToString(BenchmarkProfile profile)
         return "pass-trace-replay";
     case BenchmarkProfile::PassPolicyReplay:
         return "pass-policy-replay";
+    case BenchmarkProfile::TopologyPairReplay:
+        return "topology-pair-replay";
     case BenchmarkProfile::Standard:
         return "standard";
     }
@@ -342,7 +346,8 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
 
     if (profile == BenchmarkProfile::Smoke ||
         profile == BenchmarkProfile::PassTraceReplay ||
-        profile == BenchmarkProfile::PassPolicyReplay)
+        profile == BenchmarkProfile::PassPolicyReplay ||
+        profile == BenchmarkProfile::TopologyPairReplay)
     {
         // Smoke 使用小高度图和代表性视点
         // 拓扑验证开启
@@ -352,6 +357,8 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
         scenario.RequireTopologyClean = true;
         scenario.RequireNearDetailIncrease = true;
         scenario.RequireDeterministicReplay = profile == BenchmarkProfile::PassTraceReplay;
+        scenario.RequireTopologyPairEvidence = profile == BenchmarkProfile::TopologyPairReplay;
+        scenario.Settings.EnableTopologyPairEvidence = scenario.RequireTopologyPairEvidence;
         scenario.CameraPath = {
             // far 建立远处低细节基线
             BenchmarkCameraKeyframe{"far", glm::vec3{0.0F, 14.0F, 28.0F}, 0.0F},
@@ -592,6 +599,39 @@ bool ValidateFrame(
             mergeTopology.DataUpdate != Algorithms::TerrainLodDataUpdateMode::Incremental ||
             splitTopology.DataUpdate != Algorithms::TerrainLodDataUpdateMode::Incremental ||
             meshEmit.DataUpdate == Algorithms::TerrainLodDataUpdateMode::NotApplicable)
+        {
+            return false;
+        }
+    }
+
+    if (scenario.RequireTopologyPairEvidence)
+    {
+        const auto validPair = [](const Algorithms::TerrainLodTopologyPairEvidence& pair) {
+            const Algorithms::TerrainLodTopologyReplayEvidence& serial = pair.Serial;
+            const Algorithms::TerrainLodTopologyReplayEvidence& parallel = pair.Parallel;
+            return pair.Evaluated && pair.Equivalent &&
+                pair.FrozenCandidateHash != 0U &&
+                serial.Action == Algorithms::TerrainLodPassAction::SerialImmediate &&
+                parallel.Action == Algorithms::TerrainLodPassAction::ParallelAssisted &&
+                serial.EffectiveWorkerCount <= 1U &&
+                serial.TopologyHash == parallel.TopologyHash &&
+                serial.ActiveLeafHash == parallel.ActiveLeafHash &&
+                serial.QueueMembershipHash == parallel.QueueMembershipHash &&
+                serial.MeshEditHash == parallel.MeshEditHash &&
+                serial.ActiveTriangleCount == parallel.ActiveTriangleCount &&
+                serial.InteriorCandidateCount + serial.BoundaryCandidateCount ==
+                    pair.FrozenCandidateCount &&
+                parallel.InteriorCandidateCount + parallel.BoundaryCandidateCount ==
+                    pair.FrozenCandidateCount &&
+                serial.BudgetViolationCount == 0U &&
+                parallel.BudgetViolationCount == 0U &&
+                serial.QueueInvariantViolationCount == 0U &&
+                parallel.QueueInvariantViolationCount == 0U &&
+                serial.TjunctionCount == 0U && parallel.TjunctionCount == 0U &&
+                serial.InvalidNeighborCount == 0U && parallel.InvalidNeighborCount == 0U &&
+                serial.InvalidTopologyCount == 0U && parallel.InvalidTopologyCount == 0U;
+        };
+        if (!validPair(stats.MergeTopologyPair) || !validPair(stats.SplitTopologyPair))
         {
             return false;
         }
@@ -888,6 +928,35 @@ bool ValidateRunShape(const BenchmarkScenario& scenario, std::vector<BenchmarkFr
         passed = passed && initializedOnce && secondBuildStayedIncremental && stableBuildReusedEverything;
     }
 
+    if (scenario.RequireTopologyPairEvidence)
+    {
+        const bool exercisedSplitFallback = std::any_of(
+            frames.begin(),
+            frames.end(),
+            [](const BenchmarkFrameResult& frame) {
+                const Algorithms::TerrainLodTopologyReplayEvidence& evidence =
+                    frame.Stats.SplitTopologyPair.Parallel;
+                return frame.Stats.SplitTopologyPair.FrozenCandidateCount > 0U &&
+                    evidence.BoundaryCandidateCount > 0U;
+            });
+        const bool exercisedParallelMerge = std::any_of(
+            frames.begin(),
+            frames.end(),
+            [](const BenchmarkFrameResult& frame) {
+                const Algorithms::TerrainLodTopologyReplayEvidence& evidence =
+                    frame.Stats.MergeTopologyPair.Parallel;
+                return evidence.InteriorCandidateCount > 0U &&
+                    evidence.EffectiveWorkerCount > 1U &&
+                    evidence.EarlyCommitCount > 0U;
+            });
+        const bool hasMeaningfulCoverage = exercisedSplitFallback && exercisedParallelMerge;
+        if (!frames.empty())
+        {
+            frames.back().Passed = frames.back().Passed && hasMeaningfulCoverage;
+        }
+        passed = passed && hasMeaningfulCoverage;
+    }
+
     return passed;
 }
 
@@ -898,6 +967,14 @@ BenchmarkAlgorithmRun RunAlgorithm(
 {
     BenchmarkAlgorithmRun run{};
     run.AlgorithmName = ToString(selection);
+
+    if (scenario.RequireTopologyPairEvidence &&
+        selection != BenchmarkAlgorithmSelection::DataOriented)
+    {
+        // 冻结候选配对只验证 DOD 的分块拓扑提交，Classic 不伪造空证据
+        run.UnavailableReason = "topology pair evidence is only implemented by DOD";
+        return run;
+    }
 
     std::unique_ptr<Algorithms::ITerrainLodAlgorithm> algorithm = CreateAlgorithm(selection);
     if (algorithm == nullptr)
@@ -1237,6 +1314,12 @@ bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
         return true;
     }
 
+    if (value == "topology-pair-replay")
+    {
+        outProfile = BenchmarkProfile::TopologyPairReplay;
+        return true;
+    }
+
     return false;
 }
 } // 匿名命名空间
@@ -1553,7 +1636,7 @@ int RunTerrainLodBenchmarkFromCommandLine(int argc, char** argv)
 std::string BenchmarkUsage()
 {
     return "Usage: ParallelROAM --benchmark [--algorithm classic|dod|all] "
-           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|standard] "
+           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|topology-pair-replay|standard] "
            "[--pass-policy default|serial-incremental|maximum-parallel-incremental|serial-full|maximum-parallel-full] "
            "[--split-topology-min-candidates count] [--merge-topology-min-candidates count] "
            "[--parallel-topology-target-build build] [--parallel-topology-phase both|split|merge] "
