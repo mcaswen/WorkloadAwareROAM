@@ -156,6 +156,8 @@ Phase 1 的验收是所有策略在固定输入下拓扑、预算和规范化 me
 
 ### Phase 4：Classic 对照和统一结果契约
 
+**状态：已完成（2026-08-29）**
+
 Classic 不能直接复用 DOD 的 chunk parallel implementation，但必须提供同一 pass trace：
 
 | Classic 路径 | 研究映射 | 对照用途 |
@@ -168,6 +170,18 @@ Classic 不能直接复用 DOD 的 chunk parallel implementation，但必须提�
 | `TerrainRenderer::UploadMeshData` | CPU 上传 dirty/full | Classic/DOD 共享 renderer 上传对照 |
 
 Classic 和 DOD 当前都已填充 `MeshFullRebuildCount`、`MeshUpdatedTriangleCount`、`MeshReusedTriangleCount` 和 `MeshDirtyRangeCount`。比较时排除首帧/reset 强制全量发布，并结合 update ranges 判断 dirty/full；不能只凭字段名或单个零值推断实现模式。
+
+当前实现结果：
+
+- Classic 和 DOD 在公共适配层调用同一结果检查器，统一核对输入证据、活动三角形预算、细分队列、渲染数据、网格数量、增量网格统计和正确性计数；失败项以位掩码写入统计和 CSV
+- 两条适配路径都显式填写活动叶、活动三角形和索引数量；公共结果检查失败会使本次构建失败，并返回包含失败掩码的错误信息
+- Classic 的合并/细分评分固定记录为串行全量刷新，合并/细分拓扑固定记录为串行立即提交，网格提交记录为串行增量或串行全量；并行请求只记录回退，不改变实际执行方式
+- 新增 `classic-dod-contract` 无窗口配置，要求同时运行 Classic 和 DOD，并逐帧比较输入、规范化拓扑、活动叶、规范化网格、预算、活动三角形、长期队列、拓扑事件和阶段语义
+- 跨实现比较不要求请求方式、实际线程数量、节点池大小、评分条目数量或网格更新数量相同；这些实现成本保留在各自阶段记录中解释耗时
+- 统一 CSV 架构升级为版本 3，新增单实现检查状态、失败掩码、跨实现比较状态和差异掩码
+- 新增公共结果检查单元测试和 Classic/DOD 跨实现 CTest；六个固定视点的 12 条结果均通过单实现检查和跨实现比较
+- OpenGL 默认路径验收报告为 `runtime-benchmark-20260829-015743`，Classic 和 DOD 各完成 600 个采样点；预算饱和验收报告为 `runtime-benchmark-20260829-015905`，两种算法各完成 64 个采样点
+- 两份应用级报告共 1328 帧，公共结果检查全部通过，预算越界、队列不变量错误、资源验证失败、非法邻接、非法拓扑和 T 形裂缝均为零；19 项 CTest 与 OpenGL、D3D12 构建均通过
 
 ### Phase 5：基准和验证矩阵
 

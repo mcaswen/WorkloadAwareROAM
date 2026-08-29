@@ -278,6 +278,14 @@ struct TerrainLodStats
     std::size_t BudgetViolationCount{0U};
     std::size_t QueueInvariantViolationCount{0U};
     std::size_t ResourceValidationFailureCount{0U};
+    // 单结果检查由每条算法路径在公共边界执行
+    bool ResultValidationEvaluated{false};
+    bool ResultValidationPassed{false};
+    std::uint64_t ResultValidationFailureMask{0U};
+    // 跨实现比较只由显式对照实验执行
+    bool ReferenceComparisonEvaluated{false};
+    bool ReferenceComparisonPassed{false};
+    std::uint64_t ReferenceComparisonDifferenceMask{0U};
     float PassEvidenceMilliseconds{0.0F};
     TerrainLodTopologyPairEvidence MergeTopologyPair;
     TerrainLodTopologyPairEvidence SplitTopologyPair;

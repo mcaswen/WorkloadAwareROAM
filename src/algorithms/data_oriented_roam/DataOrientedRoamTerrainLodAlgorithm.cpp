@@ -1,6 +1,7 @@
 #include "algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.h"
 
 #include "algorithms/TerrainLodProfiling.h"
+#include "algorithms/TerrainLodResultValidation.h"
 
 #include <algorithm>
 
@@ -89,10 +90,26 @@ bool DataOrientedRoamTerrainLodAlgorithm::BuildRenderData(
         _stats.ReplayInputHash = HashTerrainLodBuildInput(input);
     }
     _stats.CpuUtilizationPercent = ComputeCpuUtilizationPercent(cpuSampleStart, cpuSampleEnd);
+    outPacket.ActiveLeafCount = _stats.ActiveTriangleCount;
     outPacket.ActiveTriangleCount = _stats.ActiveTriangleCount;
     outPacket.IndexCount = meshData.Indices.size();
-    _stats.ResourceValidationFailureCount = outPacket.HasConsistentResourceContract() ? 0U : 1U;
-    return !meshData.Vertices.empty() && !meshData.Indices.empty();
+    // DOD 使用与 Classic 相同的公共检查，避免两条适配路径各自维护判断规则
+    const TerrainLodResultValidation validation = ValidateTerrainLodResult(
+        _stats,
+        outPacket,
+        input.Settings.EnablePassEvidence);
+    _stats.ResourceValidationFailureCount =
+        (validation.FailureMask & TerrainLodResultBit(
+            TerrainLodResultValidationFailure::InvalidRenderPacket)) != 0U ? 1U : 0U;
+    _stats.ResultValidationEvaluated = true;
+    _stats.ResultValidationPassed = validation.Passed;
+    _stats.ResultValidationFailureMask = validation.FailureMask;
+    if (!validation.Passed && errorMessage != nullptr)
+    {
+        *errorMessage = "Data-Oriented CPU ROAM result validation failed, mask=" +
+            std::to_string(validation.FailureMask);
+    }
+    return validation.Passed && !meshData.Vertices.empty() && !meshData.Indices.empty();
 }
 
 const TerrainLodStats& DataOrientedRoamTerrainLodAlgorithm::Stats() const

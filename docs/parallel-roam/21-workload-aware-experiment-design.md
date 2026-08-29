@@ -148,11 +148,11 @@ oracle_gap = (T_greedy_oracle - T_frame_oracle) / T_frame_oracle
 
 1. **已完成：** 冻结 Classic/DOD 基线，确认持久双队列、增量 mesh、统一拓扑 validation 和 runtime benchmark 可用。
 2. **已完成：** 为 DOD Merge 拓扑 / Split 拓扑拆分内部计时，并记录候选数、非空 chunk、线程和六段拓扑时间。
-3. **并行完成文献核验：** 按 `pass-level scheduling`、`work-inefficient parallelism`、`dynamic topology maintenance` 和 `adaptive LOD` 四组原样检索词补全检索与对照表；若发现直接覆盖相同问题和实验设计的工作，先收窄贡献再继续实现。
-4. **当前工程工作：** 增加 pass-specific requested/effective action、线程数量、fallback reason 和统一 `PassTrace`，保持默认行为不变。
-5. **先建立可重复输入：** 实现目标帧/目标 pass 的冻结状态 replay、拓扑/active leaf/mesh hash 和 queue invariant；没有 replay 不进入性能配对。
-6. **实现最小策略集：** 依次补齐评分 serial/parallel、拓扑 serial/parallel-assisted、mesh dirty/full 与上传 dirty/full，并逐项通过等价性测试。
-7. **先做 Experiment 1 与 go/no-go：** 扩展 CSV，完成最小 workload 扫描；若不足三个 pass 实例出现稳定 crossover，停止通用 adaptive 主线并转向更窄的 adaptive batching 或单 pass 问题。
+3. **持续完成文献核验：** 按 `pass-level scheduling`、`work-inefficient parallelism`、`dynamic topology maintenance` 和 `adaptive LOD` 四组原样检索词补全检索与对照表；若发现直接覆盖相同问题和实验设计的工作，先收窄贡献再继续实现。
+4. **已完成：** 增加阶段独立的请求方式、实际方式、线程数量、回退原因和统一阶段记录，默认行为保持不变。
+5. **已完成：** 建立固定轨迹和冻结拓扑重放，记录拓扑、活动叶、网格哈希和队列不变量，并补齐 Classic/DOD 跨实现结果契约。
+6. **已完成：** 实现评分串行/并行、拓扑串行/并行辅助、网格增量/全量与上传脏区间/完整缓冲区的最小策略集，并逐项通过等价性测试。
+7. **当前工作：** 执行 Experiment 1 的最小工作负载扫描；若不足三个阶段实例出现稳定胜负反转，停止通用自适应主线并转向更窄的自适应批处理或单阶段问题。
 8. **生成 oracle 标签：** 在选定目标帧上计算 greedy pass oracle 和 frame oracle，先量化 pass coupling，再确定 per-pass policy 是否成立。
 9. **再做模型与在线策略：** 完成 Experiment 2 和 Experiment 3，比较候选数量阈值、查表和低维模型，禁止 post-execution leakage。
 10. **主结果成立后：** 使用留出 terrain/trajectory 完成 Experiment 4；线程数扩展实验、第二 CPU、更多 DEM 和完整 hysteresis 实验按篇幅进入补充材料。

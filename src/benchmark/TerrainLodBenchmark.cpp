@@ -1,6 +1,7 @@
 #include "benchmark/TerrainLodBenchmark.h"
 
 #include "algorithms/ITerrainLodAlgorithm.h"
+#include "algorithms/TerrainLodResultValidation.h"
 #include "algorithms/TerrainLodView.h"
 #include "algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.h"
@@ -60,6 +61,8 @@ struct BenchmarkScenario
     bool RequireDeterministicReplay{false};
     // 阶段 3 回归要求同一冻结候选的串行与并行辅助结果一致
     bool RequireTopologyPairEvidence{false};
+    // 阶段 4 回归逐帧比较 Classic 与 DOD 的规范化结果
+    bool RequireClassicDodComparison{false};
 };
 
 // smoke、budget-reentry 和 incremental-emit 偏回归测试，standard 偏性能样本
@@ -113,6 +116,8 @@ std::string ToString(BenchmarkProfile profile)
         return "pass-policy-replay";
     case BenchmarkProfile::TopologyPairReplay:
         return "topology-pair-replay";
+    case BenchmarkProfile::ClassicDodContract:
+        return "classic-dod-contract";
     case BenchmarkProfile::Standard:
         return "standard";
     }
@@ -347,7 +352,8 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
     if (profile == BenchmarkProfile::Smoke ||
         profile == BenchmarkProfile::PassTraceReplay ||
         profile == BenchmarkProfile::PassPolicyReplay ||
-        profile == BenchmarkProfile::TopologyPairReplay)
+        profile == BenchmarkProfile::TopologyPairReplay ||
+        profile == BenchmarkProfile::ClassicDodContract)
     {
         // Smoke 使用小高度图和代表性视点
         // 拓扑验证开启
@@ -359,6 +365,7 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
         scenario.RequireDeterministicReplay = profile == BenchmarkProfile::PassTraceReplay;
         scenario.RequireTopologyPairEvidence = profile == BenchmarkProfile::TopologyPairReplay;
         scenario.Settings.EnableTopologyPairEvidence = scenario.RequireTopologyPairEvidence;
+        scenario.RequireClassicDodComparison = profile == BenchmarkProfile::ClassicDodContract;
         scenario.CameraPath = {
             // far 建立远处低细节基线
             BenchmarkCameraKeyframe{"far", glm::vec3{0.0F, 14.0F, 28.0F}, 0.0F},
@@ -514,6 +521,13 @@ bool ValidateFrame(
 
     if (!renderPacket.HasConsistentResourceContract())
     {
+        return false;
+    }
+
+    if (!stats.ResultValidationEvaluated || !stats.ResultValidationPassed ||
+        stats.ResultValidationFailureMask != 0U)
+    {
+        // 所有 CPU 算法都必须先通过同一组公共结果检查
         return false;
     }
 
@@ -750,6 +764,86 @@ bool HasEquivalentPolicyResults(
         }
     }
     return true;
+}
+
+bool HasClassicReferencePassSemantics(const Algorithms::TerrainLodStats& stats)
+{
+    const Algorithms::TerrainLodPassTrace& mergeScore = Algorithms::TerrainLodPassTraceFor(
+        stats.PassTraces,
+        Algorithms::TerrainLodPassId::MergeScore);
+    const Algorithms::TerrainLodPassTrace& splitScore = Algorithms::TerrainLodPassTraceFor(
+        stats.PassTraces,
+        Algorithms::TerrainLodPassId::SplitScore);
+    const Algorithms::TerrainLodPassTrace& mergeTopology = Algorithms::TerrainLodPassTraceFor(
+        stats.PassTraces,
+        Algorithms::TerrainLodPassId::MergeTopology);
+    const Algorithms::TerrainLodPassTrace& splitTopology = Algorithms::TerrainLodPassTraceFor(
+        stats.PassTraces,
+        Algorithms::TerrainLodPassId::SplitTopology);
+    const Algorithms::TerrainLodPassTrace& meshEmit = Algorithms::TerrainLodPassTraceFor(
+        stats.PassTraces,
+        Algorithms::TerrainLodPassId::MeshEmit);
+    return mergeScore.EffectiveAction == Algorithms::TerrainLodPassAction::SerialFullRefresh &&
+        splitScore.EffectiveAction == Algorithms::TerrainLodPassAction::SerialFullRefresh &&
+        mergeTopology.EffectiveAction == Algorithms::TerrainLodPassAction::SerialImmediate &&
+        splitTopology.EffectiveAction == Algorithms::TerrainLodPassAction::SerialImmediate &&
+        (meshEmit.EffectiveAction == Algorithms::TerrainLodPassAction::SerialDirty ||
+         meshEmit.EffectiveAction == Algorithms::TerrainLodPassAction::SerialFull) &&
+        mergeScore.EffectiveWorkerCount <= 1U && splitScore.EffectiveWorkerCount <= 1U &&
+        mergeTopology.EffectiveWorkerCount <= 1U &&
+        splitTopology.EffectiveWorkerCount <= 1U && meshEmit.EffectiveWorkerCount <= 1U;
+}
+
+bool ApplyClassicDodResultComparison(std::vector<BenchmarkAlgorithmRun>& runs)
+{
+    const auto findRun = [&runs](std::string_view name) {
+        return std::find_if(
+            runs.begin(),
+            runs.end(),
+            [name](const BenchmarkAlgorithmRun& run) {
+                return run.AlgorithmName == name;
+            });
+    };
+    auto classic = findRun("classic_cpu_roam");
+    auto dod = findRun("data_oriented_cpu_roam");
+    if (classic == runs.end() || dod == runs.end() ||
+        !classic->Available || !dod->Available ||
+        classic->Frames.size() != dod->Frames.size())
+    {
+        return false;
+    }
+
+    bool allEquivalent = true;
+    for (std::size_t index = 0U; index < classic->Frames.size(); ++index)
+    {
+        BenchmarkFrameResult& classicFrame = classic->Frames[index];
+        BenchmarkFrameResult& dodFrame = dod->Frames[index];
+        Algorithms::TerrainLodReferenceComparison comparison = Algorithms::CompareTerrainLodResults(
+            classicFrame.Stats,
+            dodFrame.Stats);
+        if (!HasClassicReferencePassSemantics(classicFrame.Stats))
+        {
+            // Classic 是外部串行参考，请求并行时也必须明确记录串行实际动作
+            comparison.DifferenceMask |= Algorithms::TerrainLodReferenceBit(
+                Algorithms::TerrainLodReferenceDifference::PassSemantics);
+            comparison.Equivalent = false;
+        }
+
+        const auto saveComparison = [&comparison](Algorithms::TerrainLodStats& stats) {
+            stats.ReferenceComparisonEvaluated = true;
+            stats.ReferenceComparisonPassed = comparison.Equivalent;
+            stats.ReferenceComparisonDifferenceMask = comparison.DifferenceMask;
+        };
+        saveComparison(classicFrame.Stats);
+        saveComparison(dodFrame.Stats);
+        classicFrame.Passed = classicFrame.Passed && comparison.Equivalent;
+        dodFrame.Passed = dodFrame.Passed && comparison.Equivalent;
+        allEquivalent = allEquivalent && comparison.Equivalent;
+    }
+
+    classic->Passed = classic->Passed && allEquivalent;
+    dod->Passed = dod->Passed && allEquivalent;
+    return allEquivalent;
 }
 
 bool HasExpectedPolicyTrace(
@@ -1320,12 +1414,26 @@ bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
         return true;
     }
 
+    if (value == "classic-dod-contract")
+    {
+        outProfile = BenchmarkProfile::ClassicDodContract;
+        return true;
+    }
+
     return false;
 }
 } // 匿名命名空间
 
 int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 {
+    if (options.Profile == BenchmarkProfile::ClassicDodContract &&
+        options.Algorithm != BenchmarkAlgorithmSelection::All)
+    {
+        // 跨实现结果对照必须同时运行 Classic 和 DOD
+        std::cerr << "The classic-dod-contract profile requires --algorithm all.\n";
+        return 1;
+    }
+
     BenchmarkScenario scenario = MakeScenario(options.Profile);
     ApplyPassPolicy(options.PassPolicy, scenario.Settings);
     ApplyTopologyExperimentSettings(options, scenario.Settings);
@@ -1449,10 +1557,27 @@ int RunTerrainLodBenchmark(const BenchmarkOptions& options)
                       << run.AlgorithmName
                       << " deterministic replay hashes\n";
         }
-        PrintRunSummary(run);
+        if (!scenario.RequireClassicDodComparison)
+        {
+            // 跨实现对照需要先回填逐帧比较结果再打印最终摘要
+            PrintRunSummary(run);
+        }
         anyAvailable = anyAvailable || run.Available;
         allAvailablePassed = allAvailablePassed && (!run.Available || run.Passed);
         runs.push_back(std::move(run));
+    }
+
+    if (scenario.RequireClassicDodComparison)
+    {
+        const bool comparisonMatched = ApplyClassicDodResultComparison(runs);
+        std::cout << (comparisonMatched ? "[PASS] " : "[FAIL] ")
+                  << "Classic/DOD unified result contract\n";
+        allAvailablePassed = comparisonMatched;
+        for (const BenchmarkAlgorithmRun& run : runs)
+        {
+            PrintRunSummary(run);
+            allAvailablePassed = allAvailablePassed && (!run.Available || run.Passed);
+        }
     }
 
     const bool csvWritten = WriteCsv(options.CsvPath, scenario, runs);
@@ -1636,7 +1761,7 @@ int RunTerrainLodBenchmarkFromCommandLine(int argc, char** argv)
 std::string BenchmarkUsage()
 {
     return "Usage: ParallelROAM --benchmark [--algorithm classic|dod|all] "
-           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|topology-pair-replay|standard] "
+           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|topology-pair-replay|classic-dod-contract|standard] "
            "[--pass-policy default|serial-incremental|maximum-parallel-incremental|serial-full|maximum-parallel-full] "
            "[--split-topology-min-candidates count] [--merge-topology-min-candidates count] "
            "[--parallel-topology-target-build build] [--parallel-topology-phase both|split|merge] "

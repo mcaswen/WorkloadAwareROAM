@@ -123,6 +123,29 @@ target_link_libraries(
 add_test(NAME terrain_lod_experiment_csv COMMAND parallel_roam_experiment_csv_tests)
 
 add_executable(
+    parallel_roam_terrain_lod_result_validation_tests
+    TerrainLodResultValidationTests.cpp
+)
+
+target_include_directories(
+    parallel_roam_terrain_lod_result_validation_tests
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src"
+)
+
+target_link_libraries(
+    parallel_roam_terrain_lod_result_validation_tests
+    PRIVATE
+        parallel_roam_project_options
+        parallel_roam_project_warnings
+        ParallelROAM::GLM
+)
+
+add_test(
+    NAME terrain_lod_result_validation
+    COMMAND parallel_roam_terrain_lod_result_validation_tests
+)
+
+add_executable(
     parallel_roam_application_command_line_tests
     ApplicationCommandLineTests.cpp
     ../src/app/ApplicationCommandLine.cpp
@@ -224,6 +247,14 @@ if(TARGET parallel_roam)
             --algorithm dod
             --profile topology-pair-replay
     )
+    add_test(
+        NAME roam_classic_dod_result_contract
+        COMMAND
+            $<TARGET_FILE:parallel_roam>
+            --benchmark
+            --algorithm all
+            --profile classic-dod-contract
+    )
     set_tests_properties(
         roam_budget_reentry_classic
         roam_budget_reentry_dod
@@ -235,6 +266,7 @@ if(TARGET parallel_roam)
         roam_pass_policy_replay_classic
         roam_pass_policy_replay_dod
         roam_topology_pair_replay_dod
+        roam_classic_dod_result_contract
         PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.."
     )
 endif()

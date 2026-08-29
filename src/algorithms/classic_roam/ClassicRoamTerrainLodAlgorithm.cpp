@@ -1,6 +1,7 @@
 #include "algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.h"
 
 #include "algorithms/TerrainLodProfiling.h"
+#include "algorithms/TerrainLodResultValidation.h"
 
 namespace ParallelRoam::Algorithms::ClassicRoam
 {
@@ -76,10 +77,27 @@ bool ClassicRoamTerrainLodAlgorithm::BuildRenderData(
         _stats.ReplayInputHash = HashTerrainLodBuildInput(input);
     }
     _stats.CpuUtilizationPercent = ComputeCpuUtilizationPercent(cpuSampleStart, cpuSampleEnd);
+    outPacket.ActiveLeafCount = _stats.ActiveTriangleCount;
     outPacket.ActiveTriangleCount = _stats.ActiveTriangleCount;
     outPacket.IndexCount = meshData.Indices.size();
-    _stats.ResourceValidationFailureCount = outPacket.HasConsistentResourceContract() ? 0U : 1U;
-    return !meshData.Vertices.empty() && !meshData.Indices.empty();
+    // 公共结果检查在算法边界统一核对预算、队列和网格一致性
+    // 失败原因同时进入运行统计和实验 CSV
+    const TerrainLodResultValidation validation = ValidateTerrainLodResult(
+        _stats,
+        outPacket,
+        input.Settings.EnablePassEvidence);
+    _stats.ResourceValidationFailureCount =
+        (validation.FailureMask & TerrainLodResultBit(
+            TerrainLodResultValidationFailure::InvalidRenderPacket)) != 0U ? 1U : 0U;
+    _stats.ResultValidationEvaluated = true;
+    _stats.ResultValidationPassed = validation.Passed;
+    _stats.ResultValidationFailureMask = validation.FailureMask;
+    if (!validation.Passed && errorMessage != nullptr)
+    {
+        *errorMessage = "Classic CPU ROAM result validation failed, mask=" +
+            std::to_string(validation.FailureMask);
+    }
+    return validation.Passed && !meshData.Vertices.empty() && !meshData.Indices.empty();
 }
 
 const TerrainLodStats& ClassicRoamTerrainLodAlgorithm::Stats() const

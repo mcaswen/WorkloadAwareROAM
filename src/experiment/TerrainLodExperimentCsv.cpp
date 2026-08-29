@@ -172,6 +172,12 @@ void WriteTopologyPairCsvValues(
     X(BudgetViolationCount, budgetViolationCount) \
     X(QueueInvariantViolationCount, queueInvariantViolationCount) \
     X(ResourceValidationFailureCount, resourceValidationFailureCount) \
+    X(ResultValidationEvaluated, resultValidationEvaluated) \
+    X(ResultValidationPassed, resultValidationPassed) \
+    X(ResultValidationFailureMask, resultValidationFailureMask) \
+    X(ReferenceComparisonEvaluated, referenceComparisonEvaluated) \
+    X(ReferenceComparisonPassed, referenceComparisonPassed) \
+    X(ReferenceComparisonDifferenceMask, referenceComparisonDifferenceMask) \
     X(PassEvidenceMilliseconds, passEvidenceMilliseconds) \
     X(ActiveTriangleCount, activeTriangleCount) \
     X(ActiveNodeCount, activeNodeCount) \

@@ -79,7 +79,7 @@ int main()
             SplitCsv(settingsHeader.str()),
             SplitCsv(settingsValues.str()),
             {
-                {"experimentSchemaVersion", "2"},
+                {"experimentSchemaVersion", "3"},
                 {"topologyPairEvidenceEnabled", "true"},
                 {"splitTopologyMinParallelCandidateCount", "7"},
                 {"mergeTopologyMinParallelCandidateCount", "13"},
@@ -96,6 +96,10 @@ int main()
     stats.InteriorMergeCandidateCount = 23U;
     stats.BoundaryMergeCandidateCount = 29U;
     stats.PassTraces[0].CandidateCount = 31U;
+    stats.ResultValidationEvaluated = true;
+    stats.ResultValidationPassed = true;
+    stats.ReferenceComparisonEvaluated = true;
+    stats.ReferenceComparisonPassed = true;
     stats.SplitTopologyPair.Evaluated = true;
     stats.SplitTopologyPair.Equivalent = true;
     stats.SplitTopologyPair.FrozenCandidateHash = 37U;
@@ -116,6 +120,10 @@ int main()
                 {"interiorMergeCandidateCount", "23"},
                 {"boundaryMergeCandidateCount", "29"},
                 {"pass_mergeScoreCandidateCount", "31"},
+                {"resultValidationEvaluated", "1"},
+                {"resultValidationPassed", "1"},
+                {"referenceComparisonEvaluated", "1"},
+                {"referenceComparisonPassed", "1"},
                 {"splitTopologyPairEvaluated", "true"},
                 {"splitTopologyPairEquivalent", "true"},
                 {"splitTopologyPairFrozenCandidateHash", "37"},
