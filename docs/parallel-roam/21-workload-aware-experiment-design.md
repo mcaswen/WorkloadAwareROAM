@@ -1,6 +1,6 @@
 # Workload-Aware ROAM：实验设计
 
-本文档定义 crossover 测量、特征模型、自适应对照、泛化测试、统计口径、go/no-go 标准和实施顺序。策略和 pass 的定义分别见[策略定义](20-workload-aware-strategy-definition.md)和[具体问题定义](19-workload-aware-problem-definition.md)。
+本文档定义 crossover 测量、特征模型、自适应对照、泛化测试、统计口径、go/no-go 标准和实施顺序。策略和 pass 的定义分别见[策略定义](20-workload-aware-strategy-definition.md)和[具体问题定义](19-workload-aware-problem-definition.md)，固定场景、样本量和判定方法见[Pass 与 Crossover 实验说明](23-pass-crossover-experiment-specification.md)。
 
 ## 两层实验结构
 

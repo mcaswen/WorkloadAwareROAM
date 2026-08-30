@@ -342,6 +342,7 @@ ctest `
 | [策略定义](docs/parallel-roam/20-workload-aware-strategy-definition.md) | 固定基线、离线参考、在线策略和回退语义 |
 | [实验设计](docs/parallel-roam/21-workload-aware-experiment-design.md) | 工作负载、特征、统计方法、泛化与消融实验 |
 | [源码重构规划](docs/parallel-roam/22-workload-aware-source-refactoring-plan.md) | 当前真实语义、最小改造顺序和可选前沿维护 |
+| [Pass 与 Crossover 实验说明](docs/parallel-roam/23-pass-crossover-experiment-specification.md) | 六个阶段、合法策略、反转机制、固定实验规模和统计判定 |
 | [实验与基准测试](docs/parallel-roam/05-experiments-and-benchmarks.md) | 指标、字段定义、实验流程和现有结果 |
 | [开发规范](docs/parallel-roam/09-development-guidelines.md) | 代码结构、中文术语和注释规则 |
 | [依赖配置说明](docs/parallel-roam/10-dependency-setup.md) | OpenGL/D3D12 依赖、固定版本和构建方式 |
