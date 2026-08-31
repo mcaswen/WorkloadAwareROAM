@@ -702,6 +702,8 @@ void Application::ApplyHeightMapSelection()
 
 void Application::StartRuntimeBenchmark()
 {
+    _terrainRenderer.SetCpuUploadExperimentCaptureEnabled(
+        _runtimeBenchmarkOverrides.EnableCpuUploadPairReplay);
     // 每轮 benchmark 都重新生成结果，保留上一次输出路径供 UI 展示
     _runtimeBenchmark.Active = true;
     _runtimeBenchmark.HasPreparedFirstFrame = false;
@@ -788,6 +790,18 @@ void Application::StartRuntimeBenchmark()
     _runtimeBenchmark.Notes.push_back(
         "独立预热：每种算法 " + std::to_string(_runtimeBenchmark.WarmupSampleCount) +
         " 个不计入结果的采样点，预热后重置拓扑再开始记录");
+    if (_runtimeBenchmarkOverrides.EnableCpuUploadPairReplay)
+    {
+        _runtimeBenchmark.Notes.push_back(
+            "CPU 上传配对：每个数据包预热 " +
+            std::to_string(_runtimeBenchmarkOverrides.CpuUploadWarmupCount) +
+            " 次，正式重复 " +
+            std::to_string(_runtimeBenchmarkOverrides.CpuUploadRepeatCount) +
+            " 次，目标数量 " +
+            (_runtimeBenchmarkOverrides.CpuUploadTargetCount == 0U
+                ? std::string{"不限"}
+                : std::to_string(_runtimeBenchmarkOverrides.CpuUploadTargetCount)));
+    }
     _runtimeBenchmark.PreviousTerrainPanelState = _terrainPanelState;
     _runtimeBenchmark.PreviousTerrainPanelState.StartBenchmarkRequested = false;
     _runtimeBenchmark.PreviousCameraPose = CameraPose{
@@ -847,6 +861,14 @@ void Application::BeginRuntimeBenchmarkAlgorithm()
     result.ExecutionOrderIndex = _runtimeBenchmark.AlgorithmIndex;
     result.AlgorithmOrderRotation = _runtimeBenchmark.AlgorithmOrderRotation;
     result.Samples.reserve(_runtimeBenchmark.PathSampleCount);
+    if (_runtimeBenchmarkOverrides.EnableCpuUploadPairReplay)
+    {
+        const std::size_t targetCount = _runtimeBenchmarkOverrides.CpuUploadTargetCount == 0U
+            ? _runtimeBenchmark.PathSampleCount
+            : _runtimeBenchmarkOverrides.CpuUploadTargetCount;
+        result.CpuUploadSamples.reserve(
+            targetCount * _runtimeBenchmarkOverrides.CpuUploadRepeatCount * 2U);
+    }
     _runtimeBenchmark.Results.push_back(std::move(result));
 
     if (_runtimeBenchmark.Path == Gui::TerrainPanelState::RuntimeBenchmarkPath::BudgetSaturation)
@@ -1022,6 +1044,45 @@ void Application::RecordRuntimeBenchmarkSample(
     sample.FrameMilliseconds = frameTiming.RawDeltaSeconds * 1000.0F;
     sample.Stats = terrainStats;
     _runtimeBenchmark.Results.back().Samples.push_back(sample);
+
+    RuntimeBenchmarkAlgorithmResult& algorithmResult = _runtimeBenchmark.Results.back();
+    const bool targetAvailable = _runtimeBenchmarkOverrides.CpuUploadTargetCount == 0U ||
+        algorithmResult.CpuUploadTargetCount < _runtimeBenchmarkOverrides.CpuUploadTargetCount;
+    const bool hasStableIncrementalPacket =
+        terrainStats.RoamCpuMeshFullRebuildCount == 0U &&
+        terrainStats.RoamCpuMeshDirtyRangeCount > 0U;
+    if (_runtimeBenchmarkOverrides.EnableCpuUploadPairReplay && targetAvailable &&
+        algorithmResult.AlgorithmId == Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam &&
+        hasStableIncrementalPacket)
+    {
+        const Render::TerrainCpuUploadExperimentResult uploadResult =
+            _terrainRenderer.ReplayCurrentCpuUploadPair(
+                _runtimeBenchmarkOverrides.CpuUploadWarmupCount,
+                _runtimeBenchmarkOverrides.CpuUploadRepeatCount);
+        if (!uploadResult.Passed)
+        {
+            _runtimeBenchmark.Failed = true;
+            _runtimeBenchmark.FailureMessage = uploadResult.FailureMessage.empty()
+                ? "CPU upload pair replay failed"
+                : uploadResult.FailureMessage;
+            return;
+        }
+        for (const Render::TerrainCpuUploadExperimentSample& upload : uploadResult.Samples)
+        {
+            RuntimeBenchmarkCpuUploadSample uploadSample{};
+            uploadSample.PathSampleIndex = _runtimeBenchmark.PathSampleIndex;
+            uploadSample.CameraLabel = std::to_string(_runtimeBenchmark.PathSampleIndex);
+            uploadSample.GraphicsBackend = _graphicsBackend->Name();
+            uploadSample.HeightMapPath = terrainStats.HeightMapPath;
+            uploadSample.CameraPosition = cameraPosition;
+            uploadSample.TriangleBudget = terrainStats.RoamEvidenceTriangleBudget;
+            uploadSample.ActiveTriangleCount = terrainStats.TriangleCount;
+            uploadSample.DirtyTriangleCount = terrainStats.RoamCpuMeshUpdatedTriangleCount;
+            uploadSample.Upload = upload;
+            algorithmResult.CpuUploadSamples.push_back(std::move(uploadSample));
+        }
+        ++algorithmResult.CpuUploadTargetCount;
+    }
 }
 
 void Application::FinishRuntimeBenchmark()
@@ -1042,6 +1103,11 @@ void Application::FinishRuntimeBenchmark()
             _runtimeBenchmark.LastCsvPath = paths.CsvPath;
             std::cout << "Runtime benchmark report: " << paths.MarkdownPath << '\n';
             std::cout << "Runtime benchmark csv: " << paths.CsvPath << '\n';
+            if (!paths.CpuUploadCsvPath.empty())
+            {
+                std::cout << "Runtime benchmark CPU upload csv: "
+                          << paths.CpuUploadCsvPath << '\n';
+            }
             reportSucceeded = true;
         }
         catch (const std::exception& exception)
@@ -1054,6 +1120,7 @@ void Application::FinishRuntimeBenchmark()
     const CameraPose previousCameraPose = _runtimeBenchmark.PreviousCameraPose;
     // 先退出 Active，再恢复 UI 状态，避免 DrawDebugOverlay 继续锁定控件
     _runtimeBenchmark.Active = false;
+    _terrainRenderer.SetCpuUploadExperimentCaptureEnabled(false);
     _runtimeBenchmark.HasPreparedFirstFrame = false;
     _runtimeBenchmark.WarmingUp = false;
     _runtimeBenchmark.WarmupSampleIndex = 0U;

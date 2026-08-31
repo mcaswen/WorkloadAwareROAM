@@ -85,6 +85,10 @@ bool TestRuntimeBenchmarkOptions()
         "--runtime-benchmark-samples", "64",
         "--runtime-benchmark-warmup-samples", "4",
         "--runtime-benchmark-order-rotation", "1",
+        "--runtime-benchmark-upload-pair",
+        "--runtime-benchmark-upload-warmups", "2",
+        "--runtime-benchmark-upload-repeats", "7",
+        "--runtime-benchmark-upload-targets", "3",
         "--runtime-benchmark-label", "parser-test",
     });
     const auto& options = result.Options;
@@ -115,6 +119,10 @@ bool TestRuntimeBenchmarkOptions()
         Require(runtime.SampleCount == 64U, "Sample count mismatch") &&
         Require(runtime.WarmupSampleCount == 4U, "Warmup count mismatch") &&
         Require(runtime.AlgorithmOrderRotation == 1U, "Order rotation mismatch") &&
+        Require(runtime.EnableCpuUploadPairReplay, "Upload pair flag mismatch") &&
+        Require(runtime.CpuUploadWarmupCount == 2U, "Upload warmup count mismatch") &&
+        Require(runtime.CpuUploadRepeatCount == 7U, "Upload repeat count mismatch") &&
+        Require(runtime.CpuUploadTargetCount == 3U, "Upload target count mismatch") &&
         Require(runtime.Label == "parser-test", "Label mismatch");
 }
 
@@ -139,12 +147,14 @@ bool TestValidationErrors()
     const auto negativeInteger = Parse({"--runtime-benchmark-order-rotation", "-1"});
     const auto invalidPolicy = Parse({"--runtime-benchmark-policy", "mixed"});
     const auto removedOption = Parse({"--runtime-benchmark-distance-scale", "1"});
+    const auto zeroUploadRepeats = Parse({"--runtime-benchmark-upload-repeats", "0"});
     const auto conflictingModes = Parse({"--runtime-benchmark", "--smoke-test"});
     return Require(!missingValue.Succeeded(), "Missing option value should fail") &&
         Require(!invalidInteger.Succeeded(), "Invalid integer should fail") &&
         Require(!negativeInteger.Succeeded(), "Negative non-negative option should fail") &&
         Require(!invalidPolicy.Succeeded(), "Invalid policy should fail") &&
         Require(!removedOption.Succeeded(), "Removed option should fail") &&
+        Require(!zeroUploadRepeats.Succeeded(), "Zero upload repeats should fail") &&
         Require(!conflictingModes.Succeeded(), "Conflicting run modes should fail");
 }
 } // 匿名命名空间

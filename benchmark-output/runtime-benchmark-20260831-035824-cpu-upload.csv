@@ -1,0 +1,3 @@
+schemaVersion,algorithm,graphicsBackend,heightMapPath,triangleBudget,pathSampleIndex,cameraLabel,cameraX,cameraY,cameraZ,activeTriangleCount,dirtyTriangleCount,passId,packetHash,repeatIndex,executionOrder,requestedAction,effectiveAction,fallbackReason,updateRangeCount,uploadedBytes,fullBufferBytes,wallMs,validMeasurement
+1,Data-Oriented CPU ROAM,D3D12,assets/heightmaps/Hm_Terrain_Test_129.pgm,20000,1,1,0,6,11.1111107,11500,11500,cpuUpload,16511177831220064259,0,0,dirtyRange,dirtyRange,none,1,1932000,1932000,0.0886999965,1
+1,Data-Oriented CPU ROAM,D3D12,assets/heightmaps/Hm_Terrain_Test_129.pgm,20000,1,1,0,6,11.1111107,11500,11500,cpuUpload,16511177831220064259,0,1,fullBuffer,fullBuffer,none,1,1932000,1932000,0.0778999999,1

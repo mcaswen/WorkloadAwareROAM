@@ -787,6 +787,8 @@ void TerrainRenderer::ResetTerrainLodAlgorithm()
     _terrainLodStatusMessage.clear();
     _terrainLodTotalMilliseconds = 0.0F;
     _terrainLodCpuUploadMilliseconds = 0.0F;
+    _lastCpuMeshUpdateRanges.clear();
+    _lastCpuMeshRequiresFullUpload = true;
     _drawVertexCount = 0U;
     _drawIndexCount = 0U;
     _drawTriangleCount = 0U;
@@ -1135,6 +1137,11 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
         return false;
     }
 
+    if (_cpuUploadExperimentCaptureEnabled)
+    {
+        _lastCpuMeshUpdateRanges = renderPacket.CpuMeshUpdateRanges;
+        _lastCpuMeshRequiresFullUpload = renderPacket.CpuMeshRequiresFullUpload;
+    }
     // CPU 上传单独计时以便与纯 GPU 数据路径比较
     Tools::PerformanceTimer uploadTimer;
     if (!UploadMeshData(
@@ -1266,6 +1273,124 @@ bool TerrainRenderer::UploadMeshData(
         }
     }
     return uploaded;
+}
+
+TerrainCpuUploadExperimentResult TerrainRenderer::ReplayCurrentCpuUploadPair(
+    std::size_t warmupCount,
+    std::size_t measuredRepeatCount)
+{
+    TerrainCpuUploadExperimentResult result{};
+    const Terrain::TerrainMeshData* meshData = _borrowedCpuMeshData != nullptr
+        ? _borrowedCpuMeshData
+        : &_meshData;
+    if (_d3d12State == nullptr || measuredRepeatCount == 0U || meshData == nullptr ||
+        meshData->Vertices.empty() || meshData->Indices.empty())
+    {
+        result.FailureMessage = "上传重放需要有效的 D3D12 状态、非空网格和至少一次正式重复";
+        return result;
+    }
+
+    std::uint64_t packetHash = Algorithms::TerrainLodHashOffset;
+    Algorithms::AppendTerrainLodHash(packetHash, _terrainLodStats.NormalizedMeshHash);
+    Algorithms::AppendTerrainLodHash(packetHash, meshData->Vertices.size());
+    Algorithms::AppendTerrainLodHash(packetHash, meshData->Indices.size());
+    for (const Algorithms::TerrainLodCpuMeshUpdateRange& range : _lastCpuMeshUpdateRanges)
+    {
+        Algorithms::AppendTerrainLodHash(packetHash, range.FirstVertex);
+        Algorithms::AppendTerrainLodHash(packetHash, range.VertexCount);
+        Algorithms::AppendTerrainLodHash(packetHash, range.FirstIndex);
+        Algorithms::AppendTerrainLodHash(packetHash, range.IndexCount);
+    }
+
+    struct PendingState
+    {
+        std::uint64_t MeshGeneration{0U};
+        bool FullUpload{false};
+        std::vector<Algorithms::TerrainLodCpuMeshUpdateRange> UpdateRanges;
+    };
+    std::array<PendingState, D3D12GraphicsBackend::FrameCount> pendingStates{};
+    for (std::size_t index = 0U; index < pendingStates.size(); ++index)
+    {
+        pendingStates[index].MeshGeneration = _d3d12State->MeshFrames[index].MeshGeneration;
+        pendingStates[index].FullUpload = _d3d12State->MeshFrames[index].PendingFullUpload;
+        pendingStates[index].UpdateRanges = _d3d12State->MeshFrames[index].PendingUpdateRanges;
+    }
+    const std::uint64_t savedMeshGeneration = _d3d12State->MeshGeneration;
+    const Algorithms::TerrainLodStats savedStats = _terrainLodStats;
+    const float savedUploadMilliseconds = _terrainLodCpuUploadMilliseconds;
+
+    const std::size_t totalBlocks = warmupCount + measuredRepeatCount;
+    bool passed = true;
+    for (std::size_t block = 0U; block < totalBlocks; ++block)
+    {
+        const bool warmup = block < warmupCount;
+        const std::size_t repeatIndex = warmup ? block : block - warmupCount;
+        const std::array<Algorithms::TerrainLodCpuUploadAction, 2U> actions = block % 2U == 0U
+            ? std::array{Algorithms::TerrainLodCpuUploadAction::DirtyRange,
+                         Algorithms::TerrainLodCpuUploadAction::FullBuffer}
+            : std::array{Algorithms::TerrainLodCpuUploadAction::FullBuffer,
+                         Algorithms::TerrainLodCpuUploadAction::DirtyRange};
+        for (std::size_t order = 0U; order < actions.size(); ++order)
+        {
+            std::string errorMessage;
+            Tools::PerformanceTimer timer;
+            const bool uploaded = UploadMeshData(
+                *meshData,
+                _lastCpuMeshRequiresFullUpload,
+                actions[order],
+                _lastCpuMeshUpdateRanges,
+                &errorMessage);
+            const float wallMilliseconds = timer.Stop();
+            passed = passed && uploaded;
+            if (!uploaded && result.FailureMessage.empty())
+            {
+                result.FailureMessage = errorMessage;
+            }
+
+            const Algorithms::TerrainLodPassTrace& trace = Algorithms::TerrainLodPassTraceFor(
+                _terrainLodStats.PassTraces,
+                Algorithms::TerrainLodPassId::CpuUpload);
+            TerrainCpuUploadExperimentSample sample{};
+            sample.RequestedAction = actions[order] == Algorithms::TerrainLodCpuUploadAction::FullBuffer
+                ? Algorithms::TerrainLodPassAction::FullBuffer
+                : Algorithms::TerrainLodPassAction::DirtyRange;
+            sample.EffectiveAction = trace.EffectiveAction;
+            sample.FallbackReason = trace.FallbackReason;
+            sample.RepeatIndex = repeatIndex;
+            sample.ExecutionOrder = order;
+            sample.UpdateRangeCount = _lastCpuMeshUpdateRanges.size();
+            sample.UploadedBytes = _terrainLodStats.CpuGpuUploadBytes;
+            sample.FullBufferBytes =
+                meshData->Vertices.size() * sizeof(Terrain::TerrainMeshVertex) +
+                meshData->Indices.size() * sizeof(std::uint32_t);
+            sample.PacketHash = packetHash;
+            sample.WallMilliseconds = wallMilliseconds;
+            sample.ValidMeasurement = uploaded &&
+                trace.FallbackReason == Algorithms::TerrainLodPassFallbackReason::None &&
+                trace.EffectiveAction == sample.RequestedAction;
+            if (warmup)
+            {
+                ++result.WarmupExecutionCount;
+            }
+            else
+            {
+                result.Samples.push_back(sample);
+            }
+        }
+    }
+
+    for (std::size_t index = 0U; index < pendingStates.size(); ++index)
+    {
+        _d3d12State->MeshFrames[index].MeshGeneration = pendingStates[index].MeshGeneration;
+        _d3d12State->MeshFrames[index].PendingFullUpload = pendingStates[index].FullUpload;
+        _d3d12State->MeshFrames[index].PendingUpdateRanges =
+            std::move(pendingStates[index].UpdateRanges);
+    }
+    _d3d12State->MeshGeneration = savedMeshGeneration;
+    _terrainLodStats = savedStats;
+    _terrainLodCpuUploadMilliseconds = savedUploadMilliseconds;
+    result.Passed = passed;
+    return result;
 }
 
 bool TerrainRenderer::LoadTexture(const std::filesystem::path& texturePath, std::string* errorMessage)

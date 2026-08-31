@@ -70,6 +70,12 @@ struct RuntimeBenchmarkOverrides
     bool HasAlgorithmOrderRotation{false};
     std::size_t AlgorithmOrderRotation{0U};
 
+    // 上传配对只对 DOD 的非初始化 CPU 网格数据包执行
+    bool EnableCpuUploadPairReplay{false};
+    std::size_t CpuUploadWarmupCount{5U};
+    std::size_t CpuUploadRepeatCount{30U};
+    std::size_t CpuUploadTargetCount{0U};
+
     // 标签只用于区分实验报告，不改变算法配置
     std::string Label;
 };

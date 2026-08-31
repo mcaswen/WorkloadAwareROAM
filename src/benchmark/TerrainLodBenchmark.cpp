@@ -5,6 +5,8 @@
 #include "algorithms/TerrainLodView.h"
 #include "algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamPipeline.h"
 #include "experiment/TerrainLodExperimentCsv.h"
 #include "terrain/HeightMap.h"
 #include "tools/PerformanceTimer.h"
@@ -21,6 +23,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -118,6 +121,10 @@ std::string ToString(BenchmarkProfile profile)
         return "topology-pair-replay";
     case BenchmarkProfile::ClassicDodContract:
         return "classic-dod-contract";
+    case BenchmarkProfile::PassCrossoverReplay:
+        return "pass-crossover-replay";
+    case BenchmarkProfile::PassCrossoverStressReplay:
+        return "pass-crossover-stress-replay";
     case BenchmarkProfile::Standard:
         return "standard";
     }
@@ -353,7 +360,8 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
         profile == BenchmarkProfile::PassTraceReplay ||
         profile == BenchmarkProfile::PassPolicyReplay ||
         profile == BenchmarkProfile::TopologyPairReplay ||
-        profile == BenchmarkProfile::ClassicDodContract)
+        profile == BenchmarkProfile::ClassicDodContract ||
+        profile == BenchmarkProfile::PassCrossoverReplay)
     {
         // Smoke 使用小高度图和代表性视点
         // 拓扑验证开启
@@ -421,7 +429,8 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
         return scenario;
     }
 
-    if (profile == BenchmarkProfile::BudgetSaturation)
+    if (profile == BenchmarkProfile::BudgetSaturation ||
+        profile == BenchmarkProfile::PassCrossoverStressReplay)
     {
         scenario.HeightMapPath = "assets/heightmaps/Hm_Terrain_Peking_513.png";
         scenario.Settings.TerrainSize = 80.0F;
@@ -1420,12 +1429,211 @@ bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
         return true;
     }
 
+    if (value == "pass-crossover-replay")
+    {
+        outProfile = BenchmarkProfile::PassCrossoverReplay;
+        return true;
+    }
+
+    if (value == "pass-crossover-stress-replay")
+    {
+        outProfile = BenchmarkProfile::PassCrossoverStressReplay;
+        return true;
+    }
+
     return false;
+}
+
+Algorithms::DataOrientedRoam::DataOrientedRoamSettings MakeDataOrientedSettings(
+    const Algorithms::TerrainLodSettings& settings)
+{
+    Algorithms::DataOrientedRoam::DataOrientedRoamSettings dataSettings{};
+    dataSettings.MaxDepth = settings.MaxDepth;
+    dataSettings.SplitThreshold = settings.ScreenSpaceSplitThresholdPixels;
+    dataSettings.MergeThreshold = settings.ScreenSpaceMergeThresholdPixels;
+    dataSettings.TriangleBudget = settings.TriangleBudget;
+    dataSettings.PassPolicy = settings.PassPolicy;
+    dataSettings.EnableLocalConstraints = settings.EnableLocalConstraints;
+    dataSettings.EnableTopologyValidation = settings.EnableTopologyValidation;
+    dataSettings.EnablePassEvidence = settings.EnablePassEvidence;
+    return dataSettings;
+}
+
+bool WritePassCrossoverCsvHeader(std::ostream& output)
+{
+    output
+        << "schemaVersion,profile,scenarioId,terrainId,trajectoryId,triangleBudget,sampleIndex,"
+        << "cameraName,passId,frozenStateId,repeatIndex,executionOrder,requestedAction,"
+        << "effectiveAction,fallbackReason,requestedWorkers,effectiveWorkers,candidateCount,"
+        << "interiorCandidateCount,boundaryCandidateCount,nonEmptyChunkCount,earlyCommitCount,"
+        << "activeTriangleCount,dirtyTriangleCount,dirtyRangeCount,stateCloneMs,scoreMs,heapifyMs,"
+        << "candidateSnapshotMs,chunkBuildMs,queueInvalidationMs,commitMs,resultMergeMs,"
+        << "indexQueueRefreshMs,serialConvergenceMs,wallMs,resultHash,equivalent,correct\n";
+    return output.good();
+}
+
+bool WritePassCrossoverCsvRow(
+    std::ostream& output,
+    const BenchmarkScenario& scenario,
+    std::size_t sampleIndex,
+    const Algorithms::DataOrientedRoam::DataOrientedRoamPassExperimentSample& sample)
+{
+    output << std::setprecision(9)
+           << "1," << scenario.Name << ',' << scenario.Name << ','
+           << scenario.HeightMapPath.filename().generic_string() << ',' << scenario.Name << ','
+           << scenario.Settings.TriangleBudget << ',' << sampleIndex << ','
+           << scenario.CameraPath[sampleIndex].Name << ','
+           << Algorithms::ToString(sample.PassId) << ',' << sample.FrozenStateHash << ','
+           << sample.RepeatIndex << ',' << sample.ExecutionOrder << ','
+           << Algorithms::ToString(sample.RequestedAction) << ','
+           << Algorithms::ToString(sample.EffectiveAction) << ','
+           << Algorithms::ToString(sample.FallbackReason) << ','
+           << sample.RequestedWorkerCount << ',' << sample.EffectiveWorkerCount << ','
+           << sample.CandidateCount << ',' << sample.InteriorCandidateCount << ','
+           << sample.BoundaryCandidateCount << ',' << sample.NonEmptyChunkCount << ','
+           << sample.EarlyCommitCount << ',' << sample.ActiveTriangleCount << ','
+           << sample.DirtyTriangleCount << ',' << sample.DirtyRangeCount << ','
+           << sample.StateCloneMilliseconds << ',' << sample.ScoreMilliseconds << ','
+           << sample.HeapifyMilliseconds << ',' << sample.CandidateSnapshotMilliseconds << ','
+           << sample.ChunkBuildMilliseconds << ',' << sample.QueueInvalidationMilliseconds << ','
+           << sample.CommitMilliseconds << ',' << sample.ResultMergeMilliseconds << ','
+           << sample.IndexQueueRefreshMilliseconds << ',' << sample.SerialConvergenceMilliseconds
+           << ',' << sample.WallMilliseconds << ',' << sample.ResultHash << ','
+           << (sample.Equivalent ? 1 : 0) << ',' << (sample.Correct ? 1 : 0) << '\n';
+    return output.good();
+}
+
+int RunPassCrossoverReplay(const BenchmarkOptions& options)
+{
+    if (options.Algorithm == BenchmarkAlgorithmSelection::Classic)
+    {
+        std::cerr << "Pass crossover replay requires the DOD implementation.\n";
+        return 1;
+    }
+
+    BenchmarkScenario scenario = MakeScenario(options.Profile);
+    scenario.Settings.PassPolicy = Algorithms::MakeTerrainLodSerialIncrementalPolicy();
+    scenario.Settings.PassPolicy.MergeScoreWorkerCount = options.PassExperimentWorkerCount;
+    scenario.Settings.PassPolicy.SplitScoreWorkerCount = options.PassExperimentWorkerCount;
+    scenario.Settings.PassPolicy.MergeTopologyWorkerCount = options.PassExperimentWorkerCount;
+    scenario.Settings.PassPolicy.SplitTopologyWorkerCount = options.PassExperimentWorkerCount;
+    scenario.Settings.PassPolicy.MeshEmitWorkerCount = options.PassExperimentWorkerCount;
+    scenario.Settings.EnableTopologyPairEvidence = false;
+
+    Terrain::HeightMap heightMap;
+    std::string errorMessage;
+    if (!heightMap.LoadFromFile(scenario.HeightMapPath, &errorMessage))
+    {
+        std::cerr << errorMessage << '\n';
+        return 1;
+    }
+    if (scenario.CameraPath.size() < 2U)
+    {
+        std::cerr << "Pass crossover replay requires at least two camera samples.\n";
+        return 1;
+    }
+
+    std::filesystem::path csvPath = options.CsvPath;
+    if (csvPath.empty())
+    {
+        csvPath = std::filesystem::path{"benchmark-output"} /
+            ("pass-crossover-" + scenario.Name + ".csv");
+    }
+    if (!csvPath.parent_path().empty())
+    {
+        std::error_code directoryError;
+        std::filesystem::create_directories(csvPath.parent_path(), directoryError);
+        if (directoryError)
+        {
+            std::cerr << "Could not create pass crossover output directory: "
+                      << directoryError.message() << '\n';
+            return 1;
+        }
+    }
+    std::ofstream csv{csvPath};
+    if (!csv || !WritePassCrossoverCsvHeader(csv))
+    {
+        std::cerr << "Could not open pass crossover CSV: " << csvPath << '\n';
+        return 1;
+    }
+
+    Algorithms::DataOrientedRoam::DataOrientedRoamPipeline pipeline;
+    const Algorithms::DataOrientedRoam::DataOrientedRoamSettings dataSettings =
+        MakeDataOrientedSettings(scenario.Settings);
+    const Algorithms::TerrainLodViewInput firstView = BuildBenchmarkView(scenario.CameraPath.front());
+    const Terrain::TerrainMeshData& firstMesh = pipeline.Build(
+        heightMap,
+        scenario.Settings.TerrainSize,
+        scenario.Settings.HeightScale,
+        firstView,
+        dataSettings);
+    if (firstMesh.Indices.empty())
+    {
+        std::cerr << "Pass crossover replay could not build the initial state.\n";
+        return 1;
+    }
+
+    Algorithms::DataOrientedRoam::DataOrientedRoamPassExperimentConfig config{};
+    config.WarmupCount = options.PassExperimentWarmupCount;
+    config.MeasuredRepeatCount = options.PassExperimentRepeatCount;
+    config.ParallelWorkerCount = options.PassExperimentWorkerCount;
+    const std::size_t availableTargetCount = scenario.CameraPath.size() - 1U;
+    const std::size_t targetCount = options.PassExperimentTargetCount == 0U
+        ? availableTargetCount
+        : std::min(options.PassExperimentTargetCount, availableTargetCount);
+
+    bool passed = true;
+    std::size_t measuredSampleCount = 0U;
+    std::size_t warmupExecutionCount = 0U;
+    for (std::size_t sampleIndex = 1U; sampleIndex <= targetCount; ++sampleIndex)
+    {
+        const Algorithms::TerrainLodViewInput view = BuildBenchmarkView(
+            scenario.CameraPath[sampleIndex]);
+        const auto experiment = Algorithms::DataOrientedRoam::RunDataOrientedRoamPassExperiment(
+            pipeline.State(),
+            view,
+            dataSettings,
+            config);
+        if (!experiment.Passed)
+        {
+            std::cerr << "Pass crossover replay failed at sample " << sampleIndex
+                      << ": " << experiment.FailureMessage << '\n';
+        }
+        passed = passed && experiment.Passed;
+        warmupExecutionCount += experiment.WarmupExecutionCount;
+        for (const auto& sample : experiment.Samples)
+        {
+            passed = WritePassCrossoverCsvRow(csv, scenario, sampleIndex, sample) && passed;
+            ++measuredSampleCount;
+        }
+
+        const Terrain::TerrainMeshData& canonicalMesh = pipeline.Build(
+            heightMap,
+            scenario.Settings.TerrainSize,
+            scenario.Settings.HeightScale,
+            view,
+            dataSettings);
+        passed = !canonicalMesh.Indices.empty() && passed;
+    }
+
+    std::cout << "Pass crossover replay profile=" << scenario.Name
+              << " targets=" << targetCount
+              << " warmupExecutions=" << warmupExecutionCount
+              << " measuredSamples=" << measuredSampleCount
+              << " csv=" << csvPath << '\n';
+    std::cout << (passed ? "Pass crossover replay result: PASS\n"
+                         : "Pass crossover replay result: FAIL\n");
+    return passed ? 0 : 1;
 }
 } // 匿名命名空间
 
 int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 {
+    if (options.Profile == BenchmarkProfile::PassCrossoverReplay ||
+        options.Profile == BenchmarkProfile::PassCrossoverStressReplay)
+    {
+        return RunPassCrossoverReplay(options);
+    }
     if (options.Profile == BenchmarkProfile::ClassicDodContract &&
         options.Algorithm != BenchmarkAlgorithmSelection::All)
     {
@@ -1733,6 +1941,33 @@ int RunTerrainLodBenchmarkFromCommandLine(int argc, char** argv)
             return 1;
         }
 
+        const auto parsePassExperimentSize = [&](std::string_view name, std::size_t& output) {
+            if (argument != name)
+            {
+                return false;
+            }
+            if (index + 1 >= argc || !ParseSize(argv[++index], output))
+            {
+                std::cerr << "Invalid or missing " << name << " value.\n";
+                output = std::numeric_limits<std::size_t>::max();
+            }
+            return true;
+        };
+        if (parsePassExperimentSize("--pass-warmups", options.PassExperimentWarmupCount) ||
+            parsePassExperimentSize("--pass-repeats", options.PassExperimentRepeatCount) ||
+            parsePassExperimentSize("--pass-workers", options.PassExperimentWorkerCount) ||
+            parsePassExperimentSize("--pass-targets", options.PassExperimentTargetCount))
+        {
+            if (options.PassExperimentWarmupCount == std::numeric_limits<std::size_t>::max() ||
+                options.PassExperimentRepeatCount == std::numeric_limits<std::size_t>::max() ||
+                options.PassExperimentWorkerCount == std::numeric_limits<std::size_t>::max() ||
+                options.PassExperimentTargetCount == std::numeric_limits<std::size_t>::max())
+            {
+                return 1;
+            }
+            continue;
+        }
+
         if (argument == "--csv" && index + 1 < argc)
         {
             // CSV 路径可以指向尚不存在的父目录
@@ -1761,10 +1996,11 @@ int RunTerrainLodBenchmarkFromCommandLine(int argc, char** argv)
 std::string BenchmarkUsage()
 {
     return "Usage: ParallelROAM --benchmark [--algorithm classic|dod|all] "
-           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|topology-pair-replay|classic-dod-contract|standard] "
+           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|topology-pair-replay|classic-dod-contract|pass-crossover-replay|pass-crossover-stress-replay|standard] "
            "[--pass-policy default|serial-incremental|maximum-parallel-incremental|serial-full|maximum-parallel-full] "
            "[--split-topology-min-candidates count] [--merge-topology-min-candidates count] "
            "[--parallel-topology-target-build build] [--parallel-topology-phase both|split|merge] "
+           "[--pass-warmups count] [--pass-repeats count] [--pass-workers count] [--pass-targets count] "
            "[--csv path]\n";
 }
 } // 命名空间 ParallelRoam::Benchmark

@@ -248,6 +248,7 @@ struct TerrainLodTopologyReplayEvidence
     std::size_t ActiveTriangleCount{0U};
     std::size_t InteriorCandidateCount{0U};
     std::size_t BoundaryCandidateCount{0U};
+    std::size_t NonEmptyChunkCount{0U};
     std::size_t EffectiveWorkerCount{0U};
     std::size_t EarlyCommitCount{0U};
     std::size_t BudgetViolationCount{0U};

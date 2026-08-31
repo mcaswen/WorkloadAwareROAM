@@ -31,6 +31,8 @@ enum class BenchmarkProfile
     PassPolicyReplay,
     TopologyPairReplay,
     ClassicDodContract,
+    PassCrossoverReplay,
+    PassCrossoverStressReplay,
     Standard,
 };
 
@@ -56,6 +58,10 @@ struct BenchmarkOptions
     std::size_t ParallelTopologyTargetBuild{0U};
     Algorithms::TerrainLodParallelTopologyPhase ParallelTopologyPhase{
         Algorithms::TerrainLodParallelTopologyPhase::Both};
+    std::size_t PassExperimentWarmupCount{5U};
+    std::size_t PassExperimentRepeatCount{30U};
+    std::size_t PassExperimentWorkerCount{8U};
+    std::size_t PassExperimentTargetCount{0U};
     std::filesystem::path CsvPath;
 };
 

@@ -149,7 +149,7 @@ private:
     [[nodiscard]] static const OptionDescriptor* FindDescriptor(std::string_view argument)
     {
         // 别名单独登记但共享处理函数，新增名称不需要扩展条件分支
-        static constexpr std::array<OptionDescriptor, 24> descriptors{{
+        static constexpr std::array<OptionDescriptor, 28> descriptors{{
             {"--smoke-test", false, &CommandLineParser::HandleSmokeTest},
             {"--dx12-smoke-test", false, &CommandLineParser::HandleDirect3D12SmokeTest},
             {"--runtime-benchmark", false, &CommandLineParser::HandleRuntimeBenchmark},
@@ -177,6 +177,13 @@ private:
             {"--runtime-benchmark-samples", true, &CommandLineParser::HandleSampleCount},
             {"--runtime-benchmark-warmup-samples", true, &CommandLineParser::HandleWarmupCount},
             {"--runtime-benchmark-order-rotation", true, &CommandLineParser::HandleOrderRotation},
+            {"--runtime-benchmark-upload-pair", false, &CommandLineParser::HandleUploadPair},
+            {"--runtime-benchmark-upload-warmups", true,
+             &CommandLineParser::HandleUploadWarmupCount},
+            {"--runtime-benchmark-upload-repeats", true,
+             &CommandLineParser::HandleUploadRepeatCount},
+            {"--runtime-benchmark-upload-targets", true,
+             &CommandLineParser::HandleUploadTargetCount},
             {"--runtime-benchmark-duration", true, &CommandLineParser::HandleLegacyDuration},
             {"--runtime-benchmark-label", true, &CommandLineParser::HandleLabel},
         }};
@@ -454,6 +461,56 @@ private:
         }
         _result.Options.RuntimeBenchmark.HasAlgorithmOrderRotation = true;
         _result.Options.RuntimeBenchmark.AlgorithmOrderRotation = parsed;
+        MarkRuntimeBenchmarkOverride();
+        return true;
+    }
+
+    bool HandleUploadPair(std::string_view, std::string_view)
+    {
+        _result.Options.AutomaticRuntimeBenchmark = true;
+        _result.Options.RuntimeBenchmark.EnableCpuUploadPairReplay = true;
+        MarkRuntimeBenchmarkOverride();
+        return true;
+    }
+
+    bool HandleUploadWarmupCount(std::string_view option, std::string_view value)
+    {
+        if (!ParseNonNegativeSize(
+                option,
+                value,
+                _result.Options.RuntimeBenchmark.CpuUploadWarmupCount))
+        {
+            return false;
+        }
+        MarkRuntimeBenchmarkOverride();
+        return true;
+    }
+
+    bool HandleUploadRepeatCount(std::string_view option, std::string_view value)
+    {
+        std::size_t parsed = 0U;
+        if (!ParseNonNegativeSize(option, value, parsed) || parsed == 0U)
+        {
+            if (_result.Error.empty())
+            {
+                _result.Error = std::string{option} + " must be greater than zero";
+            }
+            return false;
+        }
+        _result.Options.RuntimeBenchmark.CpuUploadRepeatCount = parsed;
+        MarkRuntimeBenchmarkOverride();
+        return true;
+    }
+
+    bool HandleUploadTargetCount(std::string_view option, std::string_view value)
+    {
+        if (!ParseNonNegativeSize(
+                option,
+                value,
+                _result.Options.RuntimeBenchmark.CpuUploadTargetCount))
+        {
+            return false;
+        }
         MarkRuntimeBenchmarkOverride();
         return true;
     }

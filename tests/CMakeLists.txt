@@ -255,6 +255,30 @@ if(TARGET parallel_roam)
             --algorithm all
             --profile classic-dod-contract
     )
+    add_test(
+        NAME roam_pass_crossover_replay_dod
+        COMMAND
+            $<TARGET_FILE:parallel_roam>
+            --benchmark
+            --algorithm dod
+            --profile pass-crossover-replay
+            --pass-warmups 0
+            --pass-repeats 1
+            --pass-targets 1
+            --csv "${CMAKE_CURRENT_BINARY_DIR}/pass-crossover-replay.csv"
+    )
+    add_test(
+        NAME roam_pass_crossover_stress_replay_dod
+        COMMAND
+            $<TARGET_FILE:parallel_roam>
+            --benchmark
+            --algorithm dod
+            --profile pass-crossover-stress-replay
+            --pass-warmups 0
+            --pass-repeats 1
+            --pass-targets 1
+            --csv "${CMAKE_CURRENT_BINARY_DIR}/pass-crossover-stress-replay.csv"
+    )
     set_tests_properties(
         roam_budget_reentry_classic
         roam_budget_reentry_dod
@@ -267,6 +291,8 @@ if(TARGET parallel_roam)
         roam_pass_policy_replay_dod
         roam_topology_pair_replay_dod
         roam_classic_dod_result_contract
+        roam_pass_crossover_replay_dod
+        roam_pass_crossover_stress_replay_dod
         PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.."
     )
 endif()

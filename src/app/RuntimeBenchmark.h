@@ -42,6 +42,22 @@ struct RuntimeBenchmarkSample
 };
 
 /// <summary>
+/// 为上传策略样本补充所属路径点和图形后端信息
+/// </summary>
+struct RuntimeBenchmarkCpuUploadSample
+{
+    std::size_t PathSampleIndex{0U};
+    std::string CameraLabel;
+    std::string GraphicsBackend;
+    std::filesystem::path HeightMapPath;
+    glm::vec3 CameraPosition{0.0F};
+    std::size_t TriangleBudget{0U};
+    std::size_t ActiveTriangleCount{0U};
+    std::size_t DirtyTriangleCount{0U};
+    Render::TerrainCpuUploadExperimentSample Upload;
+};
+
+/// <summary>
 /// 单个算法在同一条相机路径上的采样集合
 /// </summary>
 struct RuntimeBenchmarkAlgorithmResult
@@ -60,6 +76,8 @@ struct RuntimeBenchmarkAlgorithmResult
 
     // Samples 保留逐帧明细，汇总表只从这里二次聚合
     std::vector<RuntimeBenchmarkSample> Samples;
+    std::vector<RuntimeBenchmarkCpuUploadSample> CpuUploadSamples;
+    std::size_t CpuUploadTargetCount{0U};
 };
 
 /// <summary>
@@ -72,6 +90,9 @@ struct RuntimeBenchmarkReportPaths
 
     // CsvPath 保存逐帧样本，方便后续画图或做回归阈值
     std::filesystem::path CsvPath;
+
+    // 只有显式请求上传配对时才生成该文件
+    std::filesystem::path CpuUploadCsvPath;
 };
 
 [[nodiscard]] std::string RuntimeBenchmarkAlgorithmDisplayName(Algorithms::TerrainLodAlgorithmId algorithmId);

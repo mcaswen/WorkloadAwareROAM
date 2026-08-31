@@ -456,6 +456,7 @@ void WriteDetailedCsv(
 void WriteSummaryMarkdown(
     const std::filesystem::path& markdownPath,
     const std::filesystem::path& csvPath,
+    const std::filesystem::path& cpuUploadCsvPath,
     const std::vector<RuntimeBenchmarkAlgorithmResult>& results,
     const std::vector<std::string>& notes)
 {
@@ -497,7 +498,13 @@ void WriteSummaryMarkdown(
     markdown << "- 采样规则：每种算法按相同 sampleIndex 执行全部相机姿态，完成后再切换算法\n";
     markdown << "- 采样完整性：" << (sampleSequenceComplete ? "完整" : "不完整") << "\n";
     markdown << "- timeSeconds：当前算法实际经过的墙钟时间，不参与路径推进\n";
-    markdown << "- 详细 CSV：`" << csvPath.filename().string() << "`\n\n";
+    markdown << "- 详细 CSV：`" << csvPath.filename().string() << "`\n";
+    if (!cpuUploadCsvPath.empty())
+    {
+        markdown << "- CPU 上传配对 CSV：`"
+                 << cpuUploadCsvPath.filename().string() << "`\n";
+    }
+    markdown << '\n';
     for (const std::string& note : notes)
     {
         markdown << "- " << note << "\n";
@@ -756,6 +763,53 @@ void WriteSummaryMarkdown(
                  << " | " << summary.MaxCpuGpuReadbackBytes << " |\n";
     }
 }
+
+bool HasCpuUploadSamples(const std::vector<RuntimeBenchmarkAlgorithmResult>& results)
+{
+    return std::any_of(
+        results.begin(),
+        results.end(),
+        [](const RuntimeBenchmarkAlgorithmResult& result) {
+            return !result.CpuUploadSamples.empty();
+        });
+}
+
+void WriteCpuUploadCsv(
+    const std::filesystem::path& csvPath,
+    const std::vector<RuntimeBenchmarkAlgorithmResult>& results)
+{
+    std::ofstream csv{csvPath};
+    if (!csv)
+    {
+        throw std::runtime_error{"Failed to create CPU upload benchmark CSV: " + csvPath.string()};
+    }
+    csv << "schemaVersion,algorithm,graphicsBackend,heightMapPath,triangleBudget,pathSampleIndex,"
+        << "cameraLabel,cameraX,cameraY,cameraZ,activeTriangleCount,dirtyTriangleCount,passId,"
+        << "packetHash,repeatIndex,executionOrder,requestedAction,effectiveAction,fallbackReason,"
+        << "updateRangeCount,uploadedBytes,fullBufferBytes,wallMs,validMeasurement\n";
+    csv << std::setprecision(9);
+    for (const RuntimeBenchmarkAlgorithmResult& result : results)
+    {
+        for (const RuntimeBenchmarkCpuUploadSample& sample : result.CpuUploadSamples)
+        {
+            const Render::TerrainCpuUploadExperimentSample& upload = sample.Upload;
+            csv << "1," << result.AlgorithmName << ',' << sample.GraphicsBackend << ','
+                << sample.HeightMapPath.generic_string() << ',' << sample.TriangleBudget << ','
+                << sample.PathSampleIndex << ',' << sample.CameraLabel << ','
+                << sample.CameraPosition.x << ',' << sample.CameraPosition.y << ','
+                << sample.CameraPosition.z << ',' << sample.ActiveTriangleCount << ','
+                << sample.DirtyTriangleCount << ",cpuUpload,"
+                << upload.PacketHash << ',' << upload.RepeatIndex << ','
+                << upload.ExecutionOrder << ','
+                << Algorithms::ToString(upload.RequestedAction) << ','
+                << Algorithms::ToString(upload.EffectiveAction) << ','
+                << Algorithms::ToString(upload.FallbackReason) << ','
+                << upload.UpdateRangeCount << ',' << upload.UploadedBytes << ','
+                << upload.FullBufferBytes << ',' << upload.WallMilliseconds << ','
+                << (upload.ValidMeasurement ? 1 : 0) << '\n';
+        }
+    }
+}
 } // namespace
 
 std::string RuntimeBenchmarkAlgorithmDisplayName(Algorithms::TerrainLodAlgorithmId algorithmId)
@@ -786,10 +840,24 @@ RuntimeBenchmarkReportPaths WriteRuntimeBenchmarkReport(
     // 同一时间戳绑定 Markdown 和 CSV，用户可以互相追溯
     paths.MarkdownPath = outputDirectory / ("runtime-benchmark-" + timestamp + ".md");
     paths.CsvPath = outputDirectory / ("runtime-benchmark-" + timestamp + ".csv");
+    if (HasCpuUploadSamples(results))
+    {
+        paths.CpuUploadCsvPath =
+            outputDirectory / ("runtime-benchmark-" + timestamp + "-cpu-upload.csv");
+    }
 
     // 先写 CSV 再写 Markdown，汇总表可以引用已确定的明细文件名
     WriteDetailedCsv(paths.CsvPath, results);
-    WriteSummaryMarkdown(paths.MarkdownPath, paths.CsvPath, results, notes);
+    if (!paths.CpuUploadCsvPath.empty())
+    {
+        WriteCpuUploadCsv(paths.CpuUploadCsvPath, results);
+    }
+    WriteSummaryMarkdown(
+        paths.MarkdownPath,
+        paths.CsvPath,
+        paths.CpuUploadCsvPath,
+        results,
+        notes);
     // 返回两个路径，让 Application 同时输出日志和刷新 UI
     return paths;
 }

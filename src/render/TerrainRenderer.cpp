@@ -11,6 +11,7 @@
 #include <stb_image.h>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <iostream>
 #include <memory>
@@ -330,6 +331,8 @@ void TerrainRenderer::ResetTerrainLodAlgorithm()
     _terrainLodStatusMessage.clear();
     _terrainLodTotalMilliseconds = 0.0F;
     _terrainLodCpuUploadMilliseconds = 0.0F;
+    _lastCpuMeshUpdateRanges.clear();
+    _lastCpuMeshRequiresFullUpload = true;
     _drawVertexCount = 0U;
     _drawIndexCount = 0U;
     _drawTriangleCount = 0U;
@@ -700,6 +703,11 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
             return false;
         }
 
+        if (_cpuUploadExperimentCaptureEnabled)
+        {
+            _lastCpuMeshUpdateRanges = renderPacket.CpuMeshUpdateRanges;
+            _lastCpuMeshRequiresFullUpload = renderPacket.CpuMeshRequiresFullUpload;
+        }
         Tools::PerformanceTimer uploadTimer;
         if (!UploadMeshData(
                 *cpuMesh,
@@ -893,6 +901,100 @@ bool TerrainRenderer::UploadMeshData(
         }
     }
     return ConfigureTerrainVertexArray(_vertexBufferId, _indexBufferId, errorMessage);
+}
+
+TerrainCpuUploadExperimentResult TerrainRenderer::ReplayCurrentCpuUploadPair(
+    std::size_t warmupCount,
+    std::size_t measuredRepeatCount)
+{
+    TerrainCpuUploadExperimentResult result{};
+    const Terrain::TerrainMeshData* meshData = _borrowedCpuMeshData != nullptr
+        ? _borrowedCpuMeshData
+        : &_meshData;
+    if (measuredRepeatCount == 0U || meshData == nullptr ||
+        meshData->Vertices.empty() || meshData->Indices.empty())
+    {
+        result.FailureMessage = "上传重放需要非空网格和至少一次正式重复";
+        return result;
+    }
+
+    std::uint64_t packetHash = Algorithms::TerrainLodHashOffset;
+    Algorithms::AppendTerrainLodHash(packetHash, _terrainLodStats.NormalizedMeshHash);
+    Algorithms::AppendTerrainLodHash(packetHash, meshData->Vertices.size());
+    Algorithms::AppendTerrainLodHash(packetHash, meshData->Indices.size());
+    for (const Algorithms::TerrainLodCpuMeshUpdateRange& range : _lastCpuMeshUpdateRanges)
+    {
+        Algorithms::AppendTerrainLodHash(packetHash, range.FirstVertex);
+        Algorithms::AppendTerrainLodHash(packetHash, range.VertexCount);
+        Algorithms::AppendTerrainLodHash(packetHash, range.FirstIndex);
+        Algorithms::AppendTerrainLodHash(packetHash, range.IndexCount);
+    }
+
+    const Algorithms::TerrainLodStats savedStats = _terrainLodStats;
+    const float savedUploadMilliseconds = _terrainLodCpuUploadMilliseconds;
+    const std::size_t totalBlocks = warmupCount + measuredRepeatCount;
+    bool passed = true;
+    for (std::size_t block = 0U; block < totalBlocks; ++block)
+    {
+        const bool warmup = block < warmupCount;
+        const std::size_t repeatIndex = warmup ? block : block - warmupCount;
+        const std::array<Algorithms::TerrainLodCpuUploadAction, 2U> actions = block % 2U == 0U
+            ? std::array{Algorithms::TerrainLodCpuUploadAction::DirtyRange,
+                         Algorithms::TerrainLodCpuUploadAction::FullBuffer}
+            : std::array{Algorithms::TerrainLodCpuUploadAction::FullBuffer,
+                         Algorithms::TerrainLodCpuUploadAction::DirtyRange};
+        for (std::size_t order = 0U; order < actions.size(); ++order)
+        {
+            std::string errorMessage;
+            Tools::PerformanceTimer timer;
+            const bool uploaded = UploadMeshData(
+                *meshData,
+                _lastCpuMeshRequiresFullUpload,
+                actions[order],
+                _lastCpuMeshUpdateRanges,
+                &errorMessage);
+            const float wallMilliseconds = timer.Stop();
+            passed = passed && uploaded;
+            if (!uploaded && result.FailureMessage.empty())
+            {
+                result.FailureMessage = errorMessage;
+            }
+
+            const Algorithms::TerrainLodPassTrace& trace = Algorithms::TerrainLodPassTraceFor(
+                _terrainLodStats.PassTraces,
+                Algorithms::TerrainLodPassId::CpuUpload);
+            TerrainCpuUploadExperimentSample sample{};
+            sample.RequestedAction = actions[order] == Algorithms::TerrainLodCpuUploadAction::FullBuffer
+                ? Algorithms::TerrainLodPassAction::FullBuffer
+                : Algorithms::TerrainLodPassAction::DirtyRange;
+            sample.EffectiveAction = trace.EffectiveAction;
+            sample.FallbackReason = trace.FallbackReason;
+            sample.RepeatIndex = repeatIndex;
+            sample.ExecutionOrder = order;
+            sample.UpdateRangeCount = _lastCpuMeshUpdateRanges.size();
+            sample.UploadedBytes = _terrainLodStats.CpuGpuUploadBytes;
+            sample.FullBufferBytes =
+                meshData->Vertices.size() * sizeof(Terrain::TerrainMeshVertex) +
+                meshData->Indices.size() * sizeof(std::uint32_t);
+            sample.PacketHash = packetHash;
+            sample.WallMilliseconds = wallMilliseconds;
+            sample.ValidMeasurement = uploaded &&
+                trace.FallbackReason == Algorithms::TerrainLodPassFallbackReason::None &&
+                trace.EffectiveAction == sample.RequestedAction;
+            if (warmup)
+            {
+                ++result.WarmupExecutionCount;
+            }
+            else
+            {
+                result.Samples.push_back(sample);
+            }
+        }
+    }
+    _terrainLodStats = savedStats;
+    _terrainLodCpuUploadMilliseconds = savedUploadMilliseconds;
+    result.Passed = passed;
+    return result;
 }
 
 bool TerrainRenderer::ConfigureTerrainVertexArray(

@@ -2,9 +2,9 @@
 
 本项目是一个面向高度图地形的 ROAM 研究与实验平台。项目以 ROAM 1997 的核心算法为基础，实现了 Classic CPU ROAM 和 Data-Oriented CPU ROAM（DOD）两条可对照路径，并在此基础上研究：面对持续变化的网格规模、活动候选、脏数据分布和线程负载，各处理阶段应在什么条件下选择串行、并行、增量或全量实现。
 
-**研究状态：阶段 0–4 已完成，当前已具备统一观测、显式策略、冻结拓扑配对证据和 Classic/DOD 公共结果契约。**
+**研究状态：阶段 0–5 的工程改造已完成，当前已具备统一观测、显式策略、冻结阶段配对、同数据包上传重放和 Classic/DOD 公共结果契约。**
 
-Classic 和 DOD 基线、统一误差口径、固定三角形预算、拓扑验证、OpenGL/D3D12 双图形后端、无窗口基准测试和应用级运行时基准测试均已可运行。当前可以独立控制合并评分、细分评分、合并拓扑、细分拓扑、网格提交和 CPU 上传；固定串行/最大安全并行与增量/全量输出组成的四种对照路径已经通过固定轨迹等价性回归。`Q_s/Q_m` 已分别记录全量评分、原地建堆、候选快照和局部成员维护成本。DOD 可以在独立证据模式中比较同一冻结拓扑的串行与并行辅助结果；Classic 和 DOD 还会在公共算法边界检查预算、队列、网格与渲染数据，并可逐帧比较规范化拓扑、活动叶、网格、事件和阶段语义。离线最优参考和在线选择策略尚未实现。
+Classic 和 DOD 基线、统一误差口径、固定三角形预算、拓扑验证、OpenGL/D3D12 双图形后端、无窗口基准测试和应用级运行时基准测试均已可运行。当前可以独立控制合并评分、细分评分、合并拓扑、细分拓扑、网格提交和 CPU 上传；固定串行/最大安全并行与增量/全量输出组成的四种对照路径已经通过固定轨迹等价性回归。`Q_s/Q_m` 已分别记录全量评分、原地建堆、候选快照和局部成员维护成本。DOD 现在可以从同一帧前状态依次冻结五个 CPU pass，交替运行各自合法策略并输出独立 CSV；运行时基准也可以在同一网格数据包上配对测量脏区间和完整缓冲区上传。Classic 和 DOD 还会在公共算法边界检查预算、队列、网格与渲染数据，并可逐帧比较规范化拓扑、活动叶、网格、事件和阶段语义。正式大规模 crossover 采样、离线最优参考和在线选择策略尚未开展。
 
 ## 项目简介
 
@@ -223,7 +223,7 @@ ctest `
 - DOD 同一冻结候选的串行/并行辅助拓扑等价性与真实并行合并覆盖
 - 公共结果检查及 Classic/DOD 六点跨实现结果契约
 
-截至 2026-08-29，`RelWithDebInfo` 配置下现有 19 项 CTest 均通过。
+截至 2026-08-31，`RelWithDebInfo` 配置下现有 21 项 CTest 均通过。
 
 ## 基准测试
 
@@ -236,7 +236,26 @@ ctest `
   --profile standard
 ```
 
-可选算法为 `classic|dod|all`，可选配置为 `smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|topology-pair-replay|classic-dod-contract|standard`。其中 `incremental-emit` 使用重复视点区分首次建立、一次属性变化和随后无脏区间复用；`pass-trace-replay` 会在重置后重复固定轨迹；`pass-policy-replay` 会依次运行固定串行增量、最大安全并行增量、固定串行全量和最大安全并行全量，并逐帧比较拓扑、活动叶、预算与规范化网格；`topology-pair-replay` 只用于 DOD，将同一冻结候选分别交给串行和并行辅助路径；`classic-dod-contract` 必须与 `--algorithm all` 一起使用，逐帧验证两条实现的公共结果和 Classic 串行阶段映射。
+可选算法为 `classic|dod|all`，可选配置为 `smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|topology-pair-replay|classic-dod-contract|pass-crossover-replay|pass-crossover-stress-replay|standard`。其中 `incremental-emit` 使用重复视点区分首次建立、一次属性变化和随后无脏区间复用；`pass-trace-replay` 会在重置后重复固定轨迹；`pass-policy-replay` 会依次运行固定串行增量、最大安全并行增量、固定串行全量和最大安全并行全量，并逐帧比较拓扑、活动叶、预算与规范化网格；`topology-pair-replay` 只用于 DOD，将同一冻结候选分别交给串行和并行辅助路径；`classic-dod-contract` 必须与 `--algorithm all` 一起使用，逐帧验证两条实现的公共结果和 Classic 串行阶段映射；两个 `pass-crossover` 配置分别使用默认和压力场景，对五个 CPU pass 做冻结输入配对。
+
+冻结阶段配对可以显式设置预热、重复、线程和目标数量：
+
+```powershell
+.\build\relwithdebinfo-fetch\bin\ParallelROAM.exe `
+  --benchmark --algorithm dod --profile pass-crossover-replay `
+  --pass-warmups 5 --pass-repeats 30 --pass-workers 8 --pass-targets 0 `
+  --csv benchmark-output\pass-crossover-default.csv
+```
+
+同一 CPU 网格数据包的上传配对通过应用级运行时基准执行，并另存上传 CSV：
+
+```powershell
+.\build\relwithdebinfo-fetch\bin\ParallelROAM.exe `
+  --runtime-benchmark --runtime-benchmark-upload-pair `
+  --runtime-benchmark-upload-warmups 5 `
+  --runtime-benchmark-upload-repeats 30 `
+  --runtime-benchmark-upload-targets 24
+```
 
 普通配置也可以通过 `--pass-policy default|serial-incremental|maximum-parallel-incremental|serial-full|maximum-parallel-full` 固定整套阶段策略。旧名称 `serial`、`maximum-parallel` 和 `parallel` 继续作为增量输出组合的兼容别名。例如：
 

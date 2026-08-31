@@ -1871,6 +1871,9 @@ TerrainLodTopologyReplayEvidence CollectFrozenReplayEvidence(
     evidence.BoundaryCandidateCount = splitPhase
         ? state.Stats.BoundarySplitCandidateCount
         : state.Stats.BoundaryMergeCandidateCount;
+    evidence.NonEmptyChunkCount = splitPhase
+        ? state.Stats.SplitTopologyNonEmptyChunkCount
+        : state.Stats.MergeTopologyNonEmptyChunkCount;
     evidence.EffectiveWorkerCount = splitPhase
         ? state.Stats.SplitTopologyCommitWorkerCount
         : state.Stats.MergeTopologyCommitWorkerCount;
@@ -2045,6 +2048,78 @@ TerrainLodTopologyPairEvidence ReplayFrozenMergeTopologyPair(
     return evidence;
 }
 } // 匿名命名空间
+
+TerrainLodTopologyReplayEvidence ReplayFrozenSplitTopologyAction(
+    DataOrientedRoamState& state,
+    const std::vector<DataOrientedRoamSplitCandidate>& candidates,
+    bool parallel,
+    float cloneMilliseconds)
+{
+    FrozenTopologyExecutionSummary summary{};
+    if (parallel)
+    {
+        summary = ExecuteFrozenSplitTopology(state, candidates, true);
+    }
+    else
+    {
+        PrepareFrozenReplayState(state);
+        state.Settings.PassPolicy.SplitTopology = TerrainLodTopologyAction::SerialImmediate;
+        Tools::PerformanceTimer wallTimer;
+        SynchronizeSerialSplitBudget(state);
+        RunSplitSerialConvergence(state);
+        summary.WallMilliseconds = wallTimer.Stop();
+    }
+    return CollectFrozenReplayEvidence(state, true, parallel, summary, cloneMilliseconds);
+}
+
+TerrainLodTopologyReplayEvidence ReplayFrozenMergeTopologyAction(
+    DataOrientedRoamState& state,
+    const std::vector<DataOrientedRoamMergeCandidate>& candidates,
+    bool parallel,
+    float cloneMilliseconds)
+{
+    FrozenTopologyExecutionSummary summary{};
+    if (parallel)
+    {
+        summary = ExecuteFrozenMergeTopology(state, candidates, true);
+    }
+    else
+    {
+        PrepareFrozenReplayState(state);
+        state.Settings.PassPolicy.MergeTopology = TerrainLodTopologyAction::SerialImmediate;
+        Tools::PerformanceTimer wallTimer;
+        RunMergeSerialConvergence(state);
+        summary.WallMilliseconds = wallTimer.Stop();
+    }
+    return CollectFrozenReplayEvidence(state, false, parallel, summary, cloneMilliseconds);
+}
+
+std::uint64_t HashFrozenSplitTopologyInput(
+    const DataOrientedRoamState& state,
+    const std::vector<DataOrientedRoamSplitCandidate>& candidates)
+{
+    return HashFrozenSplitCandidates(state, candidates);
+}
+
+std::uint64_t HashFrozenMergeTopologyInput(
+    const DataOrientedRoamState& state,
+    const std::vector<DataOrientedRoamMergeCandidate>& candidates)
+{
+    return HashFrozenMergeCandidates(state, candidates);
+}
+
+void AdvanceMergeTopologySerialForExperiment(DataOrientedRoamState& state)
+{
+    state.Settings.PassPolicy.MergeTopology = TerrainLodTopologyAction::SerialImmediate;
+    RunMergeSerialConvergence(state);
+}
+
+void AdvanceSplitTopologySerialForExperiment(DataOrientedRoamState& state)
+{
+    state.Settings.PassPolicy.SplitTopology = TerrainLodTopologyAction::SerialImmediate;
+    SynchronizeSerialSplitBudget(state);
+    RunSplitSerialConvergence(state);
+}
 
 void RefineWithSplitQueue(DataOrientedRoamState& state)
 {

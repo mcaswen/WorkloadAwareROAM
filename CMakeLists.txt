@@ -81,6 +81,7 @@ if(PARALLEL_ROAM_BUILD_APP)
                 src/algorithms/data_oriented_roam/DataOrientedRoamCandidateMarking.cpp
                 src/algorithms/data_oriented_roam/DataOrientedRoamPipeline.cpp
                 src/algorithms/data_oriented_roam/DataOrientedRoamMeshEmit.cpp
+                src/algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.cpp
                 src/algorithms/data_oriented_roam/DataOrientedRoamQueues.cpp
                 src/algorithms/data_oriented_roam/DataOrientedRoamScoring.cpp
                 src/algorithms/data_oriented_roam/DataOrientedRoamState.cpp
@@ -128,6 +129,7 @@ if(PARALLEL_ROAM_BUILD_APP)
                 src/algorithms/data_oriented_roam/DataOrientedRoamCandidateMarking.cpp
                 src/algorithms/data_oriented_roam/DataOrientedRoamPipeline.cpp
                 src/algorithms/data_oriented_roam/DataOrientedRoamMeshEmit.cpp
+                src/algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.cpp
                 src/algorithms/data_oriented_roam/DataOrientedRoamQueues.cpp
                 src/algorithms/data_oriented_roam/DataOrientedRoamScoring.cpp
                 src/algorithms/data_oriented_roam/DataOrientedRoamState.cpp

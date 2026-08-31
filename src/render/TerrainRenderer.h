@@ -8,6 +8,7 @@
 #include "terrain/TerrainMeshBuilder.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -197,6 +198,36 @@ struct TerrainRenderStats
 };
 
 /// <summary>
+/// 保存同一 CPU 网格数据包的一次上传策略重放结果
+/// </summary>
+struct TerrainCpuUploadExperimentSample
+{
+    Algorithms::TerrainLodPassAction RequestedAction{Algorithms::TerrainLodPassAction::NotRun};
+    Algorithms::TerrainLodPassAction EffectiveAction{Algorithms::TerrainLodPassAction::NotRun};
+    Algorithms::TerrainLodPassFallbackReason FallbackReason{
+        Algorithms::TerrainLodPassFallbackReason::None};
+    std::size_t RepeatIndex{0U};
+    std::size_t ExecutionOrder{0U};
+    std::size_t UpdateRangeCount{0U};
+    std::size_t UploadedBytes{0U};
+    std::size_t FullBufferBytes{0U};
+    std::uint64_t PacketHash{0U};
+    float WallMilliseconds{0.0F};
+    bool ValidMeasurement{false};
+};
+
+/// <summary>
+/// 汇总同一网格数据包上的上传预热和正式样本
+/// </summary>
+struct TerrainCpuUploadExperimentResult
+{
+    bool Passed{false};
+    std::size_t WarmupExecutionCount{0U};
+    std::vector<TerrainCpuUploadExperimentSample> Samples;
+    std::string FailureMessage;
+};
+
+/// <summary>
 /// 统一调度规则网格、CPU LOD 和 GPU LOD 的资源更新与绘制
 /// </summary>
 class TerrainRenderer
@@ -221,6 +252,24 @@ public:
 
     // benchmark 可绕过普通相机位移缓存，要求下一帧重新构建 mesh
     void RequestMeshRebuild();
+
+    /// <summary>
+    /// 对最近一次 CPU 网格数据包交替执行脏区间和完整缓冲区上传
+    /// </summary>
+    [[nodiscard]] TerrainCpuUploadExperimentResult ReplayCurrentCpuUploadPair(
+        std::size_t warmupCount,
+        std::size_t measuredRepeatCount);
+
+    // 普通渲染不复制更新区间，只有显式实验才保留最近的数据包
+    void SetCpuUploadExperimentCaptureEnabled(bool enabled)
+    {
+        _cpuUploadExperimentCaptureEnabled = enabled;
+        if (!enabled)
+        {
+            _lastCpuMeshUpdateRanges.clear();
+            _lastCpuMeshRequiresFullUpload = true;
+        }
+    }
 
     // 切换 benchmark 算法时清掉持久 ROAM 拓扑和上一帧统计
     void ResetTerrainLodAlgorithm();
@@ -271,6 +320,9 @@ private:
     std::string _terrainLodStatusMessage;
     float _terrainLodTotalMilliseconds{0.0F};
     float _terrainLodCpuUploadMilliseconds{0.0F};
+    std::vector<Algorithms::TerrainLodCpuMeshUpdateRange> _lastCpuMeshUpdateRanges;
+    bool _lastCpuMeshRequiresFullUpload{true};
+    bool _cpuUploadExperimentCaptureEnabled{false};
     TerrainRenderSettings _settings;
     std::filesystem::path _heightMapPath;
     std::filesystem::path _texturePath;

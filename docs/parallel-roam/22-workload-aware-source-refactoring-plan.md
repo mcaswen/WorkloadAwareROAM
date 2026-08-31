@@ -185,6 +185,8 @@ Classic 和 DOD 当前都已填充 `MeshFullRebuildCount`、`MeshUpdatedTriangle
 
 ### Phase 5：基准和验证矩阵
 
+**状态：工程实现已完成（2026-08-31），正式大规模采样尚未执行**
+
 实验顺序固定为：
 
 1. **当前实现基线：** Classic；DOD default；DOD `EnableParallelSplit=false`；记录真实 effective action，特别验证该开关并未关闭 Q_s parallel refresh。
@@ -195,6 +197,21 @@ Classic 和 DOD 当前都已填充 `MeshFullRebuildCount`、`MeshUpdatedTriangle
 6. **端到端对照：** Classic、DOD fixed serial、DOD maximum-safe-parallel、DOD best static、greedy pass oracle、frame oracle、adaptive。
 
 每个点固定 height map、camera/view、threshold、三角形预算、max depth、线程配置和冻结输入；先做 warm-up，再交替运行策略。每个策略都检查：拓扑哈希、active leaf hash、mesh hash、三角形预算、persistent queue invariant、crack/T-junction/invalid neighbor 和无效拓扑。
+
+当前工程实现结果：
+
+- 新增 `pass-crossover-replay` 和 `pass-crossover-stress-replay` 两个无窗口入口，分别覆盖默认路径和预算压力路径
+- 合并评分、细分评分、合并拓扑、细分拓扑和网格提交均从同一冻结状态深复制后执行，状态复制成本单列，不进入策略耗时
+- 两策略阶段按 AB/BA 交替，三策略网格提交轮换六种排列；预热次数、正式重复次数、线程上限和目标状态数量均可由显式参数控制
+- 拓扑 CSV 分开记录合并与细分，并包含内部候选、边界候选、非空分块、提前提交、串行收敛和规范化结果编号
+- 运行时基准新增同一 CPU 网格数据包的脏区间/完整缓冲区上传配对；OpenGL 和 D3D12 均保存独立上传 CSV，初始化、扩容和帧槽积压仍按回退样本处理
+- D3D12 上传重放结束后恢复各帧槽位的待处理区间和网格版本，实验调用不会改变后续正式帧的上传范围
+- 新增默认与压力冻结重放回归；当前 21 项 CTest 全部纳入验收矩阵
+- OpenGL 默认路径验收报告为 `runtime-benchmark-20260831-035137`，Classic 和 DOD 各完成 600 个采样点；压力路径报告为 `runtime-benchmark-20260831-035247`，两条路径各完成 64 个采样点
+- 两份验收报告共 1328 帧，结果检查失败、预算越界、队列不变量错误、资源错误、非法邻接、非法拓扑和 T 形裂缝均为零
+- OpenGL 与 D3D12 的同数据包上传冒烟报告分别为 `runtime-benchmark-20260831-035815-cpu-upload.csv` 和 `runtime-benchmark-20260831-035824-cpu-upload.csv`，请求方式、实际方式和数据包编号均通过配对检查
+
+`best static`、两类 oracle 和 adaptive 依赖正式 crossover 数据，不在没有测量结果时预设实现。它们仍按上述顺序位于数据采集和胜负区域确认之后。
 
 ## 预计文件改造范围
 
