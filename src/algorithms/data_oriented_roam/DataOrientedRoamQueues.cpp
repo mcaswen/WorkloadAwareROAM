@@ -5,15 +5,12 @@
 
 #include <algorithm>
 #include <limits>
-#include <thread>
 
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 namespace
 {
 constexpr DataOrientedRoamPosition InvalidQueuePosition = InvalidDataOrientedRoamPosition;
-constexpr std::size_t MinParallelPriorityRefreshCount = 256U;
-constexpr std::size_t MaxPriorityRefreshWorkerCount = 8U;
 constexpr float BlockedSplitScore = -std::numeric_limits<float>::max();
 
 Tools::PerformanceTimer::TimePoint BeginQueueMembershipTiming(const DataOrientedRoamState& state)
@@ -41,29 +38,13 @@ float EndQueueMembershipTiming(
 std::size_t ResolvePriorityRefreshWorkerCount(
     std::size_t entryCount,
     TerrainLodScoreRefreshAction action,
-    std::size_t requestedWorkerCount)
+    std::size_t requestedWorkerCount,
+    std::size_t minimumParallelEntryCount)
 {
-    // 队列较小时保持串行，避免线程调度成本超过评分本身
-    // 自动模式最多使用 8 个线程，与 DOD 其他批量阶段采用相同保守上限
-    // 显式线程数仍尊重调用方设置，便于基准测试观察同时工作线程数量的影响
-    if (entryCount == 0U)
-    {
-        return 0U;
-    }
-    if (action == TerrainLodScoreRefreshAction::SerialRefresh ||
-        requestedWorkerCount == 1U || entryCount < MinParallelPriorityRefreshCount)
-    {
-        return 1U;
-    }
-
-    std::size_t requested = requestedWorkerCount;
-    if (requested == 0U)
-    {
-        const unsigned int hardwareCount = std::thread::hardware_concurrency();
-        requested = hardwareCount == 0U ? 1U : static_cast<std::size_t>(hardwareCount);
-        requested = std::min(requested, MaxPriorityRefreshWorkerCount);
-    }
-    return std::clamp(requested, std::size_t{1U}, entryCount);
+    return ResolveDataOrientedRoamWorkerCount(
+        entryCount,
+        action == TerrainLodScoreRefreshAction::SerialRefresh ? 1U : requestedWorkerCount,
+        minimumParallelEntryCount);
 }
 
 // ActiveInternalNodes 只记录从根节点仍可到达的活动内部节点
@@ -488,7 +469,8 @@ void RefreshPersistentSplitQueuePriorities(DataOrientedRoamState& state)
     const std::size_t workerCount = ResolvePriorityRefreshWorkerCount(
         entryCount,
         state.Settings.PassPolicy.SplitScore,
-        state.Settings.PassPolicy.SplitScoreWorkerCount);
+        state.Settings.PassPolicy.SplitScoreWorkerCount,
+        state.Settings.PassPolicy.SplitScoreMinParallelEntryCount);
     state.Stats.SplitScoreEntryCount = entryCount;
     state.Stats.SplitCandidateMarkWorkerCount = workerCount;
     state.Stats.CollectWorkerCount = std::max(state.Stats.CollectWorkerCount, workerCount);
@@ -683,7 +665,8 @@ void RefreshPersistentMergeQueuePriorities(DataOrientedRoamState& state)
     const std::size_t workerCount = ResolvePriorityRefreshWorkerCount(
         entryCount,
         state.Settings.PassPolicy.MergeScore,
-        state.Settings.PassPolicy.MergeScoreWorkerCount);
+        state.Settings.PassPolicy.MergeScoreWorkerCount,
+        state.Settings.PassPolicy.MergeScoreMinParallelEntryCount);
     state.Stats.MergeScoreEntryCount = entryCount;
     state.Stats.MergeCandidateMarkWorkerCount = workerCount;
     state.Stats.CandidateMarkWorkerCount = std::max(

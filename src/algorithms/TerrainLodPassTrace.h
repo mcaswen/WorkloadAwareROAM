@@ -66,6 +66,10 @@ struct TerrainLodPassPolicy
     std::size_t MergeTopologyWorkerCount{0U};
     std::size_t SplitTopologyWorkerCount{0U};
     std::size_t MeshEmitWorkerCount{0U};
+    // 0 仅解除工作量门槛，串行动作与单线程请求仍优先
+    std::size_t MergeScoreMinParallelEntryCount{256U};
+    std::size_t SplitScoreMinParallelEntryCount{256U};
+    std::size_t MeshEmitMinParallelTriangleCount{256U};
     // 这组参数只决定并行辅助拓扑何时启用，不改变串行收敛和拓扑正确性规则
     std::size_t SplitTopologyMinParallelCandidateCount{32U};
     std::size_t MergeTopologyMinParallelCandidateCount{160U};

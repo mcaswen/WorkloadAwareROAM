@@ -7,7 +7,7 @@
 
 namespace ParallelRoam::Experiment
 {
-inline constexpr std::string_view TerrainLodExperimentCsvSchemaVersion{"3"};
+inline constexpr std::string_view TerrainLodExperimentCsvSchemaVersion{"4"};
 
 // 两种实验入口共用同一组设置字段，字段顺序由实现文件唯一维护
 void WriteTerrainLodSettingsCsvHeader(std::ostream& output);

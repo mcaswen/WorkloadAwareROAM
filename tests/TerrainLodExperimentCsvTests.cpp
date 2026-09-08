@@ -64,6 +64,9 @@ bool CheckSerializedFields(
 int main()
 {
     ParallelRoam::Algorithms::TerrainLodSettings settings{};
+    settings.PassPolicy.MergeScoreMinParallelEntryCount = 0U;
+    settings.PassPolicy.SplitScoreMinParallelEntryCount = 255U;
+    settings.PassPolicy.MeshEmitMinParallelTriangleCount = 257U;
     settings.PassPolicy.SplitTopologyMinParallelCandidateCount = 7U;
     settings.PassPolicy.MergeTopologyMinParallelCandidateCount = 13U;
     settings.PassPolicy.ParallelTopologyTargetBuild = 5U;
@@ -79,7 +82,10 @@ int main()
             SplitCsv(settingsHeader.str()),
             SplitCsv(settingsValues.str()),
             {
-                {"experimentSchemaVersion", "3"},
+                {"experimentSchemaVersion", "4"},
+                {"mergeScoreMinParallelEntryCount", "0"},
+                {"splitScoreMinParallelEntryCount", "255"},
+                {"meshEmitMinParallelTriangleCount", "257"},
                 {"topologyPairEvidenceEnabled", "true"},
                 {"splitTopologyMinParallelCandidateCount", "7"},
                 {"mergeTopologyMinParallelCandidateCount", "13"},

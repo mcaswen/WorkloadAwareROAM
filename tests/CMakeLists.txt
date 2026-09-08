@@ -166,6 +166,41 @@ target_link_libraries(
 
 add_test(NAME application_command_line COMMAND parallel_roam_application_command_line_tests)
 
+# 参数测试不链接窗口、渲染器或整个 Benchmark 运行器
+add_executable(parallel_roam_benchmark_command_line_tests
+    TerrainLodBenchmarkCommandLineTests.cpp
+    ../src/benchmark/TerrainLodBenchmarkCommandLine.cpp)
+target_include_directories(parallel_roam_benchmark_command_line_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+target_link_libraries(parallel_roam_benchmark_command_line_tests PRIVATE
+    parallel_roam_project_options parallel_roam_project_warnings ParallelROAM::GLM)
+add_test(NAME terrain_lod_benchmark_command_line COMMAND parallel_roam_benchmark_command_line_tests)
+
+if(TARGET ParallelROAM::STB)
+    add_executable(parallel_roam_dod_pass_policy_tests
+        DataOrientedRoamPassPolicyTests.cpp
+        ${PARALLEL_ROAM_DOD_SOURCES}
+        ../src/algorithms/TerrainLodView.cpp
+        ../src/terrain/HeightMap.cpp
+        ../src/tools/PerformanceTimer.cpp)
+    target_include_directories(parallel_roam_dod_pass_policy_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+    target_link_libraries(parallel_roam_dod_pass_policy_tests PRIVATE
+        parallel_roam_project_options parallel_roam_project_warnings
+        ParallelROAM::GLM ParallelROAM::STB Threads::Threads)
+    add_test(NAME dod_pass_policy COMMAND parallel_roam_dod_pass_policy_tests)
+    set_tests_properties(dod_pass_policy PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." TIMEOUT 60)
+endif()
+
+if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
+    add_test(NAME terrain_lod_benchmark_policy
+        COMMAND "${CMAKE_COMMAND}"
+            "-DBENCHMARK=$<TARGET_FILE:parallel_roam>"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/.."
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/benchmark-policy"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/TerrainLodBenchmarkPolicyTests.cmake")
+    set_tests_properties(terrain_lod_benchmark_policy PROPERTIES TIMEOUT 180)
+endif()
+
 if(TARGET parallel_roam)
     add_test(
         NAME roam_budget_reentry_classic

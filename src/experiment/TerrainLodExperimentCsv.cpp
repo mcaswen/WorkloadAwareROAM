@@ -282,6 +282,9 @@ void WriteTerrainLodSettingsCsvHeader(std::ostream& output)
     WriteCsvField(output, first, "mergeTopologyWorkerLimit");
     WriteCsvField(output, first, "splitTopologyWorkerLimit");
     WriteCsvField(output, first, "meshEmitWorkerLimit");
+    WriteCsvField(output, first, "mergeScoreMinParallelEntryCount");
+    WriteCsvField(output, first, "splitScoreMinParallelEntryCount");
+    WriteCsvField(output, first, "meshEmitMinParallelTriangleCount");
     WriteCsvField(output, first, "splitTopologyMinParallelCandidateCount");
     WriteCsvField(output, first, "mergeTopologyMinParallelCandidateCount");
     WriteCsvField(output, first, "parallelTopologyTargetBuild");
@@ -317,6 +320,9 @@ void WriteTerrainLodSettingsCsvValues(
     WriteCsvField(output, first, policy.MergeTopologyWorkerCount);
     WriteCsvField(output, first, policy.SplitTopologyWorkerCount);
     WriteCsvField(output, first, policy.MeshEmitWorkerCount);
+    WriteCsvField(output, first, policy.MergeScoreMinParallelEntryCount);
+    WriteCsvField(output, first, policy.SplitScoreMinParallelEntryCount);
+    WriteCsvField(output, first, policy.MeshEmitMinParallelTriangleCount);
     WriteCsvField(output, first, policy.SplitTopologyMinParallelCandidateCount);
     WriteCsvField(output, first, policy.MergeTopologyMinParallelCandidateCount);
     WriteCsvField(output, first, policy.ParallelTopologyTargetBuild);

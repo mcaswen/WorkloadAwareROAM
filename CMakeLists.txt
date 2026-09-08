@@ -46,6 +46,21 @@ if(PARALLEL_ROAM_ENABLE_SANITIZERS)
     parallel_roam_enable_sanitizers(parallel_roam_project_options)
 endif()
 
+# 应用和 CPU 执行测试共用同一组 DOD 源码，避免新增文件只接入一个后端
+set(PARALLEL_ROAM_DOD_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamCandidateMarking.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamPipeline.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamMeshEmit.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamQueues.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamScoring.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamState.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamThreadPool.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamTopology.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamValidation.cpp"
+)
+
 if(PARALLEL_ROAM_BUILD_APP)
     parallel_roam_prepare_dependencies()
 
@@ -77,18 +92,9 @@ if(PARALLEL_ROAM_BUILD_APP)
                 src/algorithms/classic_roam/ClassicRoamState.cpp
                 src/algorithms/classic_roam/ClassicRoamTopology.cpp
                 src/algorithms/classic_roam/ClassicRoamValidation.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamCandidateMarking.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamPipeline.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamMeshEmit.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamQueues.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamScoring.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamState.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamThreadPool.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamTopology.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamValidation.cpp
+                ${PARALLEL_ROAM_DOD_SOURCES}
                 src/benchmark/TerrainLodBenchmark.cpp
+                src/benchmark/TerrainLodBenchmarkCommandLine.cpp
                 src/benchmark/RoamProbe.cpp
                 src/experiment/TerrainLodExperimentCsv.cpp
                 src/gui/ImGuiLayer.cpp
@@ -125,18 +131,9 @@ if(PARALLEL_ROAM_BUILD_APP)
                 src/algorithms/classic_roam/ClassicRoamState.cpp
                 src/algorithms/classic_roam/ClassicRoamTopology.cpp
                 src/algorithms/classic_roam/ClassicRoamValidation.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamCandidateMarking.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamPipeline.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamMeshEmit.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamQueues.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamScoring.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamState.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamThreadPool.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamTopology.cpp
-                src/algorithms/data_oriented_roam/DataOrientedRoamValidation.cpp
+                ${PARALLEL_ROAM_DOD_SOURCES}
                 src/benchmark/TerrainLodBenchmark.cpp
+                src/benchmark/TerrainLodBenchmarkCommandLine.cpp
                 src/benchmark/RoamProbe.cpp
                 src/experiment/TerrainLodExperimentCsv.cpp
                 src/gui/ImGuiLayer.cpp

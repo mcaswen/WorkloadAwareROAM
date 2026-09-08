@@ -7,15 +7,12 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include <thread>
 
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 namespace
 {
 constexpr std::size_t VerticesPerTriangle = 3U;
-constexpr std::size_t MaxAutoEmitWorkerCount = 8U;
-constexpr std::size_t MinParallelEmitTriangleCount = 256U;
 
 /// <summary>
 /// 根据网格提交策略和待写槽位数量选择实际线程数量
@@ -24,30 +21,13 @@ constexpr std::size_t MinParallelEmitTriangleCount = 256U;
 std::size_t ResolveEmitWorkerCount(
     std::size_t triangleCount,
     TerrainLodMeshEmitAction action,
-    std::size_t requestedWorkerCount)
+    std::size_t requestedWorkerCount,
+    std::size_t minimumParallelTriangleCount)
 {
-    if (triangleCount == 0U)
-    {
-        return 0U;
-    }
-
-    if (action == TerrainLodMeshEmitAction::SerialDirty ||
-        action == TerrainLodMeshEmitAction::SerialFull ||
-        requestedWorkerCount == 1U || triangleCount < MinParallelEmitTriangleCount)
-    {
-        return 1U;
-    }
-
-    if (requestedWorkerCount == 0U)
-    {
-        const unsigned int hardwareWorkerCount = std::thread::hardware_concurrency();
-        requestedWorkerCount = hardwareWorkerCount == 0U
-            ? 1U
-            : static_cast<std::size_t>(hardwareWorkerCount);
-        requestedWorkerCount = std::min(requestedWorkerCount, MaxAutoEmitWorkerCount);
-    }
-
-    return std::clamp(requestedWorkerCount, std::size_t{1U}, triangleCount);
+    const bool serial = action == TerrainLodMeshEmitAction::SerialDirty ||
+        action == TerrainLodMeshEmitAction::SerialFull;
+    return ResolveDataOrientedRoamWorkerCount(
+        triangleCount, serial ? 1U : requestedWorkerCount, minimumParallelTriangleCount);
 }
 
 /// <summary>
@@ -324,7 +304,8 @@ void EmitDirtyMeshSlots(DataOrientedRoamState& state)
     state.Stats.EmitWorkerCount = ResolveEmitWorkerCount(
         dirtyCount,
         state.Settings.PassPolicy.MeshEmit,
-        state.Settings.PassPolicy.MeshEmitWorkerCount);
+        state.Settings.PassPolicy.MeshEmitWorkerCount,
+        state.Settings.PassPolicy.MeshEmitMinParallelTriangleCount);
     const std::size_t workerCount = state.Stats.EmitWorkerCount;
     if (workerCount == 0U)
     {

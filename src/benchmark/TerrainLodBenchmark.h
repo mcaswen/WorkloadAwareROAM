@@ -53,6 +53,9 @@ struct BenchmarkOptions
     BenchmarkAlgorithmSelection Algorithm{BenchmarkAlgorithmSelection::All};
     BenchmarkProfile Profile{BenchmarkProfile::Smoke};
     BenchmarkPassPolicySelection PassPolicy{BenchmarkPassPolicySelection::Default};
+    std::size_t MergeScoreMinParallelEntryCount{Algorithms::TerrainLodPassPolicy{}.MergeScoreMinParallelEntryCount};
+    std::size_t SplitScoreMinParallelEntryCount{Algorithms::TerrainLodPassPolicy{}.SplitScoreMinParallelEntryCount};
+    std::size_t MeshEmitMinParallelTriangleCount{Algorithms::TerrainLodPassPolicy{}.MeshEmitMinParallelTriangleCount};
     std::size_t SplitTopologyMinParallelCandidateCount{32U};
     std::size_t MergeTopologyMinParallelCandidateCount{160U};
     std::size_t ParallelTopologyTargetBuild{0U};

@@ -163,6 +163,9 @@ struct TerrainLodBuildInput
     AppendTerrainLodHash(hash, input.Settings.PassPolicy.MergeTopologyMinParallelCandidateCount);
     AppendTerrainLodHash(hash, input.Settings.PassPolicy.ParallelTopologyTargetBuild);
     AppendTerrainLodHash(hash, input.Settings.PassPolicy.ParallelTopologyPhase);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.MergeScoreMinParallelEntryCount);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.SplitScoreMinParallelEntryCount);
+    AppendTerrainLodHash(hash, input.Settings.PassPolicy.MeshEmitMinParallelTriangleCount);
     return hash;
 }
 

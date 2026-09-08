@@ -1,4 +1,5 @@
 #include "benchmark/TerrainLodBenchmark.h"
+#include "benchmark/TerrainLodBenchmarkCommandLine.h"
 
 #include "algorithms/ITerrainLodAlgorithm.h"
 #include "algorithms/TerrainLodResultValidation.h"
@@ -16,7 +17,6 @@
 
 #include <algorithm>
 #include <array>
-#include <charconv>
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
@@ -165,6 +165,9 @@ void ApplyPassPolicy(
     BenchmarkPassPolicySelection selection,
     Algorithms::TerrainLodSettings& settings)
 {
+    const auto mergeScoreMinParallelEntryCount = settings.PassPolicy.MergeScoreMinParallelEntryCount;
+    const auto splitScoreMinParallelEntryCount = settings.PassPolicy.SplitScoreMinParallelEntryCount;
+    const auto meshEmitMinParallelTriangleCount = settings.PassPolicy.MeshEmitMinParallelTriangleCount;
     const std::size_t splitMinimum = settings.PassPolicy.SplitTopologyMinParallelCandidateCount;
     const std::size_t mergeMinimum = settings.PassPolicy.MergeTopologyMinParallelCandidateCount;
     const std::size_t targetBuild = settings.PassPolicy.ParallelTopologyTargetBuild;
@@ -188,54 +191,35 @@ void ApplyPassPolicy(
         settings.PassPolicy = Algorithms::MakeTerrainLodMaximumSafeParallelFullOutputPolicy();
         break;
     }
+    settings.PassPolicy.MergeScoreMinParallelEntryCount = mergeScoreMinParallelEntryCount;
+    settings.PassPolicy.SplitScoreMinParallelEntryCount = splitScoreMinParallelEntryCount;
+    settings.PassPolicy.MeshEmitMinParallelTriangleCount = meshEmitMinParallelTriangleCount;
     settings.PassPolicy.SplitTopologyMinParallelCandidateCount = splitMinimum;
     settings.PassPolicy.MergeTopologyMinParallelCandidateCount = mergeMinimum;
     settings.PassPolicy.ParallelTopologyTargetBuild = targetBuild;
     settings.PassPolicy.ParallelTopologyPhase = phase;
 }
 
-void ApplyTopologyExperimentSettings(
+void ApplyCpuParallelMinimums(
+    const BenchmarkOptions& options,
+    Algorithms::TerrainLodPassPolicy& policy)
+{
+    policy.MergeScoreMinParallelEntryCount = options.MergeScoreMinParallelEntryCount;
+    policy.SplitScoreMinParallelEntryCount = options.SplitScoreMinParallelEntryCount;
+    policy.MeshEmitMinParallelTriangleCount = options.MeshEmitMinParallelTriangleCount;
+}
+
+void ApplyPassExperimentSettings(
     const BenchmarkOptions& options,
     Algorithms::TerrainLodSettings& settings)
 {
+    ApplyCpuParallelMinimums(options, settings.PassPolicy);
     settings.PassPolicy.SplitTopologyMinParallelCandidateCount =
         options.SplitTopologyMinParallelCandidateCount;
     settings.PassPolicy.MergeTopologyMinParallelCandidateCount =
         options.MergeTopologyMinParallelCandidateCount;
     settings.PassPolicy.ParallelTopologyTargetBuild = options.ParallelTopologyTargetBuild;
     settings.PassPolicy.ParallelTopologyPhase = options.ParallelTopologyPhase;
-}
-
-bool ParseSize(std::string_view value, std::size_t& output)
-{
-    if (value.empty())
-    {
-        return false;
-    }
-    const auto [end, error] = std::from_chars(value.data(), value.data() + value.size(), output);
-    return error == std::errc{} && end == value.data() + value.size();
-}
-
-bool ParseParallelTopologyPhase(
-    std::string_view value,
-    Algorithms::TerrainLodParallelTopologyPhase& output)
-{
-    if (value == "both")
-    {
-        output = Algorithms::TerrainLodParallelTopologyPhase::Both;
-        return true;
-    }
-    if (value == "split")
-    {
-        output = Algorithms::TerrainLodParallelTopologyPhase::SplitOnly;
-        return true;
-    }
-    if (value == "merge")
-    {
-        output = Algorithms::TerrainLodParallelTopologyPhase::MergeOnly;
-        return true;
-    }
-    return false;
 }
 
 std::vector<BenchmarkCameraKeyframe> MakeStandardCameraPath()
@@ -1315,135 +1299,6 @@ bool WriteCsv(
     return true;
 }
 
-bool ParseAlgorithm(std::string_view value, BenchmarkAlgorithmSelection& outSelection)
-{
-    // 接受少量别名
-    // 方便脚本里使用短名
-    // 也兼容接口内部算法名
-    if (value == "classic" || value == "classic_cpu_roam")
-    {
-        outSelection = BenchmarkAlgorithmSelection::Classic;
-        return true;
-    }
-
-    if (value == "dod" || value == "data-oriented" || value == "data_oriented")
-    {
-        outSelection = BenchmarkAlgorithmSelection::DataOriented;
-        return true;
-    }
-
-    if (value == "all")
-    {
-        outSelection = BenchmarkAlgorithmSelection::All;
-        return true;
-    }
-
-    return false;
-}
-
-bool ParsePassPolicy(std::string_view value, BenchmarkPassPolicySelection& outSelection)
-{
-    if (value == "default")
-    {
-        outSelection = BenchmarkPassPolicySelection::Default;
-        return true;
-    }
-    if (value == "serial-incremental" || value == "serial")
-    {
-        outSelection = BenchmarkPassPolicySelection::SerialIncremental;
-        return true;
-    }
-    if (value == "maximum-parallel-incremental" ||
-        value == "maximum-parallel" || value == "parallel")
-    {
-        outSelection = BenchmarkPassPolicySelection::MaximumParallelIncremental;
-        return true;
-    }
-    if (value == "serial-full")
-    {
-        outSelection = BenchmarkPassPolicySelection::SerialFull;
-        return true;
-    }
-    if (value == "maximum-parallel-full" || value == "parallel-full")
-    {
-        outSelection = BenchmarkPassPolicySelection::MaximumParallelFull;
-        return true;
-    }
-    return false;
-}
-
-bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
-{
-    // budget-reentry 专门覆盖硬预算满载后的原地转向
-    if (value == "smoke")
-    {
-        outProfile = BenchmarkProfile::Smoke;
-        return true;
-    }
-
-    if (value == "standard")
-    {
-        outProfile = BenchmarkProfile::Standard;
-        return true;
-    }
-
-    if (value == "budget-reentry")
-    {
-        outProfile = BenchmarkProfile::BudgetReentry;
-        return true;
-    }
-
-    if (value == "budget-saturation")
-    {
-        outProfile = BenchmarkProfile::BudgetSaturation;
-        return true;
-    }
-
-    if (value == "incremental-emit")
-    {
-        outProfile = BenchmarkProfile::IncrementalEmit;
-        return true;
-    }
-
-    if (value == "pass-trace-replay")
-    {
-        outProfile = BenchmarkProfile::PassTraceReplay;
-        return true;
-    }
-
-    if (value == "pass-policy-replay")
-    {
-        outProfile = BenchmarkProfile::PassPolicyReplay;
-        return true;
-    }
-
-    if (value == "topology-pair-replay")
-    {
-        outProfile = BenchmarkProfile::TopologyPairReplay;
-        return true;
-    }
-
-    if (value == "classic-dod-contract")
-    {
-        outProfile = BenchmarkProfile::ClassicDodContract;
-        return true;
-    }
-
-    if (value == "pass-crossover-replay")
-    {
-        outProfile = BenchmarkProfile::PassCrossoverReplay;
-        return true;
-    }
-
-    if (value == "pass-crossover-stress-replay")
-    {
-        outProfile = BenchmarkProfile::PassCrossoverStressReplay;
-        return true;
-    }
-
-    return false;
-}
-
 Algorithms::DataOrientedRoam::DataOrientedRoamSettings MakeDataOrientedSettings(
     const Algorithms::TerrainLodSettings& settings)
 {
@@ -1468,7 +1323,8 @@ bool WritePassCrossoverCsvHeader(std::ostream& output)
         << "interiorCandidateCount,boundaryCandidateCount,nonEmptyChunkCount,earlyCommitCount,"
         << "activeTriangleCount,dirtyTriangleCount,dirtyRangeCount,stateCloneMs,scoreMs,heapifyMs,"
         << "candidateSnapshotMs,chunkBuildMs,queueInvalidationMs,commitMs,resultMergeMs,"
-        << "indexQueueRefreshMs,serialConvergenceMs,wallMs,resultHash,equivalent,correct\n";
+        << "indexQueueRefreshMs,serialConvergenceMs,wallMs,resultHash,equivalent,correct,"
+        << "mergeScoreMinParallelEntryCount,splitScoreMinParallelEntryCount,meshEmitMinParallelTriangleCount\n";
     return output.good();
 }
 
@@ -1479,7 +1335,7 @@ bool WritePassCrossoverCsvRow(
     const Algorithms::DataOrientedRoam::DataOrientedRoamPassExperimentSample& sample)
 {
     output << std::setprecision(9)
-           << "1," << scenario.Name << ',' << scenario.Name << ','
+           << "2," << scenario.Name << ',' << scenario.Name << ','
            << scenario.HeightMapPath.filename().generic_string() << ',' << scenario.Name << ','
            << scenario.Settings.TriangleBudget << ',' << sampleIndex << ','
            << scenario.CameraPath[sampleIndex].Name << ','
@@ -1499,7 +1355,10 @@ bool WritePassCrossoverCsvRow(
            << sample.CommitMilliseconds << ',' << sample.ResultMergeMilliseconds << ','
            << sample.IndexQueueRefreshMilliseconds << ',' << sample.SerialConvergenceMilliseconds
            << ',' << sample.WallMilliseconds << ',' << sample.ResultHash << ','
-           << (sample.Equivalent ? 1 : 0) << ',' << (sample.Correct ? 1 : 0) << '\n';
+           << (sample.Equivalent ? 1 : 0) << ',' << (sample.Correct ? 1 : 0)
+           << ',' << scenario.Settings.PassPolicy.MergeScoreMinParallelEntryCount
+           << ',' << scenario.Settings.PassPolicy.SplitScoreMinParallelEntryCount
+           << ',' << scenario.Settings.PassPolicy.MeshEmitMinParallelTriangleCount << '\n';
     return output.good();
 }
 
@@ -1518,6 +1377,7 @@ int RunPassCrossoverReplay(const BenchmarkOptions& options)
     scenario.Settings.PassPolicy.MergeTopologyWorkerCount = options.PassExperimentWorkerCount;
     scenario.Settings.PassPolicy.SplitTopologyWorkerCount = options.PassExperimentWorkerCount;
     scenario.Settings.PassPolicy.MeshEmitWorkerCount = options.PassExperimentWorkerCount;
+    ApplyCpuParallelMinimums(options, scenario.Settings.PassPolicy);
     scenario.Settings.EnableTopologyPairEvidence = false;
 
     Terrain::HeightMap heightMap;
@@ -1644,7 +1504,7 @@ int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 
     BenchmarkScenario scenario = MakeScenario(options.Profile);
     ApplyPassPolicy(options.PassPolicy, scenario.Settings);
-    ApplyTopologyExperimentSettings(options, scenario.Settings);
+    ApplyPassExperimentSettings(options, scenario.Settings);
 
     Terrain::HeightMap heightMap;
     std::string errorMessage;
@@ -1813,194 +1673,17 @@ int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 
 int RunTerrainLodBenchmarkFromCommandLine(int argc, char** argv)
 {
-    BenchmarkOptions options{};
-
-    for (int index = 1; index < argc; ++index)
+    const auto parsed = ParseTerrainLodBenchmarkCommandLine(argc, argv);
+    if (!parsed.Succeeded())
     {
-        const std::string_view argument{argv[index]};
-        if (argument == "--benchmark")
-        {
-            // main 已经根据 --benchmark 分流
-            // 这里允许重复看到该 flag
-            continue;
-        }
-
-        if (argument == "--help" || argument == "-h")
-        {
-            // benchmark help 不启动窗口也不加载 HeightMap
-            std::cout << BenchmarkUsage();
-            return 0;
-        }
-
-        if (argument == "--algorithm" && index + 1 < argc)
-        {
-            // 所有带值参数都在消费后递增 index
-            // 避免下一轮把值当成未知参数
-            if (!ParseAlgorithm(argv[++index], options.Algorithm))
-            {
-                std::cerr << "Unknown benchmark algorithm: " << argv[index] << '\n';
-                std::cerr << BenchmarkUsage();
-                return 1;
-            }
-            continue;
-        }
-
-        if (argument == "--algorithm")
-        {
-            // 缺值错误需要在解析时返回
-            // 不进入默认 benchmark
-            std::cerr << "--algorithm requires a value.\n";
-            std::cerr << BenchmarkUsage();
-            return 1;
-        }
-
-        if (argument == "--profile" && index + 1 < argc)
-        {
-            // profile 控制场景和验收规则
-            // 不允许静默 fallback 到 smoke
-            if (!ParseProfile(argv[++index], options.Profile))
-            {
-                std::cerr << "Unknown benchmark profile: " << argv[index] << '\n';
-                std::cerr << BenchmarkUsage();
-                return 1;
-            }
-            continue;
-        }
-
-        if (argument == "--profile")
-        {
-            std::cerr << "--profile requires a value.\n";
-            std::cerr << BenchmarkUsage();
-            return 1;
-        }
-
-        if (argument == "--pass-policy" && index + 1 < argc)
-        {
-            if (!ParsePassPolicy(argv[++index], options.PassPolicy))
-            {
-                std::cerr << "Unknown benchmark pass policy: " << argv[index] << '\n';
-                std::cerr << BenchmarkUsage();
-                return 1;
-            }
-            continue;
-        }
-
-        if (argument == "--pass-policy")
-        {
-            std::cerr << "--pass-policy requires a value.\n";
-            std::cerr << BenchmarkUsage();
-            return 1;
-        }
-
-        if (argument == "--split-topology-min-candidates" && index + 1 < argc)
-        {
-            if (!ParseSize(argv[++index], options.SplitTopologyMinParallelCandidateCount))
-            {
-                std::cerr << "Invalid --split-topology-min-candidates value: " << argv[index] << '\n';
-                return 1;
-            }
-            continue;
-        }
-
-        if (argument == "--merge-topology-min-candidates" && index + 1 < argc)
-        {
-            if (!ParseSize(argv[++index], options.MergeTopologyMinParallelCandidateCount))
-            {
-                std::cerr << "Invalid --merge-topology-min-candidates value: " << argv[index] << '\n';
-                return 1;
-            }
-            continue;
-        }
-
-        if (argument == "--parallel-topology-target-build" && index + 1 < argc)
-        {
-            if (!ParseSize(argv[++index], options.ParallelTopologyTargetBuild))
-            {
-                std::cerr << "Invalid --parallel-topology-target-build value: " << argv[index] << '\n';
-                return 1;
-            }
-            continue;
-        }
-
-        if (argument == "--parallel-topology-phase" && index + 1 < argc)
-        {
-            if (!ParseParallelTopologyPhase(argv[++index], options.ParallelTopologyPhase))
-            {
-                std::cerr << "Invalid --parallel-topology-phase value: " << argv[index] << '\n';
-                return 1;
-            }
-            continue;
-        }
-
-        if (argument == "--split-topology-min-candidates" ||
-            argument == "--merge-topology-min-candidates" ||
-            argument == "--parallel-topology-target-build" ||
-            argument == "--parallel-topology-phase")
-        {
-            std::cerr << argument << " requires a value.\n";
-            return 1;
-        }
-
-        const auto parsePassExperimentSize = [&](std::string_view name, std::size_t& output) {
-            if (argument != name)
-            {
-                return false;
-            }
-            if (index + 1 >= argc || !ParseSize(argv[++index], output))
-            {
-                std::cerr << "Invalid or missing " << name << " value.\n";
-                output = std::numeric_limits<std::size_t>::max();
-            }
-            return true;
-        };
-        if (parsePassExperimentSize("--pass-warmups", options.PassExperimentWarmupCount) ||
-            parsePassExperimentSize("--pass-repeats", options.PassExperimentRepeatCount) ||
-            parsePassExperimentSize("--pass-workers", options.PassExperimentWorkerCount) ||
-            parsePassExperimentSize("--pass-targets", options.PassExperimentTargetCount))
-        {
-            if (options.PassExperimentWarmupCount == std::numeric_limits<std::size_t>::max() ||
-                options.PassExperimentRepeatCount == std::numeric_limits<std::size_t>::max() ||
-                options.PassExperimentWorkerCount == std::numeric_limits<std::size_t>::max() ||
-                options.PassExperimentTargetCount == std::numeric_limits<std::size_t>::max())
-            {
-                return 1;
-            }
-            continue;
-        }
-
-        if (argument == "--csv" && index + 1 < argc)
-        {
-            // CSV 路径可以指向尚不存在的父目录
-            // WriteCsv 会负责创建
-            options.CsvPath = argv[++index];
-            continue;
-        }
-
-        if (argument == "--csv")
-        {
-            std::cerr << "--csv requires a path.\n";
-            std::cerr << BenchmarkUsage();
-            return 1;
-        }
-
-        std::cerr << "Unknown benchmark argument: " << argument << '\n';
-        std::cerr << BenchmarkUsage();
+        std::cerr << parsed.Error << '\n' << BenchmarkUsage();
         return 1;
     }
-
-    // 命令行解析只负责轻量参数
-    // 实际场景构造和算法运行集中在 RunTerrainLodBenchmark
-    return RunTerrainLodBenchmark(options);
-}
-
-std::string BenchmarkUsage()
-{
-    return "Usage: ParallelROAM --benchmark [--algorithm classic|dod|all] "
-           "[--profile smoke|budget-reentry|budget-saturation|incremental-emit|pass-trace-replay|pass-policy-replay|topology-pair-replay|classic-dod-contract|pass-crossover-replay|pass-crossover-stress-replay|standard] "
-           "[--pass-policy default|serial-incremental|maximum-parallel-incremental|serial-full|maximum-parallel-full] "
-           "[--split-topology-min-candidates count] [--merge-topology-min-candidates count] "
-           "[--parallel-topology-target-build build] [--parallel-topology-phase both|split|merge] "
-           "[--pass-warmups count] [--pass-repeats count] [--pass-workers count] [--pass-targets count] "
-           "[--csv path]\n";
+    if (parsed.ShowHelp)
+    {
+        std::cout << BenchmarkUsage();
+        return 0;
+    }
+    return RunTerrainLodBenchmark(parsed.Options);
 }
 } // 命名空间 ParallelRoam::Benchmark
