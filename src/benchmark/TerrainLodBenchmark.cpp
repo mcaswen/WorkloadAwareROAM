@@ -1,5 +1,6 @@
 #include "benchmark/TerrainLodBenchmark.h"
 #include "benchmark/TerrainLodBenchmarkCommandLine.h"
+#include "benchmark/formal/FormalExperimentRunner.h"
 
 #include "algorithms/ITerrainLodAlgorithm.h"
 #include "algorithms/TerrainLodResultValidation.h"
@@ -127,6 +128,8 @@ std::string ToString(BenchmarkProfile profile)
         return "pass-crossover-stress-replay";
     case BenchmarkProfile::Standard:
         return "standard";
+    case BenchmarkProfile::CpuPilotInputs:
+        return "cpu-pilot-inputs";
     }
 
     return "unknown";
@@ -1489,6 +1492,10 @@ int RunPassCrossoverReplay(const BenchmarkOptions& options)
 
 int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 {
+    if (options.Profile == BenchmarkProfile::CpuPilotInputs)
+    {
+        return Formal::PrepareCpuPilotInputs(options.FormalInput);
+    }
     if (options.Profile == BenchmarkProfile::PassCrossoverReplay ||
         options.Profile == BenchmarkProfile::PassCrossoverStressReplay)
     {

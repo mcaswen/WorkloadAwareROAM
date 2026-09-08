@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algorithms/TerrainLodPassTrace.h"
+#include "experiment/formal/FormalExperimentTypes.h"
 
 #include <cstddef>
 #include <filesystem>
@@ -34,6 +35,7 @@ enum class BenchmarkProfile
     PassCrossoverReplay,
     PassCrossoverStressReplay,
     Standard,
+    CpuPilotInputs,
 };
 
 enum class BenchmarkPassPolicySelection
@@ -66,6 +68,7 @@ struct BenchmarkOptions
     std::size_t PassExperimentWorkerCount{8U};
     std::size_t PassExperimentTargetCount{0U};
     std::filesystem::path CsvPath;
+    Experiment::Formal::FormalInputRequest FormalInput;
 };
 
 /// <summary>

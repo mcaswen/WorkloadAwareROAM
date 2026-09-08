@@ -191,7 +191,36 @@ if(TARGET ParallelROAM::STB)
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." TIMEOUT 60)
 endif()
 
+if(TARGET ParallelROAM::STB)
+    foreach(input_test IN ITEMS ExperimentManifest ExperimentCamera)
+        add_executable(parallel_roam_${input_test}_tests
+            ${input_test}Tests.cpp ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
+            ../src/algorithms/TerrainLodView.cpp ../src/terrain/HeightMap.cpp)
+        target_include_directories(parallel_roam_${input_test}_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+        target_link_libraries(parallel_roam_${input_test}_tests PRIVATE
+            parallel_roam_project_options parallel_roam_project_warnings ParallelROAM::GLM ParallelROAM::STB)
+    endforeach()
+    add_test(NAME formal_experiment_manifest COMMAND parallel_roam_ExperimentManifest_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}/formal-manifest")
+    add_test(NAME formal_experiment_camera COMMAND parallel_roam_ExperimentCamera_tests "${CMAKE_CURRENT_SOURCE_DIR}/..")
+    add_executable(parallel_roam_formal_command_line_tests FormalExperimentCommandLineTests.cpp
+        ../src/benchmark/TerrainLodBenchmarkCommandLine.cpp)
+    target_include_directories(parallel_roam_formal_command_line_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+    target_link_libraries(parallel_roam_formal_command_line_tests PRIVATE
+        parallel_roam_project_options parallel_roam_project_warnings ParallelROAM::GLM)
+    add_test(NAME formal_experiment_command_line COMMAND parallel_roam_formal_command_line_tests)
+endif()
+
 if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
+    find_package(Python3 COMPONENTS Interpreter REQUIRED)
+    cmake_path(GET CMAKE_BINARY_DIR FILENAME cpu_pilot_build_preset)
+    add_test(NAME cpu_pilot_preparation COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test_cpu_pilot_preparation.py"
+        --source "${CMAKE_CURRENT_SOURCE_DIR}/.." --executable "$<TARGET_FILE:parallel_roam>"
+        --preset "${cpu_pilot_build_preset}" --backend "${PARALLEL_ROAM_GRAPHICS_API}"
+        --configuration "$<CONFIG>"
+        --output "${CMAKE_CURRENT_BINARY_DIR}/cpu-pilot-preparation")
+    set_tests_properties(cpu_pilot_preparation PROPERTIES TIMEOUT 180)
     add_test(NAME terrain_lod_benchmark_policy
         COMMAND "${CMAKE_COMMAND}"
             "-DBENCHMARK=$<TARGET_FILE:parallel_roam>"

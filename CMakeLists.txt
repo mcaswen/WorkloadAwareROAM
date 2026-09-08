@@ -61,6 +61,14 @@ set(PARALLEL_ROAM_DOD_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamValidation.cpp"
 )
 
+# 两后端和纯 CPU 输入测试复用同一份清单、相机与记录实现
+set(PARALLEL_ROAM_FORMAL_INPUT_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/ExperimentCsvCodec.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/formal/FormalExperimentCamera.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/formal/FormalExperimentManifest.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/formal/FormalExperimentCsv.cpp"
+)
+
 if(PARALLEL_ROAM_BUILD_APP)
     parallel_roam_prepare_dependencies()
 
@@ -150,6 +158,10 @@ if(PARALLEL_ROAM_BUILD_APP)
         message(STATUS "Full application dependencies are incomplete; building bootstrap target only.")
     endif()
 
+    if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
+        list(APPEND PARALLEL_ROAM_APP_SOURCES ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
+            src/benchmark/formal/FormalExperimentRunner.cpp)
+    endif()
     add_executable(parallel_roam src/main.cpp ${PARALLEL_ROAM_APP_SOURCES})
     add_executable(ParallelROAM::app ALIAS parallel_roam)
 

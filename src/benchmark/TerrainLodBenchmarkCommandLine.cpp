@@ -2,6 +2,7 @@
 
 #include <charconv>
 #include <limits>
+#include <set>
 #include <string_view>
 
 namespace ParallelRoam::Benchmark
@@ -99,6 +100,11 @@ bool ParsePassPolicy(std::string_view value, BenchmarkPassPolicySelection& outSe
 
 bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
 {
+    if (value == "cpu-pilot-inputs")
+    {
+        outProfile = BenchmarkProfile::CpuPilotInputs;
+        return true;
+    }
     // budget-reentry 专门覆盖硬预算满载后的原地转向
     if (value == "smoke")
     {
@@ -177,6 +183,8 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
 {
     TerrainLodBenchmarkCommandLineParseResult result{};
     auto& options = result.Options;
+    bool hasOrdinaryOverrides = false;
+    bool hasInputArguments = false;
     for (int index = 1; index < argc; ++index)
     {
         const std::string_view argument{argv[index]};
@@ -189,6 +197,25 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
             // 保留按位置处理帮助的行为：此前的错误优先，此后的参数不再读取
             result.ShowHelp = true;
             return result;
+        }
+
+        if (argument == "--scenario-manifest" || argument == "--camera-manifest" ||
+            argument == "--target-manifest" || argument == "--output-dir" || argument == "--scenario-id")
+        {
+            hasInputArguments = true;
+            if (index + 1 >= argc || std::string_view{argv[index + 1]}.empty() ||
+                std::string_view{argv[index + 1]}.starts_with("--"))
+            {
+                result.Error = std::string{argument} + " requires a value.";
+                return result;
+            }
+            const std::string value{argv[++index]};
+            if (argument == "--scenario-manifest") options.FormalInput.ScenarioManifest = value;
+            else if (argument == "--camera-manifest") options.FormalInput.CameraManifest = value;
+            else if (argument == "--target-manifest") options.FormalInput.TargetManifest = value;
+            else if (argument == "--output-dir") options.FormalInput.OutputDirectory = value;
+            else options.FormalInput.ScenarioIds.push_back(value);
+            continue;
         }
 
         // 新下限与既有整数选项共用完整十进制解析，范围语义分别保留
@@ -238,6 +265,7 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
 
         if (sizeOption != nullptr)
         {
+            hasOrdinaryOverrides = true;
             if (index + 1 >= argc || !ParseSize(argv[++index], *sizeOption) ||
                 (passExperimentSize && *sizeOption == std::numeric_limits<std::size_t>::max()))
             {
@@ -251,6 +279,7 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
             argument == "--pass-policy" || argument == "--parallel-topology-phase" ||
             argument == "--csv")
         {
+            hasOrdinaryOverrides |= argument != "--profile";
             if (index + 1 >= argc)
             {
                 result.Error = std::string{argument} + " requires a value.";
@@ -289,6 +318,20 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
         result.Error = "Unknown benchmark argument: " + std::string{argument};
         return result;
     }
+    if (options.Profile == BenchmarkProfile::CpuPilotInputs)
+    {
+        const auto& input = options.FormalInput;
+        const std::set<std::string> selected{input.ScenarioIds.begin(), input.ScenarioIds.end()};
+        if (hasOrdinaryOverrides || input.ScenarioManifest.empty() || input.OutputDirectory.empty() ||
+            selected.size() != input.ScenarioIds.size())
+        {
+            result.Error = "cpu-pilot-inputs requires scenario-manifest/output-dir, unique scenario IDs and no ordinary overrides.";
+        }
+    }
+    else if (hasInputArguments)
+    {
+        result.Error = "Manifest and output-dir arguments require --profile cpu-pilot-inputs.";
+    }
     return result;
 }
 
@@ -302,6 +345,9 @@ std::string BenchmarkUsage()
            "[--split-topology-min-candidates count] [--merge-topology-min-candidates count] "
            "[--parallel-topology-target-build build] [--parallel-topology-phase both|split|merge] "
            "[--pass-warmups count] [--pass-repeats count] [--pass-workers count] [--pass-targets count] "
-           "[--csv path]\n";
+           "[--csv path]\n"
+           "CPU pilot input preparation: --benchmark --profile cpu-pilot-inputs "
+           "--scenario-manifest path --output-dir new-directory "
+           "[--scenario-id id]... [--camera-manifest path] [--target-manifest path]\n";
 }
 } // 命名空间 ParallelRoam::Benchmark
