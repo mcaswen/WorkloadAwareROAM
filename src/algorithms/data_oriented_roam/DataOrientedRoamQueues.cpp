@@ -32,8 +32,7 @@ float EndQueueMembershipTiming(
 }
 
 /// <summary>
-/// 根据单个评分阶段的策略和条目数量选择实际线程数量
-/// 固定串行策略始终返回一个线程，自动和并行策略仍保留小规模回退
+/// 串行评分归一为请求 1，其余按队列条目数与并行下限解析；零工作返回 0
 /// </summary>
 std::size_t ResolvePriorityRefreshWorkerCount(
     std::size_t entryCount,

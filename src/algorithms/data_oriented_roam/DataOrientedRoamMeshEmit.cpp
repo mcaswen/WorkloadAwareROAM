@@ -15,8 +15,7 @@ namespace
 constexpr std::size_t VerticesPerTriangle = 3U;
 
 /// <summary>
-/// 根据网格提交策略和待写槽位数量选择实际线程数量
-/// 串行脏数据与串行全量策略都明确限制为一个线程
+/// 串行网格策略归一为请求 1，其余按待写槽位数与并行下限解析；零工作返回 0
 /// </summary>
 std::size_t ResolveEmitWorkerCount(
     std::size_t triangleCount,
@@ -31,8 +30,7 @@ std::size_t ResolveEmitWorkerCount(
 }
 
 /// <summary>
-/// 将一个活动叶节点写入指定网格槽位
-/// 槽位所有者决定几何内容，线程完成顺序不会改变输出位置
+/// 按槽位所有者写入固定位置，线程完成顺序不会改变几何内容或输出位置
 /// </summary>
 void WriteDomainTriangle(
     const DataOrientedRoamState& state,
@@ -300,6 +298,7 @@ void EmitDirtySlotRange(DataOrientedRoamState& state, std::size_t begin, std::si
 
 void EmitDirtyMeshSlots(DataOrientedRoamState& state)
 {
+    // 并行下限按实际待写脏槽位数判断，活动网格规模不能替代本次工作量
     const std::size_t dirtyCount = state.IncrementalMesh.DirtySlots.size();
     state.Stats.EmitWorkerCount = ResolveEmitWorkerCount(
         dirtyCount,
@@ -330,8 +329,7 @@ void EmitDirtyMeshSlots(DataOrientedRoamState& state)
 }
 
 /// <summary>
-/// 按当前槽位所有者顺序重写完整网格
-/// 该对照只改变数据写入范围，不重建拓扑或槽位映射
+/// 沿槽位所有者顺序串行重写完整网格并请求全量上传，不重建拓扑或槽位映射
 /// </summary>
 void EmitFullMeshSerial(DataOrientedRoamState& state)
 {

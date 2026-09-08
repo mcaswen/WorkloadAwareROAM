@@ -63,9 +63,9 @@ struct BenchmarkScenario
     bool RequireBudgetSaturation{false};
     // 重置算法后重复固定轨迹，并逐帧比较输入与结果哈希
     bool RequireDeterministicReplay{false};
-    // 阶段 3 回归要求同一冻结候选的串行与并行辅助结果一致
+    // 拓扑配对回归要求同一冻结候选的串行与并行辅助结果一致
     bool RequireTopologyPairEvidence{false};
-    // 阶段 4 回归逐帧比较 Classic 与 DOD 的规范化结果
+    // 跨算法回归逐帧比较 Classic 与 DOD 的规范化结果
     bool RequireClassicDodComparison{false};
 };
 
@@ -261,9 +261,9 @@ std::vector<BenchmarkCameraKeyframe> MakeStandardCameraPath()
 
 std::vector<BenchmarkCameraKeyframe> MakeBudgetSaturationCameraPath()
 {
-    // Peking 高度图的最细网格容量显著超过 200000 个三角形。
-    // 低空闭合环绕让视锥内持续存在超过 200000 个高优先级 leaf，
-    // 内圈移动目标则迫使满预算拓扑在不同区域之间重新分配。
+    // Peking 高度图的最细网格容量超过 200000 个三角形
+    // 低空闭合环绕用于持续制造超过该预算的细分需求
+    // 内圈移动目标促使满预算拓扑在不同区域间重新分配
     std::vector<BenchmarkCameraKeyframe> path;
     constexpr int FrameCount = 24;
     constexpr float CameraRadius = 58.0F;
@@ -655,14 +655,14 @@ bool ValidateFrame(
         return false;
     }
 
-    // CPU 持久 Q_s 成员必须精确对应 active cut。
+    // CPU 持久细分队列 Q_s 的成员必须精确对应当前活动叶集合
     if (stats.PersistentSplitQueueSize != 0U &&
         (stats.PersistentSplitQueueSize != stats.ActiveTriangleCount ||
          stats.PersistentSplitQueueSize > scenario.Settings.TriangleBudget ||
          stats.SplitCount + stats.MergeCount > stats.ActiveNodeCount))
     {
-        // 每个 parent 在同一 Build 最多执行一次正向或反向事务。
-        // 事件数超过持久节点池规模通常意味着 split/merge 发生了同帧振荡。
+        // 每个父节点在同一 Build 最多执行一次正向或反向事务
+        // 事件数超过持久节点池规模通常意味着细分与合并发生了同帧振荡
         return false;
     }
 
@@ -1131,7 +1131,7 @@ BenchmarkAlgorithmRun RunAlgorithm(
              stats.ActiveTriangleCount <= scenario.Settings.TriangleBudget);
         if (selection == BenchmarkAlgorithmSelection::DataOriented)
         {
-            // C1 契约：活动叶视图直接供最终输出使用，独立 Q_s 必须覆盖同一活动切分。
+            // 活动叶视图直接供最终输出使用，持久细分队列 Q_s 必须覆盖同一活动切分
             frame.Passed = frame.Passed &&
                 stats.PersistentSplitQueueSize == stats.ActiveTriangleCount &&
                 stats.CpuFinalLeafCollectMilliseconds == 0.0F;
@@ -1657,7 +1657,7 @@ int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 
     const bool csvWritten = WriteCsv(options.CsvPath, scenario, runs);
 
-    // 不能把没有实际运行任何算法的请求误判为成功。
+    // 不能把没有实际运行任何算法的请求误判为成功
     if (!anyAvailable)
     {
         // 显式选择未实现算法时需要失败

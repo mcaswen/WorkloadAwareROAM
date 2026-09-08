@@ -18,6 +18,7 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
     std::size_t requestedWorkerCount,
     std::size_t minimumParallelWorkItemCount)
 {
+    // 先排除空工作，避免串行动作归一为请求 1 后产生空任务
     if (workItemCount == 0U)
     {
         return 0U;
@@ -33,12 +34,12 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
         requestedWorkerCount = hardwareCount == 0U ? 1U : static_cast<std::size_t>(hardwareCount);
         requestedWorkerCount = std::min(requestedWorkerCount, std::size_t{8U});
     }
+    // 下限为 0 只解除数量门槛，单条工作仍不能派发多个任务
     return std::clamp(requestedWorkerCount, std::size_t{1U}, workItemCount);
 }
 
 /// <summary>
-/// 为 DOD 各并行阶段提供统一的线程调度入口
-/// 线程池由 DataOrientedRoamPipeline 跨帧持有，当前阶段只提供临时任务
+/// 借用流水线持有的线程池同步完成阶段任务，回调引用的对象须存活到返回
 /// </summary>
 inline void RunDataOrientedRoamWorkers(
     DataOrientedRoamState& state,
@@ -64,9 +65,9 @@ inline void RunDataOrientedRoamWorkers(
         return;
     }
 
+    // 无线程池时只在调用线程遍历任务编号，任务数量不代表实际系统线程数量
     for (std::size_t workerIndex = 0U; workerIndex < workerCount; ++workerIndex)
     {
-        // 测试或过渡期间没有线程池时按编号顺序执行，保证每次得到相同结果
         task(workerIndex);
     }
 }

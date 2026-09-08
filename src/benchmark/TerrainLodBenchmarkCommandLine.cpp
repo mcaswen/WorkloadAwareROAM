@@ -218,7 +218,7 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
             continue;
         }
 
-        // 新下限与既有整数选项共用完整十进制解析，范围语义分别保留
+        // 数量选项共用完整十进制解析，仅 --pass-* 计数拒绝 size_t 最大值
         std::size_t* sizeOption = nullptr;
         if (argument == "--merge-score-min-parallel-entries")
         {

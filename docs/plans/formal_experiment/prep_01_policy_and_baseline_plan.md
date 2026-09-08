@@ -285,7 +285,7 @@ ctest --test-dir build/relwithdebinfo-d3d12-fetch -C RelWithDebInfo --output-on-
 | 解析与配置 | 新解析文件不执行 I/O；原入口薄包装；预设切换保留五个下限，两条入口显式应用新增三项；DOD 整份策略转换与复制复用 |
 | 输入和 CSV | 公共输入哈希追加三项；共享设置版本 4、配对版本 2；各列来自实际配置，冻结输入编号语义未改 |
 | 文件归属 | 17 个实际代码/构建/测试文件全部匹配第 4 节清单；没有修改线程池所有权、公共算法虚接口、App/GUI 或上传实现 |
-| 架构审查 | [审查记录](../../reviews/formal_experiment/prep_01_policy_and_baseline_architecture_review.md)已完成；Critical / Major 无问题，注释格式 Minor 已整改，无未处理项 |
+| 架构审查 | [审查记录](../../reviews/formal_experiment/prep_01_policy_and_baseline_architecture_review.md)已完成；Critical / Major 无问题，初次发现的公共注释格式已整改，后续既有注释专项优化见第 8.3 节 |
 
 ### 8.1 实际验证
 
@@ -304,6 +304,18 @@ ctest --test-dir build/relwithdebinfo-d3d12-fetch -C RelWithDebInfo --output-on-
 原始输出和一次性诊断/比对工件保留在本地 `benchmark-output/prep-01/`，通过本地 `.git/info/exclude` 排除，未改仓库忽略规则。用户另行修改的 `AGENTS.md` 保持原样，不纳入本阶段提交。
 
 拓扑冻结线程覆盖、诊断隔离、真实阶段边界、发现、正式配置身份与上传验证仍按 PREP-02～PREP-07 落地。本次没有采集正式性能数据，也没有得出 CPU 性能交叉结论。
+
+### 8.3 注释专项优化
+
+用户要求继续优化注释，结合上一轮遗留问题按 PREP-01 处理。本次以[注释专项审查](../../reviews/formal_experiment/prep_01_02_comment_compliance_review.md)的 C-04 及修改时序表述为范围；修改前重读开发规范第 5.7 节、本规划、代码事实与审查，并核对相关源码及相邻调用。
+
+全部采用 Extend，仅优化五个既有文件的注释：`DataOrientedRoamParallel.h` 说明数量解析、线程池借用和无池执行边界；`DataOrientedRoamQueues.cpp`、`DataOrientedRoamMeshEmit.cpp` 说明动作归一、零工作、脏槽位及固定输出位置；`TerrainLodBenchmark.cpp` 说明场景目的和验证约束；`TerrainLodBenchmarkCommandLine.cpp` 说明整数选项的范围差异。五处四行 summary 压缩为三行，背景约束放在相关分支旁，清理八行行尾标点和无必要的历史标签，不新增文件、接口或依赖。
+
+验收逐项核对注释与条件、调用关系一致，检查连续行数、summary 格式、行尾标点及阶段编号；与修改前版本比较，确保源码仅有整行注释差异，并运行注释覆盖率门禁。仅修改注释不重复两后端功能测试，结果同步本节及两份相关审查。本次开发授权不包含新的 Git 提交。
+
+实施结果：2026-09-09 完成五个文件的注释优化。五处过长 summary 改为三行，八行禁止的行尾标点已清理，同时去掉两处历史阶段编号、`C1` 标签与“新下限”时序表述。数量适配注释明确零工作返回 0；补充脏槽位工作量、同步借用和无线程池时顺序执行的限制，完整网格重写说明包含全量上传请求。
+
+与本次修改前 `db16eb6` 比较，仅预定五个源码文件变化，去除整行注释后逐行一致；注释格式、长度、标点、编号及差异空白检查完成。覆盖率为 2548/16328 = 15.6%，DOD 为 937/4677，满足 20% 门槛；其他子模块门槛也满足。C-04 已整改，职责、接口、依赖与执行行为未变；未重复构建和功能测试，本次修改未暂存、提交或推送。
 
 ## 9. 目标边界摘要
 
