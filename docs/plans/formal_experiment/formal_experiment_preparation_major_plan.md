@@ -1,8 +1,8 @@
 # 正式实验准备：代码修改大规划
 
 > 规划类型：大规划（Major Plan）\
-> 状态：PREP-01、PREP-02 已完成实现、验证及架构核查；PREP-03～PREP-10 未开始\
-> 审阅进展：2026-09-09，用户确认大规划方向与 PREP-01 小规划；随后授权 PREP-02 自主规划、实现和注释补充，并许可按 PREP-01 方式提交\
+> 状态：PREP-01～PREP-03 已完成实现、验证与架构核查；PREP-03 代码已提交为 `4d7ab68`，文档单独归档；PREP-04～PREP-10 未开始\
+> 审阅进展：2026-09-09，用户确认大规划方向与 PREP-01 小规划；随后授权 PREP-02 自主规划、实现和注释补充，并许可按 PREP-01 方式提交；本次确认 PREP-03 小规划并授权实现，验收后另行许可提交\
 > 编写日期：2026-09-07\
 > 上传边界澄清：2026-09-08；各后端内部复用对应上传实现，公共接口及实验性能代表性在 PREP-06/07 分别验证\
 > 阶段编号与顺序：PREP-01～PREP-10 连续编号；PREP-05 为 CPU crossover pilot gate，PREP-06 起为通过 gate 后的条件性建设\
@@ -49,6 +49,8 @@
 规划建立时 `docs/codebase/` 仅有指南。PREP-01 已补齐 [CPU 策略与回放事实](../../codebase/formal_experiment/cpu_policy_and_replay_baseline.md)，区分修改前基线和当前实现；后续小规划引用该记录。本规划第 4 节只保留影响整体方案的最小索引。
 
 PREP-02 已补齐 [CPU pilot 输入与记录事实](../../codebase/formal_experiment/cpu_pilot_input_contracts.md)，记录共享清单、NO 相机、目标引用、输入准备入口和 Python 摘要边界。后续 CPU 发现与配对优先复用该输入契约。
+
+PREP-03 规划前补充 [CPU 阶段边界与工作负载事实](../../codebase/formal_experiment/cpu_pass_boundary_and_workload_baseline.md)，记录评分/拓扑嵌套、现有规划写入、网格元数据与几何耦合及身份限制；对应小规划待用户确认，不能把规划中的组件当作已实现。
 
 ### 2.2 本次核验对既有描述的修正
 
@@ -619,7 +621,7 @@ AC-11 贯穿全部阶段。原先延后的能力现在各有明确归属：完�
 
 ### PREP-03：CPU 阶段边界、规划特征与工作负载发现
 
-**依赖**：PREP-02；完成 `prep_03_workload_discovery_plan.md` Review。运行不依赖上传发现或正式运行存储。
+**依赖**：PREP-02 已完成；[PREP-03 小规划](prep_03_workload_discovery_plan.md)已获用户确认并完成实现验收。运行不依赖上传发现或正式运行存储。
 
 **文件归属**：在 DOD 内提取 PassExecution、TopologyPlan、MeshPlan，创建 WorkloadProbe；在 `benchmark/formal` 创建 FormalWorkloadDiscovery，在共享层创建 FormalExperimentTargetSelector；扩展发现记录和相关语义测试。
 
@@ -627,7 +629,7 @@ AC-11 贯穿全部阶段。原先延后的能力现在各有明确归属：完�
 
 **验证**：提取前后固定串行/最大安全并行轨迹等价；探测前后源状态、队列顺序、版本和网格哈希不变；预计网格写入/区间与后续真实执行相符；所选 pilot 场景每条 64 点连续完整，不要求先跑全部 1152 帧；目标选择覆盖相等特征、零分母、并列和点数不足；修改所有耗时字段不改变目标清单。拓扑规划不得提交候选，网格规划不得写顶点。
 
-**实现情况**：未开始。完成后填写实际边界、选择器版本、覆盖报告和审查记录。
+**实现情况**：已于 2026-09-09 完成；经用户许可，代码提交为 `4d7ab68`，文档单独归档。公共五阶段观察、只读拓扑/网格规划、阶段输入身份 v1、选择器 v1、发现 CSV v2 与追溯脚本已接入。六场景完整发现 1920 行，生成 113 个唯一目标，3 个合并拓扑组的覆盖不足已记录。目标可从根重建，两个独立进程及两后端目标字节一致。OpenGL 32 项均取得通过结果，其中旧输入准备超时项独立复核通过；D3D12 全量 32/32 通过。CPU pilot 默认每组 4 点，8 点规则单独配置。详细产物与限制见[小规划第 8 节](prep_03_workload_discovery_plan.md#8-实现情况)、[当前事实](../../codebase/formal_experiment/cpu_pass_boundary_and_workload_baseline.md)和[架构审查](../../reviews/formal_experiment/prep_03_workload_discovery_architecture_review.md)。
 
 ### PREP-04：最小可靠 CPU 配对与最小分析
 
