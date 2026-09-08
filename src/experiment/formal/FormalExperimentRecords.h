@@ -41,6 +41,72 @@ struct CpuDiscoveryRecord
     double FeatureCollectionMilliseconds{0};
     CpuRecordStatus Status{CpuRecordStatus::Incomplete};
     std::string Failure;
+    std::uint64_t CameraPoseHash{0U};
+    std::uint32_t PassInputVersion{0U};
+    std::size_t PreMergeQueueEntryCount{0U};
+    std::size_t PreSplitQueueEntryCount{0U};
+    std::size_t PreActiveTriangleCount{0U};
+    std::size_t PreTriangleBudget{0U};
+    std::size_t PreRemainingTriangleBudget{0U};
+    std::size_t PreTopologyEditCount{0U};
+    int PreMaxActiveDepth{0};
+    int PreMaxDepth{0};
+    std::size_t PlanningInteriorCandidateCount{0U};
+    std::size_t PlanningBoundaryCandidateCount{0U};
+    std::size_t PlanningScheduledCandidateCount{0U};
+    std::size_t PlanningNonEmptyChunkCount{0U};
+    std::size_t PlanningDirtyTriangleCount{0U};
+    std::size_t PlanningDirtyRangeCount{0U};
+    std::string PlanningMeshReason{"not_applicable"};
+    float PrimaryWorkValue{0.0F};
+    std::string FeatureVector;
+    std::uint64_t SelectionFeatureHash{0U};
+    // 显式区分尚未诊断与检查通过以免零违规数量被误读
+    bool ValidationPerformed{false};
+    bool ValidationPassed{false};
+    bool SelectionEligible{false};
+    std::string SelectionExclusionReason{"not_checked"};
+    double InputHashMilliseconds{0.0};
+    double ValidationMilliseconds{0.0};
+};
+
+/// <summary>
+/// 每组覆盖不足仍是有效发现事实且不复制目标填满配额
+/// </summary>
+struct CpuTargetCoverageRecord
+{
+    std::string ScenarioId;
+    Algorithms::TerrainLodPassId PassId{Algorithms::TerrainLodPassId::MergeScore};
+    std::uint32_t SelectorVersion{0U};
+    std::uint32_t SelectionSeed{0U};
+    std::uint32_t RequestedCount{0U};
+    std::size_t EligibleCount{0U};
+    std::size_t SelectedCount{0U};
+    std::array<std::size_t, 4> StratumCounts{};
+    std::string InsufficiencyReason;
+};
+
+/// <summary>
+/// 发现摘要绑定选择配置和完整性且不宣称存在性能交叉
+/// </summary>
+struct CpuDiscoverySummary
+{
+    std::string Status{"discovering"};
+    std::size_t ScenarioCount{0U};
+    std::size_t CompletedScenarioCount{0U};
+    std::size_t ExpectedRecordCount{0U};
+    std::size_t RecordCount{0U};
+    std::size_t ValidRecordCount{0U};
+    std::size_t NoWorkRecordCount{0U};
+    std::size_t FailedRecordCount{0U};
+    std::size_t TargetCount{0U};
+    std::size_t InsufficientGroupCount{0U};
+    std::uint32_t TargetsPerPass{4U};
+    std::uint32_t SelectorVersion{0U};
+    std::uint32_t PassInputVersion{0U};
+    std::uint32_t SelectionSeed{0U};
+    std::string TargetStatus{"not_published"};
+    std::string Error;
 };
 
 /// <summary>

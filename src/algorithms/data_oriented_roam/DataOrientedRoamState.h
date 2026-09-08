@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algorithms/data_oriented_roam/DataOrientedRoamTypes.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamMeshState.h"
 
 #include <array>
 #include <atomic>
@@ -13,17 +14,6 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 class DataOrientedRoamThreadPool;
 
-using DataOrientedRoamNodeIndex = std::uint32_t;
-constexpr DataOrientedRoamNodeIndex InvalidDataOrientedRoamNodeIndex =
-    std::numeric_limits<DataOrientedRoamNodeIndex>::max();
-// 节点池下标使用 uint32_t，活动列表和跨帧保留的队列都只引用节点池中的一部分节点
-// 反向位置使用相同宽度即可覆盖全部成员，同时避免额外的 64 位索引开销
-using DataOrientedRoamPosition = std::uint32_t;
-constexpr DataOrientedRoamPosition InvalidDataOrientedRoamPosition =
-    std::numeric_limits<DataOrientedRoamPosition>::max();
-constexpr DataOrientedRoamPosition InvalidActiveNodePosition =
-    InvalidDataOrientedRoamPosition;
-static_assert(sizeof(DataOrientedRoamNodeIndex) == sizeof(DataOrientedRoamPosition));
 // 分块编号决定节点能否由某一个线程独立修改而不与其他线程冲突
 using DataOrientedRoamChunkId = std::uint32_t;
 constexpr DataOrientedRoamChunkId InvalidDataOrientedRoamChunkId =
@@ -100,39 +90,6 @@ struct DataOrientedRoamNodeMembership
     DataOrientedRoamNodeIndex MergeQueuePartner{InvalidDataOrientedRoamNodeIndex};
 };
 static_assert(sizeof(DataOrientedRoamNodeMembership) == 24U);
-
-enum class DataOrientedRoamMeshTopologyEditType
-{
-    Split,
-    Merge,
-};
-
-struct DataOrientedRoamMeshTopologyEdit
-{
-    DataOrientedRoamMeshTopologyEditType Type{DataOrientedRoamMeshTopologyEditType::Split};
-    DataOrientedRoamNodeIndex Node{InvalidDataOrientedRoamNodeIndex};
-};
-
-/// <summary>
-/// 保存 DOD CPU 跨帧保留的网格、槽位映射和待更新范围
-/// NodeSlots 提供节点到槽位的反向索引，SlotOwners 按绘制顺序保存活动叶节点
-/// 其他线程只修改各自负责的拓扑，主线程统一更新网格，避免并发写入顶点和索引数组
-/// </summary>
-struct DataOrientedRoamIncrementalMesh
-{
-    Terrain::TerrainMeshData Data;
-    std::vector<DataOrientedRoamPosition> NodeSlots;
-    std::vector<DataOrientedRoamNodeIndex> SlotOwners;
-    std::vector<std::uint64_t> SlotDirtyGenerations;
-    std::vector<DataOrientedRoamPosition> DirtySlots;
-    std::vector<DataOrientedRoamMeshUpdateRange> UpdateRanges;
-    std::vector<DataOrientedRoamNodeIndex> DebugTransitionLeaves;
-    std::vector<DataOrientedRoamMeshTopologyEdit> TopologyEdits;
-    std::uint64_t Generation{0U};
-    bool RequiresFullUpload{true};
-    bool NeedsInitialization{true};
-    bool TracksTopologyEdits{false};
-};
 
 struct DataOrientedRoamMergeCandidateEvaluation
 {

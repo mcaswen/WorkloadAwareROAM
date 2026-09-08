@@ -7,9 +7,23 @@
 #include <glm/glm.hpp>
 
 #include <cstddef>
+#include <cstdint>
+#include <limits>
 
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
+using DataOrientedRoamNodeIndex = std::uint32_t;
+constexpr DataOrientedRoamNodeIndex InvalidDataOrientedRoamNodeIndex =
+    std::numeric_limits<DataOrientedRoamNodeIndex>::max();
+// 节点池下标使用 uint32_t，活动列表和跨帧保留的队列都只引用节点池中的一部分节点
+// 反向位置使用相同宽度即可覆盖全部成员，同时避免额外的 64 位索引开销
+using DataOrientedRoamPosition = std::uint32_t;
+constexpr DataOrientedRoamPosition InvalidDataOrientedRoamPosition =
+    std::numeric_limits<DataOrientedRoamPosition>::max();
+constexpr DataOrientedRoamPosition InvalidActiveNodePosition =
+    InvalidDataOrientedRoamPosition;
+static_assert(sizeof(DataOrientedRoamNodeIndex) == sizeof(DataOrientedRoamPosition));
+
 /// <summary>
 /// 表示 DOD ROAM 三角形在高度图上的覆盖区域
 /// 该值可在各阶段之间复制，不负责管理节点、队列或线程资源

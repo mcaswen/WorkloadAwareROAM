@@ -128,6 +128,8 @@ std::string ToString(BenchmarkProfile profile)
         return "pass-crossover-stress-replay";
     case BenchmarkProfile::Standard:
         return "standard";
+    case BenchmarkProfile::CpuWorkloadDiscovery:
+        return "cpu-workload-discovery";
     case BenchmarkProfile::CpuPilotInputs:
         return "cpu-pilot-inputs";
     }
@@ -1492,6 +1494,10 @@ int RunPassCrossoverReplay(const BenchmarkOptions& options)
 
 int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 {
+    if (options.Profile == BenchmarkProfile::CpuWorkloadDiscovery)
+    {
+        return Formal::DiscoverCpuPilotWorkloads(options.FormalInput, static_cast<std::uint32_t>(options.TargetsPerPass));
+    }
     if (options.Profile == BenchmarkProfile::CpuPilotInputs)
     {
         return Formal::PrepareCpuPilotInputs(options.FormalInput);

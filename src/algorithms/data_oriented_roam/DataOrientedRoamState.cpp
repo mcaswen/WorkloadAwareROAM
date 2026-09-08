@@ -383,7 +383,7 @@ DataOrientedRoamNodeIndex AddNode(
         varianceIndex);
     // 新节点默认是活动叶节点，只有再次细分后才加入活动内部节点索引
     state.NodeMembership.emplace_back();
-    state.IncrementalMesh.NodeSlots.push_back(InvalidDataOrientedRoamPosition);
+    state.IncrementalMesh.Metadata.NodeSlots.push_back(InvalidDataOrientedRoamPosition);
     state.SplitQueueBlockedBuildIds.push_back(0U);
     return node;
 }
@@ -416,10 +416,10 @@ void ReserveNodePool(DataOrientedRoamState& state)
     }
 
     state.NodeMembership.reserve(targetCapacity);
-    state.IncrementalMesh.NodeSlots.reserve(targetCapacity);
-    state.IncrementalMesh.SlotOwners.reserve(state.Settings.TriangleBudget);
-    state.IncrementalMesh.SlotDirtyGenerations.reserve(state.Settings.TriangleBudget);
-    state.IncrementalMesh.DirtySlots.reserve(state.Settings.TriangleBudget);
+    state.IncrementalMesh.Metadata.NodeSlots.reserve(targetCapacity);
+    state.IncrementalMesh.Metadata.SlotOwners.reserve(state.Settings.TriangleBudget);
+    state.IncrementalMesh.Metadata.SlotDirtyGenerations.reserve(state.Settings.TriangleBudget);
+    state.IncrementalMesh.Metadata.DirtySlots.reserve(state.Settings.TriangleBudget);
     state.ActiveInternalNodes.reserve(targetCapacity / 2U);
     state.ActiveLeafNodes.reserve(targetCapacity / 2U + 1U);
     state.SplitQueue.reserve(targetCapacity / 2U + 1U);
@@ -436,7 +436,7 @@ void ResetTopology(DataOrientedRoamState& state)
     state.ActiveInternalNodes.clear();
     state.ActiveLeafNodes.clear();
     state.NodeMembership.clear();
-    state.IncrementalMesh.NodeSlots.clear();
+    state.IncrementalMesh.Metadata.NodeSlots.clear();
     state.SplitQueue.clear();
     state.SplitQueueBlockedBuildIds.clear();
     state.MergeQueue.clear();

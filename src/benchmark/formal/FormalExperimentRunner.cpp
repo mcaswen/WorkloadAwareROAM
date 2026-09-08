@@ -1,4 +1,6 @@
 #include "benchmark/formal/FormalExperimentRunner.h"
+#include "benchmark/formal/FormalWorkloadDiscovery.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamPassInput.h"
 
 #include "experiment/formal/FormalExperimentCamera.h"
 #include "experiment/formal/FormalExperimentCsv.h"
@@ -95,6 +97,107 @@ int PrepareCpuPilotInputs(const Experiment::Formal::FormalInputRequest& request)
             catch (const std::exception& writeError) { std::cerr << writeError.what() << '\n'; }
         }
         std::cerr << "CPU pilot input preparation failed: " << error.what() << '\n';
+        return 1;
+    }
+}
+int DiscoverCpuPilotWorkloads(const Experiment::Formal::FormalInputRequest& request, std::uint32_t targetsPerPass)
+{
+    using namespace Experiment::Formal;
+    CpuDiscoverySummary summary;
+    summary.TargetsPerPass = targetsPerPass;
+    summary.SelectorVersion = CpuTargetSelectorVersion;
+    summary.SelectionSeed = CpuTargetSelectionSeed;
+    summary.PassInputVersion = Algorithms::DataOrientedRoam::DataOrientedRoamPassInputVersion;
+    bool ownsDirectory = false;
+    const auto writeSummary = [&] {
+        WriteFile(request.OutputDirectory / "discovery-summary.csv", [&](auto& output) {
+            WriteCpuDiscoverySummary(output, summary);
+        });
+    };
+    try
+    {
+        if (request.ScenarioManifest.empty() || request.CameraManifest.empty() || request.OutputDirectory.empty() ||
+            !request.TargetManifest.empty() || !request.ScenarioIds.empty() ||
+            (targetsPerPass != 4U && targetsPerPass != 8U))
+            throw std::runtime_error{"Discovery requires frozen scenarios/cameras, a new output directory and 4 or 8 targets"};
+        ownsDirectory = std::filesystem::create_directory(request.OutputDirectory);
+        if (!ownsDirectory)
+            throw std::runtime_error{"Output directory already exists"};
+        writeSummary();
+        const auto scenarios = LoadScenarioManifest(request.ScenarioManifest, std::filesystem::current_path());
+        const auto cameras = LoadCameraManifest(request.CameraManifest, scenarios);
+        summary.ScenarioCount = scenarios.size();
+        summary.ExpectedRecordCount = scenarios.size() * CpuPilotSampleCount * CpuPilotPassIds.size();
+        std::ofstream discovery{request.OutputDirectory / "discovery.csv", std::ios::binary};
+        if (!discovery)
+            throw std::runtime_error{"Cannot create discovery records"};
+        WriteCpuDiscoveryCsvHeader(discovery);
+        std::vector<TargetStateRef> targets;
+        std::vector<CpuTargetCoverageRecord> coverage;
+        for (const auto& scenario : scenarios)
+        {
+            const auto result = DiscoverCpuScenarioWorkloads(scenario, cameras, {targetsPerPass}, [&](const auto& record) {
+                WriteCpuDiscoveryCsvRow(discovery, record);
+                discovery.flush();
+                if (!discovery)
+                    throw std::runtime_error{"Cannot finish discovery record"};
+                ++summary.RecordCount;
+                summary.ValidRecordCount += record.Status == CpuRecordStatus::Valid ? 1U : 0U;
+                summary.NoWorkRecordCount += record.Status == CpuRecordStatus::NoWork ? 1U : 0U;
+                summary.FailedRecordCount += record.Status == CpuRecordStatus::Failed ? 1U : 0U;
+            });
+            if (!result.Complete)
+                throw std::runtime_error{scenario.ScenarioId + ": " + result.Failure};
+            ++summary.CompletedScenarioCount;
+            targets.insert(targets.end(), result.Targets.begin(), result.Targets.end());
+            coverage.insert(coverage.end(), result.Coverage.begin(), result.Coverage.end());
+            writeSummary();
+        }
+        discovery.close();
+        if (!discovery || summary.RecordCount != summary.ExpectedRecordCount)
+            throw std::runtime_error{"Discovery records incomplete"};
+        for (const auto& group : coverage)
+            summary.InsufficientGroupCount += group.SelectedCount < group.RequestedCount ? 1U : 0U;
+        WriteFile(request.OutputDirectory / "target-coverage.csv", [&](auto& output) {
+            WriteCpuTargetCoverageCsv(output, coverage);
+        });
+        // 零目标属于覆盖不足且不生成现有加载器无法接受的空清单
+        if (!targets.empty())
+        {
+            const auto pending = request.OutputDirectory / "target-states.pending.csv";
+            WriteFile(pending, [&](auto& output) { WriteTargetManifest(output, targets); });
+            (void)LoadTargetManifest(pending, scenarios, cameras);
+            std::filesystem::rename(pending, request.OutputDirectory / "target-states.csv");
+        }
+        summary.TargetCount = targets.size();
+        summary.TargetStatus = targets.empty() ? "targets_unavailable" : "references_validated";
+        summary.Status = "discovery_complete";
+        writeSummary();
+        std::cout << "CPU workload discovery complete: " << summary.RecordCount << " records, "
+            << summary.TargetCount << " targets, " << summary.InsufficientGroupCount << " insufficient groups.\n";
+        return 0;
+    }
+    catch (const std::exception& error)
+    {
+        summary.Status = "failed";
+        summary.Error = error.what();
+        if (ownsDirectory)
+        {
+            try { writeSummary(); }
+            catch (const std::exception& writeError) { std::cerr << writeError.what() << '\n'; }
+        }
+        if (ownsDirectory)
+        {
+            // 摘要或最终校验失败时保留证据但撤下可供下阶段读取的标准名称
+            try
+            {
+                const auto target = request.OutputDirectory / "target-states.csv";
+                if (std::filesystem::exists(target))
+                    std::filesystem::rename(target, request.OutputDirectory / "rejected-target-states.csv");
+            }
+            catch (const std::exception& writeError) { std::cerr << writeError.what() << '\n'; }
+        }
+        std::cerr << "CPU workload discovery failed: " << error.what() << '\n';
         return 1;
     }
 }

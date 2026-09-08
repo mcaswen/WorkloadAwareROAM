@@ -100,6 +100,11 @@ bool ParsePassPolicy(std::string_view value, BenchmarkPassPolicySelection& outSe
 
 bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
 {
+    if (value == "cpu-workload-discovery")
+    {
+        outProfile = BenchmarkProfile::CpuWorkloadDiscovery;
+        return true;
+    }
     if (value == "cpu-pilot-inputs")
     {
         outProfile = BenchmarkProfile::CpuPilotInputs;
@@ -185,6 +190,7 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
     auto& options = result.Options;
     bool hasOrdinaryOverrides = false;
     bool hasInputArguments = false;
+    bool hasTargetSelectionArgument = false;
     for (int index = 1; index < argc; ++index)
     {
         const std::string_view argument{argv[index]};
@@ -218,7 +224,19 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
             continue;
         }
 
-        // 数量选项共用完整十进制解析，仅 --pass-* 计数拒绝 size_t 最大值
+        if (argument == "--targets-per-pass")
+        {
+            hasTargetSelectionArgument = true;
+            if (index + 1 >= argc || !ParseSize(argv[++index], options.TargetsPerPass) ||
+                (options.TargetsPerPass != 4U && options.TargetsPerPass != 8U))
+            {
+                result.Error = "--targets-per-pass requires 4 or 8.";
+                return result;
+            }
+            continue;
+        }
+
+        // 数量选项共用完整十进制解析且旧计时选项仍独立校验
         std::size_t* sizeOption = nullptr;
         if (argument == "--merge-score-min-parallel-entries")
         {
@@ -318,7 +336,18 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
         result.Error = "Unknown benchmark argument: " + std::string{argument};
         return result;
     }
-    if (options.Profile == BenchmarkProfile::CpuPilotInputs)
+    if (options.Profile == BenchmarkProfile::CpuWorkloadDiscovery)
+    {
+        const auto& input = options.FormalInput;
+        if (hasOrdinaryOverrides || input.ScenarioManifest.empty() || input.CameraManifest.empty() ||
+            input.OutputDirectory.empty() || !input.TargetManifest.empty() || !input.ScenarioIds.empty())
+            result.Error = "cpu-workload-discovery requires frozen scenarios/cameras and a new output directory without overrides.";
+    }
+    else if (hasTargetSelectionArgument)
+    {
+        result.Error = "--targets-per-pass requires --profile cpu-workload-discovery.";
+    }
+    else if (options.Profile == BenchmarkProfile::CpuPilotInputs)
     {
         const auto& input = options.FormalInput;
         const std::set<std::string> selected{input.ScenarioIds.begin(), input.ScenarioIds.end()};
@@ -348,6 +377,9 @@ std::string BenchmarkUsage()
            "[--csv path]\n"
            "CPU pilot input preparation: --benchmark --profile cpu-pilot-inputs "
            "--scenario-manifest path --output-dir new-directory "
-           "[--scenario-id id]... [--camera-manifest path] [--target-manifest path]\n";
+           "[--scenario-id id]... [--camera-manifest path] [--target-manifest path]\n"
+           "CPU workload discovery: --benchmark --profile cpu-workload-discovery "
+           "--scenario-manifest frozen-path --camera-manifest frozen-path --output-dir new-directory "
+           "[--targets-per-pass 4|8]\n";
 }
 } // 命名空间 ParallelRoam::Benchmark

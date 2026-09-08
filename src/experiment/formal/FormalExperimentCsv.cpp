@@ -3,6 +3,7 @@
 #include "experiment/ExperimentCsvCodec.h"
 
 #include <algorithm>
+#include <cmath>
 #include <stdexcept>
 
 namespace ParallelRoam::Experiment::Formal
@@ -44,21 +45,86 @@ void WriteInputPreparationSummary(std::ostream& output, const InputPreparationSu
 void WriteCpuDiscoveryCsvHeader(std::ostream& output)
 {
     WriteExperimentCsvRow(output, {"schemaVersion", "dataPurpose", "scenarioId", "sampleIndex", "passId",
-        "viewInputHash", "replayInputHash", "pre_workCount", "planning_workCount", "featureCollectionMs", "status", "failure"});
+        "viewInputHash", "replayInputHash", "pre_workCount", "planning_workCount", "featureCollectionMs", "status", "failure",
+        "cameraPoseHash", "passInputVersion", "pre_mergeQueueEntryCount", "pre_splitQueueEntryCount",
+        "pre_activeTriangleCount", "pre_triangleBudget", "pre_remainingTriangleBudget", "pre_topologyEditCount",
+        "pre_maxActiveDepth", "pre_maxDepth", "planning_interiorCandidateCount", "planning_boundaryCandidateCount",
+        "planning_scheduledCandidateCount", "planning_nonEmptyChunkCount", "planning_dirtyTriangleCount", "planning_dirtyRangeCount",
+        "planning_meshReason", "primaryWorkValue", "featureVector", "selectionFeatureHash",
+        "validationPerformed", "validationPassed", "selectionEligible", "selectionExclusionReason",
+        "inputHashMs", "validationMs"});
 }
 
 void WriteCpuDiscoveryCsvRow(std::ostream& output, const CpuDiscoveryRecord& record)
 {
     ValidateIdentity(record.ScenarioId, record.PassId, record.SampleIndex);
-    if (record.FeatureCollectionMilliseconds < 0 || (record.Status == CpuRecordStatus::Valid &&
-        (record.ViewInputHash == 0 || record.ReplayInputHash == 0)))
-    {
+    if (!std::isfinite(record.FeatureCollectionMilliseconds) || record.FeatureCollectionMilliseconds < 0 ||
+        !std::isfinite(record.InputHashMilliseconds) || record.InputHashMilliseconds < 0 ||
+        !std::isfinite(record.ValidationMilliseconds) || record.ValidationMilliseconds < 0 ||
+        !std::isfinite(record.PrimaryWorkValue) || record.PrimaryWorkValue < 0 ||
+        ((record.Status == CpuRecordStatus::Valid || record.Status == CpuRecordStatus::NoWork) &&
+            (record.ViewInputHash == 0 || record.ReplayInputHash == 0 || !record.ValidationPerformed ||
+                !record.ValidationPassed || record.PassInputVersion == 0U || record.SelectionFeatureHash == 0U)) ||
+        (record.SelectionEligible && (record.Status != CpuRecordStatus::Valid || record.SampleIndex == 0U ||
+            record.PrimaryWorkValue <= 0.0F || !record.SelectionExclusionReason.empty())))
         throw std::runtime_error("Discovery record lacks valid input evidence");
-    }
-    WriteExperimentCsvRow(output, {"1", "exploratory", record.ScenarioId, std::to_string(record.SampleIndex),
+    WriteExperimentCsvRow(output, {"2", "exploratory", record.ScenarioId, std::to_string(record.SampleIndex),
         std::string{Algorithms::ToString(record.PassId)}, std::to_string(record.ViewInputHash),
         std::to_string(record.ReplayInputHash), std::to_string(record.PreWorkCount), std::to_string(record.PlanningWorkCount),
-        FormatExperimentCsvDouble(record.FeatureCollectionMilliseconds), StatusName(record.Status), record.Failure});
+        FormatExperimentCsvDouble(record.FeatureCollectionMilliseconds), StatusName(record.Status), record.Failure,
+        std::to_string(record.CameraPoseHash),
+        std::to_string(record.PassInputVersion),
+        std::to_string(record.PreMergeQueueEntryCount),
+        std::to_string(record.PreSplitQueueEntryCount),
+        std::to_string(record.PreActiveTriangleCount),
+        std::to_string(record.PreTriangleBudget),
+        std::to_string(record.PreRemainingTriangleBudget),
+        std::to_string(record.PreTopologyEditCount),
+        std::to_string(record.PreMaxActiveDepth),
+        std::to_string(record.PreMaxDepth),
+        std::to_string(record.PlanningInteriorCandidateCount),
+        std::to_string(record.PlanningBoundaryCandidateCount),
+        std::to_string(record.PlanningScheduledCandidateCount),
+        std::to_string(record.PlanningNonEmptyChunkCount),
+        std::to_string(record.PlanningDirtyTriangleCount),
+        std::to_string(record.PlanningDirtyRangeCount),
+        record.PlanningMeshReason,
+        FormatExperimentCsvFloat(record.PrimaryWorkValue),
+        record.FeatureVector,
+        std::to_string(record.SelectionFeatureHash),
+        record.ValidationPerformed ? "true" : "false",
+        record.ValidationPassed ? "true" : "false",
+        record.SelectionEligible ? "true" : "false",
+        record.SelectionExclusionReason,
+        FormatExperimentCsvDouble(record.InputHashMilliseconds),
+        FormatExperimentCsvDouble(record.ValidationMilliseconds)});
+}
+
+void WriteCpuTargetCoverageCsv(std::ostream& output, const std::vector<CpuTargetCoverageRecord>& records)
+{
+    WriteExperimentCsvRow(output, {"schemaVersion", "dataPurpose", "scenarioId", "passId", "selectorVersion",
+        "selectionSeed", "requestedCount", "eligibleCount", "selectedCount", "lowCount", "middleCount", "highCount",
+        "coverageCount", "missingCount", "insufficiencyReason"});
+    for (const auto& record : records)
+        WriteExperimentCsvRow(output, {"1", "exploratory", record.ScenarioId, std::string{Algorithms::ToString(record.PassId)},
+            std::to_string(record.SelectorVersion), std::to_string(record.SelectionSeed), std::to_string(record.RequestedCount),
+            std::to_string(record.EligibleCount), std::to_string(record.SelectedCount), std::to_string(record.StratumCounts[0]),
+            std::to_string(record.StratumCounts[1]), std::to_string(record.StratumCounts[2]), std::to_string(record.StratumCounts[3]),
+            std::to_string(record.RequestedCount - record.SelectedCount), record.InsufficiencyReason});
+}
+
+void WriteCpuDiscoverySummary(std::ostream& output, const CpuDiscoverySummary& summary)
+{
+    WriteExperimentCsvRow(output, {"schemaVersion", "dataPurpose", "status", "scenarioCount", "completedScenarioCount",
+        "expectedRecordCount", "recordCount", "targetCount", "insufficientGroupCount", "targetsPerPass", "selectorVersion",
+        "passInputVersion", "selectionSeed", "targetStatus", "error", "validRecordCount", "noWorkRecordCount", "failedRecordCount"});
+    WriteExperimentCsvRow(output, {"1", "exploratory", summary.Status, std::to_string(summary.ScenarioCount),
+        std::to_string(summary.CompletedScenarioCount), std::to_string(summary.ExpectedRecordCount),
+        std::to_string(summary.RecordCount), std::to_string(summary.TargetCount), std::to_string(summary.InsufficientGroupCount),
+        std::to_string(summary.TargetsPerPass), std::to_string(summary.SelectorVersion), std::to_string(summary.PassInputVersion),
+        std::to_string(summary.SelectionSeed), summary.TargetStatus, summary.Error,
+        std::to_string(summary.ValidRecordCount), std::to_string(summary.NoWorkRecordCount),
+        std::to_string(summary.FailedRecordCount)});
 }
 
 void WriteCpuPairCsvHeader(std::ostream& output)

@@ -36,6 +36,7 @@ enum class BenchmarkProfile
     PassCrossoverStressReplay,
     Standard,
     CpuPilotInputs,
+    CpuWorkloadDiscovery,
 };
 
 enum class BenchmarkPassPolicySelection
@@ -69,6 +70,7 @@ struct BenchmarkOptions
     std::size_t PassExperimentTargetCount{0U};
     std::filesystem::path CsvPath;
     Experiment::Formal::FormalInputRequest FormalInput;
+    std::size_t TargetsPerPass{4U};
 };
 
 /// <summary>

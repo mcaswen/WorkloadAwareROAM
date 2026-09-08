@@ -1,3 +1,4 @@
+#include "algorithms/data_oriented_roam/DataOrientedRoamPassExecution.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.h"
 
 #include "algorithms/data_oriented_roam/DataOrientedRoamMeshEmit.h"
@@ -132,17 +133,17 @@ std::uint64_t HashMeshInput(const DataOrientedRoamState& state)
     std::uint64_t hash = TerrainLodHashOffset;
     AppendTerrainLodHash(hash, state.BuildSequence);
     // 网格版本参与调试属性和脏槽位判定
-    AppendTerrainLodHash(hash, state.IncrementalMesh.Generation);
-    for (const DataOrientedRoamNodeIndex node : state.IncrementalMesh.SlotOwners)
+    AppendTerrainLodHash(hash, state.IncrementalMesh.Metadata.Generation);
+    for (const DataOrientedRoamNodeIndex node : state.IncrementalMesh.Metadata.SlotOwners)
     {
         AppendTerrainLodHash(hash, state.Nodes.PathIdAt(node));
     }
-    for (const DataOrientedRoamMeshTopologyEdit& edit : state.IncrementalMesh.TopologyEdits)
+    for (const DataOrientedRoamMeshTopologyEdit& edit : state.IncrementalMesh.Metadata.TopologyEdits)
     {
         AppendTerrainLodHash(hash, edit.Type);
         AppendTerrainLodHash(hash, state.Nodes.PathIdAt(edit.Node));
     }
-    for (const DataOrientedRoamNodeIndex node : state.IncrementalMesh.DebugTransitionLeaves)
+    for (const DataOrientedRoamNodeIndex node : state.IncrementalMesh.Metadata.DebugTransitionLeaves)
     {
         AppendTerrainLodHash(hash, state.Nodes.PathIdAt(node));
     }
@@ -157,8 +158,8 @@ std::uint64_t HashNormalizedMesh(const DataOrientedRoamState& state)
     // 规范化网格编号再把路径和对应顶点绑定
     // 这样可以发现几何或属性差异而不误报顺序差异
     std::vector<std::uint64_t> slotPaths;
-    slotPaths.reserve(state.IncrementalMesh.SlotOwners.size());
-    for (const DataOrientedRoamNodeIndex node : state.IncrementalMesh.SlotOwners)
+    slotPaths.reserve(state.IncrementalMesh.Metadata.SlotOwners.size());
+    for (const DataOrientedRoamNodeIndex node : state.IncrementalMesh.Metadata.SlotOwners)
     {
         slotPaths.push_back(state.Nodes.PathIdAt(node));
     }
@@ -462,7 +463,7 @@ Sample RunMeshAction(
     sample.RequestedWorkerCount = action == TerrainLodPassAction::ParallelDirty
         ? parallelWorkerCount
         : 1U;
-    sample.ActiveTriangleCount = state.IncrementalMesh.SlotOwners.size();
+    sample.ActiveTriangleCount = state.IncrementalMesh.Metadata.SlotOwners.size();
     sample.DirtyTriangleCount = state.Stats.MeshUpdatedTriangleCount;
     sample.DirtyRangeCount = state.Stats.MeshDirtyRangeCount;
     sample.FallbackReason = ResolveParallelFallback(
@@ -478,7 +479,7 @@ Sample RunMeshAction(
     sample.StateCloneMilliseconds = cloneMilliseconds;
     sample.WallMilliseconds = wallMilliseconds;
     sample.Correct = state.Stats.MeshUpdatedTriangleCount + state.Stats.MeshReusedTriangleCount ==
-        state.IncrementalMesh.SlotOwners.size();
+        state.IncrementalMesh.Metadata.SlotOwners.size();
     return sample;
 }
 
@@ -619,24 +620,12 @@ std::unique_ptr<DataOrientedRoamState> PrepareNextFrameState(
     const TerrainLodViewInput& nextView,
     const DataOrientedRoamSettings& settings)
 {
-    // 来源是上一帧完整结束后的持久状态
-    // 目标视点只替换本帧会变化的投影和视锥输入
-    // 最大深度、预算和高度图必须由外层提前确认未变化
-    // 网格更新入口在拓扑前开启本帧修改记录
-    // 返回的状态只属于实验，不会推进正式流水线
+    // 来源必须是上一帧完整结束后的状态且副本不推进正式流水线
+    // 外层先确认深度和预算不变再复用生产准备规则
     auto state = std::make_unique<DataOrientedRoamState>(previousFrameState);
-    ++state->BuildSequence;
-    state->Settings = settings;
-    state->Settings.MergeThreshold = std::min(
-        state->Settings.MergeThreshold,
-        state->Settings.SplitThreshold);
-    state->Stats = {};
-    state->CurrentSplitPaths.clear();
-    state->ViewProjection = nextView.ViewProjection;
-    state->FrustumPlanes = nextView.FrustumPlanes;
-    state->DrawableWidth = std::max(nextView.DrawableWidth, 1U);
-    state->DrawableHeight = std::max(nextView.DrawableHeight, 1U);
-    BeginIncrementalMeshUpdate(*state, false);
+    if (!PrepareDataOrientedRoamFrame(*state, *previousFrameState.HeightMap,
+            previousFrameState.TerrainSize, previousFrameState.HeightScale, nextView, settings))
+        throw std::runtime_error{"Invalid replay height map"};
     return state;
 }
 } // 匿名命名空间
@@ -647,11 +636,8 @@ DataOrientedRoamPassExperimentResult RunDataOrientedRoamPassExperiment(
     const DataOrientedRoamSettings& settings,
     const DataOrientedRoamPassExperimentConfig& config)
 {
-    // 五个 CPU 阶段按正式流水线顺序冻结和测量
-    // 每个阶段测量结束后只用串行基线推进构造状态
-    // 推进操作不进入任何策略样本
-    // 后一阶段因此能够看到前一阶段的真实输出
-    // 整个函数结束后上一帧来源状态仍保持不变
+    // 五阶段测量后只以串行基线推进副本且推进不进入策略样本
+    // 后一阶段消费前一阶段真实输出而上一帧来源保持不变
     DataOrientedRoamPassExperimentResult result{};
     if (config.MeasuredRepeatCount == 0U || config.ParallelWorkerCount == 0U)
     {
@@ -692,7 +678,7 @@ DataOrientedRoamPassExperimentResult RunDataOrientedRoamPassExperiment(
         }) && passed;
     state->Settings.PassPolicy.MergeScore = TerrainLodScoreRefreshAction::SerialRefresh;
     // 生成合并拓扑共同使用的已评分长期队列
-    RefreshPersistentMergeQueuePriorities(*state);
+    ExecuteDataOrientedRoamPass(*state, TerrainLodPassId::MergeScore);
 
     passed = RunTwoActionBlocks(
         result,
@@ -708,7 +694,8 @@ DataOrientedRoamPassExperimentResult RunDataOrientedRoamPassExperiment(
                 order,
                 config.ParallelWorkerCount);
         }) && passed;
-    AdvanceMergeTopologySerialForExperiment(*state);
+    state->Settings.PassPolicy.MergeTopology = TerrainLodTopologyAction::SerialImmediate;
+    ExecuteDataOrientedRoamPass(*state, TerrainLodPassId::MergeTopology);
 
     // 合并完成后的状态才是细分评分的真实输入
     passed = RunTwoActionBlocks(
@@ -727,7 +714,7 @@ DataOrientedRoamPassExperimentResult RunDataOrientedRoamPassExperiment(
         }) && passed;
     state->Settings.PassPolicy.SplitScore = TerrainLodScoreRefreshAction::SerialRefresh;
     // 生成细分拓扑共同使用的已评分长期队列
-    RefreshPersistentSplitQueuePriorities(*state);
+    ExecuteDataOrientedRoamPass(*state, TerrainLodPassId::SplitScore);
 
     passed = RunTwoActionBlocks(
         result,
@@ -743,7 +730,8 @@ DataOrientedRoamPassExperimentResult RunDataOrientedRoamPassExperiment(
                 order,
                 config.ParallelWorkerCount);
         }) && passed;
-    AdvanceSplitTopologySerialForExperiment(*state);
+    state->Settings.PassPolicy.SplitTopology = TerrainLodTopologyAction::SerialImmediate;
+    ExecuteDataOrientedRoamPass(*state, TerrainLodPassId::SplitTopology);
 
     // 网格阶段同时看到本帧合并和细分留下的修改记录
     passed = RunMeshBlocks(result, *state, config) && passed;

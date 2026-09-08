@@ -67,6 +67,24 @@ int main()
         Expect(!Parse(values).Error.empty(), "Duplicate scenario ID accepted");
         Expect(Parse({"--profile", "cpu-pilot-inputs", "--help"}).ShowHelp, "Help should not require files");
         Expect(Parse({"--profile", "smoke", "--algorithm", "dod"}).Error.empty(), "Ordinary mode changed");
+        const std::vector<std::string> discovery{"--profile", "cpu-workload-discovery", "--scenario-manifest", "s.csv",
+            "--camera-manifest", "c.csv", "--output-dir", "new directory"};
+        Expect(Parse(discovery).Error.empty() && Parse(discovery).Options.TargetsPerPass == 4U, "Discovery defaults");
+        for (const auto count : {"4", "8"})
+        {
+            values = discovery;
+            values.insert(values.end(), {"--targets-per-pass", count});
+            Expect(Parse(values).Error.empty(), "Discovery selection count rejected");
+        }
+        for (const auto& pair : std::vector<std::vector<std::string>>{{"--targets-per-pass", "0"},
+            {"--targets-per-pass", "5"}, {"--targets-per-pass", "-4"}, {"--target-manifest", "t.csv"},
+            {"--scenario-id", "test129-a-b512"}, {"--algorithm", "dod"}, {"--pass-policy", "serial"}})
+        {
+            values = discovery;
+            values.insert(values.end(), pair.begin(), pair.end());
+            Expect(!Parse(values).Error.empty(), "Discovery conflict accepted");
+        }
+        Expect(!Parse({"--profile", "cpu-pilot-inputs", "--targets-per-pass", "4"}).Error.empty(), "Selection flag leaked");
         return 0;
     }
     catch (const std::exception& error)

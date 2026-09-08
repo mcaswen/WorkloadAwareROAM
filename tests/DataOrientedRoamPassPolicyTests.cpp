@@ -198,7 +198,7 @@ void RequireMeshEqual(const Terrain::TerrainMeshData& left, const DataOrientedRo
             "mesh vertex values");
     }
     std::vector<std::uint64_t> paths;
-    for (const auto node : source.IncrementalMesh.SlotOwners)
+    for (const auto node : source.IncrementalMesh.Metadata.SlotOwners)
         paths.push_back(source.Nodes.PathIdAt(node));
     Require(HashTerrainLodNormalizedMesh(left, paths) == HashTerrainLodNormalizedMesh(right, paths),
         "normalized mesh");
@@ -208,10 +208,10 @@ void PrepareDirtyMesh(DataOrientedRoamState& state, bool dirty)
 {
     BeginIncrementalMeshUpdate(state, false);
     // 有效拓扑保持不变，只请求重写两个已存在槽位；重复项应在提交前归一化
-    state.IncrementalMesh.DebugTransitionLeaves.clear();
+    state.IncrementalMesh.Metadata.DebugTransitionLeaves.clear();
     if (dirty)
     {
-        state.IncrementalMesh.DirtySlots = {0U, 1U, 1U};
+        state.IncrementalMesh.Metadata.DirtySlots = {0U, 1U, 1U};
         state.IncrementalMesh.Data.Vertices[0].Position.x = -9999.0F;
         state.IncrementalMesh.Data.Vertices[3].Position.x = -9999.0F;
     }
@@ -219,7 +219,7 @@ void PrepareDirtyMesh(DataOrientedRoamState& state, bool dirty)
 
 void CheckMesh(const DataOrientedRoamState& source)
 {
-    Require(source.IncrementalMesh.SlotOwners.size() >= 2U, "mesh fixture coverage");
+    Require(source.IncrementalMesh.Metadata.SlotOwners.size() >= 2U, "mesh fixture coverage");
     for (std::size_t minimum : {0U, 256U})
     {
         for (std::size_t workers : {1U, 2U, 8U})
@@ -236,7 +236,7 @@ void CheckMesh(const DataOrientedRoamState& source)
                 const auto expected = action == TerrainLodMeshEmitAction::SerialDirty ||
                     minimum == 256U ? 1U : std::min(workers, std::size_t{2U});
                 Require(state.Stats.EmitWorkerCount == expected &&
-                    state.IncrementalMesh.DirtySlots.size() == 2U, "dirty work rather than active mesh");
+                    state.IncrementalMesh.Metadata.DirtySlots.size() == 2U, "dirty work rather than active mesh");
                 RequireMeshEqual(state.IncrementalMesh.Data, source);
                 FinalizeIncrementalMeshUpdate(state);
                 ValidateIncrementalMesh(state);
@@ -264,7 +264,7 @@ void CheckMesh(const DataOrientedRoamState& source)
     ApplyIncrementalMeshUpdates(full);
     Require(full.Stats.EmitWorkerCount == 1U, "serial full ignores dirty set");
     RequireMeshEqual(full.IncrementalMesh.Data, source);
-    std::cout << "Mesh fixture active=" << source.IncrementalMesh.SlotOwners.size() << ", dirty=2\n";
+    std::cout << "Mesh fixture active=" << source.IncrementalMesh.Metadata.SlotOwners.size() << ", dirty=2\n";
 }
 
 void CheckPublicMapping(const Terrain::HeightMap& heightMap, const TerrainLodViewInput& view)

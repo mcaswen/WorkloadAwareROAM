@@ -85,7 +85,7 @@ void CheckRecords()
     const auto table = Capture([&](auto& output) {
         WriteCpuDiscoveryCsvHeader(output); WriteCpuDiscoveryCsvRow(output, discovery);
     });
-    Expect(table.Rows.front()[1] == "exploratory" && table.Rows.front().back() == discovery.Failure &&
+    Expect(table.Rows.front()[0] == "2" && table.Rows.front()[1] == "exploratory" && table.Rows.front()[11] == discovery.Failure &&
         table.Rows.front()[10] == "failed", "Failed discovery evidence changed");
     discovery.Status = CpuRecordStatus::Valid;
     Reject([&] { std::ostringstream output; WriteCpuDiscoveryCsvRow(output, discovery); }, "Missing input evidence accepted");

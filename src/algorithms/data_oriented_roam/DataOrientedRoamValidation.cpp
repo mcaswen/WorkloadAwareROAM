@@ -393,22 +393,22 @@ void ValidateIncrementalMesh(DataOrientedRoamState& state)
 {
     constexpr std::size_t elementsPerTriangle = 3U;
     const DataOrientedRoamIncrementalMesh& mesh = state.IncrementalMesh;
-    if (mesh.NeedsInitialization || mesh.NodeSlots.size() != state.Nodes.size() ||
-        mesh.SlotOwners.size() != state.ActiveLeafNodes.size() ||
-        mesh.SlotDirtyGenerations.size() != mesh.SlotOwners.size() ||
-        mesh.Data.Vertices.size() != mesh.SlotOwners.size() * elementsPerTriangle ||
-        mesh.Data.Indices.size() != mesh.SlotOwners.size() * elementsPerTriangle)
+    if (mesh.Metadata.NeedsInitialization || mesh.Metadata.NodeSlots.size() != state.Nodes.size() ||
+        mesh.Metadata.SlotOwners.size() != state.ActiveLeafNodes.size() ||
+        mesh.Metadata.SlotDirtyGenerations.size() != mesh.Metadata.SlotOwners.size() ||
+        mesh.Data.Vertices.size() != mesh.Metadata.SlotOwners.size() * elementsPerTriangle ||
+        mesh.Data.Indices.size() != mesh.Metadata.SlotOwners.size() * elementsPerTriangle)
     {
         ++state.Stats.InvalidTopologyCount;
         return;
     }
 
     std::vector<std::uint8_t> meshOwners(state.Nodes.size(), 0U);
-    for (std::size_t slot = 0U; slot < mesh.SlotOwners.size(); ++slot)
+    for (std::size_t slot = 0U; slot < mesh.Metadata.SlotOwners.size(); ++slot)
     {
-        const DataOrientedRoamNodeIndex node = mesh.SlotOwners[slot];
-        if (!state.IsLeaf(node) || node >= mesh.NodeSlots.size() ||
-            mesh.NodeSlots[node] != slot || meshOwners[node] != 0U)
+        const DataOrientedRoamNodeIndex node = mesh.Metadata.SlotOwners[slot];
+        if (!state.IsLeaf(node) || node >= mesh.Metadata.NodeSlots.size() ||
+            mesh.Metadata.NodeSlots[node] != slot || meshOwners[node] != 0U)
         {
             ++state.Stats.InvalidTopologyCount;
             continue;
@@ -439,7 +439,7 @@ void ValidateIncrementalMesh(DataOrientedRoamState& state)
     {
         const bool activeLeaf = node < state.NodeMembership.size() &&
             state.NodeMembership[node].ActiveLeafPosition != InvalidActiveNodePosition;
-        const bool ownsMeshSlot = mesh.NodeSlots[node] != InvalidDataOrientedRoamPosition;
+        const bool ownsMeshSlot = mesh.Metadata.NodeSlots[node] != InvalidDataOrientedRoamPosition;
         if (activeLeaf != ownsMeshSlot || ownsMeshSlot != (meshOwners[node] != 0U))
         {
             ++state.Stats.InvalidTopologyCount;
@@ -447,10 +447,10 @@ void ValidateIncrementalMesh(DataOrientedRoamState& state)
     }
 
     std::size_t coveredTriangles = 0U;
-    for (const DataOrientedRoamMeshUpdateRange& range : mesh.UpdateRanges)
+    for (const DataOrientedRoamMeshUpdateRange& range : mesh.Metadata.UpdateRanges)
     {
-        if (range.FirstTriangle > mesh.SlotOwners.size() ||
-            range.TriangleCount > mesh.SlotOwners.size() - range.FirstTriangle)
+        if (range.FirstTriangle > mesh.Metadata.SlotOwners.size() ||
+            range.TriangleCount > mesh.Metadata.SlotOwners.size() - range.FirstTriangle)
         {
             ++state.Stats.InvalidTopologyCount;
             continue;
@@ -459,8 +459,8 @@ void ValidateIncrementalMesh(DataOrientedRoamState& state)
     }
 
     if (state.Stats.MeshUpdatedTriangleCount + state.Stats.MeshReusedTriangleCount !=
-            mesh.SlotOwners.size() ||
-        state.Stats.MeshDirtyRangeCount != mesh.UpdateRanges.size() ||
+            mesh.Metadata.SlotOwners.size() ||
+        state.Stats.MeshDirtyRangeCount != mesh.Metadata.UpdateRanges.size() ||
         coveredTriangles != state.Stats.MeshUpdatedTriangleCount)
     {
         ++state.Stats.InvalidTopologyCount;

@@ -48,6 +48,11 @@ endif()
 
 # 应用和 CPU 执行测试共用同一组 DOD 源码，避免新增文件只接入一个后端
 set(PARALLEL_ROAM_DOD_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamPassInput.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamWorkloadProbe.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamMeshPlan.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamTopologyPlan.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamPassExecution.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamCandidateMarking.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamPipeline.cpp"
@@ -63,6 +68,7 @@ set(PARALLEL_ROAM_DOD_SOURCES
 
 # 两后端和纯 CPU 输入测试复用同一份清单、相机与记录实现
 set(PARALLEL_ROAM_FORMAL_INPUT_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/formal/FormalExperimentTargetSelector.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/ExperimentCsvCodec.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/formal/FormalExperimentCamera.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/formal/FormalExperimentManifest.cpp"
@@ -160,6 +166,7 @@ if(PARALLEL_ROAM_BUILD_APP)
 
     if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
         list(APPEND PARALLEL_ROAM_APP_SOURCES ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
+            src/benchmark/formal/FormalWorkloadDiscovery.cpp
             src/benchmark/formal/FormalExperimentRunner.cpp)
     endif()
     add_executable(parallel_roam src/main.cpp ${PARALLEL_ROAM_APP_SOURCES})

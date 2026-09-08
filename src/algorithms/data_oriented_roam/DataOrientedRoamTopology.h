@@ -14,6 +14,12 @@ void RefineWithSplitQueue(DataOrientedRoamState& state);
 void MergeWithDiamondQueue(DataOrientedRoamState& state);
 
 /// <summary>
+/// 消费已评分的长期队列完成拓扑修改且不重复执行整批评分
+/// </summary>
+void CommitScoredSplitTopology(DataOrientedRoamState& state);
+void CommitScoredMergeTopology(DataOrientedRoamState& state);
+
+/// <summary>
 /// 在调用方提供的状态副本上执行一种细分拓扑策略并返回规范化结果
 /// 串行方式直接处理长期队列，并行辅助方式使用调用方提供的冻结候选
 /// </summary>

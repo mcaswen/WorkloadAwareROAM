@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algorithms/data_oriented_roam/DataOrientedRoamTypes.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamPassExecution.h"
 
 #include <cstddef>
 #include <memory>
@@ -41,7 +42,18 @@ public:
         const DataOrientedRoamSettings& settings);
 
     /// <summary>
-    /// 返回最近一次更新的统计和当前跨帧状态，调用方不得通过这些引用修改内部数据
+    /// 同步观察每个真实阶段的输入且回调不得重入或保留状态引用
+    /// </summary>
+    [[nodiscard]] const Terrain::TerrainMeshData& BuildWithPassObserver(
+        const Terrain::HeightMap& heightMap,
+        float terrainSize,
+        float heightScale,
+        const TerrainLodViewInput& view,
+        const DataOrientedRoamSettings& settings,
+        const DataOrientedRoamPassObserver& observer);
+
+    /// <summary>
+    /// 返回最近一次更新的统计和当前跨帧状态且引用仅供读取
     /// </summary>
     [[nodiscard]] const DataOrientedRoamStats& Stats() const;
     [[nodiscard]] const DataOrientedRoamState& State() const;
@@ -62,7 +74,8 @@ private:
         float terrainSize,
         float heightScale,
         const TerrainLodViewInput& view,
-        const DataOrientedRoamSettings& settings);
+        const DataOrientedRoamSettings& settings,
+        const DataOrientedRoamPassObserver& observer = {});
 
     std::unique_ptr<DataOrientedRoamState> _state;
     std::unique_ptr<DataOrientedRoamThreadPool> _threadPool;

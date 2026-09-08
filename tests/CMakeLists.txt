@@ -176,6 +176,19 @@ target_link_libraries(parallel_roam_benchmark_command_line_tests PRIVATE
 add_test(NAME terrain_lod_benchmark_command_line COMMAND parallel_roam_benchmark_command_line_tests)
 
 if(TARGET ParallelROAM::STB)
+    foreach(discovery_test IN ITEMS DataOrientedRoamPassExecution DataOrientedRoamWorkloadProbe)
+        add_executable(parallel_roam_${discovery_test}_tests ${discovery_test}Tests.cpp
+            ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES} ../src/algorithms/TerrainLodView.cpp
+            ../src/terrain/HeightMap.cpp ../src/tools/PerformanceTimer.cpp)
+        target_include_directories(parallel_roam_${discovery_test}_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+        target_link_libraries(parallel_roam_${discovery_test}_tests PRIVATE
+            parallel_roam_project_options parallel_roam_project_warnings
+            ParallelROAM::GLM ParallelROAM::STB Threads::Threads)
+        add_test(NAME ${discovery_test} COMMAND parallel_roam_${discovery_test}_tests)
+        set_tests_properties(${discovery_test} PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." TIMEOUT 120)
+    endforeach()
+    target_sources(parallel_roam_DataOrientedRoamPassExecution_tests PRIVATE
+        ../src/benchmark/formal/FormalWorkloadDiscovery.cpp)
     add_executable(parallel_roam_dod_pass_policy_tests
         DataOrientedRoamPassPolicyTests.cpp
         ${PARALLEL_ROAM_DOD_SOURCES}
@@ -192,7 +205,7 @@ if(TARGET ParallelROAM::STB)
 endif()
 
 if(TARGET ParallelROAM::STB)
-    foreach(input_test IN ITEMS ExperimentManifest ExperimentCamera)
+    foreach(input_test IN ITEMS ExperimentManifest ExperimentCamera ExperimentTargetSelector)
         add_executable(parallel_roam_${input_test}_tests
             ${input_test}Tests.cpp ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
             ../src/algorithms/TerrainLodView.cpp ../src/terrain/HeightMap.cpp)
@@ -203,6 +216,7 @@ if(TARGET ParallelROAM::STB)
     add_test(NAME formal_experiment_manifest COMMAND parallel_roam_ExperimentManifest_tests
         "${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}/formal-manifest")
     add_test(NAME formal_experiment_camera COMMAND parallel_roam_ExperimentCamera_tests "${CMAKE_CURRENT_SOURCE_DIR}/..")
+    add_test(NAME formal_experiment_target_selector COMMAND parallel_roam_ExperimentTargetSelector_tests)
     add_executable(parallel_roam_formal_command_line_tests FormalExperimentCommandLineTests.cpp
         ../src/benchmark/TerrainLodBenchmarkCommandLine.cpp)
     target_include_directories(parallel_roam_formal_command_line_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
@@ -221,6 +235,12 @@ if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
         --configuration "$<CONFIG>"
         --output "${CMAKE_CURRENT_BINARY_DIR}/cpu-pilot-preparation")
     set_tests_properties(cpu_pilot_preparation PROPERTIES TIMEOUT 180)
+    add_test(NAME cpu_workload_discovery COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test_cpu_workload_discovery.py"
+        --source "${CMAKE_CURRENT_SOURCE_DIR}/.." --executable "$<TARGET_FILE:parallel_roam>"
+        --replay-verifier "$<TARGET_FILE:parallel_roam_DataOrientedRoamPassExecution_tests>"
+        --preset "${cpu_pilot_build_preset}" --output "${CMAKE_CURRENT_BINARY_DIR}/cpu-workload-discovery")
+    set_tests_properties(cpu_workload_discovery PROPERTIES TIMEOUT 900)
     add_test(NAME terrain_lod_benchmark_policy
         COMMAND "${CMAKE_COMMAND}"
             "-DBENCHMARK=$<TARGET_FILE:parallel_roam>"
