@@ -1,8 +1,8 @@
 # 正式实验准备：代码修改大规划
 
 > 规划类型：大规划（Major Plan）\
-> 状态：PREP-01 已完成实现、验证及架构核查；PREP-02～PREP-10 未开始\
-> 审阅进展：2026-09-09，用户确认大规划方向与 PREP-01 小规划，并授权第一阶段实施\
+> 状态：PREP-01、PREP-02 已完成实现、验证及架构核查；PREP-03～PREP-10 未开始\
+> 审阅进展：2026-09-09，用户确认大规划方向与 PREP-01 小规划；随后授权 PREP-02 自主规划、实现和注释补充，并许可按 PREP-01 方式提交\
 > 编写日期：2026-09-07\
 > 上传边界澄清：2026-09-08；各后端内部复用对应上传实现，公共接口及实验性能代表性在 PREP-06/07 分别验证\
 > 阶段编号与顺序：PREP-01～PREP-10 连续编号；PREP-05 为 CPU crossover pilot gate，PREP-06 起为通过 gate 后的条件性建设\
@@ -47,6 +47,8 @@
 本规划不重新定义正式研究假设、场景坐标或统计阈值。24 号文档继续约束正式实验协议；本规划按用户意见增加正式框架投入前的 CPU 探索性 pilot，缩减前置工程范围并调整实施顺序。探索数据独立标记，不替代 24 号文档的正式性能交叉与研究继续条件。发现文档与源码不符时，以源码确定当前事实，并把需要调整的协议写为待确认事项，不能默默改变原规范。
 
 规划建立时 `docs/codebase/` 仅有指南。PREP-01 已补齐 [CPU 策略与回放事实](../../codebase/formal_experiment/cpu_policy_and_replay_baseline.md)，区分修改前基线和当前实现；后续小规划引用该记录。本规划第 4 节只保留影响整体方案的最小索引。
+
+PREP-02 已补齐 [CPU pilot 输入与记录事实](../../codebase/formal_experiment/cpu_pilot_input_contracts.md)，记录共享清单、NO 相机、目标引用、输入准备入口和 Python 摘要边界。后续 CPU 发现与配对优先复用该输入契约。
 
 ### 2.2 本次核验对既有描述的修正
 
@@ -113,6 +115,7 @@ AC-00 由 PREP-05 验收，是前半程的投入门槛。其余条件描述保�
 | 无窗口配置解析与帮助已由 PREP-01 独立提取；场景、结果验证和既有阶段配对 CSV 仍在运行器 | [TerrainLodBenchmark.h](../../../src/benchmark/TerrainLodBenchmark.h)、[TerrainLodBenchmark.cpp](../../../src/benchmark/TerrainLodBenchmark.cpp)；复用既有配置名称与回归入口，分离新增正式职责 |
 | 应用参数分流已独立；运行时路径推进、预热、算法轮换及结果采样仍由 `Application` 驱动 | [ApplicationCommandLine.h](../../../src/app/ApplicationCommandLine.h)、[Application.cpp](../../../src/app/Application.cpp)、[RuntimeBenchmarkConfig.h](../../../src/app/RuntimeBenchmarkConfig.h)；正式配置不能继续经过面板钳制和内置压力路径覆盖 |
 | 两种实验报告共用设置和统计 CSV 写入，当前公共 schema 为 `4`，无窗口 CPU 配对独立 schema 为 `2` | [TerrainLodExperimentCsv.h](../../../src/experiment/TerrainLodExperimentCsv.h)、[实现](../../../src/experiment/TerrainLodExperimentCsv.cpp)；它不是清单解析器或运行调度器 |
+| PREP-02 新增独立 pilot v1 的场景/相机/目标与最小记录，六个 A 场景生成 384 个 NO 点；准备脚本核对实际 SHA-256 并记录来源与环境 | [输入事实](../../codebase/formal_experiment/cpu_pilot_input_contracts.md)；`cpu-pilot-inputs` 不执行发现或策略配对，`inputs_ready` 仅表示输入准备完成 |
 | DOD 已有持久状态深复制和五阶段配对；副本借用源高度图和线程池，容器状态独立 | [DataOrientedRoamState.cpp](../../../src/algorithms/data_oriented_roam/DataOrientedRoamState.cpp)、[配对接口](../../../src/algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.h)；复制后不能并发释放或推进其来源依赖 |
 | 正式串行阶段推进、队列刷新、拓扑回放和网格更新已有可复用入口 | [Topology.h](../../../src/algorithms/data_oriented_roam/DataOrientedRoamTopology.h)、[Queues.h](../../../src/algorithms/data_oriented_roam/DataOrientedRoamQueues.h)、[MeshEmit.h](../../../src/algorithms/data_oriented_roam/DataOrientedRoamMeshEmit.h) |
 | OpenGL 上传当前直接使用 VBO/IBO；D3D12 使用持久映射的上传堆，并维护两个帧槽的版本和积压区间 | [TerrainRenderer.cpp](../../../src/render/TerrainRenderer.cpp)、[D3D12TerrainRenderer.cpp](../../../src/render/D3D12TerrainRenderer.cpp)；不能假定 D3D12 当前经过默认堆复制 |
@@ -602,7 +605,7 @@ AC-11 贯穿全部阶段。原先延后的能力现在各有明确归属：完�
 
 ### PREP-02：最小 CPU 输入与可追溯记录
 
-**依赖**：PREP-01；完成 `prep_02_minimal_input_plan.md` Review，确认 CPU 子集的输入和输出身份。
+**依赖**：PREP-01 已完成；用户于 2026-09-09 明确授权 [PREP-02 小规划](prep_02_minimal_input_plan.md)的编写与自主实施，在已确认共享输入边界内完成细化与实现核查。
 
 **文件归属**：在 `experiment/formal` 中创建最小 Types、Records、Manifest、Camera 和 Csv 能力，按需建立 `ExperimentCsvCodec`；补对应清单/相机/参数解析测试。以第 7 节文件表为边界，不提前创建 Fingerprint 或 RunStore。
 
@@ -612,7 +615,7 @@ AC-11 贯穿全部阶段。原先延后的能力现在各有明确归属：完�
 
 **验收边界**：完成 AC-02/03/08 的 CPU pilot 子集即可交付。完整 18 场景/1152 点、ZO 和上传输入由 PREP-06 扩展同一实现；C++ SHA-256、完整配置指纹和恢复由 PREP-09 交付。
 
-**实现情况**：未开始。完成后记录实际文件、输入版本、摘要方式和验证结果。
+**实现情况**：已于 2026-09-09 完成；实现与注释整改经用户许可提交为 `72f9c5f`，文档单独提交。新增共享 Types/Camera/Manifest/Records/Csv、通用 CSV 编解码、无窗口准备运行器与纯解析接入、Python hashlib 追溯脚本和独立六行 pilot 清单。两后端完整应用构建与各 28/28 CTest 通过；六场景 384 点、子集重放、目标引用、实际尺寸/资产 SHA-256、错误输入与目录保护均验收。独立冻结产物位于 `benchmark-output/prep-02/input-freeze-20260909/`。详细证据和限制见[小规划第 7 节](prep_02_minimal_input_plan.md#7-实现情况)、[代码事实](../../codebase/formal_experiment/cpu_pilot_input_contracts.md)和[架构审查](../../reviews/formal_experiment/prep_02_minimal_input_architecture_review.md)。本阶段只准备输入；DOD 目标身份、发现和策略配对仍未执行。
 
 ### PREP-03：CPU 阶段边界、规划特征与工作负载发现
 

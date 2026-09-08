@@ -1,13 +1,15 @@
 # PREP-01 策略下限与事实基线架构审查
 
 > 日期：2026-09-09\
-> 状态：实现核查完成；无未处理的 `Critical` / `Major` / `Minor` 问题\
+> 状态：实现核查完成；注释专项复核确认相关文件仍有既有 Minor 格式问题，见后续复核\
 > 审查对象：[PREP-01 小规划](../../plans/formal_experiment/prep_01_policy_and_baseline_plan.md)、[CPU 策略与回放事实](../../codebase/formal_experiment/cpu_policy_and_replay_baseline.md)\
 > 上位规划：[正式实验准备大规划](../../plans/formal_experiment/formal_experiment_preparation_major_plan.md)\
 > 规范依据：[开发规范](../../standards/development_guidelines.md)、[规划指南](../../plans/plan_guideline.md)、[审查指南](../review_guideline.md)\
 > 代码提交：`996c3a9`；实际结果见小规划第 8 节
 
 ## 1. 结论与边界
+
+2026-09-09 后续[注释专项复核](prep_01_02_comment_compliance_review.md)确认：PREP-01 新增注释基本符合要求，但相关文件仍保留实施前的四行注释块和行尾标点。以下验收记录不代表相关文件已完成全部注释整改；注释结论以专项记录为准。
 
 本阶段实现符合已确认的小规划：公共策略拥有三个独立下限，DOD 阶段保留动作/工作量解释，既有并行辅助共用数量规则；无窗口解析独立于执行，普通和配对两条入口都应用新配置；共享设置 CSV 与既有配对 CSV 分别升版。
 
@@ -73,7 +75,7 @@
 
 ### Minor
 
-已整改：两处公共注释最初使用 `@brief`，与用户要求及相邻源码格式不一致。已改为三行 `/// <summary>` / 内容 / `/// </summary>`，全项目自有 `src/tests` 扫描无同类残留，注释门禁再次通过。无未处理项。
+已整改：两处公共注释最初使用 `@brief`，与用户要求及相邻源码格式不一致。已改为三行 `/// <summary>` / 内容 / `/// </summary>`，全项目自有 `src/tests` 扫描无同类残留，注释门禁再次通过。后续专项复核列出的既有注释格式问题尚未整改，见专项记录 C-04。
 
 ## 6. 实施细化与剩余限制
 

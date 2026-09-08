@@ -1,6 +1,6 @@
 # CPU 策略与回放事实基线
 
-> 状态：已同步 PREP-01 实现与验证结果\
+> 状态：保留 PREP-01 策略/回放基线；PREP-02 输入准备增量见独立事实文档\
 > 日期：2026-09-09\
 > 实施前源码基线：`main` / `a168701`；当前代码实现提交：`996c3a9`\
 > 范围：CPU 下限、无窗口配置与记录、DOD 阶段调用和回放约束；不是完整 DOD 或渲染模块事实文档\
@@ -11,6 +11,8 @@
 FACT：无窗口入口为 main → `RunTerrainLodBenchmarkFromCommandLine` → `RunTerrainLodBenchmark`。`Benchmark` 使用公共 `TerrainLodSettings`；生产算法经 ITerrainLodAlgorithm，既有 CPU 配对经 `DataOrientedRoamPipeline` / `RunDataOrientedRoamPassExperiment`。命名空间分别为 `ParallelRoam::Benchmark`、`ParallelRoam::Algorithms` 和 `ParallelRoam::Algorithms::DataOrientedRoam`。
 
 FACT：`TerrainLodBenchmarkCommandLine.h/.cpp` 负责纯参数解析和帮助文本；`Benchmark.cpp` 保留场景、相机、执行、验证和既有配对 CSV。原入口是薄包装，仅解析、输出错误/帮助或调用运行器。共享设置/统计 CSV 在 `src/experiment/TerrainLodExperimentCsv.h/.cpp`。算法不依赖 `Benchmark`、`App` 或图形资源；CPU 阶段读取高度图、视图和设置，更新队列、拓扑与 CPU 网格。
+
+FACT（PREP-02 增量）：无窗口增加 `cpu-pilot-inputs` 准备配置，提前分流至 `benchmark/formal/FormalExperimentRunner`；外部清单、轨迹 A/NO、目标引用、独立 pilot 记录和 Python 摘要已落地，见 [CPU pilot 输入与记录事实](cpu_pilot_input_contracts.md)。本文件中 PREP-01 验证及旧配对路径仍是该阶段的历史基线，不表示新增准备入口尚不存在。
 
 ## 2. 文件与符号索引
 
@@ -120,9 +122,9 @@ FACT：完整日志位于 `benchmark-output/prep-01/` 的 `configure-opengl.log`
 
 FACT：解析 → `Benchmark` 选项/公共值类型；`Benchmark` → 公共算法/DOD/共享 CSV；DOD 阶段 → 共用数量解析/既有线程池。没有新增反向依赖、公共算法虚接口、线程池所有权、GUI 控件或运行时新命令行项。原有整份策略传递与共享 CSV 继续被运行时复用。
 
-FACT：现有 `Benchmark.cpp` 仍包含多个场景和回归编排；本次仅移出已确认的命令行职责。CPU 配对 CSV 仍归既有运行器，正式记录层尚未落地；没有新增另一套统计类型或序列化框架。
+FACT：现有 `Benchmark.cpp` 仍包含多个场景和回归编排；PREP-01 仅移出已确认的命令行职责，旧 CPU 配对 CSV 仍归既有运行器。PREP-02 已在共享层新增独立 pilot 记录与 CSV 编解码，并增加准备入口早期分流；没有替换旧配对运行器或接入完整正式记录系统。
 
-PLANNED：PREP-02 最小输入/记录、PREP-03 阶段边界/发现、PREP-04 可靠配对、PREP-05 探索性 pilot。PREP-01 完成不能视为五阶段正式配对或研究假设已验证。拓扑冻结请求覆盖、计时诊断隔离和上传实验代表性仍按上位规划处理。
+FACT：PREP-02 最小输入/记录已完成，细节和测试见上述独立事实文档。PLANNED：PREP-03 阶段边界/发现、PREP-04 可靠配对、PREP-05 探索性 pilot。PREP-01/02 完成不能视为五阶段正式配对或研究假设已验证。拓扑冻结请求覆盖、计时诊断隔离和上传实验代表性仍按上位规划处理。
 
 UNCERTAIN：没有图形上传性能或跨平台硬件性能结论；自动硬件提示为 0 的分支经源码核对，本机没有该硬件返回条件。当前所有时间记录用于工程验收，不证明性能交叉。
 
