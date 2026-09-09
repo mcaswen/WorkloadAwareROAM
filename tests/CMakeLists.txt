@@ -176,7 +176,7 @@ target_link_libraries(parallel_roam_benchmark_command_line_tests PRIVATE
 add_test(NAME terrain_lod_benchmark_command_line COMMAND parallel_roam_benchmark_command_line_tests)
 
 if(TARGET ParallelROAM::STB)
-    foreach(discovery_test IN ITEMS DataOrientedRoamPassExecution DataOrientedRoamWorkloadProbe)
+    foreach(discovery_test IN ITEMS DataOrientedRoamPassExecution DataOrientedRoamWorkloadProbe DataOrientedRoamPassExperiment FormalCpuPair)
         add_executable(parallel_roam_${discovery_test}_tests ${discovery_test}Tests.cpp
             ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES} ../src/algorithms/TerrainLodView.cpp
             ../src/terrain/HeightMap.cpp ../src/tools/PerformanceTimer.cpp)
@@ -188,7 +188,10 @@ if(TARGET ParallelROAM::STB)
         set_tests_properties(${discovery_test} PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." TIMEOUT 120)
     endforeach()
     target_sources(parallel_roam_DataOrientedRoamPassExecution_tests PRIVATE
-        ../src/benchmark/formal/FormalWorkloadDiscovery.cpp)
+        ../src/benchmark/formal/FormalWorkloadDiscovery.cpp
+        ../src/benchmark/formal/FormalCpuInput.cpp)
+    target_sources(parallel_roam_FormalCpuPair_tests PRIVATE
+        ../src/benchmark/formal/FormalCpuInput.cpp ../src/benchmark/formal/FormalTimingCalibration.cpp)
     add_executable(parallel_roam_dod_pass_policy_tests
         DataOrientedRoamPassPolicyTests.cpp
         ${PARALLEL_ROAM_DOD_SOURCES}
@@ -241,6 +244,14 @@ if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
         --replay-verifier "$<TARGET_FILE:parallel_roam_DataOrientedRoamPassExecution_tests>"
         --preset "${cpu_pilot_build_preset}" --output "${CMAKE_CURRENT_BINARY_DIR}/cpu-workload-discovery")
     set_tests_properties(cpu_workload_discovery PROPERTIES TIMEOUT 900)
+    add_test(NAME cpu_pilot_pairing COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test_cpu_pilot_pairing.py"
+        --source "${CMAKE_CURRENT_SOURCE_DIR}/.." --executable "$<TARGET_FILE:parallel_roam>"
+        --preset "${cpu_pilot_build_preset}" --output "${CMAKE_CURRENT_BINARY_DIR}/cpu-pilot-pairing")
+    set_tests_properties(cpu_pilot_pairing PROPERTIES TIMEOUT 900)
+    add_test(NAME pass_crossover_analysis COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test_pass_crossover_analysis.py")
+    set_tests_properties(pass_crossover_analysis PROPERTIES TIMEOUT 60)
     add_test(NAME terrain_lod_benchmark_policy
         COMMAND "${CMAKE_COMMAND}"
             "-DBENCHMARK=$<TARGET_FILE:parallel_roam>"

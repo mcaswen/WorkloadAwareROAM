@@ -99,6 +99,11 @@ bool ParsePassPolicy(std::string_view value, BenchmarkPassPolicySelection& outSe
 
 bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
 {
+    if (value == "cpu-pass-pair-pilot")
+    {
+        outProfile = BenchmarkProfile::CpuPassPairPilot;
+        return true;
+    }
     if (value == "cpu-workload-discovery")
     {
         outProfile = BenchmarkProfile::CpuWorkloadDiscovery;
@@ -190,6 +195,10 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
     bool hasOrdinaryOverrides = false;
     bool hasInputArguments = false;
     bool hasTargetSelectionArgument = false;
+    bool hasExperimentCounts = false;
+    bool hasPairSelection = false;
+    bool duplicateOption = false;
+    std::set<std::string_view> seenOptions;
     for (int index = 1; index < argc; ++index)
     {
         const std::string_view argument{argv[index]};
@@ -202,6 +211,34 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
             // 保留按位置处理帮助的行为：此前的错误优先，此后的参数不再读取
             result.ShowHelp = true;
             return result;
+        }
+
+        if (argument != "--scenario-id" && !seenOptions.insert(argument).second) duplicateOption = true;
+        if (argument == "--pass-id" || argument == "--sample-index")
+        {
+            hasPairSelection = true;
+            if (index + 1 >= argc)
+            {
+                result.Error = std::string{argument} + " requires a value.";
+                return result;
+            }
+            const std::string_view value{argv[++index]};
+            if (argument == "--pass-id")
+            {
+                bool valid = value == "all";
+                options.CpuPair.PassId.reset();
+                for (const auto pass : Experiment::Formal::CpuPilotPassIds)
+                    if (Algorithms::ToString(pass) == value) { options.CpuPair.PassId = pass; valid = true; }
+                if (!valid) { result.Error = "--pass-id requires all or a CPU pass name."; return result; }
+            }
+            else
+            {
+                std::size_t sample = 0U;
+                if (!ParseSize(value, sample) || sample == 0U || sample >= Experiment::Formal::CpuPilotSampleCount)
+                { result.Error = "--sample-index requires 1..63."; return result; }
+                options.CpuPair.SampleIndex = static_cast<std::uint32_t>(sample);
+            }
+            continue;
         }
 
         if (argument == "--scenario-manifest" || argument == "--camera-manifest" ||
@@ -282,7 +319,9 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
 
         if (sizeOption != nullptr)
         {
-            hasOrdinaryOverrides = true;
+            const bool sharedCount = passExperimentSize && argument != "--pass-targets";
+            hasExperimentCounts |= sharedCount;
+            hasOrdinaryOverrides |= !sharedCount;
             // 预热、重复、线程和目标数量保留最大值作为无效哨兵，下限参数可以使用该值
             if (index + 1 >= argc || !ParseSize(argv[++index], *sizeOption) ||
                 (passExperimentSize && *sizeOption == std::numeric_limits<std::size_t>::max()))
@@ -336,10 +375,35 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
         result.Error = "Unknown benchmark argument: " + std::string{argument};
         return result;
     }
-    if (options.Profile == BenchmarkProfile::CpuWorkloadDiscovery)
+    if (options.Profile == BenchmarkProfile::CpuPassPairPilot)
     {
         const auto& input = options.FormalInput;
-        if (hasOrdinaryOverrides || input.ScenarioManifest.empty() || input.CameraManifest.empty() ||
+        const std::set<std::string> selected{input.ScenarioIds.begin(), input.ScenarioIds.end()};
+        const auto maximum = std::numeric_limits<std::uint32_t>::max();
+        if (hasOrdinaryOverrides || hasTargetSelectionArgument || duplicateOption || input.ScenarioManifest.empty() ||
+            input.CameraManifest.empty() || input.TargetManifest.empty() || input.OutputDirectory.empty() ||
+            selected.size() != input.ScenarioIds.size() ||
+            (options.CpuPair.SampleIndex && (selected.size() != 1U || !options.CpuPair.PassId)) ||
+            options.PassExperimentRepeatCount == 0U || options.PassExperimentWorkerCount == 0U ||
+            options.PassExperimentRepeatCount > maximum || options.PassExperimentWorkerCount > maximum ||
+            options.PassExperimentWarmupCount > maximum - options.PassExperimentRepeatCount)
+            result.Error = "cpu-pass-pair-pilot requires three manifests, a new directory, unique selections and valid counts without ordinary overrides.";
+        else
+        {
+            // 显式零预热与未出现参数必须区分，避免默认值覆盖冻结场景
+            if (seenOptions.contains("--pass-warmups")) options.CpuPair.WarmupCount = static_cast<std::uint32_t>(options.PassExperimentWarmupCount);
+            if (seenOptions.contains("--pass-repeats")) options.CpuPair.MeasuredRepeatCount = static_cast<std::uint32_t>(options.PassExperimentRepeatCount);
+            if (seenOptions.contains("--pass-workers")) options.CpuPair.ParallelWorkerCount = static_cast<std::uint32_t>(options.PassExperimentWorkerCount);
+        }
+    }
+    else if (hasPairSelection)
+    {
+        result.Error = "--pass-id and --sample-index require --profile cpu-pass-pair-pilot.";
+    }
+    else if (options.Profile == BenchmarkProfile::CpuWorkloadDiscovery)
+    {
+        const auto& input = options.FormalInput;
+        if (hasOrdinaryOverrides || hasExperimentCounts || input.ScenarioManifest.empty() || input.CameraManifest.empty() ||
             input.OutputDirectory.empty() || !input.TargetManifest.empty() || !input.ScenarioIds.empty())
             result.Error = "cpu-workload-discovery requires frozen scenarios/cameras and a new output directory without overrides.";
     }
@@ -351,7 +415,7 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
     {
         const auto& input = options.FormalInput;
         const std::set<std::string> selected{input.ScenarioIds.begin(), input.ScenarioIds.end()};
-        if (hasOrdinaryOverrides || input.ScenarioManifest.empty() || input.OutputDirectory.empty() ||
+        if (hasOrdinaryOverrides || hasExperimentCounts || input.ScenarioManifest.empty() || input.OutputDirectory.empty() ||
             selected.size() != input.ScenarioIds.size())
         {
             result.Error = "cpu-pilot-inputs requires scenario-manifest/output-dir, unique scenario IDs and no ordinary overrides.";
@@ -380,6 +444,11 @@ std::string BenchmarkUsage()
            "[--scenario-id id]... [--camera-manifest path] [--target-manifest path]\n"
            "CPU workload discovery: --benchmark --profile cpu-workload-discovery "
            "--scenario-manifest frozen-path --camera-manifest frozen-path --output-dir new-directory "
-           "[--targets-per-pass 4|8]\n";
+           "[--targets-per-pass 4|8]\n"
+           "CPU pass pairing: --benchmark --profile cpu-pass-pair-pilot "
+           "--scenario-manifest frozen-path --camera-manifest frozen-path --target-manifest frozen-path "
+           "--output-dir new-directory [--scenario-id id]... "
+           "[--pass-id all|mergeScore|mergeTopology|splitScore|splitTopology|meshEmit] "
+           "[--sample-index 1..63] [--pass-warmups count] [--pass-repeats count] [--pass-workers count]\n";
 }
 } // 命名空间 ParallelRoam::Benchmark

@@ -3,6 +3,7 @@
 #include "algorithms/ITerrainLodAlgorithm.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -10,6 +11,10 @@ namespace ParallelRoam::Experiment::Formal
 {
 inline constexpr std::uint32_t CpuPilotSchemaVersion = 1;
 inline constexpr std::uint32_t CpuPilotSampleCount = 64;
+/// <summary>
+/// 不完整和失败必须保留为独立状态，不能凭 CSV 文件存在推断数据有效
+/// </summary>
+enum class CpuRecordStatus { Incomplete, Valid, NoWork, Failed };
 inline constexpr std::array CpuPilotPassIds{
     Algorithms::TerrainLodPassId::MergeScore, Algorithms::TerrainLodPassId::MergeTopology,
     Algorithms::TerrainLodPassId::SplitScore, Algorithms::TerrainLodPassId::SplitTopology,
@@ -96,5 +101,18 @@ struct FormalInputRequest
     std::filesystem::path TargetManifest;
     std::filesystem::path OutputDirectory;
     std::vector<std::string> ScenarioIds;
+};
+
+/// <summary>
+/// 只保存本次测量的显式覆盖，未出现的数量仍由冻结场景提供
+/// 单采样筛选须同时选中唯一场景和具体阶段，不能重新编号目标
+/// </summary>
+struct CpuPairSelection
+{
+    std::optional<Algorithms::TerrainLodPassId> PassId;
+    std::optional<std::uint32_t> SampleIndex;
+    std::optional<std::uint32_t> WarmupCount;
+    std::optional<std::uint32_t> MeasuredRepeatCount;
+    std::optional<std::uint32_t> ParallelWorkerCount;
 };
 } // 命名空间 ParallelRoam::Experiment::Formal

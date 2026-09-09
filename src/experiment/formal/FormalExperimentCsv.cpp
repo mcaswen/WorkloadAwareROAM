@@ -127,29 +127,4 @@ void WriteCpuDiscoverySummary(std::ostream& output, const CpuDiscoverySummary& s
         std::to_string(summary.FailedRecordCount)});
 }
 
-void WriteCpuPairCsvHeader(std::ostream& output)
-{
-    WriteExperimentCsvRow(output, {"schemaVersion", "dataPurpose", "scenarioId", "sampleIndex", "passId", "repeatIndex",
-        "isWarmup", "blockOrder", "orderIndex", "requestedAction", "actualAction", "requestedWorkerCount",
-        "actualWorkerCount", "fallbackReason", "replayInputHash", "resultHash", "wallMs", "correct", "equivalent", "status", "failure"});
-}
-
-void WriteCpuPairCsvRow(std::ostream& output, const CpuPairRecord& record)
-{
-    ValidateIdentity(record.ScenarioId, record.PassId, record.SampleIndex);
-    if (record.SampleIndex == 0 || record.OrderIndex > 1 || (record.BlockOrder != "AB" && record.BlockOrder != "BA") ||
-        record.WallMilliseconds < 0 || (record.Status == CpuRecordStatus::Valid &&
-        (!record.Correct || !record.Equivalent || record.ReplayInputHash == 0 || record.ResultHash == 0 ||
-        record.RequestedWorkerCount == 0 || record.ActualWorkerCount == 0)))
-    {
-        throw std::runtime_error("CPU pair record lacks valid pairing or result evidence");
-    }
-    WriteExperimentCsvRow(output, {"1", "exploratory", record.ScenarioId, std::to_string(record.SampleIndex),
-        std::string{Algorithms::ToString(record.PassId)}, std::to_string(record.RepeatIndex), record.IsWarmup ? "true" : "false",
-        record.BlockOrder, std::to_string(record.OrderIndex), std::string{Algorithms::ToString(record.RequestedAction)},
-        std::string{Algorithms::ToString(record.ActualAction)}, std::to_string(record.RequestedWorkerCount),
-        std::to_string(record.ActualWorkerCount), std::string{Algorithms::ToString(record.Fallback)},
-        std::to_string(record.ReplayInputHash), std::to_string(record.ResultHash), FormatExperimentCsvDouble(record.WallMilliseconds),
-        record.Correct ? "true" : "false", record.Equivalent ? "true" : "false", StatusName(record.Status), record.Failure});
-}
 } // 命名空间 ParallelRoam::Experiment::Formal

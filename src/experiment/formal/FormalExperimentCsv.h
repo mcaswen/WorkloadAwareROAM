@@ -1,6 +1,7 @@
 #pragma once
 
 #include "experiment/formal/FormalExperimentRecords.h"
+#include "experiment/formal/FormalCpuPairCsv.h"
 
 #include <iosfwd>
 
@@ -17,6 +18,4 @@ void WriteCpuDiscoveryCsvRow(std::ostream& output, const CpuDiscoveryRecord& rec
 /// </summary>
 void WriteCpuTargetCoverageCsv(std::ostream& output, const std::vector<CpuTargetCoverageRecord>& records);
 void WriteCpuDiscoverySummary(std::ostream& output, const CpuDiscoverySummary& summary);
-void WriteCpuPairCsvHeader(std::ostream& output);
-void WriteCpuPairCsvRow(std::ostream& output, const CpuPairRecord& record);
 } // 命名空间 ParallelRoam::Experiment::Formal

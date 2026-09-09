@@ -85,6 +85,31 @@ int main()
             Expect(!Parse(values).Error.empty(), "Discovery conflict accepted");
         }
         Expect(!Parse({"--profile", "cpu-pilot-inputs", "--targets-per-pass", "4"}).Error.empty(), "Selection flag leaked");
+        const std::vector<std::string> pairing{"--profile", "cpu-pass-pair-pilot", "--scenario-manifest", "s.csv",
+            "--camera-manifest", "c.csv", "--target-manifest", "t.csv", "--output-dir", "new directory"};
+        parsed = Parse(pairing);
+        Expect(parsed.Error.empty() && !parsed.Options.CpuPair.WarmupCount &&
+            !parsed.Options.CpuPair.MeasuredRepeatCount && !parsed.Options.CpuPair.ParallelWorkerCount,
+            "Absent overrides must remain absent");
+        values = pairing;
+        values.insert(values.end(), {"--scenario-id", "test129-a-b4096", "--pass-id", "meshEmit", "--sample-index", "63",
+            "--pass-warmups", "0", "--pass-repeats", "6", "--pass-workers", "2"});
+        parsed = Parse(values);
+        Expect(parsed.Error.empty() && parsed.Options.CpuPair.WarmupCount == 0U &&
+            parsed.Options.CpuPair.MeasuredRepeatCount == 6U && parsed.Options.CpuPair.ParallelWorkerCount == 2U &&
+            parsed.Options.CpuPair.SampleIndex == 63U, "Explicit pairing selection or zero warmups lost");
+        for (const auto& extra : std::vector<std::vector<std::string>>{
+            {"--algorithm", "dod"}, {"--pass-policy", "default"}, {"--csv", "ordinary.csv"},
+            {"--pass-targets", "1"}, {"--targets-per-pass", "4"}, {"--merge-score-min-parallel-entries", "0"},
+            {"--sample-index", "1"}, {"--pass-id", "upload"}, {"--pass-repeats", "0"}, {"--pass-workers", "0"},
+            {"--pass-workers", "4294967296"}, {"--pass-warmups", "4294967295"},
+            {"--pass-id", "all", "--pass-id", "meshEmit"}, {"--scenario-id", "a", "--scenario-id", "a"}})
+        {
+            values = pairing;
+            values.insert(values.end(), extra.begin(), extra.end());
+            Expect(!Parse(values).Error.empty(), "Pairing accepted conflicting or incomplete selection");
+        }
+        Expect(!Parse({"--profile", "smoke", "--pass-id", "meshEmit"}).Error.empty(), "CPU selection leaked into ordinary mode");
         return 0;
     }
     catch (const std::exception& error)

@@ -58,6 +58,8 @@ set(PARALLEL_ROAM_DOD_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamPipeline.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamMeshEmit.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamPassMeasurement.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamPassEvidence.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamQueues.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamScoring.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamState.cpp"
@@ -73,6 +75,7 @@ set(PARALLEL_ROAM_FORMAL_INPUT_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/formal/FormalExperimentCamera.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/formal/FormalExperimentManifest.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/formal/FormalExperimentCsv.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/experiment/formal/FormalCpuPairCsv.cpp"
 )
 
 if(PARALLEL_ROAM_BUILD_APP)
@@ -167,6 +170,9 @@ if(PARALLEL_ROAM_BUILD_APP)
     if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
         list(APPEND PARALLEL_ROAM_APP_SOURCES ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
             src/benchmark/formal/FormalWorkloadDiscovery.cpp
+            src/benchmark/formal/FormalCpuInput.cpp
+            src/benchmark/formal/FormalCpuPassBenchmark.cpp
+            src/benchmark/formal/FormalTimingCalibration.cpp
             src/benchmark/formal/FormalExperimentRunner.cpp)
     endif()
     add_executable(parallel_roam src/main.cpp ${PARALLEL_ROAM_APP_SOURCES})

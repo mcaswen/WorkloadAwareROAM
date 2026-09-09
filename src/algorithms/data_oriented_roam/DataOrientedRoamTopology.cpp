@@ -1,11 +1,12 @@
+#include "algorithms/data_oriented_roam/DataOrientedRoamTopology.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamTopologyPlan.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamPassEvidence.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamParallel.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamCandidateMarking.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamMeshEmit.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamQueues.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamScoring.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamStateOps.h"
-#include "algorithms/data_oriented_roam/DataOrientedRoamTopology.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamValidation.h"
 #include "tools/PerformanceTimer.h"
 
@@ -1372,99 +1373,6 @@ std::uint64_t HashFrozenMergeCandidates(
     return hash;
 }
 
-std::uint64_t HashCurrentTopology(const DataOrientedRoamState& state)
-{
-    // 当前拓扑由所有已经展开的父节点唯一描述
-    // 遍历节点池不会依赖活动内部数组的排列顺序
-    // 最终再按路径编号规范化以便比较两条执行方式
-    std::vector<std::uint64_t> pathIds;
-    pathIds.reserve(state.ActiveInternalNodes.size());
-    for (DataOrientedRoamNodeIndex node = 0U;
-         node < static_cast<DataOrientedRoamNodeIndex>(state.Nodes.size());
-         ++node)
-    {
-        if (state.Nodes.IsSplitAt(node))
-        {
-            pathIds.push_back(state.Nodes.PathIdAt(node));
-        }
-    }
-    return HashTerrainLodPathIds(std::move(pathIds));
-}
-
-std::uint64_t HashActiveLeaves(const DataOrientedRoamState& state)
-{
-    // 活动叶数组允许通过末尾填洞改变内部顺序
-    // 研究结果关心的是活动切分集合
-    // 因此只对稳定路径编号排序后计算哈希
-    std::vector<std::uint64_t> pathIds;
-    pathIds.reserve(state.ActiveLeafNodes.size());
-    for (const DataOrientedRoamNodeIndex node : state.ActiveLeafNodes)
-    {
-        pathIds.push_back(state.Nodes.PathIdAt(node));
-    }
-    return HashTerrainLodPathIds(std::move(pathIds));
-}
-
-std::uint64_t HashQueueMembership(const DataOrientedRoamState& state)
-{
-    // 长期队列的堆排列不属于算法结果
-    // 这里只比较两个队列各自包含哪些稳定路径
-    // 队列不变量由独立检查继续验证
-    std::vector<std::uint64_t> splitPaths;
-    splitPaths.reserve(state.SplitQueue.size());
-    for (const DataOrientedRoamSplitQueueEntry& entry : state.SplitQueue)
-    {
-        splitPaths.push_back(state.Nodes.PathIdAt(entry.Node));
-    }
-    std::sort(splitPaths.begin(), splitPaths.end());
-
-    std::vector<std::uint64_t> mergePaths;
-    mergePaths.reserve(state.MergeQueue.size());
-    for (const DataOrientedRoamMergeQueueEntry& entry : state.MergeQueue)
-    {
-        mergePaths.push_back(state.Nodes.PathIdAt(entry.Node));
-    }
-    std::sort(mergePaths.begin(), mergePaths.end());
-
-    std::uint64_t hash = TerrainLodHashOffset;
-    AppendTerrainLodHash(hash, splitPaths.size());
-    for (const std::uint64_t pathId : splitPaths)
-    {
-        AppendTerrainLodHash(hash, pathId);
-    }
-    AppendTerrainLodHash(hash, mergePaths.size());
-    for (const std::uint64_t pathId : mergePaths)
-    {
-        AppendTerrainLodHash(hash, pathId);
-    }
-    return hash;
-}
-
-std::uint64_t HashMeshEdits(const DataOrientedRoamState& state)
-{
-    // 不同合法提交顺序可能产生不同的编辑记录顺序
-    // 网格结果只要求相同节点发生相同类型的修改
-    // 排序后的类型和路径组合提供规范化比较依据
-    std::vector<std::pair<std::uint8_t, std::uint64_t>> edits;
-    edits.reserve(state.IncrementalMesh.Metadata.TopologyEdits.size());
-    for (const DataOrientedRoamMeshTopologyEdit& edit : state.IncrementalMesh.Metadata.TopologyEdits)
-    {
-        edits.emplace_back(
-            static_cast<std::uint8_t>(edit.Type),
-            state.Nodes.PathIdAt(edit.Node));
-    }
-    std::sort(edits.begin(), edits.end());
-
-    std::uint64_t hash = TerrainLodHashOffset;
-    AppendTerrainLodHash(hash, edits.size());
-    for (const auto& [type, pathId] : edits)
-    {
-        AppendTerrainLodHash(hash, type);
-        AppendTerrainLodHash(hash, pathId);
-    }
-    return hash;
-}
-
 struct FrozenTopologyExecutionSummary
 {
     // 提前提交数量用于确认并行辅助路径是否真正做了工作
@@ -1591,17 +1499,11 @@ TerrainLodTopologyReplayEvidence CollectFrozenReplayEvidence(
     // 验证在副本内执行，不会改变正式算法状态
     // 结果同时保存规范化哈希、不变量和各子阶段耗时
     // 状态复制成本单列，避免被误当成拓扑实现自身成本
-    ValidateTopology(state);
-
-    TerrainLodTopologyReplayEvidence evidence{};
+    auto evidence = CaptureDataOrientedRoamPassEvidence(state,
+        splitPhase ? TerrainLodPassId::SplitTopology : TerrainLodPassId::MergeTopology).Topology;
     evidence.Action = parallel
         ? TerrainLodPassAction::ParallelAssisted
         : TerrainLodPassAction::SerialImmediate;
-    evidence.TopologyHash = HashCurrentTopology(state);
-    evidence.ActiveLeafHash = HashActiveLeaves(state);
-    evidence.QueueMembershipHash = HashQueueMembership(state);
-    evidence.MeshEditHash = HashMeshEdits(state);
-    evidence.ActiveTriangleCount = state.ActiveLeafNodes.size();
     evidence.InteriorCandidateCount = splitPhase
         ? state.Stats.InteriorSplitCandidateCount
         : state.Stats.InteriorMergeCandidateCount;
@@ -1615,13 +1517,6 @@ TerrainLodTopologyReplayEvidence CollectFrozenReplayEvidence(
         ? state.Stats.SplitTopologyCommitWorkerCount
         : state.Stats.MergeTopologyCommitWorkerCount;
     evidence.EarlyCommitCount = summary.EarlyCommitCount;
-    evidence.BudgetViolationCount = state.ActiveLeafNodes.size() > state.Settings.TriangleBudget
-        ? 1U
-        : 0U;
-    evidence.QueueInvariantViolationCount = CountPersistentQueueInvariantViolations(state);
-    evidence.TjunctionCount = state.Stats.TjunctionCount;
-    evidence.InvalidNeighborCount = state.Stats.InvalidNeighborCount;
-    evidence.InvalidTopologyCount = state.Stats.InvalidTopologyCount;
     evidence.StateCloneMilliseconds = cloneMilliseconds;
     evidence.ChunkBuildMilliseconds = splitPhase
         ? state.Stats.SplitTopologyChunkBuildMilliseconds

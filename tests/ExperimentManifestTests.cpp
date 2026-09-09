@@ -90,8 +90,19 @@ void CheckRecords()
     discovery.Status = CpuRecordStatus::Valid;
     Reject([&] { std::ostringstream output; WriteCpuDiscoveryCsvRow(output, discovery); }, "Missing input evidence accepted");
     CpuPairRecord pair;
+    pair.RunId = "process-fixture";
     pair.ScenarioId = "test129-a-b512";
+    pair.TerrainId = "test129";
+    pair.AnalysisSplit = "train";
+    pair.SelectionSeed = 20260830U;
+    pair.SelectorVersion = pair.PassInputVersion = 1U;
+    pair.SelectionStratum = "low";
+    pair.CameraPoseHash = pair.ViewInputHash = pair.ReplayInputHash = pair.SelectionFeatureHash = 1U;
+    pair.PrimaryWorkValue = 2.0F;
+    pair.FeatureVector = "2";
     pair.SampleIndex = 1;
+    pair.AbsoluteBlockIndex = pair.RepeatIndex = 1U;
+    pair.IsWarmup = true;
     pair.BlockOrder = "BA";
     pair.OrderIndex = 0;
     pair.RequestedAction = Algorithms::TerrainLodPassAction::ParallelFullRefresh;
@@ -99,11 +110,17 @@ void CheckRecords()
     pair.RequestedWorkerCount = 8;
     pair.ActualWorkerCount = 1;
     pair.Fallback = Algorithms::TerrainLodPassFallbackReason::BelowParallelThreshold;
+    pair.ExecutionPath = "caller_thread";
+    pair.FallbackDetail = "below_parallel_threshold";
     pair.Status = CpuRecordStatus::Failed;
     pair.Failure = "result mismatch";
-    const auto pairs = Capture([&](auto& output) { WriteCpuPairCsvHeader(output); WriteCpuPairCsvRow(output, pair); });
-    Expect(pairs.Rows.front()[7] == "BA" && pairs.Rows.front()[11] == "8" && pairs.Rows.front()[12] == "1" &&
-        pairs.Rows.front()[19] == "failed", "Pair order, workers or failure state lost");
+    std::stringstream pairStream;
+    WriteCpuPairCsvHeader(pairStream);
+    WriteCpuPairCsvRow(pairStream, pair);
+    const auto pairs = ReadCpuPairCsv(pairStream, "failed-pair-fixture");
+    Expect(pairs.front().BlockOrder == "BA" && pairs.front().RequestedWorkerCount == 8U &&
+        pairs.front().ActualWorkerCount == 1U && pairs.front().Status == CpuRecordStatus::Failed,
+        "Pair order, workers or failure state lost");
     pair.Status = CpuRecordStatus::Valid;
     Reject([&] { std::ostringstream output; WriteCpuPairCsvRow(output, pair); }, "Invalid result labeled valid");
     InputPreparationSummary summary;

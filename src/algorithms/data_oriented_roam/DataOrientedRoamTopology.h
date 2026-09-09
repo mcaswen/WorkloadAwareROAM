@@ -22,6 +22,7 @@ void CommitScoredMergeTopology(DataOrientedRoamState& state);
 /// <summary>
 /// 在调用方提供的状态副本上执行一种细分拓扑策略并返回规范化结果
 /// 串行方式直接处理长期队列，并行辅助方式使用调用方提供的冻结候选
+/// 此接口会重置诊断副本，真实阶段测量应使用 ExecuteDataOrientedRoamPass
 /// </summary>
 [[nodiscard]] TerrainLodTopologyReplayEvidence ReplayFrozenSplitTopologyAction(
     DataOrientedRoamState& state,
@@ -32,6 +33,7 @@ void CommitScoredMergeTopology(DataOrientedRoamState& state);
 /// <summary>
 /// 在调用方提供的状态副本上执行一种合并拓扑策略并返回规范化结果
 /// 串行方式直接处理长期队列，并行辅助方式使用调用方提供的冻结候选
+/// 此接口保留旧诊断语义，其时间不属于真实阶段配对协议
 /// </summary>
 [[nodiscard]] TerrainLodTopologyReplayEvidence ReplayFrozenMergeTopologyAction(
     DataOrientedRoamState& state,

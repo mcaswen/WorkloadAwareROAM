@@ -1,4 +1,5 @@
 #include "benchmark/formal/FormalWorkloadDiscovery.h"
+#include "benchmark/formal/FormalCpuInput.h"
 
 #include "algorithms/data_oriented_roam/DataOrientedRoamPassInput.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamPipeline.h"
@@ -17,49 +18,6 @@ using namespace Algorithms;
 using namespace Algorithms::DataOrientedRoam;
 using namespace Experiment::Formal;
 
-/// <summary>
-/// 显式映射窄探测结果且编排层不读取节点队列或槽位容器
-/// </summary>
-CpuDiscoveryRecord MakeRecord(const CameraSample& camera, TerrainLodPassId pass,
-    const DataOrientedRoamPassWorkload& work, std::uint64_t inputHash, double hashMilliseconds)
-{
-    CpuDiscoveryRecord record;
-    record.ScenarioId = camera.ScenarioId;
-    record.SampleIndex = camera.SampleIndex;
-    record.PassId = pass;
-    record.CameraPoseHash = camera.CameraPoseHash;
-    record.ViewInputHash = camera.ViewInputHash;
-    record.ReplayInputHash = inputHash;
-    record.PassInputVersion = DataOrientedRoamPassInputVersion;
-    record.InputHashMilliseconds = hashMilliseconds;
-    record.FeatureCollectionMilliseconds = work.FeatureCollectionMilliseconds;
-    record.PreMergeQueueEntryCount = work.PreMergeQueueEntryCount;
-    record.PreSplitQueueEntryCount = work.PreSplitQueueEntryCount;
-    record.PreActiveTriangleCount = work.PreActiveTriangleCount;
-    record.PreTriangleBudget = work.PreTriangleBudget;
-    record.PreRemainingTriangleBudget = work.PreRemainingTriangleBudget;
-    record.PreTopologyEditCount = work.PreTopologyEditCount;
-    record.PreMaxActiveDepth = work.PreMaxActiveDepth;
-    record.PreMaxDepth = work.PreMaxDepth;
-    record.PlanningInteriorCandidateCount = work.PlanningInteriorCandidateCount;
-    record.PlanningBoundaryCandidateCount = work.PlanningBoundaryCandidateCount;
-    record.PlanningScheduledCandidateCount = work.PlanningScheduledCandidateCount;
-    record.PlanningNonEmptyChunkCount = work.PlanningNonEmptyChunkCount;
-    record.PlanningDirtyTriangleCount = work.PlanningDirtyTriangleCount;
-    record.PlanningDirtyRangeCount = work.PlanningDirtyRangeCount;
-    if (pass == TerrainLodPassId::MeshEmit)
-        record.PlanningMeshReason = work.PlanningMeshInitialization ? "initialization" :
-            (work.PlanningMeshFallback ? "inconsistent_edits_reinitialized" : "incremental");
-    record.PreWorkCount = pass == TerrainLodPassId::MergeScore ? work.PreMergeQueueEntryCount :
-        (pass == TerrainLodPassId::SplitScore ? work.PreSplitQueueEntryCount : work.PreActiveTriangleCount);
-    record.PlanningWorkCount = pass == TerrainLodPassId::MeshEmit ? work.PlanningDirtyTriangleCount :
-        work.PlanningInteriorCandidateCount + work.PlanningBoundaryCandidateCount;
-    record.PrimaryWorkValue = work.PrimaryWorkValue;
-    record.FeatureVector = FormatTargetSelectionFeatures(work.AuxiliaryFeatures);
-    record.SelectionFeatureHash = HashTargetSelectionFeatures(
-        {camera.ScenarioId, pass, camera.SampleIndex, work.PrimaryWorkValue, work.AuxiliaryFeatures});
-    return record;
-}
 }
 
 FormalWorkloadDiscoveryResult DiscoverCpuScenarioWorkloads(
@@ -86,14 +44,7 @@ FormalWorkloadDiscoveryResult DiscoverCpuScenarioWorkloads(
         std::string error;
         if (!height.LoadFromFile(scenario.HeightMapPath, &error))
             throw std::runtime_error{error};
-        DataOrientedRoamSettings settings;
-        settings.MaxDepth = scenario.Settings.MaxDepth;
-        settings.TriangleBudget = scenario.Settings.TriangleBudget;
-        settings.SplitThreshold = scenario.Settings.ScreenSpaceSplitThresholdPixels;
-        settings.MergeThreshold = scenario.Settings.ScreenSpaceMergeThresholdPixels;
-        settings.EnableLocalConstraints = scenario.Settings.EnableLocalConstraints;
-        settings.PassPolicy = scenario.Settings.PassPolicy;
-        settings.EnablePassEvidence = settings.EnableTopologyValidation = true;
+        const auto settings = MakeCpuSourceSettings(scenario);
         DataOrientedRoamPipeline pipeline;
         for (std::size_t sample = 0U; sample < ordered.size(); ++sample)
         {
@@ -107,17 +58,14 @@ FormalWorkloadDiscoveryResult DiscoverCpuScenarioWorkloads(
                     const auto work = ProbeDataOrientedRoamPassWorkload(state, pass);
                     Tools::PerformanceTimer hashTimer;
                     const auto inputHash = HashDataOrientedRoamPassInput(state, pass);
-                    records.push_back(MakeRecord(camera, pass, work, inputHash, hashTimer.Stop()));
+                    records.push_back(MakeCpuDiscoveryInputRecord(camera, pass, work, inputHash, hashTimer.Stop()));
                     candidates.push_back({camera.ScenarioId, pass, camera.SampleIndex,
                         work.PrimaryWorkValue, work.AuxiliaryFeatures});
                 });
             const auto& stats = pipeline.Stats();
             // 这些诊断已由流水线完整执行且在五个探测边界之外
             const bool valid = records.size() - begin == CpuPilotPassIds.size() &&
-                stats.BuildSequence == sample + 1U && stats.ActiveTriangleCount <= settings.TriangleBudget &&
-                stats.PersistentSplitQueueSize == stats.ActiveTriangleCount && stats.QueueInvariantViolationCount == 0U &&
-                stats.InvalidTopologyCount == 0U && stats.InvalidNeighborCount == 0U && stats.TjunctionCount == 0U &&
-                stats.TopologyHash != 0U && stats.NormalizedMeshHash != 0U;
+                IsCpuSourceFrameValid(stats, settings, camera.SampleIndex);
             for (std::size_t index = begin; index < records.size(); ++index)
             {
                 auto& record = records[index];

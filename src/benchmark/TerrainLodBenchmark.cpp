@@ -137,6 +137,7 @@ std::string ToString(BenchmarkProfile profile)
     case BenchmarkProfile::Standard:
         return "standard";
     case BenchmarkProfile::CpuWorkloadDiscovery:
+    case BenchmarkProfile::CpuPassPairPilot:
         return "cpu-workload-discovery";
     case BenchmarkProfile::CpuPilotInputs:
         return "cpu-pilot-inputs";
@@ -1322,7 +1323,9 @@ bool WritePassCrossoverCsvHeader(std::ostream& output)
         << "activeTriangleCount,dirtyTriangleCount,dirtyRangeCount,stateCloneMs,scoreMs,heapifyMs,"
         << "candidateSnapshotMs,chunkBuildMs,queueInvalidationMs,commitMs,resultMergeMs,"
         << "indexQueueRefreshMs,serialConvergenceMs,wallMs,resultHash,equivalent,correct,"
-        << "mergeScoreMinParallelEntryCount,splitScoreMinParallelEntryCount,meshEmitMinParallelTriangleCount\n";
+        << "mergeScoreMinParallelEntryCount,splitScoreMinParallelEntryCount,meshEmitMinParallelTriangleCount,"
+        << "measurementMode,measurementProtocolVersion,stageInputHash,absoluteBlockIndex,blockOrder,"
+        << "executionPath,fallbackDetail,validationPerformed,inputCheckMs,validationMs,workerPreparationMs\n";
     return output.good();
 }
 
@@ -1333,7 +1336,7 @@ bool WritePassCrossoverCsvRow(
     const Algorithms::DataOrientedRoam::DataOrientedRoamPassExperimentSample& sample)
 {
     output << std::setprecision(9)
-           << "2," << scenario.Name << ',' << scenario.Name << ','
+           << "3," << scenario.Name << ',' << scenario.Name << ','
            << scenario.HeightMapPath.filename().generic_string() << ',' << scenario.Name << ','
            << scenario.Settings.TriangleBudget << ',' << sampleIndex << ','
            << scenario.CameraPath[sampleIndex].Name << ','
@@ -1356,7 +1359,11 @@ bool WritePassCrossoverCsvRow(
            << (sample.Equivalent ? 1 : 0) << ',' << (sample.Correct ? 1 : 0)
            << ',' << scenario.Settings.PassPolicy.MergeScoreMinParallelEntryCount
            << ',' << scenario.Settings.PassPolicy.SplitScoreMinParallelEntryCount
-           << ',' << scenario.Settings.PassPolicy.MeshEmitMinParallelTriangleCount << '\n';
+           << ',' << scenario.Settings.PassPolicy.MeshEmitMinParallelTriangleCount
+           << ",diagnostic,1," << sample.StageInputHash << ',' << sample.AbsoluteBlockIndex << ','
+           << sample.BlockOrder << ',' << sample.ExecutionPath << ',' << sample.FallbackDetail << ','
+           << (sample.ValidationPerformed ? 1 : 0) << ',' << sample.InputCheckMilliseconds << ','
+           << sample.ValidationMilliseconds << ',' << sample.WorkerPreparationMilliseconds << '\n';
     return output.good();
 }
 
@@ -1489,6 +1496,10 @@ int RunPassCrossoverReplay(const BenchmarkOptions& options)
 
 int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 {
+    if (options.Profile == BenchmarkProfile::CpuPassPairPilot)
+    {
+        return Formal::RunCpuPilotPairing(options.FormalInput, options.CpuPair);
+    }
     if (options.Profile == BenchmarkProfile::CpuWorkloadDiscovery)
     {
         return Formal::DiscoverCpuPilotWorkloads(options.FormalInput, static_cast<std::uint32_t>(options.TargetsPerPass));
