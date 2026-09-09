@@ -8,7 +8,7 @@ namespace ParallelRoam::Experiment::Formal
 {
 void WriteInputPreparationSummary(std::ostream& output, const InputPreparationSummary& summary);
 /// <summary>
-/// 发现独立使用 v2 且有效行必须带已执行的诊断和阶段身份
+/// 发现记录独立使用 v2 格式；有效行必须带有已执行的诊断结果和真实阶段输入身份
 /// </summary>
 void WriteCpuDiscoveryCsvHeader(std::ostream& output);
 void WriteCpuDiscoveryCsvRow(std::ostream& output, const CpuDiscoveryRecord& record);

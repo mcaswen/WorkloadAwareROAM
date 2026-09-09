@@ -11,7 +11,8 @@
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 /// <summary>
-/// 解析评分和网格提交的数量门槛；串行动作由调用方归一为请求 1
+/// 根据工作量、线程请求和并行下限确定评分或网格写入的任务数量
+/// 本函数不解释执行策略，调用方选择串行时应传入线程请求 1
 /// </summary>
 [[nodiscard]] inline std::size_t ResolveDataOrientedRoamWorkerCount(
     std::size_t workItemCount,
@@ -39,7 +40,8 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
 }
 
 /// <summary>
-/// 借用流水线持有的线程池同步完成阶段任务，回调引用的对象须存活到返回
+/// 同步执行本阶段的全部任务，返回时所有回调都已结束
+/// 线程池由流水线持有，回调引用的数据必须在本次调用期间保持有效
 /// </summary>
 inline void RunDataOrientedRoamWorkers(
     DataOrientedRoamState& state,

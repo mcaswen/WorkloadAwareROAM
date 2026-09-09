@@ -5,7 +5,8 @@
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 /// <summary>
-/// 区分槽位重放操作且记录顺序必须与拓扑提交顺序一致
+/// 区分需要重放到网格槽位的细分与合并操作
+/// 修改记录必须保持拓扑提交顺序，保证槽位重放结果一致
 /// </summary>
 enum class DataOrientedRoamMeshTopologyEditType
 {
@@ -14,7 +15,8 @@ enum class DataOrientedRoamMeshTopologyEditType
 };
 
 /// <summary>
-/// 只引用父节点以便最终网格规划读取仍保留的子节点关系
+/// 保存一次拓扑修改的类型与父节点索引
+/// 网格规划通过父节点读取仍保留的子节点关系，无需复制整份拓扑
 /// </summary>
 struct DataOrientedRoamMeshTopologyEdit
 {
@@ -23,7 +25,8 @@ struct DataOrientedRoamMeshTopologyEdit
 };
 
 /// <summary>
-/// 保存主线程规划所需的跨帧槽位和更新记录且不携带几何数组
+/// 保存主线程网格规划所需的跨帧槽位、脏标记和拓扑修改记录
+/// 不携带顶点或索引数组，允许探测独立复制并重放元数据
 /// </summary>
 struct DataOrientedRoamMeshMetadata
 {
@@ -42,7 +45,8 @@ struct DataOrientedRoamMeshMetadata
 };
 
 /// <summary>
-/// 状态拥有元数据与真实几何而探测只复制元数据成员
+/// 同时拥有增量网格的元数据与真实几何
+/// 工作量探测只复制 Metadata，几何写入由网格提交阶段负责
 /// </summary>
 struct DataOrientedRoamIncrementalMesh
 {

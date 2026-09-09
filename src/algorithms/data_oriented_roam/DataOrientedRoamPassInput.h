@@ -8,7 +8,8 @@ struct DataOrientedRoamState;
 inline constexpr std::uint32_t DataOrientedRoamPassInputVersion = 1U;
 
 /// <summary>
-/// 编码真实阶段输入并保留有序状态且排除地址容量计时与待测策略
+/// 显式编码真实阶段输入，保留会影响后续执行的状态顺序
+/// 地址、预留容量、计时和待测策略不参与输入身份
 /// </summary>
 [[nodiscard]] std::uint64_t HashDataOrientedRoamPassInput(
     const DataOrientedRoamState& state, TerrainLodPassId passId);

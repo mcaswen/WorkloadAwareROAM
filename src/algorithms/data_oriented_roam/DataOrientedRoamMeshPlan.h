@@ -7,7 +7,8 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
 struct DataOrientedRoamNodePool;
 
 /// <summary>
-/// 规划仅借用拓扑和帧序号以禁止访问真实顶点与索引数组
+/// 为网格规划提供只读节点、活动叶集合和帧序号
+/// 不暴露真实顶点与索引数组，使规划无法修改几何存储
 /// </summary>
 struct DataOrientedRoamMeshPlanInput
 {
@@ -25,7 +26,8 @@ struct DataOrientedRoamMeshPlanInput
 void BeginDataOrientedRoamMeshPlan(DataOrientedRoamMeshMetadata& mesh, bool resetTopology);
 
 /// <summary>
-/// 原位重放有序修改并返回是否需要重建几何存储
+/// 按拓扑提交顺序在元数据上原位重放修改
+/// 返回值表示是否需要重建几何存储，实际几何由调用方更新
 /// </summary>
 [[nodiscard]] bool ApplyDataOrientedRoamMeshPlan(
     const DataOrientedRoamMeshPlanInput& input, DataOrientedRoamMeshMetadata& mesh);

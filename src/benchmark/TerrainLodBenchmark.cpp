@@ -36,8 +36,10 @@ namespace ParallelRoam::Benchmark
 {
 namespace
 {
-// benchmark 的核心约束是两种 CPU ROAM 共享同一组输入
-// 算法只通过 ITerrainLodAlgorithm 边界接入
+/// <summary>
+/// 固定相机位置、朝向目标和采样标签，供不同算法按相同顺序重放
+/// TimeSeconds 只记录轨迹中的逻辑时刻，不根据实际运行耗时推进相机
+/// </summary>
 struct BenchmarkCameraKeyframe
 {
     std::string Name;
@@ -46,8 +48,10 @@ struct BenchmarkCameraKeyframe
     glm::vec3 Target{0.0F};
 };
 
-// HeightMap、terrain size、LOD 阈值和相机路径都由这里固定
-// 这样 Classic 和 DOD 输出统计才能横向比较
+/// <summary>
+/// 统一持有场景输入与验收条件，保证 Classic 和 DOD 使用相同地形及相机路径
+/// 算法只接收运行设置，场景是否达到预期由基准运行器检查
+/// </summary>
 struct BenchmarkScenario
 {
     std::string Name;
@@ -69,8 +73,10 @@ struct BenchmarkScenario
     bool RequireClassicDodComparison{false};
 };
 
-// smoke、budget-reentry 和 incremental-emit 偏回归测试，standard 偏性能样本
-// 四者共用同一套 frame result 和 CSV 字段
+/// <summary>
+/// 保存一次相机采样的输入标签、网格规模和算法统计
+/// 控制台摘要与 CSV 读取同一份结果，验收状态在帧检查和轨迹检查后汇总
+/// </summary>
 struct BenchmarkFrameResult
 {
     std::string AlgorithmName;
@@ -85,13 +91,15 @@ struct BenchmarkFrameResult
     std::size_t IndexCount{0};
     std::size_t TriangleCount{0};
     Algorithms::TerrainLodStats Stats;
-    // wall clock 用于发现接口外开销
+    // 整次 BuildRenderData 调用的耗时，用于与算法内部计时对照
     float BuildWallMilliseconds{0.0F};
     bool Passed{false};
 };
 
-// 新算法缺失时只在 all 模式下 skip
-// 显式选择缺失算法必须失败以防漏跑
+/// <summary>
+/// 汇总单个算法在整条相机路径上的执行结果
+/// 可用性与验收状态分开记录，跳过的算法不能被解释为已经运行通过
+/// </summary>
 struct BenchmarkAlgorithmRun
 {
     std::string AlgorithmName;
@@ -170,6 +178,7 @@ void ApplyPassPolicy(
     BenchmarkPassPolicySelection selection,
     Algorithms::TerrainLodSettings& settings)
 {
+    // 切换预设只改变执行方式，已经指定的数量下限和拓扑启用范围需要保留
     const auto mergeScoreMinParallelEntryCount = settings.PassPolicy.MergeScoreMinParallelEntryCount;
     const auto splitScoreMinParallelEntryCount = settings.PassPolicy.SplitScoreMinParallelEntryCount;
     const auto meshEmitMinParallelTriangleCount = settings.PassPolicy.MeshEmitMinParallelTriangleCount;
@@ -229,9 +238,8 @@ void ApplyPassExperimentSettings(
 
 std::vector<BenchmarkCameraKeyframe> MakeStandardCameraPath()
 {
-    // Standard 使用 64 帧闭合 flyover
-    // 轨迹覆盖远景、中心、侧向和高度变化
-    // 目的是让 split 与 merge 都在同一次回放中出现
+    // 用 64 个固定视点环绕地形，并改变高度和距离以触发细分与合并
+    // 各算法重放同一组离散采样，实际运行快慢不会改变输入
     std::vector<BenchmarkCameraKeyframe> path;
     path.reserve(64);
 
@@ -242,8 +250,7 @@ std::vector<BenchmarkCameraKeyframe> MakeStandardCameraPath()
 
     for (int index = 0; index < FrameCount; ++index)
     {
-        // wave 让路径不是纯圆
-        // 这样同一距离下会经过不同局部高度变化区域
+        // 在圆周运动上叠加侧向摆动，使视点经过不同的局部地形
         const float t = static_cast<float>(index) / static_cast<float>(FrameCount - 1);
         const float angle = t * 6.28318530718F;
         const float wave = std::sin(t * 12.56637061436F) * 3.5F;
@@ -332,9 +339,7 @@ Algorithms::TerrainLodViewInput BuildBenchmarkView(const BenchmarkCameraKeyframe
 BenchmarkScenario MakeScenario(BenchmarkProfile profile)
 {
     BenchmarkScenario scenario{};
-    // 这些参数是三版本对比的控制变量
-    // 不在算法内部各自决定
-    // 否则 CSV 里的时间和三角形数没有公平比较意义
+    // 地形尺度、误差阈值和预算由场景统一指定，作为 Classic 与 DOD 对照的共同输入
     scenario.Name = ToString(profile);
     scenario.Settings.TerrainSize = 30.0F;
     scenario.Settings.HeightScale = 4.0F;
@@ -352,9 +357,7 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
         profile == BenchmarkProfile::ClassicDodContract ||
         profile == BenchmarkProfile::PassCrossoverReplay)
     {
-        // Smoke 使用小高度图和代表性视点
-        // 拓扑验证开启
-        // 适合提交前快速发现裂缝和近细远粗退化
+        // 这些回归任务共用小高度图和代表性视点，逐帧检查拓扑及视点变化后的细节分配
         scenario.HeightMapPath = "assets/heightmaps/Hm_Terrain_Test_129.pgm";
         scenario.Settings.EnableTopologyValidation = true;
         scenario.RequireTopologyClean = true;
@@ -452,9 +455,7 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
         return scenario;
     }
 
-    // Standard 使用更大 HeightMap 和较长路径
-    // 不要求每帧拓扑验证
-    // 重点是记录稳定的各 pass 耗时分布
+    // Standard 使用较大的高度图和较长轨迹采集阶段耗时，关闭逐帧拓扑验证
     scenario.HeightMapPath = "assets/heightmaps/Hm_Terrain_Peking_513.png";
     scenario.Settings.EnableTopologyValidation = false;
     scenario.RequireTopologyClean = false;
@@ -465,9 +466,7 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
 
 std::unique_ptr<Algorithms::ITerrainLodAlgorithm> CreateAlgorithm(BenchmarkAlgorithmSelection selection)
 {
-    // benchmark factory 是算法可用性的单一入口
-    // 新算法接入后必须在这里注册
-    // renderer 侧不需要知道 benchmark 的选择枚举
+    // 将基准选项映射为公共算法接口，渲染模块不依赖这套选择枚举
     if (selection == BenchmarkAlgorithmSelection::Classic)
     {
         return std::make_unique<Algorithms::ClassicRoam::ClassicRoamTerrainLodAlgorithm>();
@@ -488,8 +487,7 @@ std::vector<BenchmarkAlgorithmSelection> ExpandAlgorithmSelection(BenchmarkAlgor
         return {selection};
     }
 
-    // all 的顺序固定为 Classic、DOD
-    // 输出和 CSV 都能保持稳定列对比
+    // 固定 Classic、DOD 的运行顺序，使控制台和 CSV 中的算法分组顺序一致
     return {
         BenchmarkAlgorithmSelection::Classic,
         BenchmarkAlgorithmSelection::DataOriented,
@@ -1085,8 +1083,7 @@ BenchmarkAlgorithmRun RunAlgorithm(
 
     for (std::size_t index = 0; index < scenario.CameraPath.size(); ++index)
     {
-        // 每帧都重新构造 BuildInput
-        // 防止算法修改输入 settings 后污染后续帧
+        // 每帧从场景构造独立输入，整条轨迹使用同一份运行设置
         const BenchmarkCameraKeyframe& camera = scenario.CameraPath[index];
         Algorithms::TerrainLodBuildInput buildInput{};
         buildInput.HeightMap = &heightMap;
@@ -1100,8 +1097,7 @@ BenchmarkAlgorithmRun RunAlgorithm(
         const float buildWallMilliseconds = buildTimer.Stop();
         if (!errorMessage.empty())
         {
-            // 错误信息不吞掉
-            // benchmark 输出需要能定位失败算法和帧
+            // 保留算法给出的失败原因，并附上算法名称供日志定位
             std::cerr << "[" << info.Name << "] " << errorMessage << '\n';
         }
 
@@ -1122,8 +1118,7 @@ BenchmarkAlgorithmRun RunAlgorithm(
         frame.IndexCount = renderPacket.IndexCount;
         frame.TriangleCount = stats.ActiveTriangleCount;
         frame.Stats = stats;
-        // BuildWallMilliseconds 包括接口调用外层开销
-        // Stats.CpuUpdateMilliseconds 则由算法自己报告
+        // 外层记录整次接口调用耗时，算法报告的 CpuUpdateMilliseconds 使用其内部计时边界
         frame.BuildWallMilliseconds = buildWallMilliseconds;
         const bool usesRoamBudget =
             selection == BenchmarkAlgorithmSelection::Classic ||
@@ -1158,8 +1153,7 @@ float Median(std::vector<float> values)
     }
 
     std::sort(values.begin(), values.end());
-    // 当前样本量较小
-    // 使用上中位数足够支撑 smoke 和 standard 摘要
+    // 偶数个样本取中间两个值中的较大者，不对两者求平均
     return values[values.size() / 2U];
 }
 
@@ -1171,8 +1165,7 @@ float Percentile95(std::vector<float> values)
     }
 
     std::sort(values.begin(), values.end());
-    // p95 使用 ceiling 选择保守样本
-    // 避免短路径下把最大 spike 过早平滑掉
+    // 按向上取整的样本排名取 P95，不插值，以保留短轨迹中的耗时峰值
     const std::size_t index = static_cast<std::size_t>(
         std::ceil(static_cast<float>(values.size()) * 0.95F) - 1.0F);
     return values[std::min(index, values.size() - 1U)];
@@ -1375,6 +1368,7 @@ int RunPassCrossoverReplay(const BenchmarkOptions& options)
         return 1;
     }
 
+    // 用串行增量策略推进来源状态，策略比较在各自的副本上执行
     BenchmarkScenario scenario = MakeScenario(options.Profile);
     scenario.Settings.PassPolicy = Algorithms::MakeTerrainLodSerialIncrementalPolicy();
     scenario.Settings.PassPolicy.MergeScoreWorkerCount = options.PassExperimentWorkerCount;
@@ -1382,6 +1376,7 @@ int RunPassCrossoverReplay(const BenchmarkOptions& options)
     scenario.Settings.PassPolicy.MergeTopologyWorkerCount = options.PassExperimentWorkerCount;
     scenario.Settings.PassPolicy.SplitTopologyWorkerCount = options.PassExperimentWorkerCount;
     scenario.Settings.PassPolicy.MeshEmitWorkerCount = options.PassExperimentWorkerCount;
+    // 该入口独立配置来源状态，因此需要显式传入评分与网格的三个并行下限
     ApplyCpuParallelMinimums(options, scenario.Settings.PassPolicy);
     scenario.Settings.EnableTopologyPairEvidence = false;
 

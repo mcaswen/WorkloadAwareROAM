@@ -32,7 +32,7 @@ float EndQueueMembershipTiming(
 }
 
 /// <summary>
-/// 串行评分归一为请求 1，其余按队列条目数与并行下限解析；零工作返回 0
+/// 按评分策略、队列条目数和并行下限确定任务数量；串行最多一个任务，空队列返回 0
 /// </summary>
 std::size_t ResolvePriorityRefreshWorkerCount(
     std::size_t entryCount,

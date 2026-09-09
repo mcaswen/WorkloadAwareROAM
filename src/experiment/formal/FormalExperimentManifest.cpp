@@ -49,7 +49,10 @@ ExperimentCsvTable ReadTable(const std::filesystem::path& path, const Experiment
     return table;
 }
 
-// 字段游标只负责把当前 schema 的一行转换为值，不访问文件或解释实验协议
+/// <summary>
+/// 借用一行数据，按固定列序读取字段，并检查 schema 版本和用途
+/// 场景协议与跨行引用关系由外层加载函数校验
+/// </summary>
 class RowReader
 {
 public:

@@ -172,7 +172,7 @@ DOD 不依赖 Benchmark、正式清单、CSV 或 Python；共享选择器不依�
 | Create | `tests/test_cpu_workload_discovery.py` | 实际进程的记录完整性、目标重放、摘要篡改、失败及目录保护 |
 | Extend | `tests/DataOrientedRoamPassPolicyTests.cpp`、`ExperimentManifestTests.cpp`、`FormalExperimentCommandLineTests.cpp`、`test_cpu_pilot_preparation.py` | 字段迁移、版本与入口回归，不因提取降低原断言 |
 
-测试若共用完整状态快照和固定轨迹夹具，抽到 `tests/DataOrientedRoamExperimentTestSupport.h`，仅供测试使用；不将验证 helper 加入生产公开接口。新增源文件的公共类型和非显然接口使用三行 `/// <summary>`，关键流程用短注释解释约束，迁移的历史长注释同步整理。
+测试若共用完整状态快照和固定轨迹夹具，抽到 `tests/DataOrientedRoamExperimentTestSupport.h`，仅供测试使用；不将验证 helper 加入生产公开接口。新增源文件的公共类型和非显然接口使用 `/// <summary>`，有效正文原则上不超过三行，开闭标签及空注释行不计入；关键流程用短注释解释约束，迁移的历史长注释同步整理。
 
 ## 5. 命令、文件生命周期与追溯
 
@@ -277,4 +277,16 @@ python scripts/discover_cpu_pilot.py `
 
 目录已存在后不能重复使用上述输出路径。完整产物为 `discovery.csv`、`target-coverage.csv`、`target-states.csv`、`discovery-summary.csv`、`run-metadata.json` 与 `discover.log`，状态为 `discovery_complete`。源快照 SHA-256 为 `ca142339b0a35afa3988efeb771cd98fb75b172a6fb31286303802b6f6c8d7a5`；目标文件 SHA-256 为 `0c18fd1f8e6635a3382a67606f9bbd47889d7f35dc98a3f364b3a8839815bd76`。原冻结输入与测试中新准备输入产生完全相同的目标文件字节。
 
-最终核查按开发规范逐项比对职责、依赖、只读能力、生产额外复制限制、错误与版本契约，并同步[当前事实](../../codebase/formal_experiment/cpu_pass_boundary_and_workload_baseline.md)和[架构审查](../../reviews/formal_experiment/prep_03_workload_discovery_architecture_review.md)。新增/迁移注释使用三行 `/// <summary>`，格式和覆盖检查通过。PREP-04 的可靠配对与 PREP-05 的 CPU pilot gate 尚未执行。
+最终核查按开发规范逐项比对职责、依赖、只读能力、生产额外复制限制、错误与版本契约，并同步[当前事实](../../codebase/formal_experiment/cpu_pass_boundary_and_workload_baseline.md)和[架构审查](../../reviews/formal_experiment/prep_03_workload_discovery_architecture_review.md)。新增/迁移注释使用 `/// <summary>`，格式和覆盖检查通过；正文行数口径按下节用户澄清修正。PREP-04 的可靠配对与 PREP-05 的 CPU pilot gate 尚未执行。
+
+### 8.1 注释正文行数口径修正
+
+用户明确三行限制只计算有实际含义的正文，`<summary>`、`</summary>` 不计入，并要求修改。修正开发规范第 5.7 节及示例；按职责与约束自然分行，保留已经简洁清楚的单行说明。
+
+全部选择 Extend：DOD 的 PassInput、PassExecution、Pipeline、MeshState、MeshPlan、TopologyPlan、WorkloadProbe 原文件分别保留身份、同步、所有权和只读规划说明；共享层的 TargetSelector、Records、Csv 原文件保留选择及输出契约；Benchmark 的 FormalWorkloadDiscovery、FormalExperimentRunner 原文件保留执行和失败边界。仅调整这些现有文件的摘要正文，不新增文件、接口或依赖。
+
+验收对照修改前版本，确认除整行注释外源码完全一致；按排除标签后的正文行数核查摘要闭合、行尾标点和覆盖率。纯注释变更不重复功能构建与测试，完成结果同步本节和原架构审查；本轮不提交 Git。
+
+实施结果：已手工调整上述 13 个源码文件的摘要。用户进一步明确重点是标点和语义，不要求全部改成两行；据此保留或恢复自然的单行说明，只有独立的职责与约束才分别书写。例如容器编码使用“按顺序编码容器的长度与有效元素，排除预留容量和内存地址”。
+
+随后与 PREP-01/02 的逐文件复核合并检查，当前 27 个修改的 C++ 文件去除整行注释后与 `570ecd0` 完全一致，99 个摘要的正文均未超过三行，标签与行尾标点符合规范。`git diff --check` 无问题，覆盖率为 `src` 2722/17178 = 15.8%、DOD 1032/5002 = 20.6%，其他模块也满足门槛。详细记录见[注释专项审查第 8 节](../../reviews/formal_experiment/prep_01_02_comment_compliance_review.md#8-逐文件阅读与语义复核)。正文计数修正不改变覆盖率脚本的统计口径；原功能验收与发现来源记录保留原值。本轮修改尚未暂存或提交。

@@ -7,7 +7,8 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
 struct DataOrientedRoamState;
 
 /// <summary>
-/// 只返回获准工作量与独立采集成本以防止状态引用泄漏到发现编排
+/// 保存允许用于选择的工作量特征，并单独记录采集耗时
+/// 结果只包含值，不向发现编排暴露源状态引用
 /// </summary>
 struct DataOrientedRoamPassWorkload
 {
@@ -34,7 +35,8 @@ struct DataOrientedRoamPassWorkload
 };
 
 /// <summary>
-/// 从真实阶段输入重新规划工作量且不执行策略或修改来源状态
+/// 从真实阶段输入重新规划工作量
+/// 不执行待测策略，也不修改源状态中的队列、预算或网格
 /// </summary>
 [[nodiscard]] DataOrientedRoamPassWorkload ProbeDataOrientedRoamPassWorkload(
     const DataOrientedRoamState& state, TerrainLodPassId passId);

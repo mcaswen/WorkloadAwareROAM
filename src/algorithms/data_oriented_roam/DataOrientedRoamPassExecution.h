@@ -14,13 +14,15 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
 struct DataOrientedRoamState;
 
 /// <summary>
-/// 回调只借用当前阶段输入且必须在返回前完成读取
+/// 同步借用当前阶段的只读输入
+/// 必须在回调返回前完成读取，不得保留状态引用供后续使用
 /// </summary>
 using DataOrientedRoamPassObserver =
     std::function<void(const DataOrientedRoamState&, TerrainLodPassId)>;
 
 /// <summary>
-/// 生产与回放共用帧准备规则并以返回值表示高度图是否可执行
+/// 为生产与回放统一准备本帧状态
+/// 高度图无效时清空网格并返回 false，调用方应停止后续阶段
 /// </summary>
 [[nodiscard]] bool PrepareDataOrientedRoamFrame(
     DataOrientedRoamState& state,
@@ -31,12 +33,14 @@ using DataOrientedRoamPassObserver =
     const DataOrientedRoamSettings& settings);
 
 /// <summary>
-/// 执行当前策略指定的单个阶段且拓扑输入必须已完成对应评分
+/// 按当前策略执行指定的单个阶段
+/// 拓扑阶段要求输入队列已完成对应评分，入口不会重新评分
 /// </summary>
 void ExecuteDataOrientedRoamPass(DataOrientedRoamState& state, TerrainLodPassId passId);
 
 /// <summary>
-/// 按固定顺序同步观察并执行五阶段且观察成本不进入阶段包络
+/// 按固定顺序执行五个阶段，每个阶段开始前同步调用观察器
+/// 观察器返回后才开始阶段计时，采集成本不计入阶段耗时
 /// </summary>
 void ExecuteDataOrientedRoamCpuPasses(
     DataOrientedRoamState& state,

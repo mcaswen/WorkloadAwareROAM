@@ -10,7 +10,8 @@ namespace ParallelRoam::Experiment::Formal
 enum class CpuRecordStatus { Incomplete, Valid, NoWork, Failed };
 
 /// <summary>
-/// 记录输入准备状态与完整性，仅 inputs_validated 表示结构校验成功，不代表配对或外部摘要已验证
+/// 记录输入准备状态与完整性，只有 inputs_validated 表示结构校验成功
+/// 该状态不代表配对已完成，也不代表外部文件摘要已验证
 /// </summary>
 struct InputPreparationSummary
 {
@@ -27,7 +28,8 @@ struct InputPreparationSummary
 };
 
 /// <summary>
-/// 发现记录保留执行前与规划期间工作量，耗时不能作为目标选择输入
+/// 保存执行前与规划期间的工作量，以及独立的采集和诊断耗时
+/// 目标选择只使用获准工作量，不能读取耗时作为选择依据
 /// </summary>
 struct CpuDiscoveryRecord
 {
@@ -61,7 +63,7 @@ struct CpuDiscoveryRecord
     float PrimaryWorkValue{0.0F};
     std::string FeatureVector;
     std::uint64_t SelectionFeatureHash{0U};
-    // 显式区分尚未诊断与检查通过以免零违规数量被误读
+    // 显式区分尚未诊断与检查通过，以免将零违规数量误读为通过验证
     bool ValidationPerformed{false};
     bool ValidationPassed{false};
     bool SelectionEligible{false};
@@ -71,7 +73,8 @@ struct CpuDiscoveryRecord
 };
 
 /// <summary>
-/// 每组覆盖不足仍是有效发现事实且不复制目标填满配额
+/// 保存每组请求数量、有效候选、已选目标及覆盖不足原因
+/// 候选不足仍是有效发现事实，不复制目标填满配额
 /// </summary>
 struct CpuTargetCoverageRecord
 {
@@ -87,7 +90,7 @@ struct CpuTargetCoverageRecord
 };
 
 /// <summary>
-/// 发现摘要绑定选择配置和完整性且不宣称存在性能交叉
+/// 汇总选择配置、场景完成情况与记录完整性，不表示已证实性能交叉
 /// </summary>
 struct CpuDiscoverySummary
 {

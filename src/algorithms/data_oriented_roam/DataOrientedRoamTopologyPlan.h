@@ -5,7 +5,8 @@
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 /// <summary>
-/// 规划拥有候选与分块副本且分类数量不代表最终成功提交数量
+/// 独立保存已排序候选、安全分块和规划期间的分类数量
+/// 这些数量描述执行前的计划，不代表最终成功提交数量
 /// </summary>
 template<class Candidate>
 struct DataOrientedRoamTopologyPlan
@@ -30,7 +31,8 @@ using DataOrientedRoamMergePlan = DataOrientedRoamTopologyPlan<DataOrientedRoamM
     const DataOrientedRoamState& state, DataOrientedRoamNodeIndex node, bool validateMergeScore);
 
 /// <summary>
-/// 对已评分候选排序并规划安全分块但不消耗预算或累加状态统计
+/// 对已评分候选排序，按安全分类和当前预算生成分块计划
+/// 只读取源状态，不消耗预算或累加生产统计
 /// </summary>
 [[nodiscard]] DataOrientedRoamSplitPlan PlanDataOrientedRoamSplitTopology(
     const DataOrientedRoamState& state, const std::vector<DataOrientedRoamSplitCandidate>& candidates);

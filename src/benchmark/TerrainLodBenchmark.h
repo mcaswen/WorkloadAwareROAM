@@ -10,7 +10,7 @@
 namespace ParallelRoam::Benchmark
 {
 /// <summary>
-/// benchmark CLI 可选择的 terrain LOD 算法集合
+/// 指定无窗口基准运行单个算法，或依次运行全部可用算法
 /// </summary>
 enum class BenchmarkAlgorithmSelection
 {
@@ -20,7 +20,8 @@ enum class BenchmarkAlgorithmSelection
 };
 
 /// <summary>
-/// benchmark 内置场景，覆盖 smoke、预算重入、增量 emit 回归和较长相机路径统计
+/// 选择无窗口入口要执行的任务，包括固定场景回归、输入准备和工作量发现
+/// 各任务由运行入口分流，并非都使用同一套场景参数
 /// </summary>
 enum class BenchmarkProfile
 {
@@ -49,7 +50,8 @@ enum class BenchmarkPassPolicySelection
 };
 
 /// <summary>
-/// benchmark 命令行解析后的运行选项
+/// 保存无窗口运行请求，可由命令行解析或调用方直接构造
+/// 普通基准使用策略覆盖项，清单驱动的任务使用 FormalInput
 /// </summary>
 struct BenchmarkOptions
 {
@@ -79,7 +81,7 @@ struct BenchmarkOptions
 [[nodiscard]] int RunTerrainLodBenchmark(const BenchmarkOptions& options);
 
 /// <summary>
-/// 从命令行解析少量 benchmark 参数并运行
+/// 解析无窗口命令，输出帮助或错误后返回，合法运行请求交给任务入口
 /// </summary>
 [[nodiscard]] int RunTerrainLodBenchmarkFromCommandLine(int argc, char** argv);
 

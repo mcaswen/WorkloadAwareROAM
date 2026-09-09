@@ -16,7 +16,7 @@ namespace
 constexpr std::size_t VerticesPerTriangle = 3U;
 
 /// <summary>
-/// 串行网格策略归一为请求 1，其余按待写槽位数与并行下限解析；零工作返回 0
+/// 按待写槽位数和并行下限确定任务数量；两种串行策略都请求单线程，空工作返回 0
 /// </summary>
 std::size_t ResolveEmitWorkerCount(
     std::size_t triangleCount,
@@ -31,7 +31,8 @@ std::size_t ResolveEmitWorkerCount(
 }
 
 /// <summary>
-/// 按槽位所有者写入固定位置，线程完成顺序不会改变几何内容或输出位置
+/// 将指定节点的三角形写入既定槽位，顶点和索引不会追加到数组末尾
+/// 调用方为各任务分配不同槽位，因此线程完成顺序不影响网格排列
 /// </summary>
 void WriteDomainTriangle(
     const DataOrientedRoamState& state,
@@ -129,7 +130,8 @@ void EmitDirtyMeshSlots(DataOrientedRoamState& state)
 }
 
 /// <summary>
-/// 沿槽位所有者顺序串行重写完整网格并请求全量上传，不重建拓扑或槽位映射
+/// 按现有槽位顺序串行重写全部三角形，并标记整份网格需要上传
+/// 复用当前拓扑和槽位映射，脏槽位集合为空时也执行全量写入
 /// </summary>
 void EmitFullMeshSerial(DataOrientedRoamState& state)
 {

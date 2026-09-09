@@ -16,7 +16,7 @@ inline constexpr std::array CpuPilotPassIds{
     Algorithms::TerrainLodPassId::MeshEmit};
 
 /// <summary>
-/// 保存已解析的场景输入；策略、尺寸和资产声明由清单统一拥有
+/// 保存清单中的场景参数与资产声明，供相机生成和后续状态重建使用
 /// </summary>
 struct FormalScenario
 {
@@ -87,7 +87,7 @@ struct TargetStateRef
 };
 
 /// <summary>
-/// 输入准备请求只包含文件和场景选择，不复用普通基准的策略覆盖项
+/// 保存清单驱动任务的文件路径与场景选择，运行参数由清单提供
 /// </summary>
 struct FormalInputRequest
 {

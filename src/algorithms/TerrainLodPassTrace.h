@@ -51,7 +51,8 @@ enum class TerrainLodParallelTopologyPhase
 };
 
 /// <summary>
-/// 为每个可切换阶段保存独立策略和线程上限
+/// 保存各阶段请求的执行方式、线程数量和并行启用条件
+/// 实际执行仍受工作量和安全条件限制，请求并行不表示一定会派发多个线程
 /// </summary>
 struct TerrainLodPassPolicy
 {
@@ -61,6 +62,7 @@ struct TerrainLodPassPolicy
     TerrainLodTopologyAction SplitTopology{TerrainLodTopologyAction::Automatic};
     TerrainLodMeshEmitAction MeshEmit{TerrainLodMeshEmitAction::Automatic};
     TerrainLodCpuUploadAction CpuUpload{TerrainLodCpuUploadAction::Automatic};
+    // 0 由执行阶段自动选择，1 请求串行；这里记录的是请求值而非本次实际线程数量
     std::size_t MergeScoreWorkerCount{0U};
     std::size_t SplitScoreWorkerCount{0U};
     std::size_t MergeTopologyWorkerCount{0U};

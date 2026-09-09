@@ -15,6 +15,7 @@ bool ParseSize(std::string_view value, std::size_t& output)
     {
         return false;
     }
+    // 必须完整消费非负十进制文本，不能把带符号、空白或尾随字符的值当作有效数量
     const auto [end, error] = std::from_chars(value.data(), value.data() + value.size(), output);
     return error == std::errc{} && end == value.data() + value.size();
 }
@@ -43,9 +44,7 @@ bool ParseParallelTopologyPhase(
 
 bool ParseAlgorithm(std::string_view value, BenchmarkAlgorithmSelection& outSelection)
 {
-    // 接受少量别名
-    // 方便脚本里使用短名
-    // 也兼容接口内部算法名
+    // 保留脚本常用短名和已有算法名，使旧命令仍能选择同一个实现
     if (value == "classic" || value == "classic_cpu_roam")
     {
         outSelection = BenchmarkAlgorithmSelection::Classic;
@@ -110,7 +109,6 @@ bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
         outProfile = BenchmarkProfile::CpuPilotInputs;
         return true;
     }
-    // budget-reentry 专门覆盖硬预算满载后的原地转向
     if (value == "smoke")
     {
         outProfile = BenchmarkProfile::Smoke;
@@ -125,6 +123,7 @@ bool ParseProfile(std::string_view value, BenchmarkProfile& outProfile)
 
     if (value == "budget-reentry")
     {
+        // 该场景在预算饱和后原地转向，用于观察预算能否重新分配到新视野
         outProfile = BenchmarkProfile::BudgetReentry;
         return true;
     }
@@ -236,7 +235,7 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
             continue;
         }
 
-        // 数量选项共用完整十进制解析且旧计时选项仍独立校验
+        // 各数量选项共用整数解析，允许范围仍按参数含义分别检查
         std::size_t* sizeOption = nullptr;
         if (argument == "--merge-score-min-parallel-entries")
         {
@@ -284,6 +283,7 @@ TerrainLodBenchmarkCommandLineParseResult ParseTerrainLodBenchmarkCommandLine(
         if (sizeOption != nullptr)
         {
             hasOrdinaryOverrides = true;
+            // 预热、重复、线程和目标数量保留最大值作为无效哨兵，下限参数可以使用该值
             if (index + 1 >= argc || !ParseSize(argv[++index], *sizeOption) ||
                 (passExperimentSize && *sizeOption == std::numeric_limits<std::size_t>::max()))
             {

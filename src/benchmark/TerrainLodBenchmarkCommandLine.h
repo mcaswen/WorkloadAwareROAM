@@ -7,7 +7,7 @@
 namespace ParallelRoam::Benchmark
 {
 /// <summary>
-/// 保存无窗口选项、帮助请求和首个解析错误；不触发资产或算法执行
+/// 保存解析得到的选项、帮助请求或首个错误；资产加载和算法执行由运行入口负责
 /// </summary>
 struct TerrainLodBenchmarkCommandLineParseResult
 {

@@ -10,7 +10,8 @@ inline constexpr std::uint32_t CpuTargetSelectorVersion = 1U;
 inline constexpr std::uint32_t CpuTargetSelectionSeed = 20260830U;
 
 /// <summary>
-/// 选择输入只含获准的原始工作量且不接受计时和执行结果
+/// 将场景、阶段和采样身份与获准的原始工作量绑定
+/// 不接收计时或策略执行结果，避免目标选择受到性能标签影响
 /// </summary>
 struct TargetSelectionCandidate
 {
@@ -22,7 +23,8 @@ struct TargetSelectionCandidate
 };
 
 /// <summary>
-/// 明确区分四点探索配置与八点覆盖配置且两者均使用固定版本规则
+/// 指定每组采用四点探索或八点覆盖配置
+/// 两种配置共用固定版本的选择规则
 /// </summary>
 struct TargetSelectionConfig
 {
@@ -53,7 +55,8 @@ struct TargetSelectionResult
 };
 
 /// <summary>
-/// 对同一场景阶段的有效候选确定性分层补点且重复身份或非法数值直接失败
+/// 对同一场景、同一阶段的有效候选执行确定性分层与覆盖补点
+/// 重复身份或非法数值导致失败，不静默丢弃候选
 /// </summary>
 [[nodiscard]] TargetSelectionResult SelectTargetStates(
     const std::vector<TargetSelectionCandidate>& candidates, const TargetSelectionConfig& config = {});
@@ -64,7 +67,8 @@ struct TargetSelectionResult
 [[nodiscard]] std::uint64_t HashTargetSelectionFeatures(const TargetSelectionCandidate& candidate);
 
 /// <summary>
-/// 九位有效数字足以使原始 binary32 向量往返且不输出百分位归一化值
+/// 用九位有效数字输出原始 binary32 特征，保证读取后数值不变
+/// 不输出选择器内部使用的百分位归一化值
 /// </summary>
 [[nodiscard]] std::string FormatTargetSelectionFeatures(const std::vector<float>& features);
 }

@@ -42,7 +42,8 @@ public:
         const DataOrientedRoamSettings& settings);
 
     /// <summary>
-    /// 同步观察每个真实阶段的输入且回调不得重入或保留状态引用
+    /// 在生产执行边界同步观察各阶段的真实输入
+    /// 回调不得重入流水线，也不得保留状态引用供返回后使用
     /// </summary>
     [[nodiscard]] const Terrain::TerrainMeshData& BuildWithPassObserver(
         const Terrain::HeightMap& heightMap,

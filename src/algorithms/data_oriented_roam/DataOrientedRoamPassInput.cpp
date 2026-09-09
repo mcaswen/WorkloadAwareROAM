@@ -9,7 +9,7 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
 namespace
 {
 /// <summary>
-/// 容器只编码长度与有效元素以排除预留容量和内存地址
+/// 按顺序编码容器的长度与有效元素，排除预留容量和内存地址
 /// </summary>
 template<class Value>
 void AppendSequence(std::uint64_t& hash, const std::vector<Value>& values)
@@ -20,7 +20,8 @@ void AppendSequence(std::uint64_t& hash, const std::vector<Value>& values)
 }
 
 /// <summary>
-/// 迟滞集合只表达成员关系且哈希不得依赖散列表桶布局
+/// 迟滞集合只表达成员关系，编码前先对路径排序
+/// 同一组路径应得到相同哈希，不受插入顺序和散列表桶布局影响
 /// </summary>
 void AppendPaths(std::uint64_t& hash, const std::unordered_set<std::uint64_t>& paths)
 {

@@ -112,7 +112,8 @@ struct TerrainLodBuildInput
 };
 
 /// <summary>
-/// 为固定高度图、相机和算法设置生成可重放输入编号
+/// 根据高度图来源、视图和执行设置生成输入编号，供重复运行时核对配置
+/// 高度图只编码路径与尺寸，不校验文件内容，也不表示跨帧拓扑状态相同
 /// </summary>
 [[nodiscard]] inline std::uint64_t HashTerrainLodBuildInput(const TerrainLodBuildInput& input)
 {
@@ -220,7 +221,8 @@ struct TerrainLodRenderPacket
     }
 
     /// <summary>
-    /// 检查当前结果是否提供了与渲染模式匹配且可安全访问的 CPU 网格
+    /// 检查网格存储方式、生命周期标记和更新范围是否与输出模式一致
+    /// 借用对象是否仍然存活由调用方保证，此处只检查描述字段及当前数据范围
     /// </summary>
     [[nodiscard]] bool HasConsistentResourceContract() const
     {
