@@ -1,7 +1,7 @@
 # 正式实验准备：代码修改大规划
 
 > 规划类型：大规划（Major Plan）\
-> 状态：PREP-01～PREP-03 已完成实现、验证与架构核查；PREP-03 代码已提交为 `4d7ab68`，文档单独归档；PREP-04～PREP-10 未开始\
+> 状态：PREP-01～PREP-03 已完成实现、验证与架构核查；PREP-03 代码已提交为 `4d7ab68`；PREP-04 核心实现提交为 `7522db7`，文档单独归档，完整集合的细分拓扑不等价与重复性能恶化信号阻断验收，修复方案待另行规划与确认；PREP-05～PREP-10 未开始\
 > 审阅进展：2026-09-09，用户确认大规划方向与 PREP-01 小规划；随后授权 PREP-02 自主规划、实现和注释补充，并许可按 PREP-01 方式提交；本次确认 PREP-03 小规划并授权实现，验收后另行许可提交\
 > 编写日期：2026-09-07\
 > 上传边界澄清：2026-09-08；各后端内部复用对应上传实现，公共接口及实验性能代表性在 PREP-06/07 分别验证\
@@ -61,7 +61,7 @@ PREP-03 规划前补充 [CPU 阶段边界与工作负载事实](../../codebase/f
 
 定位：[阶段配对执行器](../../../src/algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.cpp)、[拓扑入口与回归](../../../src/algorithms/data_oriented_roam/DataOrientedRoamTopology.cpp)。因此，24 号文档第 1.3 节关于阶段配对串行时间的描述需要澄清；本次不把“再次实现直接串行分支”列为待完成工作。
 
-仍需修改的事实包括：`PrepareFrozenReplayState` 会开启拓扑验证；并行冻结执行会把拓扑线程上限设置为内部最大值；评分副本继承源状态诊断开关。这些剩余事项见 PREP-03、PREP-04；评分和网格的文件内固定 `256` 门槛已在 PREP-01 参数化，默认值保持不变。
+大规划制定时的剩余事项包括：`PrepareFrozenReplayState` 会开启拓扑验证，并行冻结执行会把拓扑线程上限设置为内部最大值，评分副本继承源状态诊断开关。PREP-04 的新测量核心已绕开旧冻结准备，统一诊断隔离并保留请求线程；上述旧路径仅保留诊断兼容用途。当前真实边界见[配对契约](../../codebase/formal_experiment/cpu_pass_pairing_contracts.md)。评分和网格固定 `256` 门槛已在 PREP-01 参数化，默认值保持不变。
 
 24 号文档第 7.1 节还保留了 `tools/cmake/bin/ctest.exe` 和 OCBT 等历史验收描述。当前使用系统 CMake/CTest，现有测试清单中没有 OCBT 测试。后续文档同步应改成当前实际构建、CPU 回归与上传验证入口，不创建已移除研究路径的测试来满足旧文字。
 
@@ -634,7 +634,7 @@ AC-11、AC-12 贯穿全部阶段。每个小阶段都必须执行第 12.4 节的
 
 ### PREP-04：最小可靠 CPU 配对与最小分析
 
-**依赖**：PREP-01～PREP-03；完成 `prep_04_minimal_cpu_pairing_plan.md` Review。独立交付所需能力，不以 PREP-06～PREP-09 的完整框架为前提。
+**依赖**：PREP-01～PREP-03；完成 [PREP-04 小规划](prep_04_minimal_cpu_pairing_plan.md) Review。独立交付所需能力，不以 PREP-06～PREP-09 的完整框架为前提。
 
 **文件归属**：扩展 DOD PassExperiment 及冻结执行器；在 `benchmark/formal` 创建 FormalCpuPassBenchmark、FormalTimingCalibration，按需接入 FormalExperimentRunner 的 CPU 子集入口；扩展 CPU 原始记录。创建第 7 节规划的 Python 分析入口/模块及 CPU 配对、合成数据测试。
 
@@ -646,7 +646,7 @@ AC-11、AC-12 贯穿全部阶段。每个小阶段都必须执行第 12.4 节的
 
 **验收边界**：交付可直接用于 PREP-05 的可靠测量和最小分析。正式 CPU CLI、完整目标矩阵、正式 schema/单元存储集成及 5/30 重复验收归 PREP-09，复用本阶段执行器；探索数据保持原用途。
 
-**实现情况**：未开始。完成后记录计时边界、样本参数、分析能力及验证结果。
+**实现情况**：小规划已获用户确认并实施，包含 Measurement/Evidence 拆分、真实目标重建、配对 v2、标定、实际进程追溯和最小分析。两后端完整构建及各 36 项 CTest 完成，最终 Python 审计与容量复测也完成。六场景完整集合发现既有细分拓扑策略不等价；普通矩阵与交替复测仍有性能恶化信号，均已单独分析。当前不是验收完成状态，修复承接需用户确认。详见[小规划实现记录](prep_04_minimal_cpu_pairing_plan.md#11-实现情况与收尾记录)、[架构审查](../../reviews/formal_experiment/prep_04_minimal_cpu_pairing_architecture_review.md)、[等价性分析](../../reviews/formal_experiment/prep_04_split_topology_equivalence_analysis.md)及[性能调查](../../reviews/formal_experiment/prep_04_runtime_performance_regression_analysis.md)。
 
 ### PREP-05：CPU crossover pilot gate
 
