@@ -211,44 +211,68 @@ DataOrientedRoamSplitPlan PlanDataOrientedRoamSplitTopology(
     const DataOrientedRoamState& state,
     const std::vector<DataOrientedRoamSplitCandidate>& candidates)
 {
-    // 先恢复原优先队列顺序，再筛选能够由单个线程独立修改的候选
+    // 恢复串行队列的分数与路径顺序，快照遍历序号不参与优先级决策
     DataOrientedRoamSplitPlan plan;
     plan.Candidates = candidates;
     auto& sortedCandidates = plan.Candidates;
     std::sort(
         sortedCandidates.begin(),
         sortedCandidates.end(),
-        [](const DataOrientedRoamSplitCandidate& left, const DataOrientedRoamSplitCandidate& right) {
-            if (left.Score == right.Score)
-            {
-                return left.Sequence < right.Sequence;
-            }
-
-            return left.Score > right.Score;
+        [&state](const DataOrientedRoamSplitCandidate& left, const DataOrientedRoamSplitCandidate& right) {
+            return SplitPriorityPrecedes(state, left.Node, left.Score, right.Node, right.Score);
         });
+
+    const std::size_t earlyCommitBudget = state.RemainingSerialSplitBudget;
+    // 空前缀无需查找停止项；串行优先合并和不安全首项都禁止提前细分
+    // 仍保留后面的完整分类，不能因省去扫描而改变工作量特征
+    bool prefixOpen = !sortedCandidates.empty() && earlyCommitBudget > 0U &&
+        !(state.IsValidNode(TopPersistentMergeQueueNode(state)) &&
+            TopPersistentMergeQueueScore(state) < state.Settings.MergeThreshold) &&
+        SafeInteriorSplitChunkId(state, sortedCandidates.front().Node) != InvalidDataOrientedRoamChunkId;
+    const DataOrientedRoamSplitQueueEntry* serialStop = nullptr;
+    if (prefixOpen)
+    {
+        // 快照会过滤无需细分的条目，但串行遇到其中的队首就会结束
+        // 可能形成非空前缀时，仍需查找真实停止边界，避免低分迟滞项越过它
+        for (const auto& entry : state.SplitQueue)
+        {
+            if (!ShouldSplitWithScore(state, entry.Node, entry.Score) &&
+                (serialStop == nullptr || SplitPriorityPrecedes(
+                    state, entry.Node, entry.Score, serialStop->Node, serialStop->Score)))
+            {
+                serialStop = &entry;
+            }
+        }
+    }
 
     plan.Chunks.resize(DataOrientedRoamTopologyChunkGridSize * DataOrientedRoamTopologyChunkGridSize);
     auto& chunks = plan.Chunks;
-    const std::size_t earlyCommitBudget = state.RemainingSerialSplitBudget;
     std::size_t scheduledInteriorCount = 0U;
     for (const DataOrientedRoamSplitCandidate& candidate : sortedCandidates)
     {
         const DataOrientedRoamChunkId chunkId = SafeInteriorSplitChunkId(state, candidate.Node);
         if (chunkId == InvalidDataOrientedRoamChunkId)
         {
-            // 边界候选保留给串行队列处理
+            // 首个不安全项关闭整个前缀，后续项仍需完成分类
             ++plan.BoundaryCandidateCount;
+            prefixOpen = false;
             continue;
         }
 
         ++plan.InteriorCandidateCount;
-        if (scheduledInteriorCount >= earlyCommitBudget)
+        if (scheduledInteriorCount >= earlyCommitBudget ||
+            (serialStop != nullptr && !SplitPriorityPrecedes(
+                state, candidate.Node, candidate.Score, serialStop->Node, serialStop->Score)))
         {
-            // 超出剩余预算的安全内部候选仍留在长期队列，由串行收敛继续比较
+            prefixOpen = false;
+        }
+        if (!prefixOpen)
+        {
+            // 安全后缀仍留在长期队列，不能重新开启提前提交
             continue;
         }
 
-        // 先按全局优先级截取预算内候选，再用分块下标分配给独立线程
+        // 只有连续前缀进入分块，同一分块内继续保留全局顺序
         chunks[chunkId].push_back(candidate);
         ++scheduledInteriorCount;
     }

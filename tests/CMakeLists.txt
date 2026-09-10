@@ -184,7 +184,8 @@ if(TARGET ParallelROAM::STB)
     target_link_libraries(parallel_roam_runtime_performance_probe PRIVATE
         parallel_roam_project_options parallel_roam_project_warnings
         ParallelROAM::GLM ParallelROAM::STB Threads::Threads)
-    foreach(discovery_test IN ITEMS DataOrientedRoamPassExecution DataOrientedRoamWorkloadProbe DataOrientedRoamPassExperiment FormalCpuPair)
+    foreach(discovery_test IN ITEMS DataOrientedRoamPassExecution DataOrientedRoamWorkloadProbe
+        DataOrientedRoamPassExperiment FormalCpuPair DataOrientedRoamSplitPrefix FormalSplitTopologyEquivalence)
         add_executable(parallel_roam_${discovery_test}_tests ${discovery_test}Tests.cpp
             ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES} ../src/algorithms/TerrainLodView.cpp
             ../src/terrain/HeightMap.cpp ../src/tools/PerformanceTimer.cpp)
@@ -200,6 +201,8 @@ if(TARGET ParallelROAM::STB)
         ../src/benchmark/formal/FormalCpuInput.cpp)
     target_sources(parallel_roam_FormalCpuPair_tests PRIVATE
         ../src/benchmark/formal/FormalCpuInput.cpp ../src/benchmark/formal/FormalTimingCalibration.cpp)
+    target_sources(parallel_roam_FormalSplitTopologyEquivalence_tests PRIVATE
+        ../src/benchmark/formal/FormalCpuInput.cpp)
     add_executable(parallel_roam_dod_pass_policy_tests
         DataOrientedRoamPassPolicyTests.cpp
         ${PARALLEL_ROAM_DOD_SOURCES}

@@ -9,6 +9,22 @@
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 /// <summary>
+/// 按串行细分队列的全局优先级比较候选，供堆与只读计划共同使用
+/// 分数高的项优先，只有同分时才读取稳定路径编号
+/// </summary>
+[[nodiscard]] inline bool SplitPriorityPrecedes(
+    const DataOrientedRoamState& state,
+    DataOrientedRoamNodeIndex leftNode, float leftScore,
+    DataOrientedRoamNodeIndex rightNode, float rightScore)
+{
+    if (leftScore != rightScore)
+    {
+        return leftScore > rightScore;
+    }
+    return state.Nodes.PathIdAt(leftNode) < state.Nodes.PathIdAt(rightNode);
+}
+
+/// <summary>
 /// 保存一次串行拓扑修改可能影响的局部节点集合，并自动去重
 /// 常见情况下使用对象内置的固定数组，只有受影响节点过多时才改用可扩容数组
 /// </summary>

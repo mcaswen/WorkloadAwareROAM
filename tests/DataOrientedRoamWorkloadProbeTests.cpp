@@ -33,6 +33,7 @@ void CheckTopologyPlans()
     state.Settings.EnableLocalConstraints = false;
     state.RemainingSerialSplitBudget = 1U;
     const std::vector<DataOrientedRoamSplitCandidate> splits{{8.0F, 2U, 0U}, {8.0F, 1U, 1U}, {10.0F, 0U, 6U}};
+    state.SplitQueue = {{10.0F, 6U}, {8.0F, 1U}, {8.0F, 0U}};
     const StateSnapshot before{state};
     const auto limited = PlanDataOrientedRoamSplitTopology(state, splits);
     Require(before == StateSnapshot{state}, "topology planning changed source");

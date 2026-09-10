@@ -45,7 +45,7 @@ enum class DataOrientedRoamLeafDebugClass
 /// </summary>
 struct DataOrientedRoamSplitCandidate
 {
-    // 高误差优先，Sequence 保证同分候选在并行收集后仍有确定顺序
+    // Sequence 保留快照遍历序号；提交优先级由分数和稳定路径编号决定
     float Score{0.0F};
     std::uint64_t Sequence{0};
     DataOrientedRoamNodeIndex Node{InvalidDataOrientedRoamNodeIndex};

@@ -31,11 +31,15 @@ using DataOrientedRoamMergePlan = DataOrientedRoamTopologyPlan<DataOrientedRoamM
     const DataOrientedRoamState& state, DataOrientedRoamNodeIndex node, bool validateMergeScore);
 
 /// <summary>
-/// 对已评分候选排序，按安全分类和当前预算生成分块计划
-/// 只读取源状态，不消耗预算或累加生产统计
+/// 候选必须来自同一状态的细分队列，按全局顺序截取预算内的安全连续前缀
+/// 遇到不安全项、串行停止边界或优先合并时，不再提前安排后续候选
+/// 分类仍覆盖候选全集；只读取源状态，不消费预算或累加生产统计
 /// </summary>
 [[nodiscard]] DataOrientedRoamSplitPlan PlanDataOrientedRoamSplitTopology(
     const DataOrientedRoamState& state, const std::vector<DataOrientedRoamSplitCandidate>& candidates);
+/// <summary>
+/// 对合并候选排序并生成安全分块，只读取源状态
+/// </summary>
 [[nodiscard]] DataOrientedRoamMergePlan PlanDataOrientedRoamMergeTopology(
     const DataOrientedRoamState& state, const std::vector<DataOrientedRoamMergeCandidate>& candidates);
 

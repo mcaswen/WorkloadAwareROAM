@@ -99,12 +99,7 @@ bool SplitEntryPrecedes(
     const DataOrientedRoamSplitQueueEntry& left,
     const DataOrientedRoamSplitQueueEntry& right)
 {
-    // 常规比较直接读取连续堆条目，只有分数相同时才访问稳定 PathId
-    if (left.Score != right.Score)
-    {
-        return left.Score > right.Score;
-    }
-    return state.Nodes.PathIdAt(left.Node) < state.Nodes.PathIdAt(right.Node);
+    return SplitPriorityPrecedes(state, left.Node, left.Score, right.Node, right.Score);
 }
 
 void SwapSplitQueueEntries(DataOrientedRoamState& state, std::size_t left, std::size_t right)

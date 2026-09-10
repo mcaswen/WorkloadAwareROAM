@@ -87,6 +87,8 @@ struct CommittedSplit
     DataOrientedRoamNodeIndex Node{InvalidDataOrientedRoamNodeIndex};
     // 细分前的底边邻居用于重新评估菱形对侧子节点
     DataOrientedRoamNodeIndex BaseNeighborBeforeSplit{InvalidDataOrientedRoamNodeIndex};
+    // 节点已经细分，整理结果时必须使用提交前冻结的分数
+    float FrozenScore{0.0F};
 };
 
 struct CommittedMerge
@@ -865,11 +867,12 @@ void NormalizeQueueNeighborhood(std::vector<DataOrientedRoamNodeIndex>& nodes)
 }
 
 std::vector<DataOrientedRoamSplitCandidate> FlattenSplitChunks(
+    const DataOrientedRoamState& state,
     const std::vector<std::vector<DataOrientedRoamSplitCandidate>>& chunks)
 {
     // 串行配对不能沿用分块遍历顺序
     // 先恢复冻结快照中的全局优先级顺序
-    // 同分项继续使用稳定序号决定先后
+    // 同分项使用路径编号，与真实串行队列保持一致
     std::vector<DataOrientedRoamSplitCandidate> candidates;
     candidates.reserve(CountChunkCandidates(chunks));
     for (const auto& chunk : chunks)
@@ -879,11 +882,9 @@ std::vector<DataOrientedRoamSplitCandidate> FlattenSplitChunks(
     std::sort(
         candidates.begin(),
         candidates.end(),
-        [](const DataOrientedRoamSplitCandidate& left,
+        [&state](const DataOrientedRoamSplitCandidate& left,
            const DataOrientedRoamSplitCandidate& right) {
-            return left.Score == right.Score
-                ? left.Sequence < right.Sequence
-                : left.Score > right.Score;
+            return SplitPriorityPrecedes(state, left.Node, left.Score, right.Node, right.Score);
         });
     return candidates;
 }
@@ -930,7 +931,7 @@ std::size_t CommitInteriorSplitChunksSerial(
 
     const std::size_t splitCountBefore = state.Stats.SplitCount;
     Tools::PerformanceTimer commitTimer;
-    for (const DataOrientedRoamSplitCandidate& candidate : FlattenSplitChunks(chunks))
+    for (const DataOrientedRoamSplitCandidate& candidate : FlattenSplitChunks(state, chunks))
     {
         if (SafeInteriorSplitChunkId(state, candidate.Node) == InvalidDataOrientedRoamChunkId)
         {
@@ -1047,7 +1048,7 @@ std::vector<CommittedSplit> CommitInteriorSplitChunks(
                         localCounters[workerIndex]))
                 {
                     // 子节点由主线程重新加入 Q_s，使后续串行阶段仍可继续细分
-                    localCommittedSplits[workerIndex].push_back(CommittedSplit{node, baseNeighborBeforeSplit});
+                    localCommittedSplits[workerIndex].push_back(CommittedSplit{node, baseNeighborBeforeSplit, candidate.Score});
                 }
             }
         }
@@ -1066,9 +1067,13 @@ std::vector<CommittedSplit> CommitInteriorSplitChunks(
 
     for (const std::vector<CommittedSplit>& localSplits : localCommittedSplits)
     {
-    // 主线程整理结果的顺序只影响同分候选的先后编号，不影响最终拓扑
         committedSplits.insert(committedSplits.end(), localSplits.begin(), localSplits.end());
     }
+    // 线程编号不能决定共享索引、队列和网格修改记录的更新顺序
+    // 按冻结优先级整理成功提交的节点，不重新评分已经细分的父节点
+    std::sort(committedSplits.begin(), committedSplits.end(), [&state](const auto& left, const auto& right) {
+        return SplitPriorityPrecedes(state, left.Node, left.FrozenScore, right.Node, right.FrozenScore);
+    });
     state.Stats.SplitTopologyResultMergeMilliseconds += resultMergeTimer.Stop();
 
     Tools::PerformanceTimer indexQueueRefreshTimer;
