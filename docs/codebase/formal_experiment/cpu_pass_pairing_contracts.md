@@ -2,7 +2,7 @@
 
 > 扫描范围：PREP-04 工作区实现，2026-09-10\
 > 依据：[阶段规划](../../plans/formal_experiment/prep_04_minimal_cpu_pairing_plan.md)、[开发规范](../../standards/development_guidelines.md)及本文索引的当前源码\
-> 状态：实现事实、回归与性能调查已核对；完整集合的细分拓扑不等价及重复性能恶化信号阻断验收
+> 状态：实现事实与回归已核对；性能问题经用户决定暂时关闭，细分拓扑不等价仍需修复
 
 ## 1. 模块边界
 
@@ -157,3 +157,21 @@ FACT：该反例来自既有生产策略，当前计划会先提交全局优先�
 FACT：实施前后普通矩阵的十二组算法非计时字段一致，发现前后 24 次运行的目标清单 SHA-256 一致。性能原规则触发 25 项，三配置交替复测后仍有 OpenGL 帧构建、证据收集和部分评分指标的恶化信号，性能不能判为通过；来源、数值、排查及不确定性见[性能调查](../../reviews/formal_experiment/prep_04_runtime_performance_regression_analysis.md)。
 
 UNCERTAIN：其余完整目标集的最终配对、独立短运行漂移和全部名义重复目标尚未验收；性能问题的代码层面原因未完全定位。没有据现有局部数据判断 CPU 研究继续。跨编译器位级兼容、图形上传及恢复不属于当前实现。
+
+## 10. 修复规划前的补充事实
+
+FACT：当前 `Queues.cpp::SplitEntryPrecedes` 使用分数降序、同分 `PathId` 升序；`TopologyPlan.cpp` 和 `Topology.cpp::FlattenSplitChunks` 同分使用 `Sequence`。`SnapshotPersistentSplitQueueCandidates` 的 `Sequence` 来自堆数组遍历，且该快照过滤不满足 `ShouldSplitWithScore` 的项。串行收敛在队首不满足该条件时结束，并优先执行低于合并阈值的有效合并队首。现有快照排序与全局串行控制流不能直接视为同一顺序。
+
+FACT：普通 `TerrainLodBenchmark.cpp::MakeScenario` 开启 `EnablePassEvidence`；`standard/budget-saturation` 关闭的是拓扑验证。`Pipeline.cpp::CollectPassEvidence` 在更新内部计时结束后执行，但仍位于 Benchmark 的 `BuildRenderData` 外层包络内。原普通矩阵不能替代三个诊断开关关闭时的生产成本对照。
+
+FACT：规划前追加 144 次真实进程对照，源码前后一致；相同程序自身对照和两个三级缓存分组内的实验均保留。整帧版本方向反转，处理器条件明显影响耗时；96 MiB 分组下建堆仍有微小正差。三个队列函数在排除 COFF 重定位后与新旧 PE 中主体分别唯一匹配，链接地址不同。来源、精确数值和限制见[性能调查第 7 节](../../reviews/formal_experiment/prep_04_runtime_performance_regression_analysis.md#7-规划前补充调查环境对照与函数机器码)。
+
+UNCERTAIN：连续前缀尚未实现验证，不能写成当前行为；历史异常的全部原因及剩余局部差值根因尚未定位。修复提案见[拓扑小规划](../../plans/formal_experiment/prep_04_split_topology_equivalence_fix_plan.md)与[性能小规划](../../plans/formal_experiment/prep_04_runtime_performance_fix_plan.md)。
+
+## 11. 已批准的性能测量补全
+
+FACT：2026-09-10 用户已暂时关闭原性能问题、保留未决原因，授权提交后开始拓扑等价性修复。后续工程门槛由开发规范第 7.3 节统一定义；下文未关闭描述属于作出决定前的技术状态，不再阻断本轮拓扑工作。
+
+FACT：性能小规划经 Minor Revision 批准后，新增普通版本比较的编排/环境/分析模块及公共 CPU Probe，详见[普通运行性能契约](runtime_performance_contracts.md)。Probe 冻结三诊断开关并在计时外验证几何，原普通 benchmark 与 DOD 配对核心未修改。
+
+FACT：16 个成功尝试共 1,488 个有效应用进程完成原/保留/重建矩阵、同程序控制、诊断开关与隔离链接比较；原 25 项已逐项保留原极差复核。少数条件满足限定“无版本相关证据”，细分建堆等项仍未关闭，缺少完整调度/频率和运行时地址证据。当前没有已实施的生产优化或拓扑前缀策略；PREP-04 整体验收继续受阻。
