@@ -176,6 +176,14 @@ target_link_libraries(parallel_roam_benchmark_command_line_tests PRIVATE
 add_test(NAME terrain_lod_benchmark_command_line COMMAND parallel_roam_benchmark_command_line_tests)
 
 if(TARGET ParallelROAM::STB)
+    add_executable(parallel_roam_runtime_performance_probe TerrainLodRuntimePerformanceProbe.cpp
+        ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
+        ../src/algorithms/TerrainLodView.cpp ../src/terrain/HeightMap.cpp
+        ../src/tools/PerformanceTimer.cpp ../src/experiment/TerrainLodExperimentCsv.cpp)
+    target_include_directories(parallel_roam_runtime_performance_probe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+    target_link_libraries(parallel_roam_runtime_performance_probe PRIVATE
+        parallel_roam_project_options parallel_roam_project_warnings
+        ParallelROAM::GLM ParallelROAM::STB Threads::Threads)
     foreach(discovery_test IN ITEMS DataOrientedRoamPassExecution DataOrientedRoamWorkloadProbe DataOrientedRoamPassExperiment FormalCpuPair)
         add_executable(parallel_roam_${discovery_test}_tests ${discovery_test}Tests.cpp
             ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES} ../src/algorithms/TerrainLodView.cpp
@@ -230,6 +238,12 @@ endif()
 
 if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
     find_package(Python3 COMPONENTS Interpreter REQUIRED)
+    add_test(NAME runtime_performance_analysis COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test_runtime_performance_analysis.py")
+    add_test(NAME runtime_performance_runner COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test_runtime_performance_runner.py"
+        --application "$<TARGET_FILE:parallel_roam>" --probe "$<TARGET_FILE:parallel_roam_runtime_performance_probe>")
+    set_tests_properties(runtime_performance_analysis runtime_performance_runner PROPERTIES TIMEOUT 120)
     cmake_path(GET CMAKE_BINARY_DIR FILENAME cpu_pilot_build_preset)
     add_test(NAME cpu_pilot_preparation COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/test_cpu_pilot_preparation.py"
