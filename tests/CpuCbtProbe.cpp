@@ -2,6 +2,7 @@
 #include "algorithms/cpu_cbt/CpuCbtUpdate.h"
 #include "algorithms/TerrainLodView.h"
 #include "experiment/ExperimentCsvCodec.h"
+#include "CpuCbtExecutionSupport.h"
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -13,8 +14,10 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <type_traits>
 
@@ -79,6 +82,65 @@ std::uint64_t MeshDigest(const Terrain::TerrainMeshData& mesh)
     }
     for (const auto index : mesh.Indices) digest.Add(index);
     return digest.Value;
+}
+
+std::uint64_t StateDigest(const CpuCbtState& state)
+{
+    Digest digest;
+    digest.Add(state.Generation);
+    for (auto slot : state.ActiveIndices)
+    {
+        digest.Add(slot);
+        const auto& data=state.Data[slot];
+        digest.Add(data.SubdivisionPattern);
+        for (auto index : data.Indices) digest.Add(index);
+        digest.Add(data.ProblematicNeighbor); digest.Add(data.BisectorState);
+        digest.Add(data.Flags); digest.Add(data.PropagationId);
+    }
+    for (auto word : state.Occupancy.Bitfield()) digest.Add(word);
+    for (auto word : state.Occupancy.PackedTree()) digest.Add(word);
+    return digest.Value;
+}
+
+std::uint64_t CompleteMeshDigest(const Terrain::TerrainMeshData& mesh, std::uint64_t original)
+{
+    // 保留旧摘要作跨版本联系，新摘要补上高度和调试属性，避免未测字段被漏掉
+    Digest digest;
+    digest.Add(original); digest.Add(static_cast<std::uint64_t>(mesh.GridWidth));
+    digest.Add(static_cast<std::uint64_t>(mesh.GridHeight));
+    digest.Float(mesh.TerrainSize); digest.Float(mesh.HeightScale);
+    for (const auto& vertex : mesh.Vertices)
+    {
+        digest.Float(vertex.Height); digest.Float(vertex.DebugHighlight);
+        for (int axis=0; axis<3; ++axis) digest.Float(vertex.DebugColor[axis]);
+    }
+    return digest.Value;
+}
+
+void ComparePublished(const CpuCbtState& expected,const CpuCbtState& actual,
+    const Terrain::TerrainMeshData& first,const Terrain::TerrainMeshData& second)
+{
+    Require(expected.HeapIds==actual.HeapIds && expected.ActiveIndices==actual.ActiveIndices &&
+        expected.Generation==actual.Generation && expected.Occupancy.Bitfield()==actual.Occupancy.Bitfield() &&
+        expected.Occupancy.PackedTree()==actual.Occupancy.PackedTree(),"三档编号、活动列表或占用不一致");
+    for (auto slot : expected.ActiveIndices)
+    {
+        const auto& a=expected.Data[slot]; const auto& b=actual.Data[slot];
+        Require(a.SubdivisionPattern==b.SubdivisionPattern && a.Indices==b.Indices && a.Flags==b.Flags &&
+            a.BisectorState==b.BisectorState && a.PropagationId==b.PropagationId && a.ProblematicNeighbor==b.ProblematicNeighbor &&
+            expected.Neighbors[slot].Previous==actual.Neighbors[slot].Previous &&
+            expected.Neighbors[slot].Next==actual.Neighbors[slot].Next &&
+            expected.Neighbors[slot].Twin==actual.Neighbors[slot].Twin,"三档活动节点不一致，槽="+Number(slot));
+    }
+    Require(first.GridWidth==second.GridWidth && first.GridHeight==second.GridHeight &&
+        first.TerrainSize==second.TerrainSize && first.HeightScale==second.HeightScale &&
+        first.Vertices.size()==second.Vertices.size() && first.Indices==second.Indices,"三档网格布局不一致");
+    for (std::size_t i=0; i<first.Vertices.size(); ++i)
+    {
+        const auto& a=first.Vertices[i]; const auto& b=second.Vertices[i];
+        Require(a.Position==b.Position && a.Normal==b.Normal && a.TexCoord==b.TexCoord && a.Height==b.Height &&
+            a.DebugColor==b.DebugColor && a.DebugHighlight==b.DebugHighlight,"三档网格属性不一致，顶点="+Number(i));
+    }
 }
 
 /// <summary>
@@ -195,6 +257,7 @@ struct Round
     CpuCbtUpdateReport Update;
     double MeshMs{0}, TotalMs{0};
     std::uint64_t TopologyHash{0}, MeshHash{0};
+    std::uint64_t StateHash{0}, CompleteMeshHash{0};
 };
 std::uint32_t Templates(const CpuCbtUpdateReport& report)
 {
@@ -234,26 +297,91 @@ void WriteSegments(std::ostream& out, const std::vector<Round>& rounds, std::uin
     }
 }
 
-void WriteRound(std::ostream& out, std::size_t index, const Round& r)
+Row WorkFields(const CpuCbtUpdateReport& u)
 {
-    const auto& u=r.Update;
-    Write(out,{Number(index),Number(index/32),Number(u.TriangleCountBefore),Number(u.TriangleCountAfterSplit),Number(u.TriangleCountAfter),
+    return {Number(u.TriangleCountBefore),Number(u.TriangleCountAfterSplit),Number(u.TriangleCountAfter),
         Number(u.SplitProposalCount),Number(u.MergeProposalCount),u.PoolOnlyRequiredSlots?Number(*u.PoolOnlyRequiredSlots):"",
         u.PoolOnlyReservationRejections?Number(*u.PoolOnlyReservationRejections):"",Number(u.RequiredSlots),Number(u.AcceptedSlots),Number(u.ReleasedSlots),
         Number(u.BudgetRemainingBefore),Number(u.BudgetRemainingAfterSplit),Number(u.BudgetRemainingAfter),Number(u.OldFreeDynamicSlots),
         Number(u.ReservationRejectedCount),Number(u.DuplicateCandidateCount),Number(u.PlannerRemainingSlots),Number(u.BudgetLimitedRound),Number(u.JointlyLimitedRound),
         Number(Templates(u)),Number(u.TemplateCounts[0]),Number(u.TemplateCounts[1]),Number(u.TemplateCounts[2]),Number(u.TemplateCounts[3]),
-        Number(u.PairMergeCount),Number(u.QuadMergeCount),Number(u.PairMergeCount+u.QuadMergeCount),Number(std::int64_t(u.AcceptedSlots)-u.ReleasedSlots),
-        Number(r.TopologyHash),Number(r.MeshHash),Number(u.PreparationMs),Number(u.ClassificationGeometryMs),Number(u.ClassificationMs),Number(u.MappingMs),
-        Number(u.PlanningMs),Number(u.AllocationMs),Number(u.BisectCommitMs),Number(u.SimplifyCommitMs),Number(u.PublishMs),Number(u.DemandDiagnosticMs),
-        Number(u.UpdateMs),Number(r.MeshMs),Number(r.TotalMs)});
+        Number(u.PairMergeCount),Number(u.QuadMergeCount),Number(u.PairMergeCount+u.QuadMergeCount),Number(std::int64_t(u.AcceptedSlots)-u.ReleasedSlots)};
 }
 
-void Run(const std::string& scenario, const std::string& mode, const std::filesystem::path& output)
+void WriteRound(std::ostream& out, std::size_t index, const Round& r,const std::string& implementation,std::size_t threads)
+{
+    const auto& u=r.Update;
+    Row row{Number(index),Number(index/32)};
+    const auto work=WorkFields(u); row.insert(row.end(),work.begin(),work.end());
+    const Row costs{Number(r.TopologyHash),Number(r.MeshHash),Number(u.PreparationMs),Number(u.ClassificationGeometryMs),Number(u.ClassificationMs),Number(u.MappingMs),
+        Number(u.PlanningMs),Number(u.AllocationMs),Number(u.BisectCommitMs),Number(u.SimplifyCommitMs),Number(u.PublishMs),Number(u.DemandDiagnosticMs),
+        Number(u.UpdateMs),Number(r.MeshMs),Number(r.TotalMs),implementation,Number(threads),Number(r.StateHash),Number(r.CompleteMeshHash),
+        u.LocalBisectTimings?Number(u.LocalBisectTimings->PrepareMs):"",u.LocalBisectTimings?Number(u.LocalBisectTimings->TemplateFillWallMs):"",
+        u.LocalBisectTimings?Number(u.LocalBisectTimings->CollectMs):"",u.LocalBisectTimings?Number(u.LocalBisectTimings->PropagationMs):""};
+    row.insert(row.end(),costs.begin(),costs.end()); Write(out,row);
+}
+
+/// <summary>
+/// 一条独立持续轨迹拥有自己的状态和输出，诊断时三条轨迹逐轮前进再核对
+/// </summary>
+struct Trajectory
+{
+    std::string Implementation;
+    std::filesystem::path Output;
+    CpuCbtState State;
+    Terrain::TerrainMeshData Mesh;
+    Round Current;
+    std::vector<Round> Rounds;
+    std::ofstream Rows;
+    std::uint64_t PreviousHash{0};
+    std::size_t Threads{1};
+};
+
+void SaveFailure(const Trajectory& trajectory,std::size_t round,const char* error)
+{
+    std::ofstream failure(trajectory.Output/"failure.txt"); failure << "round=" << round << '\n' << error << '\n';
+    std::ofstream snapshot(trajectory.Output/"failure-state.csv");
+    Write(snapshot,{"physicalSlot","heapId","previous","next","twin","pattern","index0","index1","index2",
+        "problematicNeighbor","bisectorState","flags","propagationId"});
+    const auto& state=trajectory.State;
+    for (auto slot : state.ActiveIndices)
+    {
+        const auto& data=state.Data[slot]; const auto& n=state.Neighbors[slot];
+        Write(snapshot,{Number(slot),Number(state.HeapIds[slot]),Number(n.Previous),Number(n.Next),Number(n.Twin),
+            Number(data.SubdivisionPattern),Number(data.Indices[0]),Number(data.Indices[1]),Number(data.Indices[2]),
+            Number(data.ProblematicNeighbor),Number(data.BisectorState),Number(data.Flags),Number(data.PropagationId)});
+    }
+}
+
+void Step(Trajectory& trajectory,const Terrain::HeightMap& map,const TerrainLodViewInput& view,
+    const CpuCbtRangeExecutor& executor)
+{
+    Round r; Terrain::TerrainMeshData mesh; std::string error;
+    const CpuCbtUpdateOptions options{false,trajectory.Implementation=="reference"?
+        CpuCbtBisectImplementation::ReferenceSerial:CpuCbtBisectImplementation::LocalTemplates};
+    const auto total=Clock::now();
+    r.Update=UpdateCpuCbt(trajectory.State,map,view,options,executor);
+    Require(r.Update.Success,r.Update.Error);
+    const auto started=Clock::now();
+    Require(BuildCpuCbtMesh(trajectory.State,map,mesh,error),error);
+    r.MeshMs=Elapsed(started); r.TotalMs=Elapsed(total);
+    r.TopologyHash=TopologyDigest(trajectory.State); r.MeshHash=MeshDigest(mesh);
+    r.StateHash=StateDigest(trajectory.State); r.CompleteMeshHash=CompleteMeshDigest(mesh,r.MeshHash);
+    Require(!Stable(r.Update) || trajectory.PreviousHash==r.TopologyHash,"无修改轮改变了逻辑拓扑");
+    // 网格计时使用空目标，前一轮保留网格的释放在计时外，与归档程序边界一致
+    trajectory.Mesh=std::move(mesh); trajectory.Current=std::move(r);
+}
+
+void Run(const std::string& scenario, const std::string& mode, const std::filesystem::path& output,
+    const std::string& implementation,std::size_t threads)
 {
     const bool peking=scenario=="cpu-cbt-peking547-b20000-v1";
     Require(peking || scenario=="cpu-cbt-test129-b4096-v1","未知冻结场景");
     Require(mode=="validate" || mode=="measure","未知原型模式");
+    const bool all=implementation=="all";
+    Require(all || implementation=="reference" || implementation=="serial" || implementation=="parallel","未知细分实现");
+    Require(!all || mode=="validate","三档同时运行只用于诊断");
+    Require((implementation=="parallel" || all)?threads==4U:threads==1U,"自然输入固定串行一线程或并行四线程");
     Require(!std::filesystem::exists(output),"输出目录已经存在");
     std::filesystem::create_directories(output);
     const auto asset=std::filesystem::path("assets/heightmaps")/(peking?"Hm_Terrain_Peking_513.png":"Hm_Terrain_Test_129.pgm");
@@ -265,10 +393,13 @@ void Run(const std::string& scenario, const std::string& mode, const std::filesy
     Require(map.Width()==dimension && map.Height()==dimension,"资产实际尺寸不匹配");
     CpuCbtSettings settings; settings.TerrainSize=peking?80.0F:30.0F; settings.HeightScale=peking?12.0F:4.0F;
     settings.TriangleBudget=peking?20000U:4096U;
-    CpuCbtState state;
-    stage=Clock::now();
-    Require(InitializeCpuCbt(state,settings,error),error);
-    const auto initializeMs=Elapsed(stage);
+    std::unique_ptr<Tests::CpuCbtTestExecutor> execution;
+    double poolCreateMs=0;
+    if (implementation=="parallel" || all)
+    {
+        stage=Clock::now(); execution=std::make_unique<Tests::CpuCbtTestExecutor>(threads);
+        poolCreateMs=Elapsed(stage);
+    }
     std::array<TerrainLodViewInput,2> views;
     std::ofstream matrices(output/"views.csv");
     Write(matrices,{"height","matrix","column","x","y","z","w"});
@@ -287,55 +418,83 @@ void Run(const std::string& scenario, const std::string& mode, const std::filesy
                 for (int j=0;j<4;++j) viewDigest.Float(v[j]);
             }
     }
-    std::ofstream metadata(output/"metadata.csv");
-    Write(metadata,{"protocolVersion","scenarioId","mode","heightMapPath","width","height","terrainSize","heightScale","triangleBudget",
-        "dynamicCapacity","maxHeapBitDepth","triangleAreaPixels","roundCount","viewDigest","loadMs","initializeMs","sourceReference"});
-    Write(metadata,{"1",scenario,mode,asset.generic_string(),Number(dimension),Number(dimension),Number(settings.TerrainSize),Number(settings.HeightScale),
-        Number(settings.TriangleBudget),"131072","20","50","96",Number(viewDigest.Value),Number(loadMs),Number(initializeMs),"RoamTesting-d462089"});
-    std::ofstream rows(output/"rounds.csv");
-    Write(rows,{"round","segment","trianglesBefore","trianglesAfterSplit","activeTriangleCount","splitProposalCount","mergeProposalCount",
+    const std::vector<std::string> implementations=all?std::vector<std::string>{"reference","serial","parallel"}:
+        std::vector<std::string>{implementation};
+    std::vector<Trajectory> trajectories(implementations.size());
+    for (std::size_t j=0; j<trajectories.size(); ++j)
+    {
+        auto& t=trajectories[j]; t.Implementation=implementations[j]; t.Threads=t.Implementation=="parallel"?threads:1U;
+        t.Output=all?output/t.Implementation:output;
+        if (all) std::filesystem::create_directory(t.Output);
+        stage=Clock::now(); Require(InitializeCpuCbt(t.State,settings,error),error);
+        const auto initializeMs=Elapsed(stage);
+        t.PreviousHash=TopologyDigest(t.State); t.Rounds.reserve(96);
+        std::ofstream metadata(t.Output/"metadata.csv");
+        Write(metadata,{"protocolVersion","scenarioId","mode","heightMapPath","width","height","terrainSize","heightScale","triangleBudget",
+            "dynamicCapacity","maxHeapBitDepth","triangleAreaPixels","roundCount","viewDigest","loadMs","initializeMs","sourceReference",
+            "implementation","requestedThreads","poolCreateMs"});
+        Write(metadata,{"2",scenario,mode,asset.generic_string(),Number(dimension),Number(dimension),Number(settings.TerrainSize),Number(settings.HeightScale),
+            Number(settings.TriangleBudget),"131072","20","50","96",Number(viewDigest.Value),Number(loadMs),Number(initializeMs),"RoamTesting-d462089",
+            t.Implementation,Number(t.Threads),Number(t.Implementation=="parallel"?poolCreateMs:0)});
+        t.Rows.open(t.Output/"rounds.csv");
+        Write(t.Rows,{"round","segment","trianglesBefore","trianglesAfterSplit","activeTriangleCount","splitProposalCount","mergeProposalCount",
         "poolOnlyRequiredSlots","poolOnlyReservationRejections","requiredSlots","acceptedSlots","releasedSlots","budgetRemainingBefore",
         "budgetRemainingAfterSplit","budgetRemainingAfter","oldFreeDynamicSlots","reservationRejectedCount","duplicateCandidateCount","plannerRemainingSlots",
         "budgetLimitedRound","jointlyLimitedRound","splitTemplateCount","centerCount","rightDoubleCount","leftDoubleCount","tripleCount",
         "pairMergeCount","quadMergeCount","simplifyCount","occupancyDelta","topologyDigest","meshDigest","preparationMs","classificationGeometryMs",
-        "classificationMs","mappingMs","planningMs","allocationMs","bisectCommitMs","simplifyCommitMs","publishMs","demandDiagnosticMs","updateMs","meshMs","updateAndMeshMs"});
-    std::vector<Round> rounds; rounds.reserve(96);
-    std::uint64_t previousHash=TopologyDigest(state);
+        "classificationMs","mappingMs","planningMs","allocationMs","bisectCommitMs","simplifyCommitMs","publishMs","demandDiagnosticMs","updateMs","meshMs","updateAndMeshMs",
+        "implementation","requestedThreads","stateDigest","completeMeshDigest","bisectPrepareMs","templateFillWallMs","bisectCollectMs","bisectPropagationMs"});
+    }
+    std::ofstream threadRows,comparison;
+    if (mode=="validate")
+    {
+        threadRows.open(output/"threads.csv"); Write(threadRows,{"round","range","begin","end","actualThread"});
+        comparison.open(output/"comparison.csv"); Write(comparison,{"round","comparedImplementations","equal","auditedImplementation"});
+    }
+    std::vector<Tests::CpuCbtRangeEvidence> evidence;
+    const auto executor=execution?execution->Executor(mode=="validate"?&evidence:nullptr):CpuCbtRangeExecutor{};
     for (std::size_t i=0; i<96; ++i)
     {
-        Round r; Terrain::TerrainMeshData mesh;
-        const auto total=Clock::now();
-        r.Update=UpdateCpuCbt(state,map,views[i>=32 && i<64?1:0],{mode=="validate"});
-        if (!r.Update.Success)
-        {
-            // 保留失败前已发布的活动状态，反例不覆盖此前完成的轮次数据
-            std::ofstream failure(output/"failure.txt"); failure << "round=" << i << '\n' << r.Update.Error << '\n';
-            std::ofstream snapshot(output/"failure-state.csv");
-            Write(snapshot,{"physicalSlot","heapId","previous","next","twin"});
-            for (auto slot : state.ActiveIndices) Write(snapshot,{Number(slot),Number(state.HeapIds[slot]),
-                Number(state.Neighbors[slot].Previous),Number(state.Neighbors[slot].Next),Number(state.Neighbors[slot].Twin)});
-            throw std::runtime_error("轮 " + Number(i) + ": " + r.Update.Error);
-        }
-        stage=Clock::now();
-        Require(BuildCpuCbtMesh(state,map,mesh,error),error);
-        r.MeshMs=Elapsed(stage); r.TotalMs=Elapsed(total);
-        r.TopologyHash=TopologyDigest(state); r.MeshHash=MeshDigest(mesh);
         try
         {
-            if (mode=="validate") Audit(state,mesh);
-            Require(!Stable(r.Update) || previousHash==r.TopologyHash,"无修改轮改变了逻辑拓扑");
+            evidence.clear();
+            for (auto& t : trajectories)
+                Step(t,map,views[i>=32 && i<64?1:0],t.Implementation=="parallel"?executor:CpuCbtRangeExecutor{});
+            if (mode=="validate")
+            {
+                const auto& first=trajectories.front();
+                for (std::size_t j=1; j<trajectories.size(); ++j)
+                {
+                    const auto& t=trajectories[j];
+                    ComparePublished(first.State,t.State,first.Mesh,t.Mesh);
+                    Require(WorkFields(first.Current.Update)==WorkFields(t.Current.Update),"三档工作量或预算状态不一致");
+                }
+                const auto& audited=trajectories.back();
+                Audit(audited.State,audited.Mesh);
+                Write(comparison,{Number(i),Number(trajectories.size()),"1",audited.Implementation});
+                for (std::size_t j=0; j<evidence.size(); ++j)
+                {
+                    std::ostringstream id; id << evidence[j].Thread;
+                    Write(threadRows,{Number(i),Number(j),Number(evidence[j].Begin),Number(evidence[j].End),id.str()});
+                }
+            }
+            for (auto& t : trajectories)
+            {
+                t.PreviousHash=t.Current.TopologyHash; t.Rounds.push_back(t.Current);
+                WriteRound(t.Rows,i,t.Current,t.Implementation,t.Threads);
+            }
         }
         catch (const std::exception& exception)
         {
-            std::ofstream failure(output/"failure.txt"); failure << "round=" << i << '\n' << exception.what() << '\n';
+            for (const auto& t : trajectories) SaveFailure(t,i,exception.what());
             throw;
         }
-        previousHash=r.TopologyHash;
-        rounds.push_back(r); WriteRound(rows,i,r);
     }
-    std::ofstream segments(output/"segments.csv");
-    WriteSegments(segments,rounds,settings.TriangleBudget);
-    std::cout << scenario << ": 96 轮完成，最终三角形 " << state.ActiveIndices.size() << '\n';
+    for (const auto& t : trajectories)
+    {
+        std::ofstream segments(t.Output/"segments.csv"); WriteSegments(segments,t.Rounds,settings.TriangleBudget);
+        std::cout << scenario << " / " << t.Implementation << ": 96 轮完成，最终三角形 " << t.State.ActiveIndices.size() << '\n';
+    }
 }
 }
 
@@ -343,9 +502,18 @@ int main(int argc,char** argv)
 {
     try
     {
-        Require(argc==7 && std::string(argv[1])=="--scenario" && std::string(argv[3])=="--mode" &&
-            std::string(argv[5])=="--output","参数：--scenario 固定场景 --mode validate|measure --output 新目录");
-        Run(argv[2],argv[4],argv[6]);
+        Require(argc>=7 && argc%2==1,"参数必须按选项和值成对提供");
+        std::map<std::string,std::string> arguments;
+        for (int i=1; i<argc; i+=2)
+        {
+            const std::string key=argv[i];
+            Require(key=="--scenario" || key=="--mode" || key=="--output" || key=="--implementation" || key=="--threads","未知参数");
+            Require(arguments.emplace(key,argv[i+1]).second,"参数重复");
+        }
+        const auto implementation=arguments.contains("--implementation")?arguments.at("--implementation"):"reference";
+        const auto threadText=arguments.contains("--threads")?arguments.at("--threads"):"1";
+        Require(threadText=="1" || threadText=="4","自然轨迹只支持固定一线程或四线程");
+        Run(arguments.at("--scenario"),arguments.at("--mode"),arguments.at("--output"),implementation,threadText=="4"?4U:1U);
         return 0;
     }
     catch (const std::exception& exception)

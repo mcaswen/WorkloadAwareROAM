@@ -22,6 +22,7 @@ if(PARALLEL_ROAM_BUILD_CPU_CBT_PROTOTYPE)
         ParallelROAM::GLM PRIVATE parallel_roam_project_warnings)
     add_library(parallel_roam_cpu_cbt STATIC
         ../src/algorithms/cpu_cbt/CpuCbtState.cpp ../src/algorithms/cpu_cbt/CpuCbtUpdate.cpp
+        ../src/algorithms/cpu_cbt/CpuCbtBisect.cpp
         ../src/algorithms/cpu_cbt/CpuCbtMesh.cpp ../src/terrain/HeightMap.cpp
         ../src/algorithms/TerrainLodView.cpp)
     target_link_libraries(parallel_roam_cpu_cbt PUBLIC parallel_roam_cpu_cbt_reference
@@ -29,7 +30,8 @@ if(PARALLEL_ROAM_BUILD_CPU_CBT_PROTOTYPE)
     add_executable(parallel_roam_cpu_cbt_tests CpuCbtTests.cpp)
     add_executable(parallel_roam_cpu_cbt_probe CpuCbtProbe.cpp ../src/experiment/ExperimentCsvCodec.cpp)
     foreach(target IN ITEMS parallel_roam_cpu_cbt_tests parallel_roam_cpu_cbt_probe)
-        target_link_libraries(${target} PRIVATE parallel_roam_cpu_cbt parallel_roam_project_warnings)
+        target_sources(${target} PRIVATE ../src/algorithms/data_oriented_roam/DataOrientedRoamThreadPool.cpp)
+        target_link_libraries(${target} PRIVATE parallel_roam_cpu_cbt parallel_roam_project_warnings Threads::Threads)
     endforeach()
     add_test(NAME CpuCbt COMMAND parallel_roam_cpu_cbt_tests)
     set_tests_properties(CpuCbt PROPERTIES WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" TIMEOUT 120)

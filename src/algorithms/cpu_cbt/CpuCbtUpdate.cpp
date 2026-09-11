@@ -89,7 +89,7 @@ std::vector<CbtSplitPlanningNode> PlanningView(const CpuCbtState& state,
 }
 
 CpuCbtUpdateReport UpdateCpuCbt(CpuCbtState& state, const Terrain::HeightMap& heightMap,
-    const TerrainLodViewInput& view, const CpuCbtUpdateOptions& options)
+    const TerrainLodViewInput& view, const CpuCbtUpdateOptions& options, const CpuCbtRangeExecutor& executor)
 {
     CpuCbtUpdateReport report;
     const auto started = Clock::now();
@@ -97,6 +97,8 @@ CpuCbtUpdateReport UpdateCpuCbt(CpuCbtState& state, const Terrain::HeightMap& he
     {
         auto stage = Clock::now();
         CheckInput(state, view);
+        Require(options.BisectImplementation == CpuCbtBisectImplementation::ReferenceSerial ||
+            options.BisectImplementation == CpuCbtBisectImplementation::LocalTemplates, "CPU CBT 未知细分实现");
         auto data = state.Data;
         report.PreparationMs = Elapsed(stage);
         report.TriangleCountBefore = static_cast<std::uint32_t>(state.ActiveIndices.size());
@@ -190,7 +192,17 @@ CpuCbtUpdateReport UpdateCpuCbt(CpuCbtState& state, const Terrain::HeightMap& he
         }
         report.AllocationMs = Elapsed(stage);
         stage = Clock::now();
-        auto split = CommitCbtBisects(state.HeapIds, state.Neighbors, data, allocationNodes, CpuCbtState::DynamicCapacity);
+        CbtBisectCommitResult split;
+        if (options.BisectImplementation == CpuCbtBisectImplementation::ReferenceSerial)
+            split = CommitCbtBisects(state.HeapIds, state.Neighbors, data, allocationNodes, CpuCbtState::DynamicCapacity);
+        else
+        {
+            // 只替换细分提交入口，合并候选和占用发布继续消费同一份计划结果
+            auto local = CommitCpuCbtBisects(state.HeapIds, state.Neighbors, data, allocationNodes,
+                CpuCbtState::DynamicCapacity, executor);
+            report.LocalBisectTimings = local.Timings;
+            split = std::move(local.Topology);
+        }
         Require(split.Valid, "CPU CBT 参考细分提交失败");
         report.AcceptedSlots = static_cast<std::uint32_t>(split.CommittedDynamicSlots.size());
         report.TemplateCounts = split.TemplateCounts;
