@@ -1,5 +1,6 @@
 option(PARALLEL_ROAM_BUILD_APP "Build the Parallel ROAM application target." ON)
 option(PARALLEL_ROAM_BUILD_TESTS "Build tests when tests/CMakeLists.txt exists." OFF)
+option(PARALLEL_ROAM_BUILD_CPU_CBT_PROTOTYPE "Build the isolated CPU CBT research prototype." OFF)
 
 set(PARALLEL_ROAM_GRAPHICS_API "OpenGL" CACHE STRING "Graphics backend selected at configure time.")
 set_property(CACHE PARALLEL_ROAM_GRAPHICS_API PROPERTY STRINGS OpenGL D3D12)
