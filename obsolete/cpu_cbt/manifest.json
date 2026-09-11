@@ -1,0 +1,102 @@
+{
+    "status":  "closed_by_user",
+    "archivedDate":  "2026-09-12",
+    "sourceCommit":  "a3738d6539b5dd1f158e3b0b731f43528ebc6c23",
+    "referenceRoot":  "third_party/RoamTesting",
+    "referenceCommit":  "d462089d5c2888cc09537a6a3f44a7c33cbf4499",
+    "referenceWorktreeClean":  true,
+    "excludedFromActiveBuild":  true,
+    "files":  [
+                  {
+                      "path":  "src/algorithms/cpu_cbt/CpuCbtBisect.cpp",
+                      "sha256":  "03aea5a45df0404e068ba7da756addd95fe3a6383f8b21f25f7a17b9a101b792",
+                      "bytes":  12432,
+                      "action":  "move",
+                      "normalizedSha256":  "03aea5a45df0404e068ba7da756addd95fe3a6383f8b21f25f7a17b9a101b792"
+                  },
+                  {
+                      "path":  "src/algorithms/cpu_cbt/CpuCbtBisect.h",
+                      "sha256":  "db219031fa96992ece2f4392ac7018024183e37d590731a90f6f001b67462d29",
+                      "bytes":  1570,
+                      "action":  "move",
+                      "normalizedSha256":  "db219031fa96992ece2f4392ac7018024183e37d590731a90f6f001b67462d29"
+                  },
+                  {
+                      "path":  "src/algorithms/cpu_cbt/CpuCbtMesh.cpp",
+                      "sha256":  "35e05bc371b993af9f707bf58bbe713e762df41d4bc036ffeb4c00bbe2a4ee3d",
+                      "bytes":  3069,
+                      "action":  "move",
+                      "normalizedSha256":  "35e05bc371b993af9f707bf58bbe713e762df41d4bc036ffeb4c00bbe2a4ee3d"
+                  },
+                  {
+                      "path":  "src/algorithms/cpu_cbt/CpuCbtMesh.h",
+                      "sha256":  "03a6aa89a2e82f87d11e5f7360ef289c1acde56420cfe21652fa539061175f86",
+                      "bytes":  892,
+                      "action":  "move",
+                      "normalizedSha256":  "03a6aa89a2e82f87d11e5f7360ef289c1acde56420cfe21652fa539061175f86"
+                  },
+                  {
+                      "path":  "src/algorithms/cpu_cbt/CpuCbtState.cpp",
+                      "sha256":  "7d132db88d825d0e7a5c564b8f2e87704d9e52ef6e60f82f902d44e55fb502e8",
+                      "bytes":  2692,
+                      "action":  "move",
+                      "normalizedSha256":  "7d132db88d825d0e7a5c564b8f2e87704d9e52ef6e60f82f902d44e55fb502e8"
+                  },
+                  {
+                      "path":  "src/algorithms/cpu_cbt/CpuCbtState.h",
+                      "sha256":  "85ee6396bc217986cca4939965309c4098dea9b6a9c129af82d6996af8764464",
+                      "bytes":  1657,
+                      "action":  "move",
+                      "normalizedSha256":  "85ee6396bc217986cca4939965309c4098dea9b6a9c129af82d6996af8764464"
+                  },
+                  {
+                      "path":  "src/algorithms/cpu_cbt/CpuCbtUpdate.cpp",
+                      "sha256":  "0cca05df26d88f89315414abf3a427051fb0a3151d183b4775e02c4b947076a5",
+                      "bytes":  14334,
+                      "action":  "move",
+                      "normalizedSha256":  "0cca05df26d88f89315414abf3a427051fb0a3151d183b4775e02c4b947076a5"
+                  },
+                  {
+                      "path":  "src/algorithms/cpu_cbt/CpuCbtUpdate.h",
+                      "sha256":  "170fc1c189bbaba55820e114a025808cb950ec3e752dc5eed254c34335aa88d7",
+                      "bytes":  2665,
+                      "action":  "move",
+                      "normalizedSha256":  "170fc1c189bbaba55820e114a025808cb950ec3e752dc5eed254c34335aa88d7"
+                  },
+                  {
+                      "path":  "tests/CpuCbtTests.cpp",
+                      "sha256":  "aa9e4ee70068d7870a7fae0768371241568399ac17f3ee1997fac6b87e5a0198",
+                      "bytes":  21383,
+                      "action":  "move",
+                      "normalizedSha256":  "aa9e4ee70068d7870a7fae0768371241568399ac17f3ee1997fac6b87e5a0198"
+                  },
+                  {
+                      "path":  "tests/CpuCbtProbe.cpp",
+                      "sha256":  "776904551384abea1b3d8e901a3e77eecbbf1c8b1bca8387eea84880d7595e02",
+                      "bytes":  26673,
+                      "action":  "move",
+                      "normalizedSha256":  "776904551384abea1b3d8e901a3e77eecbbf1c8b1bca8387eea84880d7595e02"
+                  },
+                  {
+                      "path":  "tests/CpuCbtExecutionSupport.h",
+                      "sha256":  "3f16beec929d2e8bdd61f1c3bd681d08f2f9beed1b74ac6d5e4576ce88428656",
+                      "bytes":  2311,
+                      "action":  "move",
+                      "normalizedSha256":  "3f16beec929d2e8bdd61f1c3bd681d08f2f9beed1b74ac6d5e4576ce88428656"
+                  },
+                  {
+                      "path":  "tests/CMakeLists.txt",
+                      "sha256":  "306261371e6b3a8444c44987f770af7286cd37eb3197d6995f311c5fa6c9850c",
+                      "bytes":  19961,
+                      "action":  "copy_build_snapshot",
+                      "normalizedSha256":  "306261371e6b3a8444c44987f770af7286cd37eb3197d6995f311c5fa6c9850c"
+                  },
+                  {
+                      "path":  "cmake/ProjectOptions.cmake",
+                      "sha256":  "3e5c7b6d3fb2539a8a29815371315e38cf213f93c353b2cb8ba4df888e418bc1",
+                      "bytes":  3385,
+                      "action":  "copy_build_snapshot",
+                      "normalizedSha256":  "5a67650268043c5343c99f205f37feeea5de7c9d1ed154b23951267b7d047a5e"
+                  }
+              ]
+}

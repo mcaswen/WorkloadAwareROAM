@@ -1,4 +1,6 @@
-# CPU CBT 持续更新代码事实
+# CPU CBT 持续更新历史代码事实
+
+> 归档状态（2026-09-12）：用户决定关闭本轮原型。下文 FACT 描述 `a3738d6` 的历史实现；原活动路径已移至 `obsolete/cpu_cbt/`，代码索引链接已映射。当前工程不再提供原型选项、库、探针或 `CpuCbt` CTest，见[归档说明](../../../obsolete/cpu_cbt/README.md)。局部性能问题未修复，随归档停止投入。
 
 > 日期：2026-09-12
 > 范围：CPU-CBT-01/02 当前实现；第二阶段起点 `9db18d3`，实际采集源码身份见阶段审查
@@ -11,19 +13,19 @@ FACT：模块位于 `src/algorithms/cpu_cbt/`，命名空间为 `ParallelRoam::A
 
 | 文件 | 类型 / 入口及实际职责 |
 | --- | --- |
-| [CpuCbtState.h](../../../src/algorithms/cpu_cbt/CpuCbtState.h) | `CpuCbtSettings`、`CpuCbtState` 及配置检查、初始化声明；唯一持久状态所有者 |
-| [CpuCbtState.cpp](../../../src/algorithms/cpu_cbt/CpuCbtState.cpp) | `ValidateCpuCbtSettings`、`InitializeCpuCbt`；检查参数、构造六基础状态，成功后移动替换 |
-| [CpuCbtUpdate.h](../../../src/algorithms/cpu_cbt/CpuCbtUpdate.h) | `CpuCbtBisectImplementation`、`CpuCbtUpdateOptions`、`CpuCbtUpdateReport`、`UpdateCpuCbt`；实现选择、同步调用和计数/耗时契约 |
-| [CpuCbtUpdate.cpp](../../../src/algorithms/cpu_cbt/CpuCbtUpdate.cpp) | 私有 `CheckInput`、`PlanningView` 和轮次编排；分类、索引转换、预算、细分路径选择、参考合并和占用发布 |
-| [CpuCbtBisect.h](../../../src/algorithms/cpu_cbt/CpuCbtBisect.h) | `CpuCbtRangeTask/Executor`、`CpuCbtBisectTimings/Result`、`CommitCpuCbtBisects`；同步任务与临时下一代边界 |
-| [CpuCbtBisect.cpp](../../../src/algorithms/cpu_cbt/CpuCbtBisect.cpp) | `TemplateRecord`、所有权预检、四模板局部填写、归并及顺序传播；只拥有单次调用临时数组，不持有线程池 |
-| [CpuCbtMesh.h](../../../src/algorithms/cpu_cbt/CpuCbtMesh.h) | 分类四点与完整网格两个只读入口 |
-| [CpuCbtMesh.cpp](../../../src/algorithms/cpu_cbt/CpuCbtMesh.cpp) | 私有 `Geometry` 包装参考几何，检查有效性和有限值；构造独立三角形顶点输出 |
-| [CpuCbtTests.cpp](../../../tests/CpuCbtTests.cpp) | 解析模板、联合计划、旧合并重验、持续释放复用、预算；三档字段对照、所有权失败、1/2/4 线程、反向区间及真实并发夹具 |
-| [CpuCbtProbe.cpp](../../../tests/CpuCbtProbe.cpp) | 两个固定自然输入的独立三档持续状态、字段诊断、线程证据、摘要、CSV 与分段统计；实验编排留在驱动 |
-| [CpuCbtExecutionSupport.h](../../../tests/CpuCbtExecutionSupport.h) | `Tests::CpuCbtRangeEvidence`、`Tests::CpuCbtTestExecutor`；两个驱动共用固定分块与持久池的薄适配器 |
-| [ProjectOptions.cmake](../../../cmake/ProjectOptions.cmake) | 默认 OFF 的 `PARALLEL_ROAM_BUILD_CPU_CBT_PROTOTYPE` |
-| [tests/CMakeLists.txt](../../../tests/CMakeLists.txt) | 可选纯 C++ 参考库、包装库、两个可执行目标和 `CpuCbt` CTest |
+| [CpuCbtState.h](../../../obsolete/cpu_cbt/src/algorithms/cpu_cbt/CpuCbtState.h) | `CpuCbtSettings`、`CpuCbtState` 及配置检查、初始化声明；唯一持久状态所有者 |
+| [CpuCbtState.cpp](../../../obsolete/cpu_cbt/src/algorithms/cpu_cbt/CpuCbtState.cpp) | `ValidateCpuCbtSettings`、`InitializeCpuCbt`；检查参数、构造六基础状态，成功后移动替换 |
+| [CpuCbtUpdate.h](../../../obsolete/cpu_cbt/src/algorithms/cpu_cbt/CpuCbtUpdate.h) | `CpuCbtBisectImplementation`、`CpuCbtUpdateOptions`、`CpuCbtUpdateReport`、`UpdateCpuCbt`；实现选择、同步调用和计数/耗时契约 |
+| [CpuCbtUpdate.cpp](../../../obsolete/cpu_cbt/src/algorithms/cpu_cbt/CpuCbtUpdate.cpp) | 私有 `CheckInput`、`PlanningView` 和轮次编排；分类、索引转换、预算、细分路径选择、参考合并和占用发布 |
+| [CpuCbtBisect.h](../../../obsolete/cpu_cbt/src/algorithms/cpu_cbt/CpuCbtBisect.h) | `CpuCbtRangeTask/Executor`、`CpuCbtBisectTimings/Result`、`CommitCpuCbtBisects`；同步任务与临时下一代边界 |
+| [CpuCbtBisect.cpp](../../../obsolete/cpu_cbt/src/algorithms/cpu_cbt/CpuCbtBisect.cpp) | `TemplateRecord`、所有权预检、四模板局部填写、归并及顺序传播；只拥有单次调用临时数组，不持有线程池 |
+| [CpuCbtMesh.h](../../../obsolete/cpu_cbt/src/algorithms/cpu_cbt/CpuCbtMesh.h) | 分类四点与完整网格两个只读入口 |
+| [CpuCbtMesh.cpp](../../../obsolete/cpu_cbt/src/algorithms/cpu_cbt/CpuCbtMesh.cpp) | 私有 `Geometry` 包装参考几何，检查有效性和有限值；构造独立三角形顶点输出 |
+| [CpuCbtTests.cpp](../../../obsolete/cpu_cbt/tests/CpuCbtTests.cpp) | 解析模板、联合计划、旧合并重验、持续释放复用、预算；三档字段对照、所有权失败、1/2/4 线程、反向区间及真实并发夹具 |
+| [CpuCbtProbe.cpp](../../../obsolete/cpu_cbt/tests/CpuCbtProbe.cpp) | 两个固定自然输入的独立三档持续状态、字段诊断、线程证据、摘要、CSV 与分段统计；实验编排留在驱动 |
+| [CpuCbtExecutionSupport.h](../../../obsolete/cpu_cbt/tests/CpuCbtExecutionSupport.h) | `Tests::CpuCbtRangeEvidence`、`Tests::CpuCbtTestExecutor`；两个驱动共用固定分块与持久池的薄适配器 |
+| [ProjectOptions.cmake](../../../obsolete/cpu_cbt/cmake/ProjectOptions.cmake) | 原默认 OFF 的 `PARALLEL_ROAM_BUILD_CPU_CBT_PROTOTYPE`，仅历史快照 |
+| [tests/CMakeLists.txt](../../../obsolete/cpu_cbt/tests/CMakeLists.txt) | 原可选纯 C++ 参考库、包装库、两个可执行目标和 `CpuCbt` CTest，仅历史快照 |
 
 FACT：依赖为 `驱动 → CpuCbtUpdate → CpuCbtBisect → Cbt2024 值类型`，包装同时复用公共地形类型和参考函数。驱动适配器另依赖既有 `DataOrientedRoamThreadPool`；核心不包含 DOD 头、不链接 DOD 更新管线。直接编译参考七组 `.cpp`：`CbtOccupancyTree`、`CbtBisectorTopology`、`CbtClassification`、`CbtSplitPlanner`、`CbtBisectCommit`、`CbtSimplifyCommit`、`CbtTerrainGeometry`。还包含其七个头和 `CbtGpuAbi.h`、`CbtGpuAbi.shared.h`；后两者提供数值/布局常量，没有 GPU 执行。
 

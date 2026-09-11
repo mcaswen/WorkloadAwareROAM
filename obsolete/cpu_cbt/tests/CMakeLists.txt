@@ -1,3 +1,42 @@
+if(PARALLEL_ROAM_BUILD_CPU_CBT_PROTOTYPE)
+    # 无窗口原型独立准备纯 CPU 依赖，不触发应用的图形依赖初始化
+    parallel_roam_ensure_glm()
+    parallel_roam_ensure_stb()
+    if(NOT TARGET ParallelROAM::GLM OR NOT TARGET ParallelROAM::STB)
+        message(FATAL_ERROR "CPU CBT requires the existing GLM and STB dependencies.")
+    endif()
+    set(cpu_cbt_reference_root "${PROJECT_SOURCE_DIR}/third_party/RoamTesting/src")
+    set(cpu_cbt_reference_sources)
+    foreach(component IN ITEMS CbtOccupancyTree CbtBisectorTopology CbtClassification CbtSplitPlanner
+            CbtBisectCommit CbtSimplifyCommit CbtTerrainGeometry)
+        set(source "${cpu_cbt_reference_root}/algorithms/cbt_2024/${component}.cpp")
+        if(NOT EXISTS "${source}")
+            message(FATAL_ERROR "CPU CBT reference source is missing: ${source}")
+        endif()
+        list(APPEND cpu_cbt_reference_sources "${source}")
+    endforeach()
+    add_library(parallel_roam_cpu_cbt_reference STATIC ${cpu_cbt_reference_sources})
+    target_include_directories(parallel_roam_cpu_cbt_reference PUBLIC
+        "${PROJECT_SOURCE_DIR}/src" "${cpu_cbt_reference_root}")
+    target_link_libraries(parallel_roam_cpu_cbt_reference PUBLIC parallel_roam_project_options
+        ParallelROAM::GLM PRIVATE parallel_roam_project_warnings)
+    add_library(parallel_roam_cpu_cbt STATIC
+        ../src/algorithms/cpu_cbt/CpuCbtState.cpp ../src/algorithms/cpu_cbt/CpuCbtUpdate.cpp
+        ../src/algorithms/cpu_cbt/CpuCbtBisect.cpp
+        ../src/algorithms/cpu_cbt/CpuCbtMesh.cpp ../src/terrain/HeightMap.cpp
+        ../src/algorithms/TerrainLodView.cpp)
+    target_link_libraries(parallel_roam_cpu_cbt PUBLIC parallel_roam_cpu_cbt_reference
+        PRIVATE ParallelROAM::STB parallel_roam_project_warnings)
+    add_executable(parallel_roam_cpu_cbt_tests CpuCbtTests.cpp)
+    add_executable(parallel_roam_cpu_cbt_probe CpuCbtProbe.cpp ../src/experiment/ExperimentCsvCodec.cpp)
+    foreach(target IN ITEMS parallel_roam_cpu_cbt_tests parallel_roam_cpu_cbt_probe)
+        target_sources(${target} PRIVATE ../src/algorithms/data_oriented_roam/DataOrientedRoamThreadPool.cpp)
+        target_link_libraries(${target} PRIVATE parallel_roam_cpu_cbt parallel_roam_project_warnings Threads::Threads)
+    endforeach()
+    add_test(NAME CpuCbt COMMAND parallel_roam_cpu_cbt_tests)
+    set_tests_properties(CpuCbt PROPERTIES WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" TIMEOUT 120)
+endif()
+
 if(WIN32)
     find_program(PARALLEL_ROAM_POWERSHELL_EXECUTABLE NAMES pwsh powershell)
     if(PARALLEL_ROAM_POWERSHELL_EXECUTABLE)

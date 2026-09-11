@@ -1,5 +1,7 @@
 # CPU-CBT-02 并行模板填写实施审查
 
+> 归档说明（2026-09-12）：用户决定关闭本轮原型并[归档实现](../../../obsolete/cpu_cbt/README.md)。下文保留交付时的结果；局部性能问题未修复，随研究停止而不再投入，不改写为性能验收通过。
+
 > 日期：2026-09-12
 > 对象：[小规划](../../plans/cpu_cbt/cpu_cbt_02_parallel_bisect_plan.md)、[大规划](../../plans/cpu_cbt/cpu_cbt_minimal_implementation_plan.md)、[代码事实](../../codebase/cpu_cbt/cpu_cbt_update.md)
 > 结论：实现、正确性验证和有界性能采集完成；用户已授权先行提交，新串行局部性能验收仍待处理

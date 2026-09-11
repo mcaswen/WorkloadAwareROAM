@@ -1,10 +1,12 @@
 # CPU-CBT-01：持续串行批量更新小规划
 
 > 类型：Minor Plan，落实已通过大规划的第一阶段
-> 状态：用户已确认实施；串行更新、验证、性能对照和阶段核查已完成
+> 状态：第一阶段已完成；2026-09-12 随整轮 CPU-CBT 关闭而归档
 > 日期：2026-09-12
 > 上位规划：[最小 CPU 类 CBT 批量更新](cpu_cbt_minimal_implementation_plan.md)
 > 起点：WorkloadAwareROAM `b078d59`；RoamTesting `d462089d5c2888cc09537a6a3f44a7c33cbf4499`
+
+> 当前处置：本页保留历史设计、命令和证据；原型不再进入活动构建，源码映射及恢复见[过时区域](../../../obsolete/cpu_cbt/README.md)。
 
 ## 1. 目标、范围和前置核对
 

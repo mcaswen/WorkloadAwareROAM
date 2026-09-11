@@ -1,5 +1,7 @@
 # CPU-CBT-01 串行更新实施审查
 
+> 归档说明（2026-09-12）：本页为第一阶段完成时的审查；后续第二阶段已交付，整轮 CPU-CBT 随用户决定[归档](../../../obsolete/cpu_cbt/README.md)。下文“未启动”等时间状态仅指本次原始审查时点。
+
 > 日期：2026-09-12
 > 对象：[小规划](../../plans/cpu_cbt/cpu_cbt_01_serial_update_plan.md)、[大规划](../../plans/cpu_cbt/cpu_cbt_minimal_implementation_plan.md)、[当前代码事实](../../codebase/cpu_cbt/cpu_cbt_update.md)
 > 结论：CPU-CBT-01 完成；CPU-CBT-02 未启动
