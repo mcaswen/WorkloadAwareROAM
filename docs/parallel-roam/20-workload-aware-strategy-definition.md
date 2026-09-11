@@ -1,5 +1,7 @@
 # Workload-Aware ROAM：策略定义
 
+> 状态说明（2026-09-12）：合法动作与历史实验定义继续保留；本页的在线模型及离线参考属于原研究设计，未因新定位自动实施。当前以[CPU ROAM 研究定义](../plans/formal_experiment/cpu_roam_research_definition.md)为准，固定配置可作为研究结果。
+
 本文档定义各 pass 的合法执行策略、策略接口、基线、oracle 和消融对照。策略必须服从[具体问题定义](19-workload-aware-problem-definition.md)中的 pass 边界和语义等价约束。
 
 ## 策略接口

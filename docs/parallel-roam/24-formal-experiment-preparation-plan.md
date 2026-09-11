@@ -1,5 +1,7 @@
 # Workload-Aware ROAM：正式实验准备与执行计划
 
+> 历史执行计划（2026-09-12）：本页作为旧实验定义与输入来源保留；P5 结果见[阶段审查](../reviews/formal_experiment/prep_05_cpu_crossover_pilot_gate_review.md)。当前按[新研究定义](../plans/formal_experiment/cpu_roam_research_definition.md)审计基线并规划最小对照，不自动恢复旧完整矩阵或上传重构。
+
 本文档把研究问题、当前源码能力和正式数据采集要求整理为一套可以逐项实施和验收的流程。它回答四个问题：
 
 1. 正式实验开始前还需要补齐哪些入口和参数

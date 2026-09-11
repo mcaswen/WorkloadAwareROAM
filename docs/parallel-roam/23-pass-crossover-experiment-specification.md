@@ -1,5 +1,7 @@
 # Workload-Aware ROAM：Pass 与 Crossover 实验说明
 
+> 历史实验契约（2026-09-12）：原规模与交叉门槛保留。当前[研究定义](../plans/formal_experiment/cpu_roam_research_definition.md)接受单侧优势、真实交叉和依赖限制等不同结果，不再以广泛交叉作为整篇研究的前提；新采集另行冻结范围。
+
 本文档规定项目中各个 pass 的职责、合法策略、可能出现 crossover 的原因以及第一轮正式实验规模。
 实验首先回答两个问题：
 

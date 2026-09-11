@@ -1,5 +1,7 @@
 # Workload-Aware ROAM：实验设计
 
+> 历史实验设计（2026-09-12）：保留原输入、统计和继续条件，不事后修改 P5 判定。当前研究及待完成验证见[新定义页](../plans/formal_experiment/cpu_roam_research_definition.md)，不自动执行下文的完整采样和在线模型矩阵。
+
 本文档定义 crossover 测量、特征模型、自适应对照、泛化测试、统计口径、go/no-go 标准和实施顺序。策略和 pass 的定义分别见[策略定义](20-workload-aware-strategy-definition.md)和[具体问题定义](19-workload-aware-problem-definition.md)，固定场景、样本量和判定方法见[Pass 与 Crossover 实验说明](23-pass-crossover-experiment-specification.md)。
 
 ## 两层实验结构

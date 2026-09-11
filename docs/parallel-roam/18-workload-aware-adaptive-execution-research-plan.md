@@ -1,5 +1,7 @@
 # 研究假设与验证计划（v0.4）
 
+> 历史定位（2026-09-12）：本页保留原 crossover / 在线选择假设及当时状态。当前研究以[CPU ROAM 多阶段执行、并行优化与性能边界](../plans/formal_experiment/cpu_roam_research_definition.md)为准；P5 未满足原完整路线门槛，不改写历史判定，也不再要求新主线必须有广泛交叉。
+
 > 暂定题目：面向动态不规则拓扑更新的 Workload-Aware ROAM：Pass 级 Execution Crossover 建模与自适应执行
 > 初稿日期：2026-08-20；状态更新：2026-08-29
 >

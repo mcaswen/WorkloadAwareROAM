@@ -1,5 +1,7 @@
 # Parallel ROAM Classic/DOD 基线规划
 
+> 当前研究入口（2026-09-12）：[CPU ROAM 实验问题、贡献与后续工作](docs/plans/formal_experiment/cpu_roam_research_definition.md)。CPU-CBT 已[归档](obsolete/cpu_cbt/README.md)；下文保留基线与历史阶段约束，验证矩阵不是每次局部修改必须全跑的要求。
+
 > 分支目标：从完整实验平台提取可复现的 Classic CPU ROAM 与 Data-Oriented CPU ROAM 双基线，为新的研究问题提供稳定起点。
 
 ## 当前状态
@@ -67,7 +69,7 @@ DOD 可以直接利用以下数据导向特性：
 
 ## 新研究问题接入规则
 
-新的研究方向尚未在本基线规划中预设。接入时必须：
+当前研究方向已由上述新定义页记录；具体实验与实现接入时仍必须：
 
 1. 先写出可证伪研究假设和直接基线；
 2. 新变体使用独立算法标识、配置和报告标签；
@@ -89,10 +91,11 @@ DOD 可以直接利用以下数据导向特性：
 
 ## 文档入口
 
+- [当前研究定义](docs/plans/formal_experiment/cpu_roam_research_definition.md)：多阶段执行、CPU 并行优化、贡献边界、相关工作与待完成验证；
 - [README](README.md)：构建、运行和仓库总览；
 - [里程碑](docs/parallel-roam/04-milestones.md)：实现阶段；
 - [实验与 benchmark](docs/parallel-roam/05-experiments-and-benchmarks.md)：实验口径；
-- [开发规范](docs/parallel-roam/09-development-guidelines.md)：开发规范；
+- [开发规范](docs/standards/development_guidelines.md)：开发规范；
 - [依赖与构建](docs/parallel-roam/10-dependency-setup.md)：可复现依赖；
 - [问题修复记录](docs/parallel-roam/11-bug-fix-log.md)：问题修复；
 - [Classic/DOD 优化计划](docs/parallel-roam/17-dod-classic-optimization-plan.md)：双基线优化计划；

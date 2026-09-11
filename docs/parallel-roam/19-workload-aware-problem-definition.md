@@ -1,5 +1,7 @@
 # Workload-Aware ROAM：具体问题定义
 
+> 历史定义（2026-09-12）：本页保留原阶段与在线决策问题。当前研究问题、贡献和待完成工作见[新定义页](../plans/formal_experiment/cpu_roam_research_definition.md)；现有实现契约仍须遵守，不由定位调整放宽正确性。
+
 本文档定义研究所比较的 ROAM Update Pipeline、pass 边界、pass-specific 合法策略、workload 扫描维度和在线决策可用的特征。二维矩阵描述 workload 空间，不表示每个 pass 都有统一的四策略组合。
 
 ## Pass 定义

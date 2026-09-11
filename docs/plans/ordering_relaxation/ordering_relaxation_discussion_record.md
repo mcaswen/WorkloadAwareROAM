@@ -1,5 +1,7 @@
 # 排序松弛、几何质量与 CPU 并行潜力讨论记录
 
+> 后续决定（2026-09-12）：下文为当时讨论与 Gate 契约。随后开展的 CPU-CBT 原型也已[归档](../../../obsolete/cpu_cbt/README.md)；当前研究定位见[CPU ROAM 多阶段执行、并行优化与性能边界](../formal_experiment/cpu_roam_research_definition.md)。主参考和既有质量概念保留，不自动恢复质量评价建设。
+
 > 日期：2026-09-11  
 > 性质：候选方向的讨论结论与证据边界，不替代现有研究问题  
 > 状态：研究问题保持不变；主参考已锁定，GATE-02 最小参考校准通过；GATE-03 按用户决定关闭并归档，本轮后续阶段停止，见[离线 Gate 实施规划](ordering_relaxation_offline_gate_plan.md)
