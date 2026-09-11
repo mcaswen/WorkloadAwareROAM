@@ -176,6 +176,25 @@ target_link_libraries(parallel_roam_benchmark_command_line_tests PRIVATE
 add_test(NAME terrain_lod_benchmark_command_line COMMAND parallel_roam_benchmark_command_line_tests)
 
 if(TARGET ParallelROAM::STB)
+    add_executable(parallel_roam_MeshQualityEvaluator_tests MeshQualityEvaluatorTests.cpp
+        ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
+        ../src/experiment/mesh_quality/MeshQualityEvaluator.cpp
+        ../src/algorithms/classic_roam/ClassicRoamMeshBuilder.cpp
+        ../src/algorithms/classic_roam/ClassicRoamMeshEmit.cpp
+        ../src/algorithms/classic_roam/ClassicRoamQueues.cpp
+        ../src/algorithms/classic_roam/ClassicRoamScoring.cpp
+        ../src/algorithms/classic_roam/ClassicRoamState.cpp
+        ../src/algorithms/classic_roam/ClassicRoamTopology.cpp
+        ../src/algorithms/classic_roam/ClassicRoamValidation.cpp
+        ../src/algorithms/TerrainLodView.cpp ../src/terrain/HeightMap.cpp
+        ../src/terrain/TerrainMeshBuilder.cpp ../src/tools/PerformanceTimer.cpp)
+    target_include_directories(parallel_roam_MeshQualityEvaluator_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+    target_link_libraries(parallel_roam_MeshQualityEvaluator_tests PRIVATE
+        parallel_roam_project_options parallel_roam_project_warnings
+        ParallelROAM::GLM ParallelROAM::STB Threads::Threads)
+    add_test(NAME MeshQualityEvaluator COMMAND parallel_roam_MeshQualityEvaluator_tests)
+    set_tests_properties(MeshQualityEvaluator PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." TIMEOUT 120)
+
     add_executable(parallel_roam_runtime_performance_probe TerrainLodRuntimePerformanceProbe.cpp
         ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
         ../src/algorithms/TerrainLodView.cpp ../src/terrain/HeightMap.cpp
