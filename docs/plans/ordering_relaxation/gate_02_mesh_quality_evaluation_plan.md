@@ -318,12 +318,12 @@ test129 k=1/2 评价分别 129.2765/347.9625 ms，单次 Build 157.3912 ms，进
 
 ## 10. 主参考锁定与阶段移交
 
-2026-09-11 用户决定：**`Primary reference = raw height samples + bilinear interpolation`；GATE-02 最小参考校准通过，primary reference 已确定，完整质量评价能力按需暂停。** 用户同时授权提交本阶段成果，提交后启动 GATE-03A。
+2026-09-11 用户决定：**`Primary reference = raw height samples + bilinear interpolation`；GATE-02 最小参考校准通过，primary reference 已确定，完整质量评价能力按需暂停。** 本阶段成果已按授权提交为 `a0f3551`；用户随后明确直接启动 GATE-03，不另拆子阶段，见 [GATE-03 小规划](gate_03_snapshot_relaxation_plan.md)。
 
 锁定的是第 8.1 节的原始解码样本、double 归一化与双线性规则；不改成生产 float `SampleBilinear` 或最细 ROAM 输出作为 oracle。旧固定对角线三角参考继续作为 mismatch 历史证据；最细 ROAM 表示只保留可选辅助地位。
 
 通过依据是 test129 相同输出 k=0/1/2 的经验稳定，以及 Peking 非二次幂资产首层求值/独立核算无异常。这个结论不声称 Peking 已收敛、连续最大误差已有证明、RMS 或配对 D_max 已实现。
 
-Peking 高层、k=3、像素 RMS、配对 D_max 和完整质量采集按需暂停。GATE-03A 先验证冻结快照上是否存在可行独立工作；只有后续确有解释质量与并行潜力的需要时，才提出范围明确的补充评价。不得为了继续阶段而先补完科研平台，也不能在缺少配对质量证据时声称质量—并行收益成立。
+Peking 高层、k=3、像素 RMS、配对 D_max 和完整质量采集按需暂停。GATE-03 随后完成有限独立工作筛查，用户决定关闭本轮，2026-09-12 归档其实现，见[关闭处置](gate_03_snapshot_relaxation_plan.md#8-用户决定关闭与实现归档)。GATE-02 已有评价能力与主参考保留，不为已关闭的 Gate 补齐质量平台；任何后续补充评价需有明确范围，不能在缺少配对质量证据时声称质量—并行收益成立。
 
 本次提交复用第 9 节已归档的构建、定向验证、成本与架构审查；之后只更新文档，不重复运行无关实验。

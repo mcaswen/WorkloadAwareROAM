@@ -2,7 +2,7 @@
 
 > 日期：2026-09-11
 > 范围：[已确认小规划](../../plans/ordering_relaxation/gate_02_mesh_quality_evaluation_plan.md)、[代码事实](../../codebase/ordering_relaxation/mesh_quality_evaluation.md)和对应最小实现
-> 结论：用户确认 GATE-02 最小参考校准通过，双线性主参考已锁定；完整质量评价按需暂停，移交 GATE-03A
+> 结论：用户确认 GATE-02 最小参考校准通过，双线性主参考已锁定；完整质量评价按需暂停。后续 GATE-03 已按用户决定关闭，保留本阶段已有能力
 
 本文件先保留首轮历史审查，末节记录当前批准修订的核查。历史“等待参考决定”及建议不再是当前待办，以末节和小规划第 8 节为准。
 
@@ -137,7 +137,7 @@ GATE-02 的最小校准检查点已闭环，完整评价等待参考选择确认
 
 ## 最终决定与移交
 
-2026-09-11 用户锁定 `Primary reference = raw height samples + bilinear interpolation`，确认 **GATE-02 最小参考校准通过；primary reference 已确定；完整质量评价能力按需暂停**，并授权提交后启动 GATE-03A。
+2026-09-11 用户锁定 `Primary reference = raw height samples + bilinear interpolation`，确认 **GATE-02 最小参考校准通过；primary reference 已确定；完整质量评价能力按需暂停**。本阶段成果已按授权提交为 `a0f3551`；用户随后明确直接启动 GATE-03，具体范围见 [GATE-03 小规划](../../plans/ordering_relaxation/gate_03_snapshot_relaxation_plan.md)。本审查仍只评价 GATE-02 已实现内容，不提前认证 GATE-03。
 
 该决定与现有证据一致，未把 sampled maximum 升格为连续域保证，也未将未实现的 RMS/配对 D_max 计为完成。最细 ROAM 不作为主参考，旧三角参考保留历史证据。按已确认的按需建设边界，不为启动独立工作筛查先补齐完整评价平台。
 

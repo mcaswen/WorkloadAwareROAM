@@ -2,8 +2,10 @@
 
 > 日期：2026-09-11  
 > 性质：候选方向的讨论结论与证据边界，不替代现有研究问题  
-> 状态：研究问题保持不变；主参考已锁定，GATE-02 最小参考校准通过，完整质量评价按需暂停；GATE-03A 获准启动，见[离线 Gate 实施规划](ordering_relaxation_offline_gate_plan.md)  
+> 状态：研究问题保持不变；主参考已锁定，GATE-02 最小参考校准通过；GATE-03 按用户决定关闭并归档，本轮后续阶段停止，见[离线 Gate 实施规划](ordering_relaxation_offline_gate_plan.md)
 > 本轮范围：修订讨论记录和 Gate 规划；不修改现有研究主线，不实施正式并行算法，不提交 Git
+
+用户在看到有限独立工作和证据缺口后，决定关闭本轮 GATE-03；2026-09-12 完成[源码归档](../../../obsolete/ordering_relaxation/gate_03/README.md)。本记录中的质量定义、独立主参考及证据边界继续保留；必选头和不相交足迹模型的有限结果不否定一般排序松弛。CBT 风格批量更新与质量控制是新的讨论方向，尚未形成实现方案。
 
 ## 1. 为什么保留这份记录
 
@@ -48,7 +50,7 @@
 
 ## 5. 几何质量的数学语义
 
-**用户最终决定（2026-09-11）：`Primary reference = raw height samples + bilinear interpolation`。GATE-02 最小参考校准通过，主参考已确定；完整质量评价能力按需暂停，不作为 GATE-03A 最小筛查的前置阻塞。** 原始解码、归一化、边界和投影继续沿用已冻结规则，不因后续实验结果改换参考。该决定不等于连续误差证明或完整质量评价验收。
+**用户最终决定（2026-09-11）：`Primary reference = raw height samples + bilinear interpolation`。GATE-02 最小参考校准通过，主参考已确定；完整质量评价能力按需暂停，不作为 GATE-03 最小筛查的前置阻塞。** 原始解码、归一化、边界和投影继续沿用已冻结规则，不因后续实验结果改换参考。该决定不等于连续误差证明或完整质量评价验收。
 
 2026-09-11 经用户确认，primary reference 改为原始 height samples 与冻结双线性插值规则定义的连续高度场。它是实验参考曲面，不代表未采样真实地貌，也不由被测 ROAM 网格定义。`TerrainMeshBuilder` 固定对角线三角曲面保留为首轮 reference-mismatch 证据；最细 ROAM 表示只作可选 secondary diagnostic。
 

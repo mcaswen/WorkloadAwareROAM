@@ -1,0 +1,46 @@
+{
+  "status": "closed_by_user",
+  "closedDate": "2026-09-11",
+  "baseCommit": "a0f3551cf84f5553b6e4f4b76ba0274ee2a5e619",
+  "deliverySourceSha256": "7d6527cb07e33d9d75931b604242bf550eda2b41b3644c696df2457e4a0a7c23",
+  "excludedFromActiveBuild": true,
+  "files": [
+    {
+      "path": "src/algorithms/data_oriented_roam/ordering_relaxation/OrderingExperiment.h",
+      "sha256": "3276b3f0ceb8a51d25dd88d5247d8360f507363fe9e52ec21a399877040667ff",
+      "bytes": 7756,
+      "normalizedSha256": "3276b3f0ceb8a51d25dd88d5247d8360f507363fe9e52ec21a399877040667ff"
+    },
+    {
+      "path": "src/algorithms/data_oriented_roam/ordering_relaxation/OrderingExperiment.cpp",
+      "sha256": "9f2b6c50c3005bcc61911202dac2fc707344ac13075466d628bc7e1d63b48c4f",
+      "bytes": 32938,
+      "normalizedSha256": "9f2b6c50c3005bcc61911202dac2fc707344ac13075466d628bc7e1d63b48c4f"
+    },
+    {
+      "path": "src/algorithms/data_oriented_roam/DataOrientedRoamTopology.cpp",
+      "sha256": "b8f3ea474dd1d85f99bbcf445ef83e545a76aa438be168940fa1d7030600860f",
+      "bytes": 91594,
+      "normalizedSha256": "1118fba7b65dffaf9e76be593790e03f7685a8941ca604884e8fd38e10dbaec4"
+    },
+    {
+      "path": "src/algorithms/data_oriented_roam/DataOrientedRoamTopologyExperiment.h",
+      "sha256": "260c186a370747c910bb28fdf1444adb96023d1707efcc636becf98302f2960f",
+      "bytes": 6319,
+      "normalizedSha256": "260c186a370747c910bb28fdf1444adb96023d1707efcc636becf98302f2960f"
+    },
+    {
+      "path": "tests/OrderingGateTests.cpp",
+      "sha256": "70ee7851cc07feb79634a4244e66a96951c7cac9397c257a6a236c128784bbd5",
+      "bytes": 50493,
+      "normalizedSha256": "70ee7851cc07feb79634a4244e66a96951c7cac9397c257a6a236c128784bbd5"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "sha256": "1b886a77a8ca1dc0a1929c9fe2ddbdd811354b6bf14abcd3697db63ed4d32e16",
+      "bytes": 17590,
+      "normalizedSha256": "1b886a77a8ca1dc0a1929c9fe2ddbdd811354b6bf14abcd3697db63ed4d32e16"
+    }
+  ],
+  "archivedDate": "2026-09-12"
+}

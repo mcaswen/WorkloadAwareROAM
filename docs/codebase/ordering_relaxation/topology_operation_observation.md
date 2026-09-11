@@ -106,4 +106,4 @@ parallel_roam_OrderingGate_tests --verify-natural scenarios cameras new-output b
 - `after/natural-process.json`：最终复核 14.33 秒、峰值工作集约 337.2 MiB，包含来源重建、复制、三种严格执行和校验。每输入观察包络约 16.16～430.27 ms，包含最多八次完整输入编码及整段收敛，不是单 closure 计时；复制在该包络外，但计入进程总成本。
 - `ctest.log`：三个选定 CTest 的最终结果；`before/after` 程序、源码及 `comparison/` 保留性能身份和原始帧数据。
 
-PLANNED：排序窗口、不可变 batch、延迟维护、排列审计、独立几何 evaluator 和多核算法均未实现。当前自然前缀没有观察到部分成功后根失败，该分支仅有解析依赖图证据；四项覆盖也不代表全部地形、预算压力或闭包复杂度。
+GATE-01 阶段结束时，排序窗口、不可变 batch、延迟维护、排列审计、独立几何 evaluator 和多核算法均未实现。后续最小质量能力见[质量评价事实](mesh_quality_evaluation.md)。GATE-03 快照批次及有限排列已按用户决定关闭并移入过时目录，见[历史排序松弛事实](snapshot_relaxation.md)；当前仅保留本页观察/严格步进接口，不提供指定根和松弛驱动。延迟维护和正式多核算法仍未实现。本页 GATE-01 自然前缀未观察到部分成功后根失败，该分支仅有解析依赖图证据；四项覆盖不代表全部地形、预算压力或闭包复杂度。
