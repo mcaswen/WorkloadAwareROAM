@@ -1,4 +1,6 @@
 #include "algorithms/data_oriented_roam/DataOrientedRoamTopology.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamTopologyExperiment.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamPassInput.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamTopologyPlan.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamPassEvidence.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamParallel.h"
@@ -14,6 +16,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 #include <string_view>
 #include <thread>
 #include <utility>
@@ -270,6 +273,7 @@ void MergeCountersIntoStats(DataOrientedRoamState& state, const TopologyCommitCo
 struct SerialTopologyCommitPolicy
 {
     static constexpr bool UpdatesSharedIndices = true;
+    static constexpr bool ObservesOperations = false;
 
     bool TryAcquireSplitBudget(DataOrientedRoamState& state) const
     {
@@ -331,6 +335,7 @@ struct SerialTopologyCommitPolicy
 struct ParallelTopologyCommitPolicy
 {
     static constexpr bool UpdatesSharedIndices = false;
+    static constexpr bool ObservesOperations = false;
 
     explicit ParallelTopologyCommitPolicy(TopologyCommitCounters& counters)
         : Counters(counters)
@@ -397,6 +402,65 @@ struct ParallelTopologyCommitPolicy
     TopologyCommitCounters& Counters;
 };
 
+// 编译期关闭的观察不读取节点，也不分配容器；生产提交不携带访问记录
+template <bool Observe>
+void ObserveNodeRead(const DataOrientedRoamState& state, DataOrientedRoamNodeIndex node,
+    TopologySplitObservation* observation)
+{
+    if constexpr (Observe)
+    {
+        if (state.IsValidNode(node)) observation->ReadPaths.push_back(state.Nodes.PathIdAt(node));
+        else if (node != InvalidDataOrientedRoamNodeIndex) observation->LocalFootprintComplete = false;
+    }
+}
+
+template <bool Observe>
+void ObserveNodeWrite(const DataOrientedRoamState& state, DataOrientedRoamNodeIndex node,
+    TopologySplitObservation* observation, std::size_t neighborAssignments = 0U)
+{
+    if constexpr (Observe)
+    {
+        if (state.IsValidNode(node)) observation->WrittenPaths.push_back(state.Nodes.PathIdAt(node));
+        else observation->LocalFootprintComplete = false;
+        observation->Work.NeighborAssignments += neighborAssignments;
+    }
+}
+
+/// <summary>
+/// 包装真实串行预算与统计，在操作发生后记录结果，不更改失败或释放行为
+/// 足迹观察由操作函数负责，策略只接管稳定的预算和完成事件
+/// </summary>
+struct ObservedSerialCommitPolicy : SerialTopologyCommitPolicy
+{
+    static constexpr bool ObservesOperations = true;
+    TopologySplitObservation& Observation;
+
+    explicit ObservedSerialCommitPolicy(TopologySplitObservation& observation) : Observation(observation) {}
+
+    bool TryAcquireSplitBudget(DataOrientedRoamState& state) const
+    {
+        const bool acquired = SerialTopologyCommitPolicy::TryAcquireSplitBudget(state);
+        Observation.BudgetRemaining.push_back(state.RemainingSerialSplitBudget);
+        if (!acquired) ++Observation.BudgetRejected;
+        return acquired;
+    }
+
+    void ReleaseSplitBudget(DataOrientedRoamState& state) const
+    {
+        SerialTopologyCommitPolicy::ReleaseSplitBudget(state);
+        Observation.BudgetRemaining.push_back(state.RemainingSerialSplitBudget);
+    }
+
+    void RecordSplit(DataOrientedRoamState& state, std::uint64_t path, DataOrientedRoamSplitReason reason) const
+    {
+        SerialTopologyCommitPolicy::RecordSplit(state, path, reason);
+        Observation.CompletedPaths.push_back(path);
+        ++Observation.Work.PrimitiveCompleted;
+        ++Observation.Work.PathInsertCalls;
+        if (reason != DataOrientedRoamSplitReason::Requested) ++Observation.Work.ForcedCompleted;
+    }
+};
+
 /// <summary>
 /// 多线程处理结束后，根据最终活动叶数量恢复主线程使用的普通预算计数
 /// 此处把原子计数转换为主线程使用的普通计数，之后不再访问原子字段
@@ -409,12 +473,15 @@ void SynchronizeSerialSplitBudget(DataOrientedRoamState& state)
         : 0U;
 }
 
+template <bool Observe = false>
 void ReplaceNeighborReference(
     DataOrientedRoamState& state,
     DataOrientedRoamNodeIndex neighbor,
     DataOrientedRoamNodeIndex oldNode,
-    DataOrientedRoamNodeIndex newNode)
+    DataOrientedRoamNodeIndex newNode,
+    TopologySplitObservation* observation = nullptr)
 {
+    ObserveNodeRead<Observe>(state, neighbor, observation);
     if (!state.IsValidNode(neighbor))
     {
         return;
@@ -423,34 +490,41 @@ void ReplaceNeighborReference(
     if (state.Nodes.BaseNeighbors[neighbor] == oldNode)
     {
         // 底边仍引用旧父节点时，改为指向细分后共享该边的子节点
+        ObserveNodeWrite<Observe>(state, neighbor, observation, 1U);
         state.Nodes.BaseNeighbors[neighbor] = newNode;
     }
 
     if (state.Nodes.LeftNeighbors[neighbor] == oldNode)
     {
         // 左边仍引用旧父节点时同步替换
+        ObserveNodeWrite<Observe>(state, neighbor, observation, 1U);
         state.Nodes.LeftNeighbors[neighbor] = newNode;
     }
 
     if (state.Nodes.RightNeighbors[neighbor] == oldNode)
     {
         // 右边仍引用旧父节点时同步替换
+        ObserveNodeWrite<Observe>(state, neighbor, observation, 1U);
         state.Nodes.RightNeighbors[neighbor] = newNode;
     }
 }
 
+template <bool Observe = false>
 void PrepareSplitNodeState(
     DataOrientedRoamState& state,
     DataOrientedRoamNodeIndex node,
     DataOrientedRoamNodeIndex leftChild,
     DataOrientedRoamNodeIndex rightChild,
-    DataOrientedRoamSplitReason reason)
+    DataOrientedRoamSplitReason reason,
+    TopologySplitObservation* observation = nullptr)
 {
     // 父节点转为内部节点，两个复用子节点清除旧邻接后重新加入本次更新
+    ObserveNodeWrite<Observe>(state, node, observation);
     state.Nodes.IsSplits[node] = 1U;
     state.Nodes.SplitBuildIds[node] = state.BuildSequence;
 
-    const auto activateChild = [&state, reason](DataOrientedRoamNodeIndex child) {
+    const auto activateChild = [&state, reason, observation](DataOrientedRoamNodeIndex child) {
+        ObserveNodeWrite<Observe>(state, child, observation, 3U);
         state.Nodes.BaseNeighbors[child] = InvalidDataOrientedRoamNodeIndex;
         state.Nodes.LeftNeighbors[child] = InvalidDataOrientedRoamNodeIndex;
         state.Nodes.RightNeighbors[child] = InvalidDataOrientedRoamNodeIndex;
@@ -471,11 +545,14 @@ void PrepareMergedNodeState(DataOrientedRoamState& state, DataOrientedRoamNodeIn
     state.Nodes.ActivatedByForcedSplits[node] = 0U;
 }
 
+template <bool Observe = false>
 void LinkSplitNeighbors(
     DataOrientedRoamState& state,
     DataOrientedRoamNodeIndex node,
-    DataOrientedRoamNodeIndex baseNeighbor)
+    DataOrientedRoamNodeIndex baseNeighbor,
+    TopologySplitObservation* observation = nullptr)
 {
+    ObserveNodeRead<Observe>(state, node, observation);
     if (!state.IsValidNode(node))
     {
         return;
@@ -483,11 +560,15 @@ void LinkSplitNeighbors(
 
     const DataOrientedRoamNodeIndex leftChild = state.Nodes.LeftChildAt(node);
     const DataOrientedRoamNodeIndex rightChild = state.Nodes.RightChildAt(node);
+    ObserveNodeRead<Observe>(state, leftChild, observation);
+    ObserveNodeRead<Observe>(state, rightChild, observation);
     if (!state.IsValidNode(leftChild) || !state.IsValidNode(rightChild))
     {
         return;
     }
 
+    ObserveNodeWrite<Observe>(state, leftChild, observation, 2U);
+    ObserveNodeWrite<Observe>(state, rightChild, observation, 2U);
     state.Nodes.LeftNeighbors[leftChild] = rightChild;
     state.Nodes.RightNeighbors[rightChild] = leftChild;
     // 两个子节点共享本次细分产生的中线
@@ -498,9 +579,10 @@ void LinkSplitNeighbors(
     const DataOrientedRoamNodeIndex rightNeighbor = state.Nodes.RightNeighborAt(node);
     state.Nodes.BaseNeighbors[leftChild] = leftNeighbor;
     state.Nodes.BaseNeighbors[rightChild] = rightNeighbor;
-    ReplaceNeighborReference(state, leftNeighbor, node, leftChild);
-    ReplaceNeighborReference(state, rightNeighbor, node, rightChild);
+    ReplaceNeighborReference<Observe>(state, leftNeighbor, node, leftChild, observation);
+    ReplaceNeighborReference<Observe>(state, rightNeighbor, node, rightChild, observation);
 
+    ObserveNodeRead<Observe>(state, baseNeighbor, observation);
     if (!state.IsValidNode(baseNeighbor) || state.IsLeaf(baseNeighbor))
     {
         // 对侧尚未细分时没有可连接的完整菱形子节点
@@ -510,15 +592,21 @@ void LinkSplitNeighbors(
     // 底边邻居已经细分时，两侧四个子节点共同组成菱形
     const DataOrientedRoamNodeIndex baseLeftChild = state.Nodes.LeftChildAt(baseNeighbor);
     const DataOrientedRoamNodeIndex baseRightChild = state.Nodes.RightChildAt(baseNeighbor);
+    ObserveNodeRead<Observe>(state, baseLeftChild, observation);
+    ObserveNodeRead<Observe>(state, baseRightChild, observation);
+    ObserveNodeWrite<Observe>(state, leftChild, observation, 1U);
+    ObserveNodeWrite<Observe>(state, rightChild, observation, 1U);
     state.Nodes.RightNeighbors[leftChild] = baseRightChild;
     state.Nodes.LeftNeighbors[rightChild] = baseLeftChild;
     if (state.IsValidNode(baseRightChild))
     {
+        ObserveNodeWrite<Observe>(state, baseRightChild, observation, 1U);
         state.Nodes.LeftNeighbors[baseRightChild] = leftChild;
     }
 
     if (state.IsValidNode(baseLeftChild))
     {
+        ObserveNodeWrite<Observe>(state, baseLeftChild, observation, 1U);
         state.Nodes.RightNeighbors[baseLeftChild] = rightChild;
     }
 }
@@ -535,6 +623,18 @@ bool SplitNodeImpl(
     DataOrientedRoamNodeIndex forcedFrom,
     CommitPolicy& commitPolicy)
 {
+    constexpr bool Observe = CommitPolicy::ObservesOperations;
+    TopologySplitObservation* observation = nullptr;
+    std::size_t attemptIndex = 0U;
+    if constexpr (Observe)
+    {
+        observation = &commitPolicy.Observation;
+        attemptIndex = observation->Attempts.size();
+        observation->Attempts.push_back({state.IsValidNode(node) ? state.Nodes.PathIdAt(node) : 0U,
+            reason != DataOrientedRoamSplitReason::Requested, false});
+        ++observation->Work.PrimitiveAttempts;
+    }
+    ObserveNodeRead<Observe>(state, node, observation);
     if (!state.IsValidNode(node) || !state.IsLeaf(node))
     {
         // 内部节点已经由子节点接管后续细分决策
@@ -556,6 +656,7 @@ bool SplitNodeImpl(
     }
 
     DataOrientedRoamNodeIndex baseNeighbor = state.Nodes.BaseNeighborAt(node);
+    ObserveNodeRead<Observe>(state, baseNeighbor, observation);
     if (state.Settings.EnableLocalConstraints)
     {
         // 只有启用局部约束时，才会沿邻接关系继续强制细分
@@ -581,6 +682,8 @@ bool SplitNodeImpl(
             }
 
             baseNeighbor = state.Nodes.BaseNeighborAt(node);
+            // 强制细分可能改变本根底边，下一轮判断读取的是新关系
+            ObserveNodeRead<Observe>(state, baseNeighbor, observation);
             ++guard;
         }
     }
@@ -606,11 +709,14 @@ bool SplitNodeImpl(
         }
 
         baseNeighbor = state.Nodes.BaseNeighborAt(node);
+        ObserveNodeRead<Observe>(state, baseNeighbor, observation);
     }
 
     const std::uint64_t parentPathId = state.Nodes.PathIdAt(node);
     const DataOrientedRoamNodeIndex leftChildBefore = state.Nodes.LeftChildAt(node);
     const DataOrientedRoamNodeIndex rightChildBefore = state.Nodes.RightChildAt(node);
+    ObserveNodeRead<Observe>(state, leftChildBefore, observation);
+    ObserveNodeRead<Observe>(state, rightChildBefore, observation);
     if (!state.IsValidNode(leftChildBefore) || !state.IsValidNode(rightChildBefore))
     {
         // 首次细分创建子节点，合并后再次细分时复用相同子节点下标
@@ -639,6 +745,19 @@ bool SplitNodeImpl(
                 varianceIndex * 2U + 2U);
         state.Nodes.LeftChildren[node] = leftChild;
         state.Nodes.RightChildren[node] = rightChild;
+        if constexpr (Observe)
+        {
+            observation->CreatedPaths.push_back(state.Nodes.PathIdAt(leftChild));
+            observation->CreatedPaths.push_back(state.Nodes.PathIdAt(rightChild));
+            observation->Work.NodesCreated += 2U;
+            ObserveNodeWrite<Observe>(state, node, observation);
+            ObserveNodeWrite<Observe>(state, leftChild, observation);
+            ObserveNodeWrite<Observe>(state, rightChild, observation);
+        }
+    }
+    else if constexpr (Observe)
+    {
+        observation->Work.NodesReused += 2U;
     }
 
     DataOrientedRoamNeighborhood mergeQueueNeighborhood;
@@ -647,15 +766,20 @@ bool SplitNodeImpl(
         AppendPersistentMergeQueueNeighborhood(state, node, mergeQueueNeighborhood);
         AppendPersistentMergeQueueNeighborhood(state, baseNeighbor, mergeQueueNeighborhood);
         InvalidatePersistentMergeQueueNeighborhood(state, mergeQueueNeighborhood);
+        if constexpr (Observe)
+        {
+            observation->RequiresSerialMaintenance = true;
+            observation->Work.QueueCalls += 3U;
+        }
     }
 
     const DataOrientedRoamNodeIndex leftChild = state.Nodes.LeftChildAt(node);
     const DataOrientedRoamNodeIndex rightChild = state.Nodes.RightChildAt(node);
     // 父节点继续保留在节点池中，但退出活动叶集合
-    PrepareSplitNodeState(state, node, leftChild, rightChild, reason);
+    PrepareSplitNodeState<Observe>(state, node, leftChild, rightChild, reason, observation);
 
     // 子节点可能来自历史合并状态，重新激活前必须清空旧邻居
-    LinkSplitNeighbors(state, node, baseNeighbor);
+    LinkSplitNeighbors<Observe>(state, node, baseNeighbor, observation);
     if constexpr (CommitPolicy::UpdatesSharedIndices)
     {
         // 其他线程修改拓扑时，活动索引要等全部线程结束后再由主线程更新
@@ -663,9 +787,17 @@ bool SplitNodeImpl(
         AppendPersistentMergeQueueNeighborhood(state, node, mergeQueueNeighborhood);
         AppendPersistentMergeQueueNeighborhood(state, baseNeighbor, mergeQueueNeighborhood);
         RefreshPersistentMergeQueueNeighborhood(state, mergeQueueNeighborhood);
+        if constexpr (Observe)
+        {
+            // 索引转换含四次活动操作及三次 split 队列调用，堆内部工作没有展开
+            observation->Work.ActiveIndexCalls += 4U;
+            observation->Work.QueueCalls += 6U;
+            ++observation->Work.MeshEditCalls;
+        }
     }
     // 主线程会立即记录细分路径，更新收尾时仍会根据最终拓扑完整重建
     commitPolicy.RecordSplit(state, parentPathId, reason);
+    if constexpr (Observe) observation->Attempts[attemptIndex].Completed = true;
     return true;
 }
 
@@ -1209,92 +1341,163 @@ std::vector<CommittedMerge> CommitInteriorMergeChunks(
     return committedMerges;
 }
 
-void RunSplitSerialConvergence(DataOrientedRoamState& state)
+TopologySplitObservation ExecuteObservedSplitRoot(DataOrientedRoamState& state, DataOrientedRoamNodeIndex root)
 {
-    // 提前提交只负责不会相互冲突的内部候选
-    // 预算交换、强制闭合和全部边界项仍在这里按队首顺序完成
-    // 正式执行与两条冻结回放路径共同使用这一收尾过程
+    TopologySplitObservation observation;
+    observation.InputHash = HashDataOrientedRoamPassInput(state, TerrainLodPassId::SplitTopology);
+    observation.RootPath = state.IsValidNode(root) ? state.Nodes.PathIdAt(root) : 0U;
+    observation.BudgetBefore = state.RemainingSerialSplitBudget;
+    observation.BudgetRemaining.push_back(observation.BudgetBefore);
+    const auto membershipBefore = state.Stats.QueueMembershipUpdateCount;
+    ObservedSerialCommitPolicy policy{observation};
+    observation.RootSucceeded = SplitNodeImpl(state, root, DataOrientedRoamSplitReason::Requested,
+        InvalidDataOrientedRoamNodeIndex, policy);
+    observation.BudgetAfter = state.RemainingSerialSplitBudget;
+    observation.PeakBudgetUse = observation.BudgetBefore -
+        *std::min_element(observation.BudgetRemaining.begin(), observation.BudgetRemaining.end());
+    observation.Work.QueueMembershipUpdates = state.Stats.QueueMembershipUpdateCount - membershipBefore;
+    // 足迹只去重，不删除同值写入；创建集合保留本根内部资源的归属
+    for (auto* paths : {&observation.ReadPaths, &observation.WrittenPaths, &observation.CreatedPaths})
+    {
+        std::sort(paths->begin(), paths->end());
+        paths->erase(std::unique(paths->begin(), paths->end()), paths->end());
+    }
+    return observation;
+}
+
+TopologySplitIteration InitializeSplitIteration(DataOrientedRoamState& state)
+{
     state.Stats.CandidatePeakCount = std::max(
         state.Stats.CandidatePeakCount,
         state.ActiveLeafNodes.size() + state.MergeQueue.size());
+    return {std::max<std::size_t>(1024U, state.Settings.TriangleBudget * 8U + state.Nodes.size() * 4U),
+        0U, TopologySplitStop::Running};
+}
 
-    const std::size_t maximumIterations = std::max<std::size_t>(
-        1024U,
-        state.Settings.TriangleBudget * 8U + state.Nodes.size() * 4U);
-    std::size_t iteration = 0U;
-    float crossoverMergeMilliseconds = 0.0F;
-    const auto mergeDuringSplitConvergence =
-        [&state, &crossoverMergeMilliseconds](DataOrientedRoamNodeIndex node) {
-            Tools::PerformanceTimer mergeTimer;
-            const bool merged = MergeNodeOrDiamondSerialWithScoreLimit(
-                state,
-                node,
-                std::numeric_limits<float>::max());
-            const float elapsedMilliseconds = mergeTimer.Stop();
-            crossoverMergeMilliseconds += elapsedMilliseconds;
-            state.Stats.MergeCrossoverMilliseconds += elapsedMilliseconds;
-            state.Stats.MergeTopologySerialConvergenceMilliseconds += elapsedMilliseconds;
-            return merged;
-        };
-
-    // 提前提交结束后仍由主线程按全局队首顺序完成预算交换和强制闭合
-    Tools::PerformanceTimer serialConvergenceTimer;
-    while (iteration++ < maximumIterations)
+template <bool Observe>
+bool MergeDuringSplitConvergence(DataOrientedRoamState& state, DataOrientedRoamNodeIndex node,
+    float& crossoverMergeMilliseconds, TopologyConvergenceObservation* observation)
+{
+    [[maybe_unused]] const auto mergesBefore = state.Stats.MergeCount;
+    Tools::PerformanceTimer mergeTimer;
+    const bool merged = MergeNodeOrDiamondSerialWithScoreLimit(state, node, std::numeric_limits<float>::max());
+    const float elapsedMilliseconds = mergeTimer.Stop();
+    crossoverMergeMilliseconds += elapsedMilliseconds;
+    state.Stats.MergeCrossoverMilliseconds += elapsedMilliseconds;
+    state.Stats.MergeTopologySerialConvergenceMilliseconds += elapsedMilliseconds;
+    if constexpr (Observe)
     {
-        DataOrientedRoamNodeIndex mergeNode = TopPersistentMergeQueueNode(state);
-        float mergeScore = TopPersistentMergeQueueScore(state);
-        if (state.IsValidNode(mergeNode) && mergeScore < state.Settings.MergeThreshold)
-        {
-            if (!mergeDuringSplitConvergence(mergeNode))
-            {
-                RemovePersistentMergeQueueCandidate(state, mergeNode);
-                ++state.Stats.RejectedMergeCount;
-            }
-            continue;
-        }
-
-        const DataOrientedRoamNodeIndex splitNode = TopPersistentSplitQueueNode(state);
-        const float splitScore = TopPersistentSplitQueueScore(state);
-        if (!state.IsValidNode(splitNode) ||
-            !ShouldSplitWithScore(state, splitNode, splitScore))
-        {
-            break;
-        }
-
-        const std::size_t budgetRejectedBefore = state.Stats.BudgetRejectedSplitCount;
-        if (SplitNodeSerial(
-                state,
-                splitNode,
-                DataOrientedRoamSplitReason::Requested,
-                InvalidDataOrientedRoamNodeIndex))
-        {
-            continue;
-        }
-
-        const bool closureNeedsBudget =
-            state.Stats.BudgetRejectedSplitCount > budgetRejectedBefore;
-        mergeNode = TopPersistentMergeQueueNode(state);
-        mergeScore = TopPersistentMergeQueueScore(state);
-        if (closureNeedsBudget && state.IsValidNode(mergeNode) && splitScore > mergeScore)
-        {
-            if (mergeDuringSplitConvergence(mergeNode))
-            {
-                ++state.Stats.QueueCrossoverCount;
-                continue;
-            }
-            RemovePersistentMergeQueueCandidate(state, mergeNode);
-            ++state.Stats.RejectedMergeCount;
-            continue;
-        }
-
-        if (closureNeedsBudget)
-        {
-            break;
-        }
-
-        // 非预算失败在本次更新内不应反复占据队首
-        BlockPersistentSplitQueueNodeForCurrentBuild(state, splitNode);
+        ++observation->MergeAttempts;
+        if (!merged) ++observation->MergeFailures;
+        observation->PrimitiveMerges += state.Stats.MergeCount - mergesBefore;
     }
+    return merged;
+}
+
+/// <summary>
+/// 生产收敛与实验步进共用原循环体，新增候选只能由下一次循环重新决策
+/// 迭代、队首查询和预算交换的顺序保持一致，不能用过滤后的候选快照代替队首
+/// </summary>
+template <bool Observe>
+TopologySplitStep RunStrictSplitStep(DataOrientedRoamState& state, TopologySplitIteration& iteration,
+    float& crossoverMergeMilliseconds, TopologyConvergenceObservation* observation, std::size_t maximumRoots)
+{
+    TopologySplitStep step;
+    if (iteration.Stop != TopologySplitStop::Running) return step;
+    // 保留原 while 条件的后增语义，达到上限的最后一次判断也会增加位置
+    if (!(iteration.Iteration++ < iteration.MaximumIterations))
+    {
+        iteration.Stop = TopologySplitStop::IterationLimit;
+        return step;
+    }
+    const auto merge = [&](DataOrientedRoamNodeIndex node) {
+        step.MergeAttempted = true;
+        step.MergePath = state.Nodes.PathIdAt(node);
+        step.MergeSucceeded = MergeDuringSplitConvergence<Observe>(state, node, crossoverMergeMilliseconds, observation);
+        if (!step.MergeSucceeded)
+        {
+            RemovePersistentMergeQueueCandidate(state, node);
+            ++state.Stats.RejectedMergeCount;
+            if constexpr (Observe) ++observation->CoordinatorQueueCalls;
+        }
+    };
+
+    DataOrientedRoamNodeIndex mergeNode = TopPersistentMergeQueueNode(state);
+    float mergeScore = TopPersistentMergeQueueScore(state);
+    if constexpr (Observe) observation->CoordinatorQueueCalls += 2U;
+    if (state.IsValidNode(mergeNode) && mergeScore < state.Settings.MergeThreshold)
+    {
+        merge(mergeNode);
+        return step;
+    }
+
+    const DataOrientedRoamNodeIndex splitNode = TopPersistentSplitQueueNode(state);
+    const float splitScore = TopPersistentSplitQueueScore(state);
+    if constexpr (Observe) observation->CoordinatorQueueCalls += 2U;
+    if (!state.IsValidNode(splitNode) || !ShouldSplitWithScore(state, splitNode, splitScore))
+    {
+        iteration.Stop = TopologySplitStop::NoEligibleSplit;
+        return step;
+    }
+
+    step.SplitAttempted = true;
+    step.SplitPath = state.Nodes.PathIdAt(splitNode);
+    const std::size_t budgetRejectedBefore = state.Stats.BudgetRejectedSplitCount;
+    if constexpr (Observe)
+    {
+        ++observation->RootAttempts;
+        if (observation->Roots.size() < maximumRoots)
+        {
+            observation->Roots.push_back(ExecuteObservedSplitRoot(state, splitNode));
+            step.SplitSucceeded = observation->Roots.back().RootSucceeded;
+        }
+        else
+        {
+            step.SplitSucceeded = SplitNodeSerial(state, splitNode, DataOrientedRoamSplitReason::Requested,
+                InvalidDataOrientedRoamNodeIndex);
+        }
+    }
+    else
+    {
+        step.SplitSucceeded = SplitNodeSerial(state, splitNode, DataOrientedRoamSplitReason::Requested,
+            InvalidDataOrientedRoamNodeIndex);
+    }
+    if (step.SplitSucceeded) return step;
+
+    step.BudgetRejected = state.Stats.BudgetRejectedSplitCount > budgetRejectedBefore;
+    mergeNode = TopPersistentMergeQueueNode(state);
+    mergeScore = TopPersistentMergeQueueScore(state);
+    if constexpr (Observe) observation->CoordinatorQueueCalls += 2U;
+    if (step.BudgetRejected && state.IsValidNode(mergeNode) && splitScore > mergeScore)
+    {
+        merge(mergeNode);
+        if (step.MergeSucceeded) ++state.Stats.QueueCrossoverCount;
+        return step;
+    }
+
+    if (step.BudgetRejected)
+    {
+        iteration.Stop = TopologySplitStop::BudgetBlocked;
+        return step;
+    }
+
+    // 非预算失败在本次更新内不应反复占据队首
+    BlockPersistentSplitQueueNodeForCurrentBuild(state, splitNode);
+    step.SplitBlocked = true;
+    if constexpr (Observe) ++observation->CoordinatorQueueCalls;
+    return step;
+}
+
+template <bool Observe = false>
+void RunSplitSerialConvergence(DataOrientedRoamState& state,
+    TopologyConvergenceObservation* observation = nullptr, std::size_t maximumRoots = 0U)
+{
+    auto iteration = InitializeSplitIteration(state);
+    float crossoverMergeMilliseconds = 0.0F;
+    // 完整生产包络仍在循环外计时，并扣除已经归入合并阶段的预算交换时间
+    Tools::PerformanceTimer serialConvergenceTimer;
+    while (iteration.Stop == TopologySplitStop::Running)
+        (void)RunStrictSplitStep<Observe>(state, iteration, crossoverMergeMilliseconds, observation, maximumRoots);
     const float totalConvergenceMilliseconds = serialConvergenceTimer.Stop();
     state.Stats.SplitTopologySerialConvergenceMilliseconds += std::max(
         0.0F,
@@ -1756,6 +1959,34 @@ void AdvanceSplitTopologySerialForExperiment(DataOrientedRoamState& state)
     state.Settings.PassPolicy.SplitTopology = TerrainLodTopologyAction::SerialImmediate;
     SynchronizeSerialSplitBudget(state);
     RunSplitSerialConvergence(state);
+}
+
+TopologySplitObservation AnalyzeSplitOperation(const DataOrientedRoamState& input, DataOrientedRoamNodeIndex root)
+{
+    DataOrientedRoamState state{input};
+    return ExecuteObservedSplitRoot(state, root);
+}
+
+TopologyConvergenceObservation ObserveStrictSplitConvergence(DataOrientedRoamState& state, std::size_t maximumRoots)
+{
+    TopologyConvergenceObservation observation;
+    SynchronizeSerialSplitBudget(state);
+    RunSplitSerialConvergence<true>(state, &observation, maximumRoots);
+    return observation;
+}
+
+TopologySplitIteration BeginStrictSplitIteration(DataOrientedRoamState& state)
+{
+    SynchronizeSerialSplitBudget(state);
+    return InitializeSplitIteration(state);
+}
+
+TopologySplitStep AdvanceStrictSplitIteration(DataOrientedRoamState& state, TopologySplitIteration& iteration)
+{
+    if (iteration.Stop == TopologySplitStop::NotStarted)
+        throw std::invalid_argument{"strict split iteration has not started"};
+    float crossoverMergeMilliseconds = 0.0F;
+    return RunStrictSplitStep<false>(state, iteration, crossoverMergeMilliseconds, nullptr, 0U);
 }
 
 void CommitScoredSplitTopology(DataOrientedRoamState& state)
