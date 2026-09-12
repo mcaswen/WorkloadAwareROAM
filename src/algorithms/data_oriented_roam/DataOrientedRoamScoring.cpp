@@ -24,7 +24,12 @@ bool ShouldSplitWithScore(
     DataOrientedRoamNodeIndex node,
     float screenErrorScore)
 {
-    if (state.Nodes.DepthAt(node) >= state.Settings.MaxDepth)
+    return ShouldSplitWithScore(state, state.Nodes.DepthAt(node), state.Nodes.PathIdAt(node), screenErrorScore);
+}
+
+bool ShouldSplitWithScore(const DataOrientedRoamState& state, int depth, std::uint64_t path, float screenErrorScore)
+{
+    if (depth >= state.Settings.MaxDepth)
     {
         return false;
     }
@@ -42,7 +47,7 @@ bool ShouldSplitWithScore(
     }
 
     // 误差落在迟滞区间时沿用上一帧细分状态，避免相机轻微移动造成反复切换
-    return WasSplitLastFrame(state, node);
+    return state.PreviousSplitPaths.contains(path);
 }
 
 bool WasSplitLastFrame(const DataOrientedRoamState& state, DataOrientedRoamNodeIndex node)
@@ -170,8 +175,12 @@ float VarianceError(
 
 float ComputeScreenErrorScore(const DataOrientedRoamState& state, DataOrientedRoamNodeIndex node)
 {
-    const float worldError = state.Nodes.GeometricErrorAt(node) * state.HeightScale;
-    const TriangleDomain& domain = state.Nodes.DomainAt(node);
+    return ComputeScreenErrorScore(state, state.Nodes.DomainAt(node), state.Nodes.GeometricErrorAt(node));
+}
+
+float ComputeScreenErrorScore(const DataOrientedRoamState& state, const TriangleDomain& domain, float geometricError)
+{
+    const float worldError = geometricError * state.HeightScale;
     const std::array<glm::vec3, 3U> triangle{
         Roam::DomainToWorld(*state.HeightMap, domain.A, state.TerrainSize, state.HeightScale),
         Roam::DomainToWorld(*state.HeightMap, domain.B, state.TerrainSize, state.HeightScale),

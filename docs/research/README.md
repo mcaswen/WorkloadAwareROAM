@@ -1,12 +1,14 @@
 # CPU ROAM 研究探索状态
 
-> 更新日期：2026-09-13；依据：保留此前探索状态，MPR-03 已提交为 `602ed48`，完整重复矩阵按用户要求停止；原生 DOD 接入大规划与 NMP-01 小规划已获用户确认，按先提交规划、再实施的顺序推进。
+> 更新日期：2026-09-13；依据：保留此前探索状态，MPR-03 已提交为 `602ed48`，原生接入规划为 `c2cd2d8`。NMP-01 实施与验收完成，见[阶段审查](../reviews/roam_parallelism/native_materialization_01_review.md)：固定范围严格语义解耦通过，压力 heap 覆盖及规划成本需 Review；未进入 NMP-02。
 
 现有 [CPU ROAM 执行与特征分析研究定义](../plans/formal_experiment/cpu_roam_research_definition.md)继续有效。本目录记录独立探索，不自动修改研究问题、启动实现或重开历史实验。
 
 MPR-02 已提交为 `d635a9b`。[串行成本分析](roam_parallelism/target_materialization_serial_costs.md)与[MPR-03 小规划](../plans/roam_parallelism/target_materialization_prototype_03_plan.md)记录局部向量/记录句柄优化，完整状态与续接核查保持。新增压力样本 k=27,783，两组快验中串行物化约 332→240 ms、四线程约 226 ms；正式重复矩阵已按用户要求停止。小输入仍只有单次诊断，性能风险与统计限制见[结果 §14](roam_parallelism/target_materialization_prototype.md#14-mpr-03-开发快验结果与停止记录)，不宣称稳定多核加速或全部输入性能验收。
 
-用户随后要求直接替换原 DOD 细分拓扑阶段，并保留原／新实现选择。[原生接入大规划](../plans/roam_parallelism/native_materialization_plan.md)已获认可；按用户评审进一步限制 Γ 的语义类别、取消导出生产堆布局、加入测试决策轨迹，并完成 [NMP-01 小规划](../plans/roam_parallelism/native_materialization_01_plan.md)。第一阶段分别审计严格语义解耦、节点/堆/义务覆盖和 T_plan；覆盖容器慢不自动否定结构，接近全域则先 Review。MPR 继续保留为独立物化参考。当前未修改 C++，不代表第一箭头、生产新入口或完整更新收益已验证。
+用户随后要求直接替换原 DOD 细分拓扑阶段，并保留原／新实现选择。[原生接入大规划](../plans/roam_parallelism/native_materialization_plan.md)已获认可；[NMP-01 小规划](../plans/roam_parallelism/native_materialization_01_plan.md)现已实现独立严格逻辑规划、封闭 Δ/Γ、完整决策轨迹和三点现实核查。有限输入内，第一箭头不需要生产 mutation、全状态复制或旧 pass 产 J；完整目标/队列/历史/预算与 Legacy 一致，正常出口没有目标关系或 heap 布局。MPR 继续保留为独立物化参考，关系恢复协议的实际生产充分性仍留 NMP-02。
+
+NMP-01 不能合并成一个无保留的成功结论：压力点旧节点覆盖 8.393%，但合并堆写/读覆盖为 57.594%/76.035%；T_plan 约 1088.565 ms，同轮 Legacy 完整细分阶段约 61.630 ms。当前有序覆盖版本的规划成本高，未体现完整更新收益。阶段结论是语义解耦成立、压力 heap 与容器费用需要 Review；未自动转向新优化或开启 NMP-02。此前 test129 计时波动的原因继续保留，不追加微秒追测。
 
 | 方向 | 当前状态 | 范围与记录 |
 | --- | --- | --- |

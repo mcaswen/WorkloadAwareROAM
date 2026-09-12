@@ -1,5 +1,6 @@
 #include "algorithms/data_oriented_roam/DataOrientedRoamTopology.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamTopologyExperiment.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamDecisionTrace.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamPassInput.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamTopologyPlan.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamPassEvidence.h"
@@ -274,6 +275,7 @@ struct SerialTopologyCommitPolicy
 {
     static constexpr bool UpdatesSharedIndices = true;
     static constexpr bool ObservesOperations = false;
+    static constexpr bool TracesDecisions = false;
 
     bool TryAcquireSplitBudget(DataOrientedRoamState& state) const
     {
@@ -334,6 +336,7 @@ struct SerialTopologyCommitPolicy
 /// </summary>
 struct ParallelTopologyCommitPolicy
 {
+    static constexpr bool TracesDecisions = false;
     static constexpr bool UpdatesSharedIndices = false;
     static constexpr bool ObservesOperations = false;
 
@@ -458,6 +461,43 @@ struct ObservedSerialCommitPolicy : SerialTopologyCommitPolicy
         ++Observation.Work.PrimitiveCompleted;
         ++Observation.Work.PathInsertCalls;
         if (reason != DataOrientedRoamSplitReason::Requested) ++Observation.Work.ForcedCompleted;
+    }
+};
+
+/// <summary>
+/// 在真实串行提交之后记录预算和 primitive 完成，不收集字段足迹或完整输入哈希
+/// 仅轻量诊断模板实例使用，正常生产策略保持原有直接访问
+/// </summary>
+struct DecisionSerialCommitPolicy : SerialTopologyCommitPolicy
+{
+    static constexpr bool TracesDecisions = true;
+    DecisionTraceCursor* Trace;
+    explicit DecisionSerialCommitPolicy(DecisionTraceCursor* trace) : Trace(trace) {}
+
+    bool TryAcquireSplitBudget(DataOrientedRoamState& state) const
+    {
+        const auto before = state.RemainingSerialSplitBudget;
+        const bool acquired = SerialTopologyCommitPolicy::TryAcquireSplitBudget(state);
+        Trace->Emit(DecisionEventKind::Reserve, acquired ? DecisionReason::Success : DecisionReason::BudgetRejected,
+            before, state.RemainingSerialSplitBudget);
+        return acquired;
+    }
+    void ReleaseSplitBudget(DataOrientedRoamState& state) const
+    {
+        const auto before = state.RemainingSerialSplitBudget;
+        SerialTopologyCommitPolicy::ReleaseSplitBudget(state);
+        Trace->Emit(DecisionEventKind::Release, DecisionReason::None, before, state.RemainingSerialSplitBudget);
+    }
+    void RecordSplit(DataOrientedRoamState& state, std::uint64_t path, DataOrientedRoamSplitReason reason) const
+    {
+        SerialTopologyCommitPolicy::RecordSplit(state, path, reason);
+        Trace->Emit(DecisionEventKind::SplitComplete, reason == DataOrientedRoamSplitReason::Requested
+            ? DecisionReason::Requested : DecisionReason::Forced);
+    }
+    void RecordMerge(DataOrientedRoamState& state) const
+    {
+        SerialTopologyCommitPolicy::RecordMerge(state);
+        Trace->Emit(DecisionEventKind::MergeComplete);
     }
 };
 
@@ -624,6 +664,17 @@ bool SplitNodeImpl(
     CommitPolicy& commitPolicy)
 {
     constexpr bool Observe = CommitPolicy::ObservesOperations;
+    constexpr bool Trace = CommitPolicy::TracesDecisions;
+    DecisionTraceCursor* decisionTrace = nullptr;
+    std::uint64_t decisionPath = 0, decisionFrom = 0;
+    if constexpr (Trace)
+    {
+        decisionTrace = commitPolicy.Trace;
+        decisionPath = state.IsValidNode(node) ? state.Nodes.PathIdAt(node) : 0;
+        decisionFrom = state.IsValidNode(forcedFrom) ? state.Nodes.PathIdAt(forcedFrom) : 0;
+    }
+    DecisionAttemptScope<Trace> decisionAttempt{decisionTrace, decisionPath, decisionFrom,
+        reason != DataOrientedRoamSplitReason::Requested};
     TopologySplitObservation* observation = nullptr;
     std::size_t attemptIndex = 0U;
     if constexpr (Observe)
@@ -645,6 +696,7 @@ bool SplitNodeImpl(
     {
         // 最大深度是硬限制，不能通过邻接约束继续向下传播
         commitPolicy.RecordRejectedSplit(state);
+        if constexpr (Trace) decisionAttempt.Result = DecisionReason::DepthLimit;
         return false;
     }
 
@@ -652,6 +704,7 @@ bool SplitNodeImpl(
     // 这样补齐所有相邻三角形所需的连锁细分即使中途失败，也不会超过数量上限
     if (!commitPolicy.TryAcquireSplitBudget(state))
     {
+        if constexpr (Trace) decisionAttempt.Result = DecisionReason::BudgetRejected;
         return false;
     }
 
@@ -678,6 +731,7 @@ bool SplitNodeImpl(
             {
                 // 无法完成邻接关系要求的全部细分时，当前细分也必须取消
                 commitPolicy.ReleaseSplitBudget(state);
+                if constexpr (Trace) decisionAttempt.Result = DecisionReason::PrerequisiteFailed;
                 return false;
             }
 
@@ -705,6 +759,7 @@ bool SplitNodeImpl(
         {
             // 无法补齐对侧叶节点时不能只细分当前一侧
             commitPolicy.ReleaseSplitBudget(state);
+            if constexpr (Trace) decisionAttempt.Result = DecisionReason::PrerequisiteFailed;
             return false;
         }
 
@@ -798,6 +853,7 @@ bool SplitNodeImpl(
     // 主线程会立即记录细分路径，更新收尾时仍会根据最终拓扑完整重建
     commitPolicy.RecordSplit(state, parentPathId, reason);
     if constexpr (Observe) observation->Attempts[attemptIndex].Completed = true;
+    if constexpr (Trace) decisionAttempt.Result = DecisionReason::Success;
     return true;
 }
 
@@ -834,6 +890,11 @@ void MergeSingleNodeImpl(
         ApplyMergeIndexTransition(state, node);
     }
     // 每次父节点合并净释放一个活动叶名额，合并完整菱形时会执行两次
+    if constexpr (CommitPolicy::TracesDecisions)
+    {
+        commitPolicy.Trace->Node = state.Nodes.PathIdAt(node);
+        commitPolicy.Trace->From = 0;
+    }
     commitPolicy.ReleaseSplitBudget(state);
     commitPolicy.RecordMerge(state);
 }
@@ -1374,13 +1435,21 @@ TopologySplitIteration InitializeSplitIteration(DataOrientedRoamState& state)
         0U, TopologySplitStop::Running};
 }
 
-template <bool Observe>
+template <bool Observe, bool Trace = false>
 bool MergeDuringSplitConvergence(DataOrientedRoamState& state, DataOrientedRoamNodeIndex node,
-    float& crossoverMergeMilliseconds, TopologyConvergenceObservation* observation)
+    float& crossoverMergeMilliseconds, TopologyConvergenceObservation* observation,
+    DecisionTraceCursor* trace = nullptr)
 {
     [[maybe_unused]] const auto mergesBefore = state.Stats.MergeCount;
     Tools::PerformanceTimer mergeTimer;
-    const bool merged = MergeNodeOrDiamondSerialWithScoreLimit(state, node, std::numeric_limits<float>::max());
+    const bool merged = [&] {
+        if constexpr (Trace)
+        {
+            DecisionSerialCommitPolicy policy{trace};
+            return MergeNodeOrDiamondWithScoreLimitImpl(state, node, std::numeric_limits<float>::max(), policy);
+        }
+        else return MergeNodeOrDiamondSerialWithScoreLimit(state, node, std::numeric_limits<float>::max());
+    }();
     const float elapsedMilliseconds = mergeTimer.Stop();
     crossoverMergeMilliseconds += elapsedMilliseconds;
     state.Stats.MergeCrossoverMilliseconds += elapsedMilliseconds;
@@ -1398,27 +1467,54 @@ bool MergeDuringSplitConvergence(DataOrientedRoamState& state, DataOrientedRoamN
 /// 生产收敛与实验步进共用原循环体，新增候选只能由下一次循环重新决策
 /// 迭代、队首查询和预算交换的顺序保持一致，不能用过滤后的候选快照代替队首
 /// </summary>
-template <bool Observe>
+template <bool Observe, bool Trace = false>
 TopologySplitStep RunStrictSplitStep(DataOrientedRoamState& state, TopologySplitIteration& iteration,
-    float& crossoverMergeMilliseconds, TopologyConvergenceObservation* observation, std::size_t maximumRoots)
+    float& crossoverMergeMilliseconds, TopologyConvergenceObservation* observation, std::size_t maximumRoots,
+    DecisionTraceCursor* trace = nullptr)
 {
+    static_assert(!Observe || !Trace);
     TopologySplitStep step;
     if (iteration.Stop != TopologySplitStop::Running) return step;
+    const auto recordStop = [&] {
+        if constexpr (Trace)
+        {
+            trace->Iteration = iteration.Iteration;
+            trace->Select(0);
+            trace->Emit(DecisionEventKind::Stop, DecisionReason::None, state.RemainingSerialSplitBudget,
+                state.RemainingSerialSplitBudget, static_cast<std::size_t>(iteration.Stop), 0, iteration.MaximumIterations);
+        }
+    };
     // 保留原 while 条件的后增语义，达到上限的最后一次判断也会增加位置
     if (!(iteration.Iteration++ < iteration.MaximumIterations))
     {
         iteration.Stop = TopologySplitStop::IterationLimit;
+        recordStop();
         return step;
     }
+    if constexpr (Trace) trace->Iteration = iteration.Iteration;
     const auto merge = [&](DataOrientedRoamNodeIndex node) {
         step.MergeAttempted = true;
         step.MergePath = state.Nodes.PathIdAt(node);
-        step.MergeSucceeded = MergeDuringSplitConvergence<Observe>(state, node, crossoverMergeMilliseconds, observation);
+        if constexpr (Trace)
+        {
+            trace->Select(step.MergePath);
+            trace->Emit(DecisionEventKind::SelectMerge,
+                step.SplitAttempted ? DecisionReason::BudgetExchange : DecisionReason::LowScoreMerge,
+                0, 0, 0, TopPersistentMergeQueueScore(state));
+        }
+        step.MergeSucceeded = MergeDuringSplitConvergence<Observe, Trace>(state, node,
+            crossoverMergeMilliseconds, observation, trace);
+        if constexpr (Trace)
+        {
+            trace->Select(step.MergePath);
+            trace->Emit(DecisionEventKind::MergeRootEnd, step.MergeSucceeded ? DecisionReason::Success : DecisionReason::Failure);
+        }
         if (!step.MergeSucceeded)
         {
             RemovePersistentMergeQueueCandidate(state, node);
             ++state.Stats.RejectedMergeCount;
             if constexpr (Observe) ++observation->CoordinatorQueueCalls;
+            if constexpr (Trace) trace->Emit(DecisionEventKind::RemoveMerge, DecisionReason::Failure);
         }
     };
 
@@ -1437,11 +1533,17 @@ TopologySplitStep RunStrictSplitStep(DataOrientedRoamState& state, TopologySplit
     if (!state.IsValidNode(splitNode) || !ShouldSplitWithScore(state, splitNode, splitScore))
     {
         iteration.Stop = TopologySplitStop::NoEligibleSplit;
+        recordStop();
         return step;
     }
 
     step.SplitAttempted = true;
     step.SplitPath = state.Nodes.PathIdAt(splitNode);
+    if constexpr (Trace)
+    {
+        trace->Select(step.SplitPath);
+        trace->Emit(DecisionEventKind::SelectSplit, DecisionReason::Requested, 0, 0, 0, splitScore);
+    }
     const std::size_t budgetRejectedBefore = state.Stats.BudgetRejectedSplitCount;
     if constexpr (Observe)
     {
@@ -1457,11 +1559,20 @@ TopologySplitStep RunStrictSplitStep(DataOrientedRoamState& state, TopologySplit
                 InvalidDataOrientedRoamNodeIndex);
         }
     }
+    else if constexpr (Trace)
+    {
+        DecisionSerialCommitPolicy policy{trace};
+        step.SplitSucceeded = SplitNodeImpl(state, splitNode, DataOrientedRoamSplitReason::Requested,
+            InvalidDataOrientedRoamNodeIndex, policy);
+    }
     else
     {
         step.SplitSucceeded = SplitNodeSerial(state, splitNode, DataOrientedRoamSplitReason::Requested,
             InvalidDataOrientedRoamNodeIndex);
     }
+    if constexpr (Trace)
+        trace->Emit(DecisionEventKind::SplitRootEnd, step.SplitSucceeded ? DecisionReason::Success : DecisionReason::Failure,
+            0, 0, state.Stats.BudgetRejectedSplitCount > budgetRejectedBefore ? 1U : 0U);
     if (step.SplitSucceeded) return step;
 
     step.BudgetRejected = state.Stats.BudgetRejectedSplitCount > budgetRejectedBefore;
@@ -1478,12 +1589,14 @@ TopologySplitStep RunStrictSplitStep(DataOrientedRoamState& state, TopologySplit
     if (step.BudgetRejected)
     {
         iteration.Stop = TopologySplitStop::BudgetBlocked;
+        recordStop();
         return step;
     }
 
     // 非预算失败在本次更新内不应反复占据队首
     BlockPersistentSplitQueueNodeForCurrentBuild(state, splitNode);
     step.SplitBlocked = true;
+    if constexpr (Trace) trace->Emit(DecisionEventKind::BlockSplit, DecisionReason::Failure);
     if constexpr (Observe) ++observation->CoordinatorQueueCalls;
     return step;
 }
@@ -1987,6 +2100,16 @@ TopologySplitStep AdvanceStrictSplitIteration(DataOrientedRoamState& state, Topo
         throw std::invalid_argument{"strict split iteration has not started"};
     float crossoverMergeMilliseconds = 0.0F;
     return RunStrictSplitStep<false>(state, iteration, crossoverMergeMilliseconds, nullptr, 0U);
+}
+
+TopologySplitStep AdvanceStrictSplitIterationWithDecisions(DataOrientedRoamState& state,
+    TopologySplitIteration& iteration, DecisionTraceSink sink)
+{
+    if (iteration.Stop == TopologySplitStop::NotStarted)
+        throw std::invalid_argument{"strict split iteration has not started"};
+    float crossoverMergeMilliseconds = 0.0F;
+    DecisionTraceCursor trace{sink};
+    return RunStrictSplitStep<false, true>(state, iteration, crossoverMergeMilliseconds, nullptr, 0U, &trace);
 }
 
 void CommitScoredSplitTopology(DataOrientedRoamState& state)

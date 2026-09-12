@@ -33,4 +33,12 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam
 [[nodiscard]] float ComputeScreenErrorScore(
     const DataOrientedRoamState& state,
     DataOrientedRoamNodeIndex node);
+
+// 虚拟节点以静态描述求值，不必先创建生产节点；两种入口保持相同浮点运算顺序
+[[nodiscard]] float ComputeScreenErrorScore(
+    const DataOrientedRoamState& state, const TriangleDomain& domain, float geometricError);
+
+// 迟滞只依赖当前深度、评分和上一帧事件成员，覆盖视图无需伪造生产下标
+[[nodiscard]] bool ShouldSplitWithScore(
+    const DataOrientedRoamState& state, int depth, std::uint64_t path, float score);
 } // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam

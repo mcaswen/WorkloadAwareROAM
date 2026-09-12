@@ -66,6 +66,10 @@ set(PARALLEL_ROAM_DOD_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamThreadPool.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamTopology.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamValidation.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/materialization/NativePlanningView.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/materialization/NativePlanningQueues.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/materialization/NativeRefinementSimulation.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/materialization/NativeTargetPlanner.cpp"
 )
 
 # 两后端和纯 CPU 输入测试复用同一份清单、相机与记录实现
@@ -276,6 +280,9 @@ if(PARALLEL_ROAM_BUILD_APP)
 endif()
 
 if(PARALLEL_ROAM_BUILD_TESTS)
+    # 无窗口 CPU 测试只需要数学与图像读取依赖
+    parallel_roam_ensure_glm()
+    parallel_roam_ensure_stb()
     enable_testing()
 
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/CMakeLists.txt")

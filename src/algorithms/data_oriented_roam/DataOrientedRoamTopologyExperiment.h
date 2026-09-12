@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algorithms/data_oriented_roam/DataOrientedRoamTypes.h"
+#include "algorithms/data_oriented_roam/DataOrientedRoamDecisionTrace.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -83,18 +84,6 @@ struct TopologyConvergenceObservation
 };
 
 /// <summary>
-/// 区分严格收敛的正常停止与预算、迭代限制，停止后再次步进不再消费迭代
-/// </summary>
-enum class TopologySplitStop
-{
-    NotStarted,
-    Running,
-    NoEligibleSplit,
-    BudgetBlocked,
-    IterationLimit,
-};
-
-/// <summary>
 /// 保存同一独占阶段状态的迭代位置；上限只在入口按当时节点规模计算
 /// 调用期间不能重置来源、切换帧或重新初始化此值来延长收敛
 /// </summary>
@@ -128,6 +117,10 @@ struct TopologySplitStep
 /// </summary>
 [[nodiscard]] TopologySplitStep AdvanceStrictSplitIteration(
     DataOrientedRoamState& state, TopologySplitIteration& iteration);
+
+// 轻量入口不克隆根状态或计算足迹哈希，接收器仅在同步调用期间有效
+[[nodiscard]] TopologySplitStep AdvanceStrictSplitIterationWithDecisions(
+    DataOrientedRoamState& state, TopologySplitIteration& iteration, DecisionTraceSink sink);
 
 /// <summary>
 /// 在自有副本上试算一个根；调用方仍须判断它是否获严格控制器批准

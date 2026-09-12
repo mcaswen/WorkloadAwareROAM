@@ -78,7 +78,7 @@ PrepareDataOrientedRoamFrame
 
 `AppendPersistentMergeQueueNeighborhood` 访问当前节点、父子、三邻居，以及这圈节点的父和底边关系；修改前失效，修改后重新插入。`RefreshPersistent*QueuePriorities` 对现有堆成员整批评分并线性建堆；拓扑中的局部成员更新还可能计算新条目的分数。
 
-**INFERENCE**：只复制初始排序列表不能保持动态严格语义。新孩子、新合并资格、被强制移除的任意条目和阻塞分数都要求可变逻辑队列。已有堆是可借用的入口，尚不存在稀疏规划视图或堆覆盖层。
+**INFERENCE**：只复制初始排序列表不能保持动态严格语义。新孩子、新合并资格、被强制移除的任意条目和阻塞分数都要求可变逻辑队列。已有堆是可借用的入口；初始扫描时没有稀疏覆盖层，后续实现另记于 §10。
 
 ## 5. 网格消费与跨帧义务
 
@@ -120,6 +120,120 @@ PrepareDataOrientedRoamFrame
 
 **FACT**：MPR 自然探针选取的是 `test129-a-b4096` 与 `peking547-a-b20000` 的 sample14；前者预算是 4096。压力样本为独立 `budget-orbit64` 几何轨迹，不能与 `peking547-a-b200000` 的轨迹 A 混称。
 
-**UNCERTAIN**：严格目标规划所需稀疏状态是否足够便宜、原生内部缓存关系能否以局部补丁完整恢复，以及完整细分阶段是否有净收益，均需新阶段实际验证。
+**UNCERTAIN**：原生内部缓存关系的局部生产恢复与完整细分阶段收益仍待后续验证。严格规划当前已测得较高成本，具体结果见 §11，不再将它仅列为未测量假设。
 
-**PLANNED**：对应[原生接入大规划](../../plans/roam_parallelism/native_materialization_plan.md)定义新增职责；本文不将其列为当前已实现能力。本轮仅阅读源码与编写文档，未运行新实验。
+**PLANNED / FACT 边界**：[原生接入大规划](../../plans/roam_parallelism/native_materialization_plan.md)的全部生产接入尚未实现。初始扫描后，字段审计见 §9，工作区见 §10，NMP-01 完整规划与验收见 §11；后续物化/开关不追认为当前能力。
+
+## 9. NMP-01 步骤 1 补充事实
+
+规划提交 `c2cd2d8` 之后的第一批改动增加三个测试文件与无窗口 CPU 构建入口，当时尚未修改 `src/`。本节保留字段审计过程；后续工作区见 §10。实现范围与复现参数见[小规划 §11](../../plans/roam_parallelism/native_materialization_01_plan.md#11-结果与审查回填)。
+
+**FACT**：`DataOrientedRoamNativeTargetTests.cpp` 从深度 3 的一致细分出发，以人工优先级构造 120 对合法请求历史。相同最终叶集合下，内部左右邻接有 72 处差异，调用原生邻域收集得到 48 处集合差异；两端通过原生拓扑、队列与预算核查。内部底边关系在此矩阵中未出现差异。
+
+**FACT**：`PrepareSplitNodeState` 清空复用孩子三邻接之前，`SplitNodeImpl` 已收集并失效合并邻域；“重新激活时覆盖”不足以证明休眠关系从未被读取。
+
+**FACT（隔离续接）**：`ReplaceInternalSides` 以 A→B 为完整来源，只替换 8/9 两个内部左右字段；替换再原址还原后的完整 `StateSnapshot` 相等。`ContinueTogether` 对五种配置逐步对照实际原生严格循环及逻辑状态，均一致，包含强制细分、成功合并、预算交换和预算阻塞。原始 hash/物理堆排列不作为续接等价标准。
+
+**FACT（见证局部恢复）**：对同一批见证父节点，先确认两个孩子均为活动叶，再用孩子 Base 重算父 Left/Right；相对 A→B 一个字段变化，另一个原本一致。相同五条续接仍成立。目标孩子的 Base 是恢复值来源，另一历史只标定被审计的节点。
+
+**FACT（读取与写入）**：`EvaluateMergeCandidate` 和 `IsMergeableTopology` 不读内部 Left/Right；`ReplaceNeighborReference` 对三个字段分别比较和写入。`MergeSingleNodeImpl` 在父变成叶前以孩子 Base 覆盖父 Left/Right；`LinkSplitNeighbors` 使用待细分叶的左右关系。内部历史 Left/Right 的实际查询用途是合并邻域收集，不能称为无人读取。
+
+**INFERENCE（有前提的幂等）**：拓扑、轮次、视图不变，逻辑 Qm 完整且分数有效时，额外失效/刷新未变化代表可恢复同一成员、伙伴和分数；只可能增加维护和改变物理堆布局。`AuditNeighborhoodRefresh` 对 8/9 各做一次往返，8 次实际插入后逻辑投影一致。人为删除一个仍合法候选后，刷新会补回，明确展示完整性前提；不是自然失败合并证据。
+
+**INFERENCE（合并失败边界）**：严格细分循环以最大有限分数调用实际合并；完整拓扑候选及有限重算分数足以通过其复核。当前五种配置每步检查 Qm 所有候选均可通过该复核，失败合并为 0。不能据此删除其他入口或异常队列的防御性失败分支。
+
+**FACT（深层与休眠续接补充）**：`NormalizeNonLeafRelations` 对活动内部节点写 `Left=Base(leftChild)`、`Right=Base(rightChild)`，对休眠节点清空三邻接，不改活动叶及活动内部 Base。`AuditDeepAndDormantNormalization` 从深度 5 状态开始，30 个深层内部记录参与恢复，48 个字段改变，38 个成对合并续接步一致；随后清空 124 个休眠缓存的关系，改变 320 个字段，76 个成对细分续接步一致，124 个旧缓存重新激活。`RequireLegal` 对活动内部 Base 另检查同深度反射伙伴或边界空值。快照隔离及逐步投影仍保留。
+
+**PLANNED（采用的恢复协议）**：小规划 §11.9 已确定首版不准入 `InternalRelationChange`；实际物化应从目标边、固定伙伴和孩子 Base 恢复关系，休眠关系可清空。Planner 决策工作区继续保留精确临时关系。有限例子不能证明所有状态，协议实际局部性与切换续接仍由 NMP-02 验收；不存在已完成的原生物化/mesh 消费能力。
+
+## 10. NMP-01 稀疏规划工作区
+
+### 10.1 文件、调用者与依赖
+
+下列路径均相对 `src/algorithms/data_oriented_roam/`；namespace 为 `ParallelRoam::Algorithms::DataOrientedRoam::Materialization`，纯堆原语位于 DOD 的 `IndexedHeap` namespace。
+
+| 文件 | 当前真实职责 |
+| --- | --- |
+| `materialization/NativeMaterializationTypes.h` | 工作区字段/条目/计数，以及正常 `NativeTargetPlan`、净事件、具名 Γ 和纯求值缓存；见 §11 |
+| `materialization/NativePlanningView.h/.cpp` | 只读来源借用、字段覆盖、虚拟缓存、稳定身份查询和剩余预算 |
+| `materialization/NativePlanningQueues.h/.cpp` | 两个私有堆的逻辑长度、槽位与反向位置覆盖、合并代表/伙伴覆盖 |
+| `DataOrientedRoamIndexedHeap.h` | 静态 `SiftUp/SiftDown/Restore`，以比较/交换回调操作索引，不持有容器 |
+
+**FACT**：工作区组件测试与 `NativeTargetPlanner` 构造这些对象，四个 materialization `.cpp` 均已注册进共同 DOD 清单。Legacy 增加编译期轻量观察，评分增加纯描述入口；旧 `Queues.cpp` 没有改用新堆或覆盖视图。不存在生产模式开关、并行任务、线程共享或跨帧持有。
+
+### 10.2 View 的所有权与行为
+
+**FACT**：`NativePlanningView` 持有 `const DataOrientedRoamState& _source`，禁止复制；调用方须保证来源及借用的高度图等资源在同步工作区寿命内有效且不变。构造只检查深度上限 20、节点容量和 membership 长度，初始化剩余预算，不枚举 N 个缓存或 Q 个候选。输入拓扑合法性仍由外部诊断负责，构造器不充当完整验证器。
+
+`_overrides` 是 `map<Node, array<optional<uint64_t>, FieldCount>>`。关系、轮次、forced、IsSplit、Activity、阻塞轮次及 CurrentSplitPath 分字段覆盖，显式无效关系与没有覆盖不同。`Read` 优先读覆盖，再借用来源；`Write` 恢复基值时清除该字段的 optional，但保留曾写节点记录，累计覆盖不随净差分缩小。Activity 独立于缓存 IsSplit。
+
+`Path/Parent/Depth/Domain/GeometricError/VarianceTree/VarianceIndex/CreatedBuild` 从来源或虚拟记录返回值。`FindPath` 校验双根路径编码后沿已有孩子下降，不建立全池身份字典，不为查找缺失身份创建节点。`CreateChildren` 要求两个孩子都未缓存，以已有域二分、路径和 variance 函数追加一对虚拟静态记录，然后只写私有父孩子字段；新节点仍休眠，创建并非成功细分。
+
+`TryReserveBudget/ReleaseBudget` 只改私有标量；`TouchedNodes/Metrics` 只枚举覆盖容器。`Initial` 独立读取初始字段并计费，供净出口默认值比较。控制器完成所有根后以 Qs 长度检查活动叶数与预算账本，求值缓存/正常出口见 §11；虚拟下标和关系不进入返回值。
+
+### 10.3 Queues 的状态转换
+
+**FACT**：`NativePlanningQueues` 借用 View，禁止复制。每堆持有 `Length/SourceVisible`、`Cells`、`Reverse` 和计数，合并另有 `_representatives/_partners`。构造只借用原堆长度；`At` 检查逻辑长度，优先覆盖，其次读仍可见的来源前缀。
+
+`Remove` 将尾条目填入洞、缩短 Length 和 SourceVisible，以显式无效反向覆盖表示删除，再调用静态 `Restore`。旧私有尾记录留存用于累计计费，但超出 Length 不可读取；`Upsert` 每次追加完整写槽，避免截断后复活旧尾。分数必须有限，细分最大分优先、合并最小分优先，平分按最小 Path。
+
+`RemoveMerge` 可从任一侧解析代表并清除该组；`UpsertMerge` 只接收调用方已确定的规范代表/伙伴，改组前撤销双方旧组。它不判断拓扑资格。`Validate` 诊断枚举堆，检查成员唯一、反向位置、堆序和代表关联；不证明成员是合法可合并菱形，也不应进入计时包络。没有完整物理堆导出 API。
+
+### 10.4 成本、诊断与验证
+
+**INFERENCE**：构造是常数规模；普通覆盖查询承担有序容器查找成本，堆修复中的多次槽位查询因此不能当成原数组常数访问。路径查询下降不超过 H 层，各层仍含覆盖查询成本。`TouchedNodes` 分配 O(a) 结果，`Metrics` 枚举已存覆盖，销毁计入 Tplan。三个输入的实际覆盖已记录于 §11 及小规划 §11.12，不证明所有输入的稀疏性。
+
+**FACT**：普通模式仍累加操作计数，`collectReadCoverage=false` 时不建立不同旧读集合。诊断模式另用 set 保存旧节点/槽位读取覆盖，包含额外查找与分配。节点累计覆盖、最终非空字段、新虚拟节点、旧/新增堆槽位、反向记录及代表关系分别计数；计数不是总字节量，不能据此省略容器开销。
+
+`DataOrientedRoamNativePlanningTests.cpp` 在诊断开/关下核对：构造未物化来源、路径与虚拟生命周期、字段恢复不抹掉累计覆盖、预算、平分队首、任意删除/尾部重用、伙伴改组及来源完整快照。队首 oracle 从独立成员映射中选取，不复用堆修复。任意伙伴改组明确仅是存储夹具。
+
+组件测试在 Ubuntu Release 通过。工作区阶段原 Legacy 短测曾出现 test129 未解释计时偏移，见小规划 §11.10；完整规划器后来已测 Tplan，见 §11.12，尚无完整算法加速结论。
+
+## 11. NMP-01 独立严格规划与验收
+
+### 11.1 新文件与执行路径
+
+**FACT**：`materialization/NativeTargetPlanner.h/.cpp` 实现 `BuildNativeSplitTarget(source, audit)`；`NativeRefinementSimulation.h/.cpp` 持有 View/Queues 借用、实际求值缓存及失败合并处置集合。两者均只在同步调用内使用。Simulation 不可复制，负责 `Split/Merge/Block/RemoveFailedMerge` 与局部候选维护，不选择全局根；Planner 冻结迭代上限、执行严格循环、生成净结果，不写生产池/活动索引/mesh。
+
+普通路径：调用方只读 M₀ → `Build<false>` 创建 View/Queues/Simulation → 严格循环 → `Extract` → 冻结计数 → 销毁局部容器 → 返回 `NativeTargetPlan`。当前上层调用者只有 `DataOrientedRoamNativePlannerTests.cpp` 和 `DataOrientedRoamNativeMaterializationProbe.cpp`；未接到生产 `CommitScoredSplitTopology` 的新动作。
+
+轻量诊断路径：`Build<true>` 发独立决策事件，外部可在每步或最终回调读取私有逻辑投影；回调引用不得逃逸。微型测试使用逐步回调，自然诊断只做最终全量投影。计数先于 Finished 回调冻结。不同读集合受 `CollectReadCoverage` 控制，普通模式不建立集合，仍有标量计数和少量条件判断。
+
+Legacy 路径：原 `RunStrictSplitStep<false,false>` 仍执行生产 mutator；新 `AdvanceStrictSplitIterationWithDecisions` 使用 `<false,true>` 与 `DecisionSerialCommitPolicy`，不运行每根克隆/完整哈希。`DataOrientedRoamDecisionTrace.h` 仅定义固定事件、同步接收器、当前递归身份游标及不可复制的 `DecisionAttemptScope`；观察关闭实例不发事件。原 Stop 枚举从 Experiment 头移动到此纯值头，名称/数值保持。
+
+`Scoring.h/.cpp` 新增 `(state, domain, geometricError)` 和 `(state, depth, path, score)` 纯入口；旧节点外壳委托它们。新旧高层控制和局部逻辑保持独立，未用共同 controller 自证。新模块没有 `AdvanceStrictSplitIteration/RunStrictSplitStep/SplitNodeImpl`、生产 AddNode/mesh writer、完整输入哈希或 MPR Bridge 调用。
+
+### 11.2 私有逻辑与正常结果
+
+**FACT**：Simulation 精确维护临时三邻接、活动资格、缓存孩子与轮次标记。每根先预留自身预算，再沿当前底边递归，成功前置后重新查询底边；根失败只释放当前未完成预留，已完成前置保留。候选维护取修改前/后邻域，先失效再按当前资格插入；已存在代表不额外刷新，失败处置在重入时撤销。合并资格和实际 primitive 复核分开，原 guard 达界与停止头部规则未改变。
+
+`NativeTargetPlan` schema 1 保存 BuildSequence、来源规模/预算、最终叶数/余量/停止/迭代摘要、AddedEvents/RemovedEvents、Obligations、Evaluations 及 Metrics。来源标量只说明同一同步调用的环境，不是任意跨状态事务认证。没有来源引用、虚拟下标、最终邻接、活动数组、堆补丁、slots 或 mesh。
+
+`Extract` 仅枚举 `TouchedNodes`、新虚拟区间和失败处置集合，完整 J 不展开。事件由入口/最终活动内部资格的差形成。历史默认值从来源和净活动转移得到，超出默认的命名例外进入 Γ；重复键不会因多个操作重复输出。移除内部事件的默认激活/合并轮次为当前轮，新增内部默认细分轮次为当前轮，休眠变活动默认激活为当前轮；确定重新激活/合并者的 forced 默认 false，其余字段保留来源默认。实际强制激活例外单列，阻塞不以 Δ 代替。
+
+Γ 枚举为 `SplitBlockedBuild/FailedMergeRemoval/ActivatedBuild/SplitBuild/MergeBuild/ForcedActivation/CacheBirth`。失败移除只有最终仍具规范候选资格但不存在时输出；目标活动层次隐含的新缓存不重复登记，额外休眠新缓存只登记存在性/创建轮次。当前类型没有关系 Γ；`CurrentSplitPaths` 私有模拟保持精确，但帧尾重建前无续接后果的追加不导出。
+
+纯求值缓存仅保存 Path/Score，包含实际求值但不含极值抑制分。首版每个原逻辑求值仍实际计算，再覆盖缓存；没有借缓存偷偷减少被计工作。导出按路径排序，只在当前冻结环境内可复用。工作区 map/virtual vector/堆/缓存析构计入 Tplan，返回结果清理另计。
+
+**FACT（前置条件）**：当前入口拒绝局部共形约束关闭、评分镜像开启、预算小于当前活动叶数的输入，不更改来源设置。该范围符合本轮冻结实验设置，不构成所有生产配置兼容。全面合法性由外部来源诊断负责，普通入口不扫描认证全状态。
+
+### 11.3 测试事实与费用
+
+`DataOrientedRoamNativePlannerTestSupport.h` 定义外部完整缓存/逻辑堆投影、百万事件容量上限和独立 Γ 提取器，只由测试和探针引用。它全量枚举 Legacy 结果，不采用 Planner 的触及集合或输出义务键；比较稳定身份和字段位值，不要求物理堆排列相同。source snapshot 验证容量、地址和全部来源内容不变。
+
+**FACT**：11 个解析配置逐循环相符，覆盖合法细化/粗化/缓存复用/预算交换/平分停止及两类显式故障注入。预算加 2 的合法配置有一次根失败保留成功前置；非叶前置故障得到 k=0/h=1，仅用于防御分支。原迭代上限后增边界另做组件检查，没有宣称自然输入耗尽上限。
+
+**FACT**：固定三点分别完整比较 69、413、156720 个决策事件；最终活动叶、完整缓存关系/历史、逻辑堆、Δ/Γ、预算和停止一致，诊断关闭结果一致。三点 k/h/g 为 12/6/12、78/44/84、27783/16610/25290；当前自然 Γ 全部为 forced 标记例外。根、forced、primitive、失败与预算计数另列，不混为净差分。
+
+**FACT**：两个普通点旧节点写覆盖 0.528%/0.625%；压力点 8.393%，旧节点读取覆盖 13.598%。压力细分/合并堆写覆盖 37.802%/57.594%，读覆盖 55.783%/76.035%。不能宣称整个工作区均非常稀疏。r 的诊断值含轨迹身份查询，全量最终投影不计入这些覆盖。
+
+**FACT**：一组独立进程短测中，Legacy/Planner 均值 ms 分别为 0.046012/0.102063、0.491022/0.995450、61.629698/1088.565186。Tplan 已含私有容器销毁，尚无 Tmaterialize；压力费用比约 17.66，不是完整更新加速比。实际存在有序覆盖查询、重复 heap 维护、求值缓存和出口工作，具体时间占比未用 profiler 分离。
+
+**INFERENCE**：当前实现不能直接带来生产替代收益；但这些成本不能反证语义解耦。压力 heap 较广是独立于节点局部性的结构观察，需要在下一实现决策前 Review。有限三点不证明一般 O(k) 或所有输入的性能性质。
+
+### Unresolved / Uncertain
+
+- NMP-01 已完成；原生 materializer、生产开关、mesh 消费与全部生产设置兼容尚未实现。
+- 当前覆盖表示的各项耗时占比及更换容器后的可获得收益未测量，压力堆覆盖不能称为 u≪Q。
+- 关系恢复协议的原生局部实现与新旧切换续接仍需 NMP-02 验证。
+- test129 短计时偏移的版本因果与离群值来源未解释，已达到本轮复测上限。
