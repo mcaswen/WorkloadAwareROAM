@@ -1,8 +1,10 @@
 # CPU ROAM 研究探索状态
 
-> 更新日期：2026-09-12；依据：保留此前探索状态，记录 MPR-02 有限并行的实际出口。
+> 更新日期：2026-09-13；依据：保留此前探索状态，MPR-02 强验证结果已提交；MPR-03 实现及开发快验记录完成，完整重复矩阵按用户要求停止。
 
 现有 [CPU ROAM 执行与特征分析研究定义](../plans/formal_experiment/cpu_roam_research_definition.md)继续有效。本目录记录独立探索，不自动修改研究问题、启动实现或重开历史实验。
+
+MPR-02 已提交为 `d635a9b`。[串行成本分析](roam_parallelism/target_materialization_serial_costs.md)与[MPR-03 小规划](../plans/roam_parallelism/target_materialization_prototype_03_plan.md)记录局部向量/记录句柄优化，完整状态与续接核查保持。新增压力样本 k=27,783，两组快验中串行物化约 332→240 ms、四线程约 226 ms；正式重复矩阵已按用户要求停止。小输入仍只有单次诊断，性能风险与统计限制见[结果 §14](roam_parallelism/target_materialization_prototype.md#14-mpr-03-开发快验结果与停止记录)，不宣称稳定多核加速或全部输入性能验收。
 
 | 方向 | 当前状态 | 范围与记录 |
 | --- | --- | --- |

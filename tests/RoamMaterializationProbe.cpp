@@ -12,6 +12,7 @@
 #include "tools/PerformanceTimer.h"
 
 #include <algorithm>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -50,11 +51,19 @@ Arguments Parse(int argc, char** argv)
     }
     args.try_emplace("--workers", "1");
     args.try_emplace("--case", "all");
+    // 压力输入由独立冻结协议定义，不借用或绕过轨迹 A 的清单验证
+    const bool stress = args.contains("--cases") && args.at("--cases") == "mpr-stress-01";
+    if (stress)
+    {
+        if (args.contains("--scenario-manifest") || args.contains("--camera-manifest"))
+            throw std::invalid_argument("压力协议不接受轨迹 A 清单");
+        args.emplace("--scenario-manifest", ""); args.emplace("--camera-manifest", "");
+    }
     if (args.size() != keys.size()) throw std::invalid_argument("缺少测量参数");
     if ((args.at("--mode") != "audit" && args.at("--mode") != "measure") ||
         (args.at("--method") != "reference-serial" && args.at("--method") != "materialize-serial" &&
             args.at("--method") != "materialize-parallel") ||
-        args.at("--cases") != "mpr-01") throw std::invalid_argument("方法或案例协议不受支持");
+        (!stress && args.at("--cases") != "mpr-01")) throw std::invalid_argument("方法或案例协议不受支持");
     const auto& workers = args.at("--workers");
     if ((workers != "1" && workers != "2" && workers != "4") ||
         ((args.at("--method") == "materialize-parallel") != (workers != "1")))
@@ -66,8 +75,84 @@ Arguments Parse(int argc, char** argv)
     return args;
 }
 
+// 只复用旧环绕的几何公式，CPU 视图单独冻结，不冒充历史 GUI 的逐位输入
+Experiment::Formal::CameraSample StressCamera(std::uint32_t index, std::uint32_t count)
+{
+    Experiment::Formal::CameraSample camera;
+    camera.TrajectoryId = "budget-orbit"; camera.SampleIndex = index;
+    const float t = static_cast<float>(index) / static_cast<float>(count - 1);
+    const float angle = t * 6.28318530718F;
+    camera.Position = {std::cos(angle) * 58.0F, 20.0F + std::sin(angle * 2.0F) * 3.0F,
+        std::sin(angle) * 58.0F};
+    camera.Target = {std::cos(angle + 0.55F) * 10.0F, 4.0F, std::sin(angle + 0.55F) * 10.0F};
+    return camera;
+}
+
+std::vector<Case> PrepareStress(const Arguments& args)
+{
+    using namespace Algorithms::DataOrientedRoam;
+    using namespace Experiment::Formal;
+    Terrain::HeightMap height;
+    std::string error;
+    if (!height.LoadFromFile(std::filesystem::path(args.at("--asset-root")) /
+        "assets/heightmaps/Hm_Terrain_Peking_513.png", &error)) throw std::runtime_error(error);
+    if (height.Width() != 547 || height.Height() != 547) throw std::runtime_error("压力资产尺寸不匹配");
+    DataOrientedRoamSettings settings;
+    settings.MaxDepth = 20; settings.TriangleBudget = 200000;
+    settings.SplitThreshold = 0.25F; settings.MergeThreshold = 0.10F;
+    settings.PassPolicy = Algorithms::MakeTerrainLodSerialIncrementalPolicy();
+    settings.EnablePassEvidence = settings.EnableTopologyValidation = true;
+    // 来源预热单独持有流水线，销毁后重新从干净拓扑推进固定前缀
+    {
+        DataOrientedRoamPipeline warmup;
+        for (std::uint32_t i = 0; i < 4; ++i)
+            static_cast<void>(warmup.Build(height, 80.0F, 12.0F, BuildCameraView(StressCamera(i, 4)), settings));
+    }
+    const auto cameraPath = std::filesystem::path(args.at("--output")).parent_path() / "stress-cameras.csv";
+    if (std::filesystem::exists(cameraPath)) throw std::runtime_error("拒绝覆盖压力姿态记录");
+    std::ofstream cameras(cameraPath);
+    Experiment::WriteExperimentCsvRow(cameras, {"sampleIndex", "x", "y", "z", "targetX", "targetY", "targetZ",
+        "viewProjectionHash"});
+    // 全部姿态落盘；只有前缀参与来源恢复，计时对象仍是指定的一次目标应用
+    for (std::uint32_t i = 0; i < 64; ++i)
+    {
+        const auto camera = StressCamera(i, 64);
+        const auto view = BuildCameraView(camera);
+        std::uint64_t hash = Algorithms::TerrainLodHashOffset;
+        for (glm::length_t column = 0; column < 4; ++column)
+            for (glm::length_t row = 0; row < 4; ++row)
+                Algorithms::AppendTerrainLodHash(hash, view.ViewProjection[column][row]);
+        Experiment::ExperimentCsvRow row{std::to_string(i)};
+        for (const auto value : {camera.Position.x, camera.Position.y, camera.Position.z,
+            camera.Target.x, camera.Target.y, camera.Target.z}) row.push_back(Experiment::FormatExperimentCsvDouble(value));
+        row.push_back(std::to_string(hash)); Experiment::WriteExperimentCsvRow(cameras, row);
+    }
+    if (!cameras) throw std::runtime_error("压力姿态记录失败");
+    Case item;
+    item.Name = "peking547-budget-orbit64-b200000-sample14";
+    DataOrientedRoamPipeline pipeline;
+    Tools::PerformanceTimer trajectory;
+    for (std::uint32_t i = 0; i <= 14; ++i)
+        static_cast<void>(pipeline.BuildWithPassObserver(height, 80.0F, 12.0F,
+            BuildCameraView(StressCamera(i, 64)), settings, [&](const auto& source, Algorithms::TerrainLodPassId pass) {
+                if (i != 14 || pass != Algorithms::TerrainLodPassId::SplitTopology) return;
+                if (item.Task.Initial) throw std::runtime_error("压力输入重复捕获");
+                Tools::PerformanceTimer capture;
+                item.Task = MaterializationDodBridge::Capture(source); item.CaptureMs = capture.Stop();
+            }));
+    item.SourceMs = trajectory.Stop();
+    if (!item.Task.Initial) throw std::runtime_error("压力输入未捕获");
+    Tools::PerformanceTimer certify;
+    item.Target = MaterializationValidation::Certify(*item.Task.Initial, item.Task.Request);
+    item.CertifyMs = certify.Stop();
+    std::vector<Case> cases;
+    cases.push_back(std::move(item));
+    return cases;
+}
+
 std::vector<Case> Prepare(const Arguments& args)
 {
+    if (args.at("--cases") == "mpr-stress-01") return PrepareStress(args);
     using namespace Experiment::Formal;
     using namespace Algorithms::DataOrientedRoam;
     const auto scenarios = LoadScenarioManifest(args.at("--scenario-manifest"), args.at("--asset-root"),
@@ -177,7 +262,10 @@ Experiment::ExperimentCsvRow Header()
         "allocationMs", "descriptorMs", "stateMaintenanceMs", "descriptorItems", "scratchPayloadBytes", "recordPatches",
         "staticItems", "staticDispatches", "staticChunkItems", "staticThreadIds", "staticDistinctThreads", "staticWallMs",
         "derivedItems", "derivedDispatches", "derivedChunkItems", "derivedThreadIds", "derivedDistinctThreads", "derivedWallMs",
-        "writeItems", "writeDispatches", "writeChunkItems", "writeThreadIds", "writeDistinctThreads", "writeWallMs"};
+        "writeItems", "writeDispatches", "writeChunkItems", "writeThreadIds", "writeDistinctThreads", "writeWallMs",
+        "nodeIndexProbes", "localSearches", "scratchTreeElements", "scratchSortItems",
+        "queueMemberInserts", "queueMemberErases", "queueOrderInserts", "queueOrderErases",
+        "queueUnchangedRefreshes", "queueAbsentRefreshes", "resultValidation"};
 }
 
 void Measure(const Case& item, const Arguments& args, std::ostream& output,
@@ -200,30 +288,41 @@ void Measure(const Case& item, const Arguments& args, std::ostream& output,
         Tools::PerformanceTimer transaction;
         Apply(args.at("--method"), state, item.Target, audit ? &work : nullptr, execution);
         const double transactionMs = transaction.Stop();
-        // 每个结果都在停表后逐项核对，包括未消费基线；不凭一个哈希宣布等价
-        MaterializationValidation::Compare(expected, state);
+        // 固定输入重复计量不重复全域审计，诊断及末次结果核对完整投影和续接
+        const bool validate = audit || repeat == 29;
+        if (validate) MaterializationValidation::Compare(expected, state);
         if (audit && (work.FullScanItems != 0 || (args.at("--method") != "reference-serial" &&
             (work.PrimitiveGroups != 0 || work.LeafSupport > 3 * (item.Target.Added().size() +
                 item.Target.Removed().size()) || work.MergeSupport > 2 * (item.Target.Added().size() +
                     item.Target.Removed().size()))))) throw std::runtime_error("局部路径费用超出契约");
         const auto pending = state.Pending().size(), records = state.Nodes().size(), slots = state.Slots().size();
         WorkCounters consumeWork, epochWork;
-        Tools::PerformanceTimer consumer;
-        state.ConsumePending(audit ? &consumeWork : nullptr);
-        const double consumeMs = consumer.Stop();
-        Tools::PerformanceTimer epoch;
-        state.AdvanceEpoch(audit ? &epochWork : nullptr);
-        const double epochMs = epoch.Stop();
-        MaterializationValidation::Validate(state);
+        double consumeMs = 0, epochMs = 0;
+        if (validate)
+        {
+            Tools::PerformanceTimer consumer;
+            state.ConsumePending(audit ? &consumeWork : nullptr);
+            consumeMs = consumer.Stop();
+            Tools::PerformanceTimer epoch;
+            state.AdvanceEpoch(audit ? &epochWork : nullptr);
+            epochMs = epoch.Stop();
+            expected.ConsumePending(); expected.AdvanceEpoch();
+            MaterializationValidation::Compare(expected, state);
+        }
         if (repeat < 0) continue;
-        Experiment::ExperimentCsvRow row{"2", item.Name, std::to_string(item.Task.SourceHash),
-            args.at("--mode"), args.at("--method"), args.at("--workers"), std::to_string(repeat), "valid"};
+        Experiment::ExperimentCsvRow row{"3", item.Name, std::to_string(item.Task.SourceHash),
+            args.at("--mode"), args.at("--method"), args.at("--workers"), std::to_string(repeat),
+            validate ? "valid" : "measured"};
         const auto number = [&](auto value) { row.push_back(std::to_string(value)); };
         number(initial.Nodes().size()); number(initial.Leaves().size()); number(finalLeaves.size());
         number(initial.Environment().MaxDepth); number(item.Target.Added().size()); number(item.Target.Removed().size());
         number(initial.Pending().size()); number(pending); number(records); number(slots);
         number(removedLeaves); number(addedLeaves);
-        for (const auto value : {restoreMs, transactionMs, consumeMs, epochMs, item.SourceMs, item.CaptureMs,
+        for (const auto value : {restoreMs, transactionMs}) row.push_back(Experiment::FormatExperimentCsvDouble(value));
+        // 未执行的外围步骤留空，不能伪造为零成本或声称每个计量结果均已单独验证
+        for (const auto value : {consumeMs, epochMs})
+            row.push_back(validate ? Experiment::FormatExperimentCsvDouble(value) : "");
+        for (const auto value : {item.SourceMs, item.CaptureMs,
             item.SeedMs, item.Task.EnvironmentMs, item.Task.ImportMs, item.Task.DiscoveryCopyMs,
             item.Task.DiscoveryMs, item.Task.DifferenceMs, item.CertifyMs})
             row.push_back(Experiment::FormatExperimentCsvDouble(value));
@@ -234,7 +333,8 @@ void Measure(const Case& item, const Arguments& args, std::ostream& output,
             work.PrimitiveGroups, work.PreparedEdges, work.FullScanItems}) number(value);
         for (const auto value : {work.SupportMs, work.RecordsMs, work.ConnectMs, work.MaintenanceMs})
             row.push_back(Experiment::FormatExperimentCsvDouble(value));
-        number(consumeWork.FullScanItems); number(epochWork.FullScanItems);
+        row.push_back(validate ? std::to_string(consumeWork.FullScanItems) : "");
+        row.push_back(validate ? std::to_string(epochWork.FullScanItems) : "");
         for (const auto value : {executorInitMs, work.AllocationMs, work.DescriptorMs, work.StateMaintenanceMs})
             row.push_back(Experiment::FormatExperimentCsvDouble(value));
         number(work.DescriptorItems); number(work.ScratchPayloadBytes); number(work.RecordPatches);
@@ -251,6 +351,10 @@ void Measure(const Case& item, const Arguments& args, std::ostream& output,
             number(std::set(phase.Threads.begin(), phase.Threads.end()).size());
             row.push_back(Experiment::FormatExperimentCsvDouble(phase.WallMs));
         }
+        for (const auto value : {work.NodeIndexProbes, work.LocalSearches, work.ScratchTreeElements,
+            work.ScratchSortItems, work.QueueMemberInserts, work.QueueMemberErases, work.QueueOrderInserts,
+            work.QueueOrderErases, work.QueueUnchangedRefreshes, work.QueueAbsentRefreshes}) number(value);
+        row.push_back(validate ? "complete-continuation" : "not-evaluated");
         if (row.size() != Header().size()) throw std::logic_error("成本行字段数量错误");
         Experiment::WriteExperimentCsvRow(output, row);
         if (!output) throw std::runtime_error("结果写入失败");

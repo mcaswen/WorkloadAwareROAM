@@ -131,6 +131,9 @@ private:
     void SetNeighbor(NodeId id, std::size_t edge, NodeId target);
     void SetLeaf(NodeId id, bool present);
     void SetEvent(NodeId id, bool present);
+    // 仅接收本状态已定位的记录，历史、Pending 和槽位行为与身份入口共用
+    void SetLeaf(NodeRecord& node, bool present);
+    void SetEvent(NodeRecord& node, bool present);
     void RefreshSplit(NodeId id);
     void RefreshMerge(NodeId group);
     void RefreshAllQueues();

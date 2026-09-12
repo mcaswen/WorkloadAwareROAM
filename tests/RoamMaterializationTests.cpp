@@ -9,6 +9,7 @@
 #include "experiment/formal/FormalExperimentCamera.h"
 #include "experiment/formal/FormalExperimentManifest.h"
 
+#include <algorithm>
 #include <iostream>
 #include <atomic>
 #include <barrier>
@@ -97,7 +98,10 @@ std::size_t Exhaustive()
                 return std::array{w.EventQueries, w.RecordQueries, w.ScoreEvaluations, w.SplitRechecks,
                     w.MergeRechecks, w.QueueWrites, w.RecordsCreated, w.RecordsReused, w.NeighborWrites,
                     w.SlotAllocations, w.SlotReuses, w.PendingWrites, w.PrimitiveGroups, w.PreparedEdges,
-                    w.FullScanItems, w.LeafSupport, w.MergeSupport, w.DescriptorItems, w.RecordPatches};
+                    w.FullScanItems, w.LeafSupport, w.MergeSupport, w.DescriptorItems, w.RecordPatches,
+                    w.NodeIndexProbes, w.LocalSearches, w.ScratchTreeElements, w.ScratchSortItems,
+                    w.QueueMemberInserts, w.QueueMemberErases, w.QueueOrderInserts, w.QueueOrderErases,
+                    w.QueueUnchangedRefreshes, w.QueueAbsentRefreshes};
             };
             Require(counts(work) == counts(parallelWork), "串行与并行逻辑工作不同");
             for (const auto id : seed.Leaves())
@@ -124,6 +128,43 @@ std::size_t Exhaustive()
     }
     std::cout << "合法切割=" << cuts.size() << ", 目标对=" << pairs << '\n';
     return pairs;
+}
+
+void LocalHandlesAndCanonicalInput()
+{
+    MaterializationState seed(Environment(5), 128);
+    EventSet refined;
+    AddClosure(refined, RootA << 3);
+    MaterializationReference::Apply(seed, Target(seed, refined));
+    seed.ConsumePending(); seed.AdvanceEpoch();
+    MaterializationPatch::Apply(seed, Target(seed, {}));
+    // 缓存包含休眠的深层孩子；局部表只能引用本副本，不能重新激活所有已存在记录
+    const auto cached = seed.Nodes().size();
+    auto direct = seed, reference = seed;
+    auto request = MaterializationValidation::Difference(seed, {RootA, RootB});
+    std::reverse(request.Added.begin(), request.Added.end());
+    const auto target = MaterializationValidation::Certify(seed, request);
+    MaterializationReference::Apply(reference, target);
+    WorkCounters work;
+    MaterializationPatch::Apply(direct, target, &work);
+    MaterializationValidation::Compare(reference, direct);
+    Require(direct.Nodes().size() == cached && work.RecordsCreated == 0,
+        "局部句柄路径创建了无关或已有记录");
+    Require(work.RecordsReused == 0 && work.ScratchTreeElements == 0,
+        "直接事务仍重复 Ensure 或构造临时树");
+    for (const auto& [id, node] : direct.Nodes())
+        for (std::size_t side = 0; side < node.Neighbors.size(); ++side)
+            if (node.Neighbors[side] != 0)
+                Require(node.NeighborRecords[side] == &direct.Node(node.Neighbors[side]),
+                    "邻接句柄指向其他副本");
+    const auto version = Target(direct, direct.Events());
+    WorkCounters empty;
+    MaterializationPatch::Apply(direct, version, &empty);
+    Require(empty.NodeIndexProbes == 0 && empty.LocalSearches == 0 && empty.ScratchPayloadBytes == 0,
+        "空差分仍构造局部查询或暂存");
+    reference.ConsumePending(); direct.ConsumePending();
+    reference.AdvanceEpoch(); direct.AdvanceEpoch();
+    MaterializationValidation::Compare(reference, direct);
 }
 
 void BoundaryAndContinuation(const MaterializationExecution& execution)
@@ -350,6 +391,7 @@ int main(int argc, char** argv)
             PrerequisitesAndLifetime(executor.Execution());
         }
         ExecutionFailure();
+        LocalHandlesAndCanonicalInput();
         Require(Exhaustive() != 0, "有限域没有测试对象");
         Require(argc == 1 || argc == 3, "需要同时给出场景和相机清单");
         if (argc == 3) NaturalInputs(argv[1], argv[2]);

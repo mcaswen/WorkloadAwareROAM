@@ -60,7 +60,7 @@ MaterializationState::WorkSession::~WorkSession()
 
 const NodeRecord& MaterializationState::Node(NodeId id) const
 {
-    if (_work) ++_work->RecordQueries;
+    if (_work) { ++_work->RecordQueries; ++_work->NodeIndexProbes; }
     return _nodes.at(id);
 }
 
@@ -79,7 +79,7 @@ bool MaterializationState::Leaf(NodeId id) const
 NodeId MaterializationState::Group(NodeId id) const
 {
     // 已有记录复用静态伙伴；尚未物化的身份才支付层次解码费用
-    if (_work) ++_work->RecordQueries;
+    if (_work) { ++_work->RecordQueries; ++_work->NodeIndexProbes; }
     const auto it = _nodes.find(id);
     const auto mate = it == _nodes.end() ? MaterializationHierarchy::Mate(id) : it->second.Mate;
     return mate == 0 ? id : std::min(id, mate);
@@ -87,7 +87,7 @@ NodeId MaterializationState::Group(NodeId id) const
 
 std::vector<NodeId> MaterializationState::Members(NodeId id) const
 {
-    if (_work) ++_work->RecordQueries;
+    if (_work) { ++_work->RecordQueries; ++_work->NodeIndexProbes; }
     const auto it = _nodes.find(id);
     const auto mate = it == _nodes.end() ? MaterializationHierarchy::Mate(id) : it->second.Mate;
     return mate == 0 ? std::vector<NodeId>{id} : std::vector<NodeId>{std::min(id, mate), std::max(id, mate)};
@@ -110,6 +110,7 @@ float MaterializationState::EvaluateScore(const FrozenEnvironment& environment, 
 
 NodeRecord& MaterializationState::Ensure(NodeId id)
 {
+    if (_work) ++_work->NodeIndexProbes;
     auto [it, inserted] = _nodes.try_emplace(id);
     if (!inserted)
     {
@@ -138,6 +139,7 @@ NodeRecord MaterializationState::BuildRecord(NodeId id)
 void MaterializationState::SetNeighbor(NodeId id, std::size_t edge, NodeId target)
 {
     // 身份供逻辑比较，指针供后续局部访问；两份引用必须同时指向本状态
+    if (_work) _work->NodeIndexProbes += target == 0 ? 1 : 2;
     auto& node = _nodes.at(id);
     node.Neighbors.at(edge) = target;
     node.NeighborRecords.at(edge) = target == 0 ? nullptr : &_nodes.at(target);
@@ -146,8 +148,13 @@ void MaterializationState::SetNeighbor(NodeId id, std::size_t edge, NodeId targe
 
 void MaterializationState::SetEvent(NodeId id, bool present)
 {
+    SetEvent(Ensure(id), present);
+}
+
+void MaterializationState::SetEvent(NodeRecord& node, bool present)
+{
     // 标记保留本轮已经发生的方向，不把合并再细分误当成没有历史
-    auto& node = Ensure(id);
+    const auto id = node.Id;
     node.Active = true;
     node.Internal = present;
     if (present) { _events.insert(id); _history.Split.insert(id); }
@@ -156,7 +163,12 @@ void MaterializationState::SetEvent(NodeId id, bool present)
 
 void MaterializationState::SetLeaf(NodeId id, bool present)
 {
-    auto& node = Ensure(id);
+    SetLeaf(Ensure(id), present);
+}
+
+void MaterializationState::SetLeaf(NodeRecord& node, bool present)
+{
+    const auto id = node.Id;
     if (present)
     {
         node.Active = true; node.Internal = false;
@@ -264,8 +276,24 @@ void MaterializationState::InstallCandidate(const CandidateInput& input, QueueVa
     auto& queue = split ? _splitQueue : _mergeQueue;
     auto& order = split ? _splitOrder : _mergeOrder;
     const auto old = queue.find(input.Id);
-    if (old != queue.end()) { order.erase(Key(input.Id, old->second, split)); queue.erase(old); }
-    if (input.Present) { queue.emplace(input.Id, value); order.insert(Key(input.Id, value, split)); }
+    if (_work)
+    {
+        const bool absent = old == queue.end();
+        _work->QueueAbsentRefreshes += absent && !input.Present;
+        _work->QueueUnchangedRefreshes += absent ? !input.Present : input.Present && old->second == value;
+    }
+    if (old != queue.end())
+    {
+        const auto erased = order.erase(Key(input.Id, old->second, split));
+        queue.erase(old);
+        if (_work) { ++_work->QueueMemberErases; _work->QueueOrderErases += erased; }
+    }
+    if (input.Present)
+    {
+        const bool member = queue.emplace(input.Id, value).second;
+        const bool ordered = order.insert(Key(input.Id, value, split)).second;
+        if (_work) { _work->QueueMemberInserts += member; _work->QueueOrderInserts += ordered; }
+    }
     if (_work) ++_work->QueueWrites;
 }
 

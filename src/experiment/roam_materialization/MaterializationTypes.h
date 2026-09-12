@@ -106,6 +106,11 @@ struct WorkCounters
     double SupportMs{0}, RecordsMs{0}, ConnectMs{0}, MaintenanceMs{0};
     double AllocationMs{0}, DescriptorMs{0}, StateMaintenanceMs{0};
     std::size_t DescriptorItems{0}, ScratchPayloadBytes{0}, RecordPatches{0};
+    // 字典调用覆盖直接索引访问；局部向量查询单列，不冒充 CPU load 或树比较数
+    std::size_t NodeIndexProbes{0}, LocalSearches{0}, ScratchTreeElements{0}, ScratchSortItems{0};
+    // 刷新调用可能没有树修改，成员表与排序索引的成功增删分别计数
+    std::size_t QueueMemberInserts{0}, QueueMemberErases{0}, QueueOrderInserts{0}, QueueOrderErases{0};
+    std::size_t QueueUnchangedRefreshes{0}, QueueAbsentRefreshes{0};
     // 顺序对应静态记录、边与候选值、最终邻接；字节数只计固定缓冲载荷
     std::array<PhaseEvidence, 3> Phases;
 };
