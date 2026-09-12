@@ -59,3 +59,15 @@
 - 文献核对表明阈值细化、依赖图和误差饱和有直接先例。本轮不宣称算法新颖性或研究路线已经通过性能 Gate。
 
 与规划比对：未修改 Classic/DOD、CMake、现有研究问题或冻结实验输入；未重新开启已归档路线。仅运行本轮证明检查与文档审计，不运行无关性能及后端测试。Lean 二进制、编译产物和检查日志均被忽略。审查见[理论工作区审查](../../reviews/roam_threshold/theory_workspace_review.md)。
+
+## 6. 后续授权：增量维护理论 Gate
+
+用户认可并提交首轮工作区后，要求单独判断连续视点下的 activation spectrum 与 hard-budget target 能否按受影响区域维护。该 Gate 只做纸面算法、成本证明和定向文献核对，不增加 C++、Lean、并行平台或实验矩阵。
+
+文件边界：复用现有模型和证明；新增 `docs/research/roam_threshold/incremental_gate.md`，集中记录跨帧状态、增大/减小算法、阈值维护、视点更新的完整成本及 prior-art；更新工作区 README 的状态入口。完成自审写入 `docs/reviews/roam_threshold/incremental_gate_review.md`。不再创建单独的工具或来源管理模块。
+
+出口按用户约定：只有明确的新机制、非平凡局部复杂度和与既有工作的实质区别同时成立才 Pass；否则根据所证边界及已有方法覆盖情况作 No-Go，关闭本候选支线。不得把显式全谱的下界推广到全部隐式表示，也不得将“未找到完全相同论文”当作新颖性证明。
+
+核查只覆盖公式、计数、证据出处、本地链接和修改范围；此前 Lean 结果直接复用。论文下载和文字提取放在已忽略的 `build/roam-threshold-incremental-gate/`，不进入仓库。完成情况以 Gate 报告及审查为准；用户认可本轮结论后已授权独立提交。
+
+完成结果：已给出 source 增减的常数扇入维护、完整加权阈值与集合差分算法、`Tsource + O((s+k+1) log n + |ΔJ|)` 条件界，以及统一 priority 扰动下 `|Δτ|≤δ` 的纸面证明。对显式 spectrum、逐点 oracle 和惰性证书分别分析下界与适用范围，定向核对 7 项原始工作。最终 **No-Go**，停止该候选支线，返回原 execution/characterization 主线；详见 [Gate 报告](../../research/roam_threshold/incremental_gate.md)及[完成审查](../../reviews/roam_threshold/incremental_gate_review.md)。
