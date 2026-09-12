@@ -2,6 +2,7 @@
 #include "experiment/roam_materialization/MaterializationReference.h"
 #include "experiment/roam_materialization/MaterializationPatch.h"
 #include "experiment/roam_materialization/MaterializationValidation.h"
+#include "experiment/roam_materialization/MaterializationExecutor.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamPipeline.h"
 #include "algorithms/TerrainLodView.h"
 #include "benchmark/formal/FormalCpuInput.h"
@@ -15,6 +16,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -39,17 +41,24 @@ using Arguments = std::map<std::string, std::string>;
 Arguments Parse(int argc, char** argv)
 {
     const std::set<std::string> keys{"--mode", "--method", "--cases", "--asset-root",
-        "--scenario-manifest", "--camera-manifest", "--warmups", "--repeats", "--output"};
+        "--scenario-manifest", "--camera-manifest", "--warmups", "--repeats", "--output", "--workers", "--case"};
     Arguments args;
     for (int i = 1; i < argc; i += 2)
     {
         if (i + 1 >= argc || !keys.contains(argv[i]) || !args.emplace(argv[i], argv[i + 1]).second)
             throw std::invalid_argument("未知、重复或无值参数");
     }
+    args.try_emplace("--workers", "1");
+    args.try_emplace("--case", "all");
     if (args.size() != keys.size()) throw std::invalid_argument("缺少测量参数");
     if ((args.at("--mode") != "audit" && args.at("--mode") != "measure") ||
-        (args.at("--method") != "reference-serial" && args.at("--method") != "materialize-serial") ||
+        (args.at("--method") != "reference-serial" && args.at("--method") != "materialize-serial" &&
+            args.at("--method") != "materialize-parallel") ||
         args.at("--cases") != "mpr-01") throw std::invalid_argument("方法或案例协议不受支持");
+    const auto& workers = args.at("--workers");
+    if ((workers != "1" && workers != "2" && workers != "4") ||
+        ((args.at("--method") == "materialize-parallel") != (workers != "1")))
+        throw std::invalid_argument("方法与线程数不匹配");
     // 重复数量属于预注册协议，不在看到波动后临时扩大
     if (args.at("--warmups") != "5" || args.at("--repeats") != "30")
         throw std::invalid_argument("本协议固定五次热身、三十次计量");
@@ -148,10 +157,10 @@ std::vector<Case> Prepare(const Arguments& args)
 }
 
 void Apply(const std::string& method, MaterializationState& state,
-    const CertifiedTarget& target, WorkCounters* counters)
+    const CertifiedTarget& target, WorkCounters* counters, const MaterializationExecution& execution)
 {
     if (method == "reference-serial") MaterializationReference::Apply(state, target, counters);
-    else MaterializationPatch::Apply(state, target, counters);
+    else MaterializationPatch::Apply(state, target, counters, execution);
 }
 
 Experiment::ExperimentCsvRow Header()
@@ -164,10 +173,15 @@ Experiment::ExperimentCsvRow Header()
         "F", "C", "eventQueries", "recordQueries", "scoreEvaluations", "splitRechecks", "mergeRechecks",
         "queueWrites", "recordsCreated", "cachedEnsureCalls", "neighborWrites", "slotAllocations", "slotReuses",
         "pendingWrites", "primitiveGroups", "preparedEdges", "fullScanItems", "supportMs", "recordsMs",
-        "connectMs", "maintenanceMs", "consumeItems", "epochItems"};
+        "connectMs", "maintenanceMs", "consumeItems", "epochItems", "executorInitMs",
+        "allocationMs", "descriptorMs", "stateMaintenanceMs", "descriptorItems", "scratchPayloadBytes", "recordPatches",
+        "staticItems", "staticDispatches", "staticChunkItems", "staticThreadIds", "staticDistinctThreads", "staticWallMs",
+        "derivedItems", "derivedDispatches", "derivedChunkItems", "derivedThreadIds", "derivedDistinctThreads", "derivedWallMs",
+        "writeItems", "writeDispatches", "writeChunkItems", "writeThreadIds", "writeDistinctThreads", "writeWallMs"};
 }
 
-void Measure(const Case& item, const Arguments& args, std::ostream& output)
+void Measure(const Case& item, const Arguments& args, std::ostream& output,
+    const MaterializationExecution& execution, double executorInitMs)
 {
     const bool audit = args.at("--mode") == "audit";
     const auto& initial = *item.Task.Initial;
@@ -184,11 +198,11 @@ void Measure(const Case& item, const Arguments& args, std::ostream& output)
         const double restoreMs = restore.Stop();
         WorkCounters work;
         Tools::PerformanceTimer transaction;
-        Apply(args.at("--method"), state, item.Target, audit ? &work : nullptr);
+        Apply(args.at("--method"), state, item.Target, audit ? &work : nullptr, execution);
         const double transactionMs = transaction.Stop();
         // 每个结果都在停表后逐项核对，包括未消费基线；不凭一个哈希宣布等价
         MaterializationValidation::Compare(expected, state);
-        if (audit && (work.FullScanItems != 0 || (args.at("--method") == "materialize-serial" &&
+        if (audit && (work.FullScanItems != 0 || (args.at("--method") != "reference-serial" &&
             (work.PrimitiveGroups != 0 || work.LeafSupport > 3 * (item.Target.Added().size() +
                 item.Target.Removed().size()) || work.MergeSupport > 2 * (item.Target.Added().size() +
                     item.Target.Removed().size()))))) throw std::runtime_error("局部路径费用超出契约");
@@ -202,8 +216,8 @@ void Measure(const Case& item, const Arguments& args, std::ostream& output)
         const double epochMs = epoch.Stop();
         MaterializationValidation::Validate(state);
         if (repeat < 0) continue;
-        Experiment::ExperimentCsvRow row{"1", item.Name, std::to_string(item.Task.SourceHash),
-            args.at("--mode"), args.at("--method"), "1", std::to_string(repeat), "valid"};
+        Experiment::ExperimentCsvRow row{"2", item.Name, std::to_string(item.Task.SourceHash),
+            args.at("--mode"), args.at("--method"), args.at("--workers"), std::to_string(repeat), "valid"};
         const auto number = [&](auto value) { row.push_back(std::to_string(value)); };
         number(initial.Nodes().size()); number(initial.Leaves().size()); number(finalLeaves.size());
         number(initial.Environment().MaxDepth); number(item.Target.Added().size()); number(item.Target.Removed().size());
@@ -221,6 +235,22 @@ void Measure(const Case& item, const Arguments& args, std::ostream& output)
         for (const auto value : {work.SupportMs, work.RecordsMs, work.ConnectMs, work.MaintenanceMs})
             row.push_back(Experiment::FormatExperimentCsvDouble(value));
         number(consumeWork.FullScanItems); number(epochWork.FullScanItems);
+        for (const auto value : {executorInitMs, work.AllocationMs, work.DescriptorMs, work.StateMaintenanceMs})
+            row.push_back(Experiment::FormatExperimentCsvDouble(value));
+        number(work.DescriptorItems); number(work.ScratchPayloadBytes); number(work.RecordPatches);
+        for (const auto& phase : work.Phases)
+        {
+            number(phase.Items); number(phase.Dispatches);
+            std::ostringstream chunks, threads;
+            for (std::size_t i = 0; i < phase.Threads.size(); ++i)
+            {
+                if (i != 0) { chunks << ';'; threads << ';'; }
+                chunks << phase.ChunkItems[i]; threads << phase.Threads[i];
+            }
+            row.push_back(chunks.str()); row.push_back(threads.str());
+            number(std::set(phase.Threads.begin(), phase.Threads.end()).size());
+            row.push_back(Experiment::FormatExperimentCsvDouble(phase.WallMs));
+        }
         if (row.size() != Header().size()) throw std::logic_error("成本行字段数量错误");
         Experiment::WriteExperimentCsvRow(output, row);
         if (!output) throw std::runtime_error("结果写入失败");
@@ -241,7 +271,22 @@ int main(int argc, char** argv)
         Experiment::WriteExperimentCsvRow(output, Header());
         // 先准备完整矩阵；来源失败时保留空表和非零退出，不把少量完成行当成功报告
         const auto cases = Prepare(args);
-        for (const auto& item : cases) Measure(item, args, output);
+        if (args.at("--case") != "all" && std::none_of(cases.begin(), cases.end(), [&](const auto& item) {
+            return item.Name == args.at("--case");
+        })) throw std::invalid_argument("未知冻结案例");
+        std::unique_ptr<MaterializationExecutor> executor;
+        MaterializationExecution execution;
+        double executorInitMs = 0;
+        if (args.at("--workers") != "1")
+        {
+            Tools::PerformanceTimer timer;
+            executor = std::make_unique<MaterializationExecutor>(static_cast<std::size_t>(std::stoul(args.at("--workers"))));
+            execution = executor->Execution();
+            executorInitMs = timer.Stop();
+        }
+        for (const auto& item : cases)
+            if (args.at("--case") == "all" || item.Name == args.at("--case"))
+                Measure(item, args, output, execution, executorInitMs);
         return 0;
     }
     catch (const std::exception& error)

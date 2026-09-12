@@ -7,6 +7,7 @@
 #include <functional>
 #include <memory>
 #include <set>
+#include <thread>
 #include <vector>
 
 namespace ParallelRoam::Experiment::RoamMaterialization
@@ -48,7 +49,7 @@ using MeshTriangle = std::array<float, 27>;
 
 /// <summary>
 /// 由调用方持有不可变评分和网格环境，两种目标应用共享同一份函数输入
-/// 回调不得依赖被测执行方式，也不得修改来源节点或延迟补全全局状态
+/// 评分回调必须可并发重入，不得修改来源节点或延迟补全共享缓存
 /// </summary>
 struct FrozenEnvironment
 {
@@ -68,6 +69,28 @@ struct History
 };
 
 /// <summary>
+/// 借用同步分块执行能力，返回或抛出之前必须结束所有已提交任务
+/// 分块编号不是线程身份，串行入口直接调用相同分块函数
+/// </summary>
+struct MaterializationExecution
+{
+    std::size_t Workers{1};
+    std::function<void(std::size_t, const std::function<void(std::size_t)>&)> Dispatch;
+};
+
+/// <summary>
+/// 记录一次并行区的实际参与者，空任务不产生派发证据
+/// 区间墙钟包含等待，仅诊断遍采集，不能当作总 CPU 时间
+/// </summary>
+struct PhaseEvidence
+{
+    std::size_t Items{0}, Dispatches{0};
+    std::vector<std::size_t> ChunkItems;
+    std::vector<std::thread::id> Threads;
+    double WallMs{0};
+};
+
+/// <summary>
 /// 诊断遍统计逻辑调用和实际记录修改，计时遍不安装计数接收器
 /// 这些量不代表 C++ 字段访问次数或硬件指令数量
 /// </summary>
@@ -81,6 +104,10 @@ struct WorkCounters
     std::size_t LeafSupport{0}, MergeSupport{0};
     // 仅诊断遍开启步骤时钟；它含诊断本身的扰动，不能替代独立事务计时
     double SupportMs{0}, RecordsMs{0}, ConnectMs{0}, MaintenanceMs{0};
+    double AllocationMs{0}, DescriptorMs{0}, StateMaintenanceMs{0};
+    std::size_t DescriptorItems{0}, ScratchPayloadBytes{0}, RecordPatches{0};
+    // 顺序对应静态记录、边与候选值、最终邻接；字节数只计固定缓冲载荷
+    std::array<PhaseEvidence, 3> Phases;
 };
 
 /// <summary>

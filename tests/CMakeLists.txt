@@ -187,6 +187,7 @@ if(TARGET ParallelROAM::STB)
     target_link_libraries(parallel_roam_materialization_core PUBLIC ParallelROAM::GLM
         parallel_roam_project_options PRIVATE parallel_roam_project_warnings)
     add_executable(parallel_roam_RoamMaterialization_tests RoamMaterializationTests.cpp
+        "${materialization_dir}/MaterializationExecutor.cpp"
         "${materialization_dir}/MaterializationValidation.cpp"
         "${materialization_dir}/MaterializationDodBridge.cpp"
         ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
@@ -197,6 +198,7 @@ if(TARGET ParallelROAM::STB)
     add_test(NAME RoamMaterialization COMMAND parallel_roam_RoamMaterialization_tests)
     set_tests_properties(RoamMaterialization PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." TIMEOUT 120)
     add_executable(parallel_roam_materialization_probe RoamMaterializationProbe.cpp
+        "${materialization_dir}/MaterializationExecutor.cpp"
         "${materialization_dir}/MaterializationValidation.cpp" "${materialization_dir}/MaterializationDodBridge.cpp"
         ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
         ../src/benchmark/formal/FormalCpuInput.cpp ../src/algorithms/TerrainLodView.cpp

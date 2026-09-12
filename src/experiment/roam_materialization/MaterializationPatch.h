@@ -10,6 +10,7 @@ namespace ParallelRoam::Experiment::RoamMaterialization
 class MaterializationPatch
 {
 public:
-    static void Apply(MaterializationState& state, const CertifiedTarget& target, WorkCounters* work = nullptr);
+    static void Apply(MaterializationState& state, const CertifiedTarget& target, WorkCounters* work = nullptr,
+        const MaterializationExecution& execution = {});
 };
 }

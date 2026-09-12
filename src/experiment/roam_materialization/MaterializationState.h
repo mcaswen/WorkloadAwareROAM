@@ -110,6 +110,24 @@ private:
     };
 
     NodeRecord& Ensure(NodeId id);
+    static NodeRecord BuildRecord(NodeId id);
+    static float EvaluateScore(const FrozenEnvironment& environment, NodeId id, const Domain& triangle);
+
+    /// <summary>
+    /// 在固定目标代上准备资格和评分输入，任务只计算值，队列安装仍由主线程完成
+    /// </summary>
+    struct CandidateInput
+    {
+        NodeId Id{0};
+        bool Present{false}, Suppressed{false};
+        std::size_t Samples{0};
+        std::array<NodeId, 2> Members{};
+        std::array<Domain, 2> Triangles{};
+    };
+    CandidateInput PrepareSplit(NodeId id) const;
+    CandidateInput PrepareMerge(NodeId group) const;
+    static QueueValue EvaluateCandidate(const FrozenEnvironment& environment, const CandidateInput& input);
+    void InstallCandidate(const CandidateInput& input, QueueValue value, bool split);
     void SetNeighbor(NodeId id, std::size_t edge, NodeId target);
     void SetLeaf(NodeId id, bool present);
     void SetEvent(NodeId id, bool present);

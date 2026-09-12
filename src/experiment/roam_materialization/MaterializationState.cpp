@@ -98,7 +98,12 @@ float MaterializationState::Score(NodeId id) const
     // 两种算法都在需要时调用同一冻结函数，不预填直接路径将要使用的答案
     if (_work) ++_work->ScoreEvaluations;
     const auto& node = Node(id);
-    const float score = _environment->Score(id, node.Triangle);
+    return EvaluateScore(*_environment, id, node.Triangle);
+}
+
+float MaterializationState::EvaluateScore(const FrozenEnvironment& environment, NodeId id, const Domain& triangle)
+{
+    const float score = environment.Score(id, triangle);
     if (!std::isfinite(score) || score < 0) throw std::invalid_argument("评分必须是有限非负值");
     return score;
 }
@@ -113,7 +118,13 @@ NodeRecord& MaterializationState::Ensure(NodeId id)
         return it->second;
     }
     if (_work) ++_work->RecordsCreated;
-    auto& node = it->second;
+    it->second = BuildRecord(id);
+    return it->second;
+}
+
+NodeRecord MaterializationState::BuildRecord(NodeId id)
+{
+    NodeRecord node;
     // 父子与伙伴属于逻辑身份属性，休眠记录重新激活时不必重新推导
     node.Id = id;
     node.Depth = MaterializationHierarchy::Depth(id);
@@ -197,41 +208,79 @@ bool MaterializationState::MergeReady(NodeId group) const
     return true;
 }
 
-void MaterializationState::RefreshSplit(NodeId id)
+MaterializationState::CandidateInput MaterializationState::PrepareSplit(NodeId id) const
 {
-    // 同时移除旧有序键和成员条目，避免分数改变后仍留下一份旧队首
     if (_work) ++_work->SplitRechecks;
-    const auto old = _splitQueue.find(id);
-    if (old != _splitQueue.end()) { _splitOrder.erase(Key(id, old->second, true)); _splitQueue.erase(old); }
+    CandidateInput input;
+    input.Id = id;
     if (Leaf(id))
     {
         // 抑制时评分没有执行意义，规范化为零并保留独立抑制位
-        const bool suppressed = Node(id).Depth >= _environment->MaxDepth ||
+        const auto& node = Node(id);
+        input.Present = true;
+        input.Suppressed = node.Depth >= _environment->MaxDepth ||
             _history.Blocked.contains(id) || _history.Merged.contains(id);
-        const QueueValue value{suppressed ? 0.0F : Score(id), suppressed};
-        _splitQueue.emplace(id, value); _splitOrder.insert(Key(id, value, true));
+        if (!input.Suppressed)
+        {
+            input.Samples = 1; input.Members[0] = id; input.Triangles[0] = node.Triangle;
+        }
     }
+    return input;
+}
+
+MaterializationState::CandidateInput MaterializationState::PrepareMerge(NodeId group) const
+{
+    // 调用者传入唯一组代表；局部刷新可以重复，但绝不扫描其他组
+    if (_work) ++_work->MergeRechecks;
+    CandidateInput input;
+    input.Id = group;
+    if (MergeReady(group))
+    {
+        // 任一侧本轮刚细分都会抑制整个菱形，不能只检查代表的一侧
+        input.Present = true;
+        const auto members = Members(group);
+        for (const auto id : members) input.Suppressed |= _history.Split.contains(id);
+        if (!input.Suppressed)
+            for (const auto id : members)
+            {
+                input.Members[input.Samples] = id;
+                input.Triangles[input.Samples++] = Node(id).Triangle;
+            }
+    }
+    return input;
+}
+
+QueueValue MaterializationState::EvaluateCandidate(const FrozenEnvironment& environment, const CandidateInput& input)
+{
+    QueueValue value{0, input.Suppressed};
+    for (std::size_t i = 0; i < input.Samples; ++i)
+        value.Score = std::max(value.Score, EvaluateScore(environment, input.Members[i], input.Triangles[i]));
+    return value;
+}
+
+void MaterializationState::InstallCandidate(const CandidateInput& input, QueueValue value, bool split)
+{
+    // 同时更新成员与排序索引；准备结果只在同一固定目标代中有效
+    auto& queue = split ? _splitQueue : _mergeQueue;
+    auto& order = split ? _splitOrder : _mergeOrder;
+    const auto old = queue.find(input.Id);
+    if (old != queue.end()) { order.erase(Key(input.Id, old->second, split)); queue.erase(old); }
+    if (input.Present) { queue.emplace(input.Id, value); order.insert(Key(input.Id, value, split)); }
     if (_work) ++_work->QueueWrites;
+}
+
+void MaterializationState::RefreshSplit(NodeId id)
+{
+    const auto input = PrepareSplit(id);
+    if (_work) _work->ScoreEvaluations += input.Samples;
+    InstallCandidate(input, EvaluateCandidate(*_environment, input), true);
 }
 
 void MaterializationState::RefreshMerge(NodeId group)
 {
-    // 调用者传入唯一组代表；局部刷新可以重复，但绝不扫描其他组
-    if (_work) ++_work->MergeRechecks;
-    const auto old = _mergeQueue.find(group);
-    if (old != _mergeQueue.end()) { _mergeOrder.erase(Key(group, old->second, false)); _mergeQueue.erase(old); }
-    if (MergeReady(group))
-    {
-        // 任一侧本轮刚细分都会抑制整个菱形，不能只检查代表的一侧
-        bool suppressed = false;
-        float score = 0;
-        for (const auto id : Members(group)) suppressed |= _history.Split.contains(id);
-        if (!suppressed)
-            for (const auto id : Members(group)) score = std::max(score, Score(id));
-        const QueueValue value{score, suppressed};
-        _mergeQueue.emplace(group, value); _mergeOrder.insert(Key(group, value, false));
-    }
-    if (_work) ++_work->QueueWrites;
+    const auto input = PrepareMerge(group);
+    if (_work) _work->ScoreEvaluations += input.Samples;
+    InstallCandidate(input, EvaluateCandidate(*_environment, input), false);
 }
 
 void MaterializationState::RefreshAllQueues()

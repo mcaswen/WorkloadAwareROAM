@@ -1,14 +1,14 @@
 # ROAM 目标差分物化原型实现规划
 
 > 日期：2026-09-12；类型：有界大规划；阶段前缀：MPR。
-> 状态：MPR-01 已完成；MPR-02 仍需独立小规划和确认。
+> 状态：MPR-01 已完成并提交为 `d876cea`；[MPR-02](target_materialization_prototype_02_plan.md)完整状态物化与真实并行获得强验证，可以继续规划性能兑现。
 > 依据：[理论报告](../../research/roam_parallelism/target_materialization_gate.md)、[理论完成自审](../../reviews/roam_parallelism/target_materialization_gate_review.md)；[CPU ROAM 主线](../formal_experiment/cpu_roam_research_definition.md)保持。
 
 ## 1. 要验证的问题与范围
 
 给定同一完整旧状态 M₀、合法目标 J 和完整事件差分 Δ，验证直接物化能否生成与独立顺序参考相同的**可续接状态**，并在有限 CPU 核数下保留值得继续研究的成本空间。
 
-本原型新增独立状态表示、对照执行与验证入口，按[规划规范](../plan_guideline.md)属于大规划；不是直接给 DOD 添加一种执行策略。只拆两个阶段，每阶段有停止条件，实施前另有小规划。本轮一并提供 [MPR-01 小规划](target_materialization_prototype_01_plan.md)，确认后可以先实现它。
+本原型新增独立状态表示、对照执行与验证入口，按[规划规范](../plan_guideline.md)属于大规划；不是直接给 DOD 添加一种执行策略。只拆两个阶段，每阶段有停止条件，实施前另有小规划。[MPR-01 小规划](target_materialization_prototype_01_plan.md)已实施，后续范围由 [MPR-02 小规划](target_materialization_prototype_02_plan.md)具体化。
 
 阶段范围：
 
@@ -27,7 +27,7 @@
 | `DataOrientedRoamState`、长期队列、拓扑编辑和网格元数据 | 只由 DOD 桥接文件解释；历史缓存不等于活动节点，原生堆位置/内部旧邻接不强行成为新表示 |
 | `RoamGeometry.h`、`RoamScreenError.h`、`RoamNestedWedgie.h` | Reuse：复用二分绕序、地形采样、屏幕评分及误差树。DOD 的评分外壳读取节点池，不能原样对新节点调用；只重新组装共享函数输入，不复制评分公式 |
 | `DataOrientedRoamValidation` 与阶段哈希 | Reuse 为来源状态的检查/身份；不能验证新表示，也不能把一个哈希相同当作完整续接等价 |
-| `DataOrientedRoamThreadPool::ParallelFor` | MPR-02 经同步执行回调复用；线程池在探针持有，核心不创建自己的池，不改公共线程池 |
+| `DataOrientedRoamThreadPool::ParallelFor` | MPR-02 经同步执行回调复用；线程池由测试/探针的薄适配器持有，核心不创建自己的池，不改公共线程池 |
 | `FormalExperimentManifest/Camera`、`FormalCpuInput` | Reuse 既有场景、相机和串行来源设置；基准编排不直接读取 DOD 节点字段 |
 | `ExperimentCsvCodec`、`PerformanceTimer`、运行时性能探针 | Reuse 记录和计时能力；新 schema 单独存在，不改 P5 CSV，也不将旧阶段测量边界直接套到物化事务 |
 
@@ -96,6 +96,8 @@
 
 这是**有限并行原型**。只加速几何准备、完整事务没有收益时，不得称为成功的 CPU 拓扑加速；也不得称为已否定理论物化结构。
 
+MPR-02 小规划确认三段具体边界：静态记录准备、边/候选派生值准备、按记录归并后的邻接填写。状态查询的共享诊断计数不能带入任务，改用固定描述和局部证据；同步适配器须保证任务异常与部分提交失败后全部已提交任务结束。新增薄适配文件与这些边界已获用户确认。
+
 ## 5. 文件、接口与依赖
 
 按阶段创建实际需要的文件，不预建空框架。小规划可以缩减未用文件；重要职责变化须按规范重新 Review。
@@ -109,6 +111,7 @@
 | Create `MaterializationPatch.h/.cpp` | FΔ/CΔ 枚举、边连接、完整补丁准备与提交；MPR-02 扩展执行参数，不另建一套并行算法 |
 | Create `MaterializationValidation.h/.cpp` | 全量独立投影、精确共形/预算/索引/队列检查及两状态比较；无自动修复，不进入计时 |
 | Create `MaterializationDodBridge.h/.cpp` | 唯一读取 DOD 字段的适配文件：来源副本、合法目标和完整旧状态导入；不得向 DOD 写回 |
+| MPR-02 Wrap/Create `MaterializationExecutor.h/.cpp` | 测试/探针共用的同步线程池适配，负责完成与失败排空；只进入实验入口，不加入核心库，也不解释来源或状态 |
 | Create `tests/RoamMaterializationTests.cpp` | 有界夹具及续接测试；反例断言、输入/源状态只读核对 |
 | Create `tests/RoamMaterializationProbe.cpp` | 单一无窗口测量入口，复用场景/相机/CSV/时钟；只编排，不实现物化 |
 | Extend `tests/CMakeLists.txt` | 在现有 GLM/STB/Threads 条件下建立原型库、测试和探针目标；原型源不加入应用/DOD 清单 |
@@ -173,13 +176,17 @@ MPR-02 首轮线程 1/2/4；机器不足四个可用核则按实际范围冻结�
 
 ### MPR-02：有限并行与成本出口
 
-以前阶段合法结果为前提，单独编写小规划，冻结可并行边界、线程矩阵及执行证据；扩展现有 Patch、Tests 和 Probe。直接串行与并行共享同一逻辑补丁及串行容器规则。
+以前阶段合法结果为前提，按[小规划](target_materialization_prototype_02_plan.md)冻结可并行边界、线程矩阵及执行证据；扩展现有 State、Patch、Tests 和 Probe，经薄适配器复用线程池。直接串行与并行共享同一逻辑补丁及串行容器规则，同时保留 MPR-01 旧串行程序，分开量化组织变化与线程收益。
 
 验收：输出/续接一致；记录唯一写者、同步完成和实际多线程执行；报告准备、边连接、容器维护、发布及完整物化事务。若只有准备收益，仍如实报告。
 
 出口分三种：有稳定完整事务收益，可讨论后续目标发现/集成；正确但成本空间弱，可结束当前有限原型；串行表示主导，记为实现边界待 Review。后两者都不能直接否定理论低 span 算法，也不自动触发新数据结构救援。
 
-**实现情况：** 未开始，MPR-01 不自动授权本阶段实现。
+**实现情况：** 用户确认小规划后完成三段执行与同步适配。2304 个目标对及两项自然来源的新串行/并行完整投影成立，原 Pending 与续接保持；存在真实多线程计算，未增加生产反向依赖。八项输入、四配置、五进程完整对照齐全，当前边界未显示稳定的完整事务多核收益：最大解析项 M1/M4 约 1.023，但配对范围跨过 1；两项自然任务均无稳定优势。
+
+新旧串行未触发工程调查门槛；生产 P95 首轮触发后仅复测一次，配对差由 +0.14730 变为 −0.03630 ms，旧/新程序身份完全相同，未确认版本相关退化。按[实施报告 §12](../../research/roam_parallelism/target_materialization_prototype.md#12-mpr-02-冻结性能与工程出口)和[阶段自审](../../reviews/roam_parallelism/target_materialization_prototype_02_review.md)完成本轮，保留串行表示/调度费用和理论边界，不自动开启并行容器或目标发现支线。
+
+用户随后明确阶段判断为**获得强验证，可以继续**，并授权先提交现有实现，再规划串行成本、工作量和预期收益。后续以兑现已验证构造为目标；这不是关闭方向，也不把当前有限实现未取得稳定整体收益改写为已经解决端到端性能。
 
 ## 8. 每阶段性能与工程核查
 
