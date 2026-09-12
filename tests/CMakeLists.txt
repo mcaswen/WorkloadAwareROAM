@@ -176,6 +176,34 @@ target_link_libraries(parallel_roam_benchmark_command_line_tests PRIVATE
 add_test(NAME terrain_lod_benchmark_command_line COMMAND parallel_roam_benchmark_command_line_tests)
 
 if(TARGET ParallelROAM::STB)
+    # 原型核心不依赖 DOD，来源桥接和全量验证只进入独立实验入口
+    set(materialization_dir "${CMAKE_CURRENT_SOURCE_DIR}/../src/experiment/roam_materialization")
+    add_library(parallel_roam_materialization_core STATIC
+        "${materialization_dir}/MaterializationHierarchy.cpp"
+        "${materialization_dir}/MaterializationState.cpp"
+        "${materialization_dir}/MaterializationReference.cpp"
+        "${materialization_dir}/MaterializationPatch.cpp")
+    target_include_directories(parallel_roam_materialization_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+    target_link_libraries(parallel_roam_materialization_core PUBLIC ParallelROAM::GLM
+        parallel_roam_project_options PRIVATE parallel_roam_project_warnings)
+    add_executable(parallel_roam_RoamMaterialization_tests RoamMaterializationTests.cpp
+        "${materialization_dir}/MaterializationValidation.cpp"
+        "${materialization_dir}/MaterializationDodBridge.cpp"
+        ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
+        ../src/benchmark/formal/FormalCpuInput.cpp ../src/algorithms/TerrainLodView.cpp
+        ../src/terrain/HeightMap.cpp ../src/tools/PerformanceTimer.cpp)
+    target_link_libraries(parallel_roam_RoamMaterialization_tests PRIVATE
+        parallel_roam_materialization_core parallel_roam_project_warnings ParallelROAM::STB Threads::Threads)
+    add_test(NAME RoamMaterialization COMMAND parallel_roam_RoamMaterialization_tests)
+    set_tests_properties(RoamMaterialization PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." TIMEOUT 120)
+    add_executable(parallel_roam_materialization_probe RoamMaterializationProbe.cpp
+        "${materialization_dir}/MaterializationValidation.cpp" "${materialization_dir}/MaterializationDodBridge.cpp"
+        ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
+        ../src/benchmark/formal/FormalCpuInput.cpp ../src/algorithms/TerrainLodView.cpp
+        ../src/terrain/HeightMap.cpp ../src/tools/PerformanceTimer.cpp)
+    target_link_libraries(parallel_roam_materialization_probe PRIVATE parallel_roam_materialization_core
+        parallel_roam_project_warnings ParallelROAM::STB Threads::Threads)
+
     add_executable(parallel_roam_MeshQualityEvaluator_tests MeshQualityEvaluatorTests.cpp
         ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
         ../src/experiment/mesh_quality/MeshQualityEvaluator.cpp

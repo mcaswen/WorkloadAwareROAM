@@ -1,7 +1,7 @@
 # ROAM 目标差分物化原型实现规划
 
 > 日期：2026-09-12；类型：有界大规划；阶段前缀：MPR。
-> 状态：用户已确认大规划并授权实施 MPR-01；MPR-02 仍需独立小规划和确认。
+> 状态：MPR-01 已完成；MPR-02 仍需独立小规划和确认。
 > 依据：[理论报告](../../research/roam_parallelism/target_materialization_gate.md)、[理论完成自审](../../reviews/roam_parallelism/target_materialization_gate_review.md)；[CPU ROAM 主线](../formal_experiment/cpu_roam_research_definition.md)保持。
 
 ## 1. 要验证的问题与范围
@@ -167,7 +167,9 @@ MPR-02 首轮线程 1/2/4；机器不足四个可用核则按实际范围冻结�
 
 停止：旧状态信息不足、原生来源不属于已声明合法网格族、只能生成最终叶而不能续接、或者直接路径仍靠 replay/全域修复时，先报告具体缺口，不开始多线程。若只是标准容器贵，记录瓶颈，不擅自实现并行树。
 
-**实现情况：** 未开始。基线、后测、报告和审查在实施后回填。
+**实现情况：** 已完成，详见[实施记录](../../research/roam_parallelism/target_materialization_prototype.md)和[阶段自审](../../reviews/roam_parallelism/target_materialization_prototype_01_review.md)。独立完整参考、直接物化、Pending 生命周期和自然桥接均成立，未出现事务内必须全域恢复的状态字段。48 个合法切割／2304 个目标对以及两个冻结自然输入完成完整投影与续接核查；八项工作量与五进程配对齐全。部分解析任务有小幅串行收益，自然任务无稳定优势，不以此否定正确性出口或宣称多核收益。
+
+初次导入、认证、复制及换轮费用显著，仍独立计费；实际标准容器对应的复杂度见报告，不能套用初稿线性简写。原默认 DOD 生产探针的旧／新程序身份相同，同期中位数和 P95 配对变化都未触发工程门槛。新原始数据目录已明确忽略。
 
 ### MPR-02：有限并行与成本出口
 
