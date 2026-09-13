@@ -248,3 +248,5 @@ GTP-01 单批没有局部续接性能保证；GTP-02 完成后才能称持续原
 [GTP-03](gtp_03_dynamic_trajectory_plan.md)完成局部有序索引、竞争性动态 A 和固定八次相机更新。[结果](../../research/cpu_refinement/gtp_03_dynamic_trajectory_results.md)确认执行链路及完整成本；返回视图的逐点 excess 没有在一次更新恢复，持续质量仍开放。可以进入同决策 B/C 有限多核测量，不能将这一出口写成生产准入或质量通过
 
 [GTP-04](gtp_04_multicore_plan.md)完成真实 1/4 线程 B/C、异常排空、同批/状态对照和少量 Classic/DOD 上下文。[结果](../../research/cpu_refinement/gtp_04_multicore_results.md)记录完整 1.952×/1.687× 同任务倍率；收益来自认证/评分，微小拓扑记录填写未获得实际多线程扩展。当前绝对成本仍高于 Legacy，test 单线程存在未解决的 12.07% 回归，持续质量风险未消失。**原型四阶段执行收口，尚无直接替代 Legacy 的证据**；依用户要求，提交后另出平台接入性能/复杂度分析，不自动进入生产开发
+
+GTP-04 提交 `9b3711f` 后完成[接入前性能与复杂度分析](../../research/cpu_refinement/gtp_platform_performance_analysis.md)。明确 q/认证/索引而非纯写入是当前主成本，区分局部拓扑界与样本/拟合成本，列出保留语义的降工作候选及冷启动/参数变化/输出适配义务；未新建实验或接入平台
