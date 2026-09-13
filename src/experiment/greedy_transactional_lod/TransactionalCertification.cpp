@@ -1,0 +1,291 @@
+#include "experiment/greedy_transactional_lod/TransactionalCertification.h"
+#include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
+
+#include <boost/multiprecision/cpp_int.hpp>
+#include <algorithm>
+#include <cmath>
+#include <optional>
+#include <stdexcept>
+
+namespace ParallelRoam::Experiment::GreedyTransactionalLod
+{
+namespace
+{
+using R=boost::multiprecision::cpp_rational;
+using Integer=boost::multiprecision::cpp_int;
+
+/// <summary>
+/// 每次基本运算向外舍入；遇到零分母或非有限值时交给精确分支
+/// </summary>
+struct Interval
+{
+    double Low{}, High{};
+    Interval()=default;
+    Interval(double value) : Low(value), High(value) {}
+    Interval(double low,double high) : Low(low),High(high) {}
+};
+
+double Down(double value) { return std::nextafter(value,-std::numeric_limits<double>::infinity()); }
+double Up(double value) { return std::nextafter(value,std::numeric_limits<double>::infinity()); }
+Interval operator+(Interval a,Interval b) { return {Down(a.Low+b.Low),Up(a.High+b.High)}; }
+Interval operator-(Interval a,Interval b) { return {Down(a.Low-b.High),Up(a.High-b.Low)}; }
+Interval operator*(Interval a,Interval b)
+{
+    // 区间允许跨零，不能只乘同侧端点来估计乘积
+    const std::array<double,4> values{a.Low*b.Low,a.Low*b.High,a.High*b.Low,a.High*b.High};
+    return {Down(*std::min_element(values.begin(),values.end())),Up(*std::max_element(values.begin(),values.end()))};
+}
+Interval operator/(Interval a,Interval b)
+{
+    if (b.Low<=0 && b.High>=0) return {-INFINITY,INFINITY};
+    return a*Interval{Down(1/b.High),Up(1/b.Low)};
+}
+
+template<class T> std::array<T,3> Reference(const TransactionalState& state,const TransactionalSamples& samples,Slot sid)
+{
+    // 同一公式分别在区间域与有理域执行，避免两个参考曲面悄然分叉
+    const auto xy=samples.Decode(sid);const auto& source=samples.Source();
+    const auto x=std::min(xy[0]/6,source.Width-2), y=std::min(xy[1]/6,source.Height-2);
+    const T tx=T(xy[0]-6*x)/T(6), ty=T(xy[1]-6*y)/T(6);
+    const auto index=static_cast<std::size_t>(y)*source.Width+x;
+    const T bottom=T(source.Values[index])*(T(1)-tx)+T(source.Values[index+1])*tx;
+    const T top=T(source.Values[index+source.Width])*(T(1)-tx)+T(source.Values[index+source.Width+1])*tx;
+    return {T(xy[0])/T(samples.Denominator()),T(xy[1])/T(samples.Denominator()),
+        ((T(1)-ty)*bottom+ty*top)*T(state.Config().HeightScale)/T(65535)};
+}
+
+template<class T> std::array<T,4> Clip(const Configuration& c,const T& u,const T& v,const T& h)
+{
+    const T x=(u-T(.5))*T(c.TerrainSize),z=(v-T(.5))*T(c.TerrainSize);
+    std::array<T,4> out{};
+    for (std::size_t i=0;i<4;++i) out[i]=((T(c.Matrix[4*i])*x+T(c.Matrix[4*i+1])*h)+T(c.Matrix[4*i+2])*z)+T(c.Matrix[4*i+3]);
+    return out;
+}
+
+template<class T> T Height(const T& u,const T& v,const Point& a,const Point& b,const Point& c)
+{
+    // 插值读取实际发布高度，不能重新采原始 heightfield 替代被测几何
+    const T area=(T(b.U)-T(a.U))*(T(c.V)-T(a.V))-(T(b.V)-T(a.V))*(T(c.U)-T(a.U));
+    const T w0=((T(b.U)-u)*(T(c.V)-v)-(T(b.V)-v)*(T(c.U)-u))/area;
+    const T w1=((u-T(a.U))*(T(c.V)-T(a.V))-(v-T(a.V))*(T(c.U)-T(a.U)))/area;
+    const T w2=T(1)-w0-w1;
+    return (w0*T(a.Height)+w1*T(b.Height))+w2*T(c.Height);
+}
+
+std::array<Point,3> CoveringFace(const TransactionalState& state,const TransactionalSamples& samples,
+    Slot sid,const Proposal* proposal)
+{
+    if (!proposal)
+    {
+        // 旧状态的唯一 owner 足以定义共享曲面上的见证高度
+        const auto& f=state.Face(samples.Values()[sid].Owner).Vertices;
+        return {state.Vertex(f[0]).Geometry,state.Vertex(f[1]).Geometry,state.Vertex(f[2]).Geometry};
+    }
+    for (const auto& f : proposal->Faces)
+    {
+        // 边界可同时命中两个面，它们使用同一存活顶点几何
+        const std::array<Point,3> p{proposal->Points.at(f[0]),proposal->Points.at(f[1]),proposal->Points.at(f[2])};
+        std::array<double,3> weights{};
+        if (samples.Weights(sid,p[0],p[1],p[2],weights)) return p;
+    }
+    throw std::runtime_error("局部提案缺失闭面样本覆盖");
+}
+
+std::optional<R> ExactError(const TransactionalState& state,const TransactionalSamples& samples,Slot sid,const Proposal* proposal)
+{
+    const auto ref=Reference<R>(state,samples,sid); const auto p=CoveringFace(state,samples,sid,proposal);
+    const R height=Height(ref[0],ref[1],p[0],p[1],p[2]);
+    const auto rc=Clip(state.Config(),ref[0],ref[1],ref[2]),mc=Clip(state.Config(),ref[0],ref[1],height);
+    // 比较投影平方误差，避免精确认证依赖平方根舍入
+    if (rc[3]<=0 || mc[3]<=0 || mc[2]<-mc[3]) return {};
+    const R dx=(mc[0]/mc[3]-rc[0]/rc[3])*state.Config().Width/2;
+    const R dy=(mc[1]/mc[3]-rc[1]/rc[3])*state.Config().Height/2;
+    return R(dx*dx+dy*dy);
+}
+
+std::optional<Interval> ErrorBounds(const TransactionalState& state,const TransactionalSamples& samples,Slot sid,
+    const Proposal* proposal,WorkLedger& work)
+{
+    ++work.FilterChecks;
+    const auto ref=Reference<Interval>(state,samples,sid);const auto p=CoveringFace(state,samples,sid,proposal);
+    const auto height=Height(ref[0],ref[1],p[0],p[1],p[2]);
+    const auto rc=Clip(state.Config(),ref[0],ref[1],ref[2]),mc=Clip(state.Config(),ref[0],ref[1],height);
+    const auto near=mc[2]+mc[3];
+    // 只有整个区间都处于投影定义域，才允许快速接受它给出的误差界
+    if (rc[3].Low>0 && mc[3].Low>0 && near.Low>=0)
+    {
+        const auto dx=(mc[0]/mc[3]-rc[0]/rc[3])*Interval(state.Config().Width*.5);
+        const auto dy=(mc[1]/mc[3]-rc[1]/rc[3])*Interval(state.Config().Height*.5);
+        const auto value=dx*dx+dy*dy;
+        if (std::isfinite(value.Low) && std::isfinite(value.High))
+            return Interval{std::max(0.0,value.Low),std::max(0.0,value.High)};
+    }
+    // 过滤不能判定投影域时，不将整个补丁判坏；先复核精确二进制几何
+    ++work.ExactChecks;
+    const auto exact=ExactError(state,samples,sid,proposal);
+    if (!exact) return {};
+    const double value=exact->convert_to<double>();
+    return Interval{std::max(0.0,Down(value)),Up(value)};
+}
+
+using Pair=std::array<double,2>;
+std::vector<Pair> ClipPolygon(const std::vector<Pair>& polygon,const Pair& coefficients,double rhs)
+{
+    // 二维可行多边形只产生拟合候选；浮点裁剪成功仍不构成质量证明
+    std::vector<Pair> result;
+    if (polygon.empty()) return result;
+    Pair previous=polygon.back();double pv=coefficients[0]*previous[0]+coefficients[1]*previous[1]-rhs;
+    for (const auto& current : polygon)
+    {
+        const double cv=coefficients[0]*current[0]+coefficients[1]*current[1]-rhs;
+        if ((pv<=0)!=(cv<=0))
+        {
+            const double t=pv/(pv-cv);
+            result.push_back({previous[0]+t*(current[0]-previous[0]),previous[1]+t*(current[1]-previous[1])});
+        }
+        if (cv<=0) result.push_back(current);
+        previous=current;pv=cv;
+    }
+    std::vector<Pair> unique;
+    for (const auto& point : result)
+        if (std::find(unique.begin(),unique.end(),point)==unique.end()) unique.push_back(point);
+    return unique;
+}
+}
+
+double TransactionalCertification::ExactErrorSquared(const TransactionalState& state,const TransactionalSamples& samples,
+    Slot sample,const Proposal* proposal)
+{
+    const auto value=ExactError(state,samples,sample,proposal);
+    if (!value) throw std::runtime_error("精确投影不在声明域");
+    return value->convert_to<double>();
+}
+
+bool TransactionalCertification::Measure(const TransactionalState& state,const TransactionalSamples& samples,
+    Proposal& proposal,WorkLedger& work)
+{
+    proposal.ErrorLower=proposal.ErrorUpper=0;
+    // 缓存整个局部曲面的最大误差区间，供多个接收阈值复用
+    for (auto sid : proposal.Samples)
+    {
+        work.Touch();const auto error=ErrorBounds(state,samples,sid,&proposal,work);
+        if (!error) return false;
+        proposal.ErrorLower=std::max(proposal.ErrorLower,error->Low);
+        proposal.ErrorUpper=std::max(proposal.ErrorUpper,error->High);
+    }
+    return true;
+}
+
+bool TransactionalCertification::Accepts(const TransactionalState& state,const TransactionalSamples& samples,
+    const Proposal& proposal,std::int64_t targetMicropixels,WorkLedger& work)
+{
+    if (targetMicropixels<0) return false;
+    const Interval target=Interval(static_cast<double>(targetMicropixels))/Interval(1000000);
+    const Interval square=target*target;
+    // 快速真/假必须由不相交区间支持，边界重叠才逐样本精确比较
+    if (proposal.ErrorUpper<=square.Low) return true;
+    if (proposal.ErrorLower>square.High) return false;
+    const R exactTarget=R(targetMicropixels)/1000000;
+    for (auto sid : proposal.Samples)
+    {
+        work.Touch();++work.ExactChecks;
+        const auto error=ExactError(state,samples,sid,&proposal);
+        if (!error || *error>exactTarget*exactTarget) return false;
+    }
+    return true;
+}
+
+std::string TransactionalCertification::Fit(const TransactionalState& state,const TransactionalSamples& samples,
+    Proposal& proposal,WorkLedger& work)
+{
+    work.CheckLimit();++work.Proposals;
+    for (const auto& face : proposal.Faces)
+        if (!TransactionalPredicates::Shape(proposal.Points.at(face[0]),proposal.Points.at(face[1]),proposal.Points.at(face[2])))
+            return "shape_infeasible";
+    if (proposal.Samples.empty()) return "no_screen_samples";
+    auto witness=proposal.Samples.front();
+    // 浮点评价只选择见证，实际阈值由该见证的精确旧误差向下取整
+    for (auto sid : proposal.Samples)
+        if (samples.Values()[sid].ErrorSquared>samples.Values()[witness].ErrorSquared) witness=sid;
+    const auto oldError=ExactError(state,samples,witness,nullptr);++work.ExactChecks;
+    if (!oldError) return "projection_unknown";
+    const Integer scaled=numerator(*oldError)*Integer(1000000000000LL)/denominator(*oldError);
+    const Integer root=boost::multiprecision::sqrt(scaled);
+    if (root>std::numeric_limits<std::int64_t>::max()) return "numeric_unknown";
+    proposal.TargetMicropixels=root.convert_to<std::int64_t>()-10000;
+    if (proposal.TargetMicropixels<0) return "below_progress_margin";
+    const double target=static_cast<double>(proposal.TargetMicropixels)/1000000;
+    const auto& config=state.Config();
+    const auto first=proposal.Points.at(proposal.Free[0]).Height;
+    double low=-config.HeightScale-first, high=2*config.HeightScale-first;
+    std::vector<Pair> polygon;
+    // 高度范围以相对增量表达；旧中心与新点共享同一个局部约束系统
+    if (proposal.Free.size()==2)
+    {
+        const double other=proposal.Points.at(proposal.Free[1]).Height;
+        polygon={{low,-config.HeightScale-other},{high,-config.HeightScale-other},
+            {high,2*config.HeightScale-other},{low,2*config.HeightScale-other}};
+    }
+    for (auto sid : proposal.Samples)
+    {
+        work.Touch();
+        const auto p=CoveringFace(state,samples,sid,&proposal);
+        std::array<double,3> weights{};
+        samples.Weights(sid,p[0],p[1],p[2],weights);
+        Pair beta{};
+        // 支持点坐标可相同但身份不能混淆；取真正覆盖面的连接求自由高度系数
+        for (const auto& f : proposal.Faces)
+        {
+            if (!samples.Weights(sid,proposal.Points.at(f[0]),proposal.Points.at(f[1]),proposal.Points.at(f[2]),weights)) continue;
+            for (std::size_t i=0;i<proposal.Free.size();++i)
+                for (std::size_t j=0;j<3;++j) if (proposal.Free[i]==f[j]) beta[i]+=weights[j];
+            break;
+        }
+        const auto uv=samples.Parameter(sid);const auto& value=samples.Values()[sid];
+        const auto rc=TransactionalSamples::Clip(config,uv.U,uv.V,value.ReferenceHeight);
+        const auto mc=TransactionalSamples::Clip(config,uv.U,uv.V,value.MeshHeight);
+        const double cw=config.Matrix[13];
+        const double kx=(config.Matrix[1]*mc[3]-cw*mc[0])*(config.Width*.5);
+        const double ky=(config.Matrix[5]*mc[3]-cw*mc[1])*(config.Height*.5);
+        const double k=(std::ceil(std::hypot(kx,ky)/rc[3]*1e6)+1)/1e6;
+        // 线性上界故意向保守方向取值，遗漏可行解只记录拟合失败
+        const double difference=value.ReferenceHeight-value.MeshHeight;
+        const std::array<double,4> multiplier{-k-target*cw,k-target*cw,-cw,-(config.Matrix[9]+cw)};
+        const std::array<double,4> rhs{target*mc[3]-k*difference,target*mc[3]+k*difference,mc[3]-1e-9,mc[2]+mc[3]};
+        for (std::size_t row=0;row<4;++row)
+        {
+            ++work.Constraints;const Pair coefficients{multiplier[row]*beta[0],multiplier[row]*beta[1]};
+            if (proposal.Free.size()==2)
+            {
+                polygon=ClipPolygon(polygon,coefficients,rhs[row]);
+                if (polygon.empty()) return "fit_bound_failed";
+            }
+            else
+            {
+                if (coefficients[0]>0) high=std::min(high,rhs[row]/coefficients[0]);
+                else if (coefficients[0]<0) low=std::max(low,rhs[row]/coefficients[0]);
+                else if (rhs[row]<0) return "fit_bound_failed";
+                if (low>high) return "fit_bound_failed";
+            }
+        }
+    }
+    Pair delta{std::min(high,std::max(low,0.0)),0};
+    // 一维选最接近零的增量，二维沿用冻结多边形顶点均值
+    if (proposal.Free.size()==2)
+    {
+        delta={0,0};
+        for (const auto& point : polygon) { delta[0]+=point[0];delta[1]+=point[1]; }
+        delta[0]/=static_cast<double>(polygon.size());delta[1]/=static_cast<double>(polygon.size());
+    }
+    for (std::size_t i=0;i<proposal.Free.size();++i)
+    {
+        auto& point=proposal.Points.at(proposal.Free[i]);point.Height+=delta[i];
+        if (!std::isfinite(point.Height) || point.Height < -config.HeightScale || point.Height > 2*config.HeightScale)
+            return "numeric_unknown";
+    }
+    // 上面的加法已经舍入到真正发布值；证书不为拟合器提供容差通道
+    if (!Measure(state,samples,proposal,work) || !Accepts(state,samples,proposal,proposal.TargetMicropixels,work))
+        return "numeric_unknown";
+    return "certified";
+}
+}

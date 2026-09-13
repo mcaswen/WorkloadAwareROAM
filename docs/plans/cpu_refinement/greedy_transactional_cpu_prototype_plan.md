@@ -240,3 +240,5 @@ GTP-01 单批没有局部续接性能保证；GTP-02 完成后才能称持续原
 2026-09-14 按原型前结果评审完成文档修订：确认原型前 PASS，区分持续质量未验证与已失败；补齐 P/evidence、高度自由度、批次额度生命周期及恢复观察；全 Q 高度保护降为保守对照。目录、依赖及四阶段结构不变，新增契约分别归属既有 Types/Proposals/Certification、Reservation 和 Samples/Pipeline/Validation，无新组件。未修改代码或原冻结实验，未启动 GTP 实现。
 
 随后用户授权本大规划实施及后续小规划自主闭环。先提交准入修订与本授权记录，再撰写 GTP-01；上一段的“未启动”保留为修订时状态，不限制本次新增授权。
+
+[GTP-01](gtp_01_serial_kernel_plan.md)随后完成独立单批串行内核、实际 binary64 认证和局部直接发布。[结果](../../research/cpu_refinement/gtp_01_serial_kernel_results.md)记录交换 19/21/0/1、独立精确核查、最小角舍入差异及完整成本。没有外部 J 或全状态复制提交；正常局部续接、mesh 消费和多线程仍未实现。本阶段闭环并提交后进入 GTP-02。
