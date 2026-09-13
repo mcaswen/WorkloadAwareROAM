@@ -1,9 +1,11 @@
 # 原生 DOD 拓扑目标规划与直接物化接入规划
 
 > 日期：2026-09-13；类型：大规划；阶段前缀：NMP。
-> 状态：**规划已提交为 `c2cd2d8`；NMP-01 实现与验收已提交为 `2f04f48`。[NMP-01P 小规划](native_planner_performance_plan.md)已获授权并在实施，当前语义核查通过、压力性能未达门槛，继续优化；NMP-02 未启动**。
+> 状态：**规划已提交为 `c2cd2d8`；NMP-01 实现与验收已提交为 `2f04f48`；NMP-01P 优化核查点已提交为 `c36286f`。按用户要求暂停扩展性能修改，[定理—运行时义务审计](../../reviews/roam_parallelism/native_planner_contract_traceability_audit.md)已完成；当前压力性能未达门槛，NMP-02 未启动**。
 > 原型源码基线：`602ed48`；原生规划器当前基线：`2f04f48`。实现和验证见 §15，当前没有生产新路径或开关。
 > 依据：[接入边界事实](../../codebase/roam_parallelism/native_materialization_integration_baseline.md)、[MPR 原型大规划](target_materialization_prototype_plan.md)、[原型结果](../../research/roam_parallelism/target_materialization_prototype.md)、[理论边界](../../research/roam_parallelism/target_materialization_gate.md)。
+
+当前契约说明：本文既有逐步严格要求来自原生目标发现的已确认规格，不由 Lean 队列修复定理推出。理论的净差分事务与本规划的 Legacy 终态 Γ 不能互换。此次审计保留现有代码、轨迹和测试，仅建议下一步明确 E1 的原生端点投影及扩展支持集；下文历史设计不因此自动放宽，性能修改暂不继续。
 
 ## 1. 问题、目标与完成标准
 

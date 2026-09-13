@@ -1,10 +1,12 @@
 # NMP-01P：严格目标规划器性能优化
 
-> 日期：2026-09-13；类型：小规划；状态：**优化实施中，当前中间版本语义核查通过，压力性能未达 80% 硬门槛；不作本轮终止**。
+> 日期：2026-09-13；类型：小规划；状态：**按用户要求暂停扩展性能修改；当前版本语义核查通过、压力性能未达 80% 硬门槛，不作通过或终止。[定理—运行时义务审计](../../reviews/roam_parallelism/native_planner_contract_traceability_audit.md)已完成，后续先确认端点与目标发现契约**。
 > 实现基线：`2f04f48`，已按用户要求先提交 NMP-01，再编写本规划。
 > 位置：NMP-01 → **NMP-01P** → NMP-02；保留原生接入阶段编号，不提前启动物化或生产切换。
 > 提交记录：用户已授权提交§9.13的当前核查点；过程记录中的“未提交”描述当时状态，不改变本阶段仍在优化、性能未达标的判断。
 > 依据：[大规划](native_materialization_plan.md)、[NMP-01 结果 §11.12](native_materialization_01_plan.md#1112-完整严格规划器与阶段验收结果)、[实现事实 §10–11](../../codebase/roam_parallelism/native_materialization_integration_baseline.md)、[阶段审查](../../reviews/roam_parallelism/native_materialization_01_review.md)、[开发规范](../../standards/development_guidelines.md)、[规划规范](../plan_guideline.md)。
+
+本次暂停说明：§1–9 保留已确认的 Strict Planner 契约和实施记录；逐根/失败/停止一致来自 NMP 目标发现要求，不是 Lean 端点物化定理。审计区分了净事务 `TargetMarks` 与原生 Γ，也确认当前样本的候选往返维护不能等同成功拓扑事件 churn。现有严格夹具、轨迹、门槛及独立参考不变；不新增 §9.14 性能实现。E1 与原生队列支持集的后续建议见上述审计 §5、§7，尚未据此改变算法或验收。
 
 ## 1. 目标与冻结边界
 
