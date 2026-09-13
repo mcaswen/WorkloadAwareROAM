@@ -4,6 +4,7 @@
 #include "experiment/greedy_transactional_lod/TransactionalReservation.h"
 #include "experiment/greedy_transactional_lod/TransactionalValidation.h"
 #include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
+#include "experiment/greedy_transactional_lod/TransactionalPipeline.h"
 
 #include <algorithm>
 #include <cmath>
@@ -94,10 +95,53 @@ void ReclamationAndPredicates()
     WorkLedger expired;expired.Deadline=std::chrono::steady_clock::time_point::min();
     Throws([&] { expired.CheckLimit(); });
 }
+
+void PersistentStateAndConsumption()
+{
+    auto input=Square();TransactionalPipeline pipeline(input);WorkLedger initialize;pipeline.Initialize(initialize);
+    ParallelRoam::Terrain::TerrainMeshData mirror;TransactionalValidation::Consume(pipeline.ConsumeMesh(),mirror);
+    auto batch=TransactionalReservation::Plan(pipeline.State(),pipeline.Samples(),initialize);
+    Require(!batch.Exchanges.empty(),"持续夹具没有事务");
+    const auto originalVersion=pipeline.State().Version();
+    WorkLedger expired;expired.Deadline=std::chrono::steady_clock::time_point::min();
+    Throws([&] { pipeline.Apply(batch,expired); });
+    Require(pipeline.State().Version()==originalVersion,"准备失败推进了代际");
+    TransactionalValidation::Samples(pipeline.State(),pipeline.Samples(),initialize);
+    auto empty=pipeline.ConsumeMesh();Require(empty.Vertices.empty() && empty.Indices.empty(),"失败制造了 Pending");
+    for (int round=0;round<3;++round)
+    {
+        WorkLedger work;const auto count=pipeline.State().FaceCount();const auto update=pipeline.Update(work);
+        Require(update.AssignedCredits==std::min((input.Config.Budget-count)/2,update.Receivers),"跨批次额度没有重新命名");
+        TransactionalValidation::Validate(pipeline.State());
+        TransactionalValidation::Samples(pipeline.State(),pipeline.Samples(),initialize);
+        TransactionalValidation::Mesh(pipeline.State(),pipeline.Mesh());
+        if (round==1 || round==2) TransactionalValidation::Consume(pipeline.ConsumeMesh(),mirror);
+    }
+    empty=pipeline.ConsumeMesh();Require(empty.Vertices.empty() && empty.Indices.empty(),"重复消费没有清空 Pending");
+    // 先完成所有局部准备再模拟配额中止，旧 live 内容仍须可供下一批继续
+    {
+        TransactionalState independent(input);TransactionalSamples samples(input.Source);samples.Refresh(independent,initialize);
+        TransactionalMesh mesh;mesh.Initialize(independent,initialize);
+        auto prepared=TransactionalCommit::Prepare(independent,batch,initialize);
+        auto samplePatch=samples.Prepare(independent,prepared,initialize);auto meshPatch=mesh.Prepare(independent,prepared,initialize);
+        static_cast<void>(samplePatch);static_cast<void>(meshPatch);
+        Throws([&] { expired.CheckLimit(); });
+        Require(independent.Version()==1 && independent.FaceCount()==2,"私有准备修改了 live 状态");
+        TransactionalValidation::Samples(independent,samples,initialize);TransactionalValidation::Mesh(independent,mesh.Data());
+    }
+    // 构造屏幕证据域外的高度改动，保护仍须覆盖整个闭补丁
+    auto hidden=input;hidden.Config.Matrix[15]=-1;
+    TransactionalState source(hidden);TransactionalSamples samples(hidden.Source);samples.Refresh(source,initialize);
+    Require(std::none_of(samples.Values().begin(),samples.Values().end(),[](const auto& value) { return value.Visible; }),
+        "高度保护夹具未覆盖视域外样本");
+    auto receiver=TransactionalProposals::Receivers(source,samples,0).front();
+    receiver.Points.at(receiver.NewVertex).Height=100;
+    Require(!TransactionalCertification::PreservesHeight(source,samples,receiver,nullptr,initialize),"全 Q 高度保护漏掉退化");
+}
 }
 
 int main()
 {
-    try { SamplesAndCertification();ReclamationAndPredicates();std::cout<<"数值、样本、局部几何、冲突与发布验证完成\n"; }
+    try { SamplesAndCertification();ReclamationAndPredicates();PersistentStateAndConsumption();std::cout<<"数值、局部续接、保护与输出消费验证完成\n"; }
     catch (const std::exception& error) { std::cerr<<error.what()<<'\n';return 1; }
 }

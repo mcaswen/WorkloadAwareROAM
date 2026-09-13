@@ -153,6 +153,77 @@ std::vector<Pair> ClipPolygon(const std::vector<Pair>& polygon,const Pair& coeff
 }
 }
 
+/// <summary>
+/// 完整闭补丁的高度平方误差证据；精确最大值仅在区间相交时计算
+/// </summary>
+struct HeightEvidence
+{
+    std::vector<Slot> Samples;
+    Interval Old, New;
+    R ExactOld{}, ExactNew{};
+    bool Exact{};
+};
+
+bool TransactionalCertification::PreservesHeight(const TransactionalState& state,const TransactionalSamples& samples,
+    const Proposal& receiver,const Proposal* donor,WorkLedger& work)
+{
+    const auto started=std::chrono::steady_clock::now();++work.HeightGuardChecks;
+    const auto evidence=[&](const Proposal& proposal)->HeightEvidence& {
+        // 高度保护覆盖不可见 Q，不能复用只含屏幕可见证据的 Samples 字段
+        if (proposal.HeightProof) return *proposal.HeightProof;
+        auto proof=std::make_shared<HeightEvidence>();
+        for (auto face : proposal.Support)
+            proof->Samples.insert(proof->Samples.end(),samples.FaceSamples(face).begin(),samples.FaceSamples(face).end());
+        std::sort(proof->Samples.begin(),proof->Samples.end());
+        proof->Samples.erase(std::unique(proof->Samples.begin(),proof->Samples.end()),proof->Samples.end());
+        for (auto sid : proof->Samples)
+        {
+            work.Touch();++work.HeightSamples;
+            const auto ref=Reference<Interval>(state,samples,sid);
+            const auto bound=[&](const Proposal* p) {
+                const auto f=CoveringFace(state,samples,sid,p);
+                const auto h=Height(ref[0],ref[1],f[0],f[1],f[2])-ref[2];const auto sq=h*h;
+                return Interval{std::max(0.0,sq.Low),sq.High};
+            };
+            const auto old=bound(nullptr),next=bound(&proposal);
+            proof->Old.Low=std::max(proof->Old.Low,old.Low);proof->Old.High=std::max(proof->Old.High,old.High);
+            proof->New.Low=std::max(proof->New.Low,next.Low);proof->New.High=std::max(proof->New.High,next.High);
+        }
+        proposal.HeightProof=std::move(proof);return *proposal.HeightProof;
+    };
+    auto& r=evidence(receiver);auto* d=donor ? &evidence(*donor) : nullptr;
+    // 交换先合并两个补丁的最大值，保护并不要求每个样本逐点不退化
+    const double oldLow=std::max(r.Old.Low,d ? d->Old.Low : 0),oldHigh=std::max(r.Old.High,d ? d->Old.High : 0);
+    const double newLow=std::max(r.New.Low,d ? d->New.Low : 0),newHigh=std::max(r.New.High,d ? d->New.High : 0);
+    bool accepted=false;
+    if (!r.Samples.empty() && (!d || !d->Samples.empty()) && std::isfinite(newHigh) && newHigh<=oldLow) accepted=true;
+    else if (!r.Samples.empty() && (!d || !d->Samples.empty()) && !(newLow>oldHigh))
+    {
+        // 边界相等使用有理平方比较，不靠像素或高度 epsilon 宣称安全
+        const auto exact=[&](const Proposal& proposal,HeightEvidence& proof) {
+            if (proof.Exact) return;
+            for (auto sid : proof.Samples)
+            {
+                work.Touch();++work.HeightExactSamples;
+                const auto ref=Reference<R>(state,samples,sid);
+                const auto error=[&](const Proposal* p)->R {
+                    const auto f=CoveringFace(state,samples,sid,p);
+                    const R difference=Height(ref[0],ref[1],f[0],f[1],f[2])-ref[2];return R(difference*difference);
+                };
+                proof.ExactOld=std::max(proof.ExactOld,error(nullptr));
+                proof.ExactNew=std::max(proof.ExactNew,error(&proposal));
+            }
+            proof.Exact=true;
+        };
+        // 同一提案在多个配对阈值下复用精确值，避免每个 pair 重扫全 Q
+        exact(receiver,r);if (donor) exact(*donor,*d);
+        accepted=std::max(r.ExactNew,d ? d->ExactNew : R(0))<=std::max(r.ExactOld,d ? d->ExactOld : R(0));
+    }
+    if (!accepted) ++work.HeightGuardRejected;
+    work.Seconds["height_guard"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
+    return accepted;
+}
+
 double TransactionalCertification::ExactErrorSquared(const TransactionalState& state,const TransactionalSamples& samples,
     Slot sample,const Proposal* proposal)
 {

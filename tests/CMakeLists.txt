@@ -14,10 +14,11 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
         "${transactional_dir}/TransactionalState.cpp" "${transactional_dir}/TransactionalSamples.cpp"
         "${transactional_dir}/TransactionalPredicates.cpp" "${transactional_dir}/TransactionalCertification.cpp"
         "${transactional_dir}/TransactionalProposals.cpp" "${transactional_dir}/TransactionalReservation.cpp"
-        "${transactional_dir}/TransactionalCommit.cpp" "${transactional_dir}/TransactionalPipeline.cpp")
+        "${transactional_dir}/TransactionalCommit.cpp" "${transactional_dir}/TransactionalPipeline.cpp"
+        "${transactional_dir}/TransactionalMesh.cpp")
     target_include_directories(parallel_roam_transactional_lod_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../src")
     target_include_directories(parallel_roam_transactional_lod_core SYSTEM PRIVATE "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
-    target_link_libraries(parallel_roam_transactional_lod_core PUBLIC parallel_roam_project_options PRIVATE parallel_roam_project_warnings)
+    target_link_libraries(parallel_roam_transactional_lod_core PUBLIC parallel_roam_project_options parallel_roam_glm PRIVATE parallel_roam_project_warnings)
     if(MSVC)
         target_compile_options(parallel_roam_transactional_lod_core PRIVATE /fp:strict)
     else()

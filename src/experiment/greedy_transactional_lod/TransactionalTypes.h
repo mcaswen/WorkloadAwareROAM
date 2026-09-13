@@ -1,10 +1,12 @@
 #pragma once
 
 #include <array>
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <limits>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -49,6 +51,7 @@ struct Configuration
     std::array<double, 16> Matrix{1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
     std::size_t PrefixLimit{64}, DonorLimit{64};
     std::size_t SampleVisitLimit{1000000};
+    bool HeightGuard{};
 };
 
 /// <summary>
@@ -80,14 +83,30 @@ struct WorkLedger
     std::uint64_t Proposals{}, SampleTouches{}, Constraints{}, ExactChecks{}, FilterChecks{};
     std::uint64_t EarTests{}, RingVisits{}, PairChecks{}, ReservationChecks{};
     std::uint64_t DonorReuse{}, Conflicts{}, PreparedFaces{}, PreparedVertices{}, PreparedEdges{};
+    std::uint64_t RepairSamples{}, RepairFaces{}, OrderVisits{}, MeshVertices{}, MeshIndices{}, PendingBlocks{};
+    std::uint64_t HeightSamples{}, HeightExactSamples{}, HeightGuardChecks{}, HeightGuardRejected{};
+    std::uint64_t CapacityGrowths{}, CapacityBytesReserved{}, CapacityBytesRelocated{};
     std::map<std::string, std::uint64_t> Reasons;
     std::map<std::string, double> Seconds;
     std::chrono::steady_clock::time_point Deadline{std::chrono::steady_clock::time_point::max()};
     std::size_t VisitLimit{1000000};
     void CheckLimit() const;
     void Touch();
+    /// <summary>
+    /// 连续存储按几何容量增长，显式登记偶发搬移而不隐瞒为局部工作
+    /// </summary>
+    template<class T> void Reserve(std::vector<T>& values,std::size_t needed)
+    {
+        if (needed<=values.capacity()) return;
+        const auto extra=values.capacity()/2+1;
+        const auto grown=values.capacity()>values.max_size()-extra ? values.max_size() : values.capacity()+extra;
+        const auto capacity=std::max(needed,grown);
+        values.reserve(capacity);++CapacityGrowths;
+        CapacityBytesReserved+=capacity*sizeof(T);CapacityBytesRelocated+=values.size()*sizeof(T);
+    }
 };
 
+struct HeightEvidence;
 /// <summary>
 /// 局部替换提案在只读快照上形成，所有新面均引用 Points 内几何
 /// Free 仅列允许改高的点，Support 是被替换的旧面槽
@@ -105,6 +124,8 @@ struct Proposal
     std::int64_t TargetMicropixels{};
     double ErrorLower{}, ErrorUpper{};
     std::string Reason;
+    // 保护证据只在当前冻结提案内复用，不跨拓扑或视图代际缓存
+    mutable std::shared_ptr<HeightEvidence> HeightProof;
 };
 
 /// <summary>

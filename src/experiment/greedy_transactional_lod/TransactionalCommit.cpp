@@ -8,11 +8,17 @@
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
-void TransactionalCommit::Apply(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work)
+const Point& PreparedTopology::Geometry(const TransactionalState& old,Identity id) const
+{
+    // 边界保留点只读旧几何，局部改高和新点由目标记录覆盖
+    const auto found=Vertices.find(id);
+    return found==Vertices.end() ? old.Vertex(id).Geometry : found->second.Geometry;
+}
+
+PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work)
 {
     const auto started=std::chrono::steady_clock::now();
     if (batch.Version!=state.Version()) throw std::runtime_error("批次快照已过期");
-    if (batch.Exchanges.empty()) return;
     std::set<Slot> removed;
     std::set<Identity> deletedVertices;
     std::map<Identity,Point> geometry;
@@ -153,16 +159,55 @@ void TransactionalCommit::Apply(TransactionalState& state,const CertifiedBatch& 
     }
     work.PreparedFaces+=faces.size();work.PreparedVertices+=vertices.size();work.PreparedEdges+=edges.size();
 
+    PreparedTopology result;result.Version=state.Version();
+    // 稀疏模拟活动数组尾交换，输出索引不需要复制整份活动表
+    std::map<Slot,Slot> positions;
+    auto activeCount=state.FaceCount();
+    for (auto slot : removed)
+    {
+        const auto tail=static_cast<Slot>(activeCount-1);
+        const auto last=result.ActiveWrites.contains(tail) ? result.ActiveWrites.at(tail) : state._activeFaces[tail];
+        const auto position=positions.contains(slot) ? positions.at(slot) : state._faces[slot].ActivePosition;
+        result.ActiveWrites[position]=last;positions[last]=position;--activeCount;
+    }
+    for (const auto& [slot,face] : faces)
+    {
+        static_cast<void>(face);result.ActiveWrites[static_cast<Slot>(activeCount++)]=slot;
+    }
+    result.ActiveWrites.erase(result.ActiveWrites.lower_bound(static_cast<Slot>(activeCount)),result.ActiveWrites.end());
+    // 被截掉的活动尾部只缩短索引，不制造指向已经释放槽位的脏写
+    result.FinalActiveCount=activeCount;result.FinalFaceSlots=state._faces.size()+appendFaces;
+    result.Removed=std::move(removed);result.DeletedVertices=std::move(deletedVertices);
+    result.FaceSlots=std::move(faceSlots);result.VertexSlots=std::move(vertexSlots);
+    result.AddedIndex=std::move(addedIndex);result.Vertices=std::move(vertices);
+    result.Edges=std::move(edges);result.Faces=std::move(faces);
+    result.UsedFreeFaces=usedFreeFaces;result.AppendFaces=appendFaces;
+    result.AssignedVertices=assignedVertices;result.UsedFreeVertices=usedFreeVertices;result.AppendVertices=appendVertices;
+    result.NextFace=nextFace;result.NextVertex=nextVertex;
     // 后续 node handle 转移和预留数组写入不分配；容量变化不改变已发布逻辑状态
-    state._faces.reserve(state._faces.size()+appendFaces);state._vertices.reserve(state._vertices.size()+appendVertices);
-    state._activeFaces.reserve(state.FaceCount()-removed.size()+needed);
-    state._freeFaces.reserve(state._freeFaces.size()+removed.size());
-    state._freeVertices.reserve(state._freeVertices.size()+deletedVertices.size());
+    work.Reserve(state._faces,state._faces.size()+appendFaces);work.Reserve(state._vertices,state._vertices.size()+appendVertices);
+    work.Reserve(state._activeFaces,activeCount);
+    work.Reserve(state._freeFaces,state._freeFaces.size()+result.Removed.size());
+    work.Reserve(state._freeVertices,state._freeVertices.size()+result.DeletedVertices.size());
+    work.Seconds.try_emplace("publish",0);
     work.CheckLimit();
-    state._faces.resize(state._faces.size()+appendFaces);
-    state._vertices.resize(state._vertices.size()+appendVertices);
     work.Seconds["prepare"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
+    return result;
+}
+
+void TransactionalCommit::Publish(TransactionalState& state,PreparedTopology&& prepared,WorkLedger& work)
+{
+    if (prepared.Version!=state.Version()) throw std::runtime_error("准备记录的快照已过期");
+    if (prepared.Removed.empty()) return;
+    // 空批次保持代际；下一次规划仍可以重新分配本批失败的命名额度
+    // 以下别名只访问预分配的局部记录，不再进行认证、拟合或资源发现
+    auto& removed=prepared.Removed;auto& deletedVertices=prepared.DeletedVertices;
+    auto& faces=prepared.Faces;auto& vertices=prepared.Vertices;auto& edges=prepared.Edges;
+    auto& faceSlots=prepared.FaceSlots;auto& vertexSlots=prepared.VertexSlots;auto& addedIndex=prepared.AddedIndex;
+    const auto needed=faces.size();
     const auto publication=std::chrono::steady_clock::now();
+    state._faces.resize(state._faces.size()+prepared.AppendFaces);
+    state._vertices.resize(state._vertices.size()+prepared.AppendVertices);
     for (auto slot : removed)
     {
         // 稠密活动数组仅作尾部搬移，稳定面身份不随物理次序改变
@@ -170,11 +215,11 @@ void TransactionalCommit::Apply(TransactionalState& state,const CertifiedBatch& 
         state._activeFaces[f.ActivePosition]=last;state._faces[last].ActivePosition=f.ActivePosition;
         state._activeFaces.pop_back();f.ActivePosition=InvalidSlot;
     }
-    state._freeFaces.resize(state._freeFaces.size()-usedFreeFaces);
+    state._freeFaces.resize(state._freeFaces.size()-prepared.UsedFreeFaces);
     for (std::size_t i=needed;i<faceSlots.size();++i) state._freeFaces.push_back(faceSlots[i]);
-    for (const auto& [slot,prepared] : faces)
+    for (const auto& [slot,face] : faces)
     {
-        state._faces[slot]=prepared;state._faces[slot].ActivePosition=static_cast<Slot>(state._activeFaces.size());
+        state._faces[slot]=face;state._faces[slot].ActivePosition=static_cast<Slot>(state._activeFaces.size());
         state._activeFaces.push_back(slot);
     }
     for (auto id : deletedVertices)
@@ -182,8 +227,8 @@ void TransactionalCommit::Apply(TransactionalState& state,const CertifiedBatch& 
         const auto slot=state._vertexIndex.at(id);state._vertices[slot].Active=false;state._vertices[slot].Incident.clear();
         state._vertexIndex.erase(id);
     }
-    state._freeVertices.resize(state._freeVertices.size()-usedFreeVertices);
-    for (std::size_t i=assignedVertices;i<vertexSlots.size();++i) state._freeVertices.push_back(vertexSlots[i]);
+    state._freeVertices.resize(state._freeVertices.size()-prepared.UsedFreeVertices);
+    for (std::size_t i=prepared.AssignedVertices;i<vertexSlots.size();++i) state._freeVertices.push_back(vertexSlots[i]);
     while (!addedIndex.empty()) state._vertexIndex.insert(addedIndex.extract(addedIndex.begin()));
     // 预分配的树节点转移不分配新内存，旧记录销毁也不触发用户回调
     for (auto& [id,record] : vertices) state._vertices[state._vertexIndex.at(id)]=std::move(record);
@@ -192,8 +237,14 @@ void TransactionalCommit::Apply(TransactionalState& state,const CertifiedBatch& 
         auto node=edges.extract(edges.begin());state._edges.erase(node.key());
         if (node.mapped().Count) state._edges.insert(std::move(node));
     }
-    state._nextFaceId=nextFace;state._nextVertexId=nextVertex;++state._version;
+    state._nextFaceId=prepared.NextFace;state._nextVertexId=prepared.NextVertex;++state._version;
     // 只推进一次代际，任何基于旧状态的后续批次都必须重新规划
-    work.Seconds["publish"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-publication).count();
+    work.Seconds.at("publish")+=std::chrono::duration<double>(std::chrono::steady_clock::now()-publication).count();
+}
+
+void TransactionalCommit::Apply(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work)
+{
+    auto prepared=Prepare(state,batch,work);
+    Publish(state,std::move(prepared),work);
 }
 }

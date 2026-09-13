@@ -242,3 +242,5 @@ GTP-01 单批没有局部续接性能保证；GTP-02 完成后才能称持续原
 随后用户授权本大规划实施及后续小规划自主闭环。先提交准入修订与本授权记录，再撰写 GTP-01；上一段的“未启动”保留为修订时状态，不限制本次新增授权。
 
 [GTP-01](gtp_01_serial_kernel_plan.md)随后完成独立单批串行内核、实际 binary64 认证和局部直接发布。[结果](../../research/cpu_refinement/gtp_01_serial_kernel_results.md)记录交换 19/21/0/1、独立精确核查、最小角舍入差异及完整成本。没有外部 J 或全状态复制提交；正常局部续接、mesh 消费和多线程仍未实现。本阶段闭环并提交后进入 GTP-02。
+
+[GTP-02](gtp_02_persistent_state_plan.md)随后完成局部样本/P、共同准备/发布及增量 CPU mesh/Pending。[结果](../../research/cpu_refinement/gtp_02_persistent_state_results.md)记录正常三轮、保守高度对照、局部 oracle 和完整成本。本阶段持续串行状态准入通过；移动视图、动态 A 和多核仍未验证，独立提交后进入 GTP-03

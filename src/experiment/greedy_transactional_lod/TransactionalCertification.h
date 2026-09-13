@@ -19,5 +19,7 @@ public:
         const Proposal& proposal, std::int64_t targetMicropixels, WorkLedger& work);
     static double ExactErrorSquared(const TransactionalState& state, const TransactionalSamples& samples,
         Slot sample, const Proposal* proposal = nullptr);
+    static bool PreservesHeight(const TransactionalState& state,const TransactionalSamples& samples,
+        const Proposal& receiver,const Proposal* donor,WorkLedger& work);
 };
 }

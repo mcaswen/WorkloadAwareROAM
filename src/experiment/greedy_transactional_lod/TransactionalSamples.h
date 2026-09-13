@@ -1,6 +1,7 @@
 #pragma once
 
 #include "experiment/greedy_transactional_lod/TransactionalState.h"
+#include "experiment/greedy_transactional_lod/TransactionalCommit.h"
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
@@ -15,6 +16,18 @@ struct SampleValue
 };
 
 /// <summary>
+/// 样本修复仅保存变更评价与面贡献，全局需求顺序单独计费
+/// </summary>
+struct PreparedSamples
+{
+    std::map<Slot,SampleValue> Values;
+    std::map<Slot,std::vector<Slot>> Faces;
+    std::map<Slot,double> Priorities;
+    std::vector<Slot> Raw;
+    std::size_t FaceSlots{};
+};
+
+/// <summary>
 /// 六组公共参数域样本的当前关联与评分，参考由原始高度场定义
 /// 视图变化不改变采样身份，闭边样本不能只计入 owner 的评分
 /// </summary>
@@ -23,6 +36,8 @@ class TransactionalSamples
 public:
     explicit TransactionalSamples(HeightSource source);
     void Refresh(const TransactionalState& state, WorkLedger& work);
+    PreparedSamples Prepare(const TransactionalState& state,const PreparedTopology& target,WorkLedger& work);
+    void Publish(PreparedSamples&& prepared) noexcept;
     std::array<std::uint32_t, 2> Decode(Slot sample) const;
     Point Parameter(Slot sample) const;
     std::uint32_t Denominator() const { return 6 * (_source.Width - 1); }
@@ -38,6 +53,10 @@ public:
     bool StrictlyInside(Slot sample,const Point& a,const Point& b,const Point& c) const;
 
 private:
+    std::vector<Slot> Enumerate(const std::array<Point,3>& points,WorkLedger& work) const;
+    SampleValue Evaluate(const Configuration& config,Slot sample,Slot owner,double height,WorkLedger& work) const;
+    static double Priority(const Configuration& config,const std::array<Point,3>& points,double maximum);
+    std::array<double,3> StoredWeights(Slot sample,const Point& a,const Point& b,const Point& c) const;
     // 各组用连续身份区间编码栅格偏移，避免为每个 Q 保存一份坐标
     struct Group { std::uint32_t X, Y, Columns, Rows; Slot Start; };
     HeightSource _source;

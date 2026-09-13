@@ -88,7 +88,13 @@ bool TransactionalSamples::Weights(Slot sample, const Point& a, const Point& b, 
         const R exact=(R(r.U)-p.U)*(v-p.V)-(R(r.V)-p.V)*(u-p.U);
         if (exact<0) return false;
     }
-    // 初始来源是 dyadic；缩放后的乘法顺序与冻结 Python 评分一致
+    weights=StoredWeights(sample,a,b,c);return true;
+}
+
+std::array<double,3> TransactionalSamples::StoredWeights(Slot sample,const Point& a,const Point& b,const Point& c) const
+{
+    const auto xy=Decode(sample);
+    // 已证明包含的样本只计算插值权重，避免重复精确定位
     const double factor=1048576.0*Denominator();
     const auto cross=[](double ax,double ay,double bx,double by,double cx,double cy) {
         return (bx-ax)*(cy-ay)-(by-ay)*(cx-ax);
@@ -97,8 +103,7 @@ bool TransactionalSamples::Weights(Slot sample, const Point& a, const Point& b, 
     const double x=static_cast<double>(xy[0])*1048576, y=static_cast<double>(xy[1])*1048576;
     const double w0=cross(x,y,b.U*factor,b.V*factor,c.U*factor,c.V*factor);
     const double w1=cross(a.U*factor,a.V*factor,x,y,c.U*factor,c.V*factor);
-    weights={w0/area,w1/area,(area-w0-w1)/area};
-    return true;
+    return {w0/area,w1/area,(area-w0-w1)/area};
 }
 
 bool TransactionalSamples::StrictlyInside(Slot sample,const Point& a,const Point& b,const Point& c) const
@@ -116,83 +121,98 @@ bool TransactionalSamples::StrictlyInside(Slot sample,const Point& a,const Point
     return true;
 }
 
-void TransactionalSamples::Refresh(const TransactionalState& state, WorkLedger& work)
+std::vector<Slot> TransactionalSamples::Enumerate(const std::array<Point,3>& p,WorkLedger& work) const
+{
+    // 固定栅格身份允许从局部包围框反查 Q，不需要扫描整个 reference
+    std::vector<Slot> result;
+    const double xmin=std::min({p[0].U,p[1].U,p[2].U}),xmax=std::max({p[0].U,p[1].U,p[2].U});
+    const double ymin=std::min({p[0].V,p[1].V,p[2].V}),ymax=std::max({p[0].V,p[1].V,p[2].V});
+    for (const auto& group : _groups)
+    {
+        // 包围框外扩只扩大候选枚举，真实整数比上的闭面判断决定归属
+        const int xl=std::max(0,static_cast<int>(std::floor((xmin*Denominator()-group.X)/6))-1);
+        const int xr=std::min(static_cast<int>(group.Columns)-1,static_cast<int>(std::ceil((xmax*Denominator()-group.X)/6))+1);
+        const int yl=std::max(0,static_cast<int>(std::floor((ymin*Denominator()-group.Y)/6))-1);
+        const int yr=std::min(static_cast<int>(group.Rows)-1,static_cast<int>(std::ceil((ymax*Denominator()-group.Y)/6))+1);
+        for (int y=yl;y<=yr;++y) for (int x=xl;x<=xr;++x)
+        {
+            const auto sid=group.Start+static_cast<Slot>(y)*group.Columns+static_cast<Slot>(x);
+            std::array<double,3> weights{};++work.LocationTests;
+            if (Weights(sid,p[0],p[1],p[2],weights)) result.push_back(sid);
+        }
+    }
+    work.SampleContributions+=result.size();work.CheckLimit();
+    return result;
+}
+
+SampleValue TransactionalSamples::Evaluate(const Configuration& config,Slot sid,Slot owner,double height,WorkLedger& work) const
+{
+    // 可见性只由独立参考决定，被测高度不能改变自己的评价人口
+    SampleValue value;const auto xy=Decode(sid);const auto uv=Parameter(sid);
+    value.Owner=owner;value.MeshHeight=height;
+    value.ReferenceHeight=SourceHeight(xy[0],xy[1],config.HeightScale);
+    value.HeightError=std::abs(height-value.ReferenceHeight);
+    const auto rc=Clip(config,uv.U,uv.V,value.ReferenceHeight);
+    value.Visible=rc[3]>0 && rc[0]>=-rc[3] && rc[0]<=rc[3] &&
+        rc[1]>=-rc[3] && rc[1]<=rc[3] && rc[2]>=-rc[3] && rc[2]<=rc[3];
+    if (value.Visible)
+    {
+        // 参考可见而被测面跨近面必须拒绝，不能跳过该样本降低统计误差
+        const auto mc=Clip(config,uv.U,uv.V,height);
+        if (!(mc[3]>0) || mc[2]<-mc[3]) throw std::runtime_error("被测样本跨越近面");
+        const double dx=(mc[0]/mc[3]-rc[0]/rc[3])*(config.Width*.5);
+        const double dy=(mc[1]/mc[3]-rc[1]/rc[3])*(config.Height*.5);
+        value.ErrorSquared=dx*dx+dy*dy;
+    }
+    ++work.SampleEvaluations;return value;
+}
+
+double TransactionalSamples::Priority(const Configuration& config,const std::array<Point,3>& p,double maximum)
+{
+    std::array<std::array<double,4>,3> clips{};
+    for (std::size_t i=0;i<3;++i)
+    {
+        clips[i]=Clip(config,p[i].U,p[i].V,p[i].Height);
+        if (!(clips[i][3]>0)) return std::numeric_limits<double>::infinity();
+    }
+    // 密度紧迫性保留原始含义，空证据需求不会因此从人口中消失
+    double longest=0;
+    for (std::size_t i=0;i<3;++i)
+    {
+        const auto& a=clips[i];const auto& b=clips[(i+1)%3];
+        const double dx=a[0]/a[3]*(config.Width*.5)-b[0]/b[3]*(config.Width*.5);
+        const double dy=a[1]/a[3]*(config.Height*.5)-b[1]/b[3]*(config.Height*.5);
+        longest=std::max(longest,dx*dx+dy*dy);
+    }
+    return std::max(maximum,.04*longest);
+}
+
+void TransactionalSamples::Refresh(const TransactionalState& state,WorkLedger& work)
 {
     std::fill(_values.begin(),_values.end(),SampleValue{});
-    // 全量路径用于初建与独立诊断；正常局部续接由后续专门接口承担
     _faceSamples.assign(state.Faces().size(),{});
     _priority.assign(state.Faces().size(),std::numeric_limits<double>::infinity());
     auto order=state.ActiveFaces();
-    // 物理槽的复用顺序不能改变共享样本 owner 的稳定身份同分规则
+    // 全量入口仅用于初建或独立 oracle，稳定身份先序确定共享边 owner
     std::sort(order.begin(),order.end(),[&](Slot a,Slot b) { return state.Face(a).Id<state.Face(b).Id; });
     for (auto slot : order)
     {
-        work.CheckLimit();
-        const auto& face=state.Face(slot);
-        const std::array<Point,3> p{state.Vertex(face.Vertices[0]).Geometry,
-            state.Vertex(face.Vertices[1]).Geometry,state.Vertex(face.Vertices[2]).Geometry};
-        const double xmin=std::min({p[0].U,p[1].U,p[2].U}), xmax=std::max({p[0].U,p[1].U,p[2].U});
-        const double ymin=std::min({p[0].V,p[1].V,p[2].V}), ymax=std::max({p[0].V,p[1].V,p[2].V});
-        double maximum=0;
-        for (const auto& group : _groups)
+        const auto& f=state.Face(slot).Vertices;
+        const std::array<Point,3> p{state.Vertex(f[0]).Geometry,state.Vertex(f[1]).Geometry,state.Vertex(f[2]).Geometry};
+        _faceSamples[slot]=Enumerate(p,work);double maximum=0;
+        for (auto sid : _faceSamples[slot])
         {
-            // 包围框向外扩一格只是候选枚举，精确闭面判断决定是否真正归属
-            const int xl=std::max(0,static_cast<int>(std::floor((xmin*Denominator()-group.X)/6))-1);
-            const int xr=std::min(static_cast<int>(group.Columns)-1,static_cast<int>(std::ceil((xmax*Denominator()-group.X)/6))+1);
-            const int yl=std::max(0,static_cast<int>(std::floor((ymin*Denominator()-group.Y)/6))-1);
-            const int yr=std::min(static_cast<int>(group.Rows)-1,static_cast<int>(std::ceil((ymax*Denominator()-group.Y)/6))+1);
-            for (int y=yl; y<=yr; ++y) for (int x=xl; x<=xr; ++x)
-            {
-                const auto sid=group.Start+static_cast<Slot>(y)*group.Columns+static_cast<Slot>(x);
-                std::array<double,3> weights{};
-                ++work.LocationTests;
-                if (!Weights(sid,p[0],p[1],p[2],weights)) continue;
-                const double height=(weights[0]*p[0].Height+weights[1]*p[1].Height)+weights[2]*p[2].Height;
-                auto& value=_values[sid];
-                if (value.Owner==InvalidSlot)
-                {
-                    // 只计算一次样本误差，后续闭面仍会共享同一评价贡献
-                    const auto xy=Decode(sid); const auto uv=Parameter(sid);
-                    value.Owner=slot; value.MeshHeight=height;
-                    value.ReferenceHeight=SourceHeight(xy[0],xy[1],state.Config().HeightScale);
-                    value.HeightError=std::abs(height-value.ReferenceHeight);
-                    const auto rc=Clip(state.Config(),uv.U,uv.V,value.ReferenceHeight);
-                    value.Visible=rc[3]>0 && rc[0]>=-rc[3] && rc[0]<=rc[3] &&
-                        rc[1]>=-rc[3] && rc[1]<=rc[3] && rc[2]>=-rc[3] && rc[2]<=rc[3];
-                    if (value.Visible)
-                    {
-                        // 参考可见但被测曲面跨近面时，不能把该样本略去后报告低误差
-                        const auto mc=Clip(state.Config(),uv.U,uv.V,height);
-                        if (!(mc[3]>0) || mc[2]<-mc[3]) throw std::runtime_error("被测样本跨越近面");
-                        const double dx=(mc[0]/mc[3]-rc[0]/rc[3])*(state.Config().Width*.5);
-                        const double dy=(mc[1]/mc[3]-rc[1]/rc[3])*(state.Config().Height*.5);
-                        value.ErrorSquared=dx*dx+dy*dy;
-                    }
-                    ++work.SampleEvaluations;
-                }
-                else if (std::abs(height-value.MeshHeight)>1e-10*std::max(1.0,std::abs(height)))
-                    throw std::runtime_error("共享面样本高度不一致");
-                _faceSamples[slot].push_back(sid); ++work.SampleContributions;
-                if (value.Visible) maximum=std::max(maximum,value.ErrorSquared);
-            }
+            const auto weights=StoredWeights(sid,p[0],p[1],p[2]);
+            const double height=(weights[0]*p[0].Height+weights[1]*p[1].Height)+weights[2]*p[2].Height;
+            auto& value=_values[sid];
+            if (value.Owner==InvalidSlot) value=Evaluate(state.Config(),sid,slot,height,work);
+            else if (std::abs(height-value.MeshHeight)>1e-10*std::max(1.0,std::abs(height)))
+                throw std::runtime_error("共享面样本高度不一致");
+            if (value.Visible) maximum=std::max(maximum,value.ErrorSquared);
         }
-        std::array<std::array<double,4>,3> clips{};
-        bool unknown=false;
-        for (std::size_t i=0;i<3;++i) { clips[i]=Clip(state.Config(),p[i].U,p[i].V,p[i].Height); unknown|=!(clips[i][3]>0); }
-        if (unknown) continue;
-        // 密度紧迫性和误差紧迫性分别计算，空可见证据不抹掉原始优先级
-        double longest=0;
-        for (std::size_t i=0;i<3;++i)
-        {
-            const auto& a=clips[i];const auto& b=clips[(i+1)%3];
-            const double dx=a[0]/a[3]*(state.Config().Width*.5)-b[0]/b[3]*(state.Config().Width*.5);
-            const double dy=a[1]/a[3]*(state.Config().Height*.5)-b[1]/b[3]*(state.Config().Height*.5);
-            longest=std::max(longest,dx*dx+dy*dy);
-        }
-        _priority[slot]=std::max(maximum,.04*longest);
+        _priority[slot]=Priority(state.Config(),p,maximum);
     }
     _raw.clear();
-    // 只冻结原始请求全序，接收认证失败时不会从排序尾部补取
     for (auto slot : order)
         if (std::isfinite(_priority[slot]) && _priority[slot]>state.Config().SplitPixels*state.Config().SplitPixels)
             _raw.push_back(slot);
@@ -201,6 +221,101 @@ void TransactionalSamples::Refresh(const TransactionalState& state, WorkLedger& 
     });
     if (std::any_of(_values.begin(),_values.end(),[](const auto& v) { return v.Owner==InvalidSlot; }))
         throw std::runtime_error("公共样本存在覆盖缺失");
+}
+
+PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,const PreparedTopology& target,WorkLedger& work)
+{
+    PreparedSamples result;result.FaceSlots=target.FinalFaceSlots;
+    std::set<Slot> exterior;
+    for (auto slot : target.Removed)
+    {
+        // 同一物理槽可能立刻复用，先按旧语义移除 owner 再参与目标同分
+        result.Faces.emplace(slot,std::vector<Slot>{});
+        result.Priorities.emplace(slot,std::numeric_limits<double>::infinity());
+        for (auto sid : _faceSamples.at(slot))
+        {
+            auto value=_values[sid];
+            if (target.Removed.contains(value.Owner)) value.Owner=InvalidSlot;
+            result.Values.emplace(sid,value);
+        }
+        // 保留的接口面也共享样本评价，不能仅刷新被替换面上的 P
+        for (auto id : state.Face(slot).Vertices)
+            for (auto face : state.Vertex(id).Incident)
+                if (!target.Removed.contains(face)) exterior.insert(face);
+    }
+    std::map<Slot,const Triangle*> newFaces;
+    // 目标查询仅覆盖本批新面，接口外的完整记录继续借用旧状态
+    for (const auto& [slot,record] : target.Faces) newFaces.emplace(slot,&record.Geometry);
+    const auto faceAt=[&](Slot slot)->const Triangle& {
+        const auto it=newFaces.find(slot);return it==newFaces.end() ? state.Face(slot) : *it->second;
+    };
+    for (const auto& [slot,record] : target.Faces)
+    {
+        const auto& f=record.Geometry.Vertices;
+        const std::array<Point,3> p{target.Geometry(state,f[0]),target.Geometry(state,f[1]),target.Geometry(state,f[2])};
+        auto ids=Enumerate(p,work);
+        for (auto sid : ids)
+        {
+            // 边界样本可能仍由外部保留面拥有，只有更小的最终身份才能取代
+            auto [it,inserted]=result.Values.try_emplace(sid,_values[sid]);
+            static_cast<void>(inserted);auto& value=it->second;
+            if (value.Owner!=InvalidSlot && faceAt(value.Owner).Id<record.Geometry.Id) continue;
+            const auto weights=StoredWeights(sid,p[0],p[1],p[2]);
+            const double height=(weights[0]*p[0].Height+weights[1]*p[1].Height)+weights[2]*p[2].Height;
+            value=Evaluate(state.Config(),sid,slot,height,work);
+        }
+        result.Faces[slot]=std::move(ids);exterior.insert(slot);
+    }
+    for (const auto& [sid,value] : result.Values)
+    {
+        // 旧闭补丁中的所有样本必须找到目标 owner，局部有洞不能延后修复
+        static_cast<void>(sid);
+        if (value.Owner==InvalidSlot) throw std::runtime_error("局部样本覆盖缺失");
+    }
+    for (auto slot : exterior)
+    {
+        // 先完成所有 owner 评价，再算共享面最大值，避免枚举次序进入 P
+        const auto& f=faceAt(slot).Vertices;
+        const std::array<Point,3> p{target.Geometry(state,f[0]),target.Geometry(state,f[1]),target.Geometry(state,f[2])};
+        const auto found=result.Faces.find(slot);
+        const auto& ids=found==result.Faces.end() ? _faceSamples[slot] : found->second;
+        double maximum=0;
+        for (auto sid : ids)
+        {
+            const auto it=result.Values.find(sid);const auto& value=it==result.Values.end() ? _values[sid] : it->second;
+            if (value.Visible) maximum=std::max(maximum,value.ErrorSquared);
+        }
+        result.Priorities[slot]=Priority(state.Config(),p,maximum);
+    }
+    work.RepairSamples+=result.Values.size();work.RepairFaces+=exterior.size();
+    const auto ordered=std::chrono::steady_clock::now();
+    const auto priority=[&](Slot slot) {
+        const auto it=result.Priorities.find(slot);return it==result.Priorities.end() ? _priority[slot] : it->second;
+    };
+    const auto consider=[&](Slot slot) {
+        ++work.OrderVisits;const auto value=priority(slot);
+        if (std::isfinite(value) && value>state.Config().SplitPixels*state.Config().SplitPixels) result.Raw.push_back(slot);
+    };
+    // 全局候选顺序是显式成本，不冒充局部样本修复
+    for (auto slot : state.ActiveFaces()) if (!target.Removed.contains(slot)) consider(slot);
+    for (const auto& [slot,record] : target.Faces) { static_cast<void>(record);consider(slot); }
+    std::sort(result.Raw.begin(),result.Raw.end(),[&](Slot a,Slot b) {
+        const auto pa=priority(a),pb=priority(b);return pa!=pb ? pa>pb : faceAt(a).Id<faceAt(b).Id;
+    });
+    work.Seconds["next_order"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-ordered).count();
+    // 只预留容量而不扩大 live 数组，其他组件准备失败时旧缓存仍完整
+    work.Reserve(_faceSamples,result.FaceSlots);work.Reserve(_priority,result.FaceSlots);
+    return result;
+}
+
+void TransactionalSamples::Publish(PreparedSamples&& prepared) noexcept
+{
+    // 容量在 Prepare 中预留，移动局部 vector 不再触发分配
+    _faceSamples.resize(prepared.FaceSlots);_priority.resize(prepared.FaceSlots);
+    for (const auto& [sid,value] : prepared.Values) _values[sid]=value;
+    for (auto& [slot,ids] : prepared.Faces) _faceSamples[slot]=std::move(ids);
+    for (const auto& [slot,value] : prepared.Priorities) _priority[slot]=value;
+    _raw=std::move(prepared.Raw);
 }
 
 std::vector<Slot> TransactionalSamples::VisibleSupport(const std::vector<Slot>& support) const

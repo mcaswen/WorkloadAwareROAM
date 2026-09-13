@@ -97,6 +97,8 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
         };
         if (i<batch.AssignedCredits)
         {
+            if (state.Config().HeightGuard && !TransactionalCertification::PreservesHeight(state,samples,receiver,nullptr,work))
+                continue;
             // 本批失败额度保持闲置；下一批仅凭实际 N 重新生成命名
             if (!blocked(rf)) { batch.Exchanges.push_back({receiver,{},false});reserved.push_back(rf);++batch.FreeExecuted; }
             else ++work.Conflicts;
@@ -120,6 +122,8 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
             const auto df=Footprint(state,donor);
             // 先判断一个交换内部是否独立，再判断它与高优先级已预留事务是否冲突
             if (Conflict(rf,df)) { ++work.Reasons["internal_conflict"];continue; }
+            if (state.Config().HeightGuard && !TransactionalCertification::PreservesHeight(state,samples,receiver,&donor,work))
+                continue;
             feasible=true;
             if (accepted) continue;
             ++work.ReservationChecks;
