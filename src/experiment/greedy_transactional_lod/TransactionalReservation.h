@@ -21,7 +21,8 @@ struct TransactionFootprint
 class TransactionalReservation
 {
 public:
-    static CertifiedBatch Plan(const TransactionalState& state,const TransactionalSamples& samples,WorkLedger& work);
+    static CertifiedBatch Plan(const TransactionalState& state,const TransactionalSamples& samples,WorkLedger& work,
+        const TransactionalExecution& execution={});
     static TransactionFootprint Footprint(const TransactionalState& state,const Proposal& proposal);
     static bool Conflict(const TransactionFootprint& first,const TransactionFootprint& second);
 };

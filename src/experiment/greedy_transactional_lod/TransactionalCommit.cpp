@@ -15,7 +15,8 @@ const Point& PreparedTopology::Geometry(const TransactionalState& old,Identity i
     return found==Vertices.end() ? old.Vertex(id).Geometry : found->second.Geometry;
 }
 
-PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work)
+PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work,
+    const TransactionalExecution& execution)
 {
     const auto started=std::chrono::steady_clock::now();
     if (batch.Version!=state.Version()) throw std::runtime_error("批次快照已过期");
@@ -126,12 +127,16 @@ PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const Ce
             *found=e.Faces[--e.Count];e.Faces[e.Count]=InvalidSlot;
         }
     }
-    std::vector<std::pair<Slot,FaceRecord>> faces;faces.reserve(needed);
-    Identity nextFace=state._nextFaceId,nextVertex=state._nextVertexId;
+    std::vector<std::pair<Slot,FaceRecord>> faces(needed);
+    Identity nextFace=state._nextFaceId-static_cast<Identity>(needed),nextVertex=state._nextVertexId;
+    // 身份和槽已唯一分配，独占面记录可并行填写；共享邻接仍顺序合成
+    execution.Run("face_fill",needed,work,[&](auto first,auto last,WorkLedger&) {
+        for (auto j=first;j<last;++j)
+            faces[j]={faceSlots[j],{{state._nextFaceId-static_cast<Identity>(j),newFaces[j]},InvalidSlot}};
+    });
     for (std::size_t j=0;j<needed;++j)
     {
         const auto& f=newFaces[j];const auto slot=faceSlots[j];
-        faces.push_back({slot,{{nextFace--,f},InvalidSlot}});
         for (std::size_t i=0;i<3;++i)
         {
             if (deletedVertices.contains(f[i])) throw std::runtime_error("目标面引用删除点");

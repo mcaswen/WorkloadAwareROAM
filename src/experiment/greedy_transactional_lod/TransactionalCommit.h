@@ -1,6 +1,7 @@
 #pragma once
 
 #include "experiment/greedy_transactional_lod/TransactionalState.h"
+#include "experiment/greedy_transactional_lod/TransactionalExecution.h"
 #include <set>
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
@@ -33,7 +34,8 @@ struct PreparedTopology
 class TransactionalCommit
 {
 public:
-    static PreparedTopology Prepare(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work);
+    static PreparedTopology Prepare(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work,
+        const TransactionalExecution& execution={});
     static void Publish(TransactionalState& state,PreparedTopology&& prepared,WorkLedger& work);
     static void Apply(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work);
 };

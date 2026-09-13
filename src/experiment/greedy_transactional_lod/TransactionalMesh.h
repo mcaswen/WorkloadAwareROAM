@@ -40,7 +40,8 @@ class TransactionalMesh
 {
 public:
     void Initialize(const TransactionalState& state,WorkLedger& work);
-    PreparedMesh Prepare(const TransactionalState& state,const PreparedTopology& target,WorkLedger& work);
+    PreparedMesh Prepare(const TransactionalState& state,const PreparedTopology& target,WorkLedger& work,
+        const TransactionalExecution& execution={});
     void Publish(PreparedMesh&& prepared,std::uint64_t generation) noexcept;
     MeshConsumption Consume();
     void AdvanceGeneration(std::uint64_t value) noexcept { _generation=value; }

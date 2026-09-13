@@ -12,7 +12,7 @@ namespace ParallelRoam::Experiment::GreedyTransactionalLod
 class TransactionalPipeline
 {
 public:
-    explicit TransactionalPipeline(const InitialMesh& input);
+    explicit TransactionalPipeline(const InitialMesh& input,TransactionalExecution execution={});
     void Initialize(WorkLedger& work);
     void SetView(const Configuration& view,WorkLedger& work);
     CertifiedBatch Update(WorkLedger& work);
@@ -24,6 +24,7 @@ public:
     const std::set<Identity>& InvalidatedRoots() const { return _invalidatedRoots; }
     const std::set<Identity>& InvalidatedDonors() const { return _invalidatedDonors; }
 private:
+    TransactionalExecution _execution;
     TransactionalState _state;
     TransactionalSamples _samples;
     TransactionalMesh _mesh;

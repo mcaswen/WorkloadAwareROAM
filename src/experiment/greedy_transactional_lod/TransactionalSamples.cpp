@@ -403,31 +403,35 @@ std::vector<Slot> TransactionalSamples::VisibleSupport(const std::vector<Slot>& 
     return result;
 }
 
-PreparedView TransactionalSamples::PrepareView(const TransactionalState& state,const Configuration& view,WorkLedger& work) const
+PreparedView TransactionalSamples::PrepareView(const TransactionalState& state,const Configuration& view,WorkLedger& work,
+    const TransactionalExecution& execution) const
 {
     PreparedView result;result.Projection.resize(_values.size());result.Priority.resize(_priority.size());
     // 投影暂存不保存第二份参考高度或 owner，保持视图工作与拓扑状态分离
-    auto started=std::chrono::steady_clock::now();
-    for (Slot sid=0;sid<_values.size();++sid)
-    {
-        if ((sid&4095U)==0) work.CheckLimit();
-        const auto value=Project(view,sid,_values[sid],work);
-        result.Projection[sid]={value.ErrorSquared,value.Visible};
-    }
-    work.Seconds["view_projection"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
-    started=std::chrono::steady_clock::now();
-    for (auto slot : state.ActiveFaces())
-    {
-        double maximum=0;
-        // 共享边仍对每个相关面贡献误差，唯一 owner 不替代闭面关联
-        for (auto sid : _faceSamples[slot])
+    execution.Run("view_projection",_values.size(),work,[&](auto first,auto last,WorkLedger& local) {
+        for (auto index=first;index<last;++index)
         {
-            ++work.SampleContributions;
-            if (result.Projection[sid].second) maximum=std::max(maximum,result.Projection[sid].first);
+            const auto sid=static_cast<Slot>(index);
+            if ((sid&4095U)==0) local.CheckLimit();
+            const auto value=Project(view,sid,_values[sid],local);
+            result.Projection[sid]={value.ErrorSquared,value.Visible};
         }
-        const auto& f=state.Face(slot).Vertices;
-        result.Priority[slot]=Priority(view,{state.Vertex(f[0]).Geometry,state.Vertex(f[1]).Geometry,state.Vertex(f[2]).Geometry},maximum);
-    }
+    });
+    execution.Run("view_scores",state.FaceCount(),work,[&](auto first,auto last,WorkLedger& local) {
+        for (auto index=first;index<last;++index)
+        {
+            const auto slot=state.ActiveFaces()[index];double maximum=0;
+            // 每个面的归约保持原样本顺序，线程只划分面，避免改变浮点决策
+            for (auto sid : _faceSamples[slot])
+            {
+                ++local.SampleContributions;
+                if (result.Projection[sid].second) maximum=std::max(maximum,result.Projection[sid].first);
+            }
+            const auto& f=state.Face(slot).Vertices;
+            result.Priority[slot]=Priority(view,{state.Vertex(f[0]).Geometry,state.Vertex(f[1]).Geometry,state.Vertex(f[2]).Geometry},maximum);
+        }
+    });
+    const auto started=std::chrono::steady_clock::now();
     BuildOrders(state,result.Priority,result.Order,result.Donors,result.DonorCosts);
     work.OrderVisits+=state.FaceCount();
     work.Seconds["view_order"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();

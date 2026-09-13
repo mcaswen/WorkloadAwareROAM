@@ -90,6 +90,8 @@ struct WorkLedger
     std::uint64_t CandidateUpdates{}, DonorIndexUpdates{}, ReceiverCacheHits{}, DonorCacheHits{}, CacheInvalidations{}, RootObservations{};
     std::map<std::string, std::uint64_t> Reasons;
     std::map<std::string, double> Seconds;
+    // 诊断记录每段处理项、分块数和实际线程数，不把任务数当作线程证据
+    std::map<std::string,std::array<std::size_t,3>> Execution;
     std::chrono::steady_clock::time_point Deadline{std::chrono::steady_clock::time_point::max()};
     std::size_t VisitLimit{1000000};
     void CheckLimit() const;

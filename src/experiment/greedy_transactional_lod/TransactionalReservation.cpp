@@ -46,38 +46,47 @@ bool TransactionalReservation::Conflict(const TransactionFootprint& a,const Tran
     return false;
 }
 
-CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,const TransactionalSamples& samples,WorkLedger& work)
+CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,const TransactionalSamples& samples,WorkLedger& work,
+    const TransactionalExecution& execution)
 {
     CertifiedBatch batch;batch.Version=state.Version();batch.Raw=samples.RawCount();
     std::vector<Proposal> receivers;
     const auto prefix=samples.Prefix(state.Config().PrefixLimit);
     // 原始需求完整排序之后才取有限前缀，分母始终保留全域数量
-    for (auto root : prefix)
-    {
-        work.CheckLimit();batch.IntentIds.push_back(state.Face(root).Id);
-        auto start=Clock::now();auto proposals=TransactionalProposals::Receivers(state,samples,root);
-        work.Seconds["proposal"]+=Seconds(start);
-        std::string reason="no_proposal";
-        std::vector<std::pair<char,std::string>> attempts;
-        for (auto& proposal : proposals)
+    batch.IntentIds.resize(prefix.size());batch.IntentResults.resize(prefix.size());batch.Attempts.resize(prefix.size());
+    std::vector<std::optional<Proposal>> certified(prefix.size());
+    execution.Run("receiver_stage",prefix.size(),work,[&](auto first,auto last,WorkLedger& local) {
+        for (auto index=first;index<last;++index)
         {
-            start=Clock::now();reason=TransactionalCertification::Fit(state,samples,proposal,work);
-            work.Seconds["receiver_certification"]+=Seconds(start);++work.Reasons[reason];
-            attempts.emplace_back(proposal.Kind,reason);
-            if (reason=="certified") { proposal.Reason=reason;receivers.push_back(std::move(proposal));break; }
+            local.CheckLimit();const auto root=prefix[index];batch.IntentIds[index]=state.Face(root).Id;
+            auto start=Clock::now();auto proposals=TransactionalProposals::Receivers(state,samples,root);
+            local.Seconds["proposal"]+=Seconds(start);
+            auto& reason=batch.IntentResults[index];reason="no_proposal";
+            for (auto& proposal : proposals)
+            {
+                start=Clock::now();reason=TransactionalCertification::Fit(state,samples,proposal,local);
+                local.Seconds["receiver_certification"]+=Seconds(start);++local.Reasons[reason];
+                batch.Attempts[index].emplace_back(proposal.Kind,reason);
+                if (reason=="certified") { proposal.Reason=reason;certified[index]=std::move(proposal);break; }
+            }
         }
-        batch.IntentResults.push_back(reason);
-        batch.Attempts.push_back(std::move(attempts));
-    }
+    });
+    // 完成顺序不参与优先预留，仍按同一全局前缀收集成功项
+    for (auto& proposal : certified) if (proposal) receivers.push_back(std::move(*proposal));
     batch.Examined=prefix.size();batch.Receivers=receivers.size();
     // 共同接收集合先完成，预算与 donor 不能改变前端需求的人口
     const auto credits=(state.Config().Budget-state.FaceCount())/2;
     batch.AssignedCredits=std::min(credits,receivers.size());batch.Need=receivers.size()-batch.AssignedCredits;
     auto start=Clock::now();batch.PoolIds=samples.DonorPool(state.Config().DonorLimit);
     work.Seconds["donor_order"]+=Seconds(start);
-    std::map<Identity,Proposal> cache;
+    std::vector<Proposal> cache(batch.Need ? batch.PoolIds.size() : 0);
+    // 原有局部可行分母会检查完整共同池，提前认证不增加被检查的中心
+    execution.Run("donor_stage",cache.size(),work,[&](auto first,auto last,WorkLedger& local) {
+        for (auto index=first;index<last;++index)
+            cache[index]=TransactionalProposals::Donor(state,samples,batch.PoolIds[index],local);
+    });
     std::vector<TransactionFootprint> reserved;std::set<Identity> used;
-    double donorSeconds=0;start=Clock::now();
+    start=Clock::now();
     for (std::size_t i=0;i<receivers.size();++i)
     {
         const auto& receiver=receivers[i];const auto rf=Footprint(state,receiver);
@@ -95,16 +104,9 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
         }
         bool feasible=false,accepted=false;
         // 仍检查共同池，独立记录局部可行分母；命中后的额外审计费用也计入
-        for (auto center : batch.PoolIds)
+        for (std::size_t index=0;index<cache.size();++index)
         {
-            ++work.PairChecks;
-            if (!cache.contains(center))
-            {
-                // 缓存局部几何与误差，阈值随接收方变化仍须另行比较
-                const auto before=Clock::now();cache.emplace(center,TransactionalProposals::Donor(state,samples,center,work));
-                donorSeconds+=Seconds(before);
-            }
-            const auto& donor=cache.at(center);
+            ++work.PairChecks;const auto center=batch.PoolIds[index];const auto& donor=cache[index];
             if (donor.Reason!="certified") { ++work.Reasons[donor.Reason];continue; }
             if (!TransactionalCertification::Accepts(state,samples,donor,receiver.TargetMicropixels,work))
             { ++work.Reasons["fast_quality_miss"];continue; }
@@ -126,8 +128,7 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
     }
     batch.UnusedCredits=batch.AssignedCredits-batch.FreeExecuted;
     // 账本随返回结果完成生命周期，存活状态只由发布后的面数量代表预算占用
-    work.Seconds["donor_certification"]+=donorSeconds;
-    work.Seconds["reservation"]+=Seconds(start)-donorSeconds;
+    work.Seconds["reservation"]+=Seconds(start);
     return batch;
 }
 }

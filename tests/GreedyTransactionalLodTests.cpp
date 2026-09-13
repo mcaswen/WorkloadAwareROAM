@@ -6,8 +6,11 @@
 #include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
 #include "experiment/greedy_transactional_lod/TransactionalPipeline.h"
 #include "experiment/greedy_transactional_lod/TransactionalDynamicReference.h"
+#include "experiment/roam_materialization/MaterializationExecutor.h"
 
 #include <algorithm>
+#include <atomic>
+#include <barrier>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -174,11 +177,64 @@ void DynamicEvidenceAndView()
     TransactionalValidation::Samples(cached.Pipeline().State(),cached.Pipeline().Samples(),check);
     TransactionalValidation::Mesh(cached.Pipeline().State(),cached.Pipeline().Mesh());
 }
+
+void ParallelExecutionAndFailure()
+{
+    ParallelRoam::Experiment::RoamMaterialization::MaterializationExecutor pool(4);
+    const auto adapter=pool.Execution();
+    TransactionalExecution execution{4,true,adapter.Dispatch};WorkLedger evidence;
+    std::barrier rendezvous(4);
+    execution.Run("actual_threads",4,evidence,[&](auto,auto,WorkLedger& local) {
+        rendezvous.arrive_and_wait();++local.Proposals;
+    });
+    Require(evidence.Execution.at("actual_threads")[2]==4 && evidence.Proposals==4,"没有四个真实线程或局部计数归并错误");
+    std::atomic<unsigned> drained{};
+    Throws([&] {
+        execution.Run("failure",4,evidence,[&](auto first,auto,WorkLedger&) {
+            ++drained;rendezvous.arrive_and_wait();
+            if (first==0) throw std::runtime_error("私有任务失败");
+        });
+    });
+    Require(drained==4,"异常返回时尚有任务未排空");
+    const auto input=Square();
+    Throws([&] { TransactionalPipeline invalid(input,{4,false,{}}); });
+    TransactionalPipeline serial(input),parallel(input,execution);WorkLedger a,b,check;
+    serial.Initialize(a);parallel.Initialize(b);
+    for (int round=0;round<3;++round)
+    {
+        a=WorkLedger{};b=WorkLedger{};
+        const auto first=serial.Update(a),second=parallel.Update(b);
+        Require(first.IntentIds==second.IntentIds && first.Attempts==second.Attempts &&
+            first.Exchanges.size()==second.Exchanges.size(),"分块改变了候选证据或批次");
+        Require(TransactionalValidation::Equivalent(serial.State(),parallel.State()),"分块改变最终状态");
+        Require(a.SampleTouches==b.SampleTouches && a.ExactChecks==b.ExactChecks,"分块改变认证工作量");
+        TransactionalValidation::Samples(parallel.State(),parallel.Samples(),check);
+        TransactionalValidation::Mesh(parallel.State(),parallel.Mesh());
+    }
+    auto view=input.Config;view.Matrix[0]=.9;
+    serial.SetView(view,a);parallel.SetView(view,b);
+    Require(serial.Samples().Raw()==parallel.Samples().Raw(),"并行评分改变全局次序");
+    TransactionalValidation::Samples(parallel.State(),parallel.Samples(),check);
+    // 在真实线程填写目标面后模拟派发层失败，旧输出和代际仍可继续使用
+    auto failing=execution;failing.Dispatch=[&](auto count,const auto& task) {
+        adapter.Dispatch(count,task);throw std::runtime_error("排空后拒绝");
+    };
+    TransactionalPipeline unchanged(input,failing);unchanged.Initialize(check);
+    const auto old=unchanged.State().Version();const auto batch=TransactionalReservation::Plan(unchanged.State(),unchanged.Samples(),check);
+    ParallelRoam::Terrain::TerrainMeshData mirror;
+    TransactionalValidation::Consume(unchanged.ConsumeMesh(),mirror);
+    Throws([&] { unchanged.Apply(batch,check); });
+    Require(unchanged.State().Version()==old,"并行准备失败污染 live 代际");
+    TransactionalValidation::Samples(unchanged.State(),unchanged.Samples(),check);
+    TransactionalValidation::Mesh(unchanged.State(),unchanged.Mesh());
+    const auto empty=unchanged.ConsumeMesh();
+    Require(empty.Vertices.empty() && empty.Indices.empty(),"并行失败污染 Pending");
+}
 }
 
 int main()
 {
-    try { SamplesAndCertification();ReclamationAndPredicates();PersistentStateAndConsumption();DynamicEvidenceAndView();
+    try { SamplesAndCertification();ReclamationAndPredicates();PersistentStateAndConsumption();DynamicEvidenceAndView();ParallelExecutionAndFailure();
         std::cout<<"数值、持续状态、动态证据缓存与视图验证完成\n"; }
     catch (const std::exception& error) { std::cerr<<error.what()<<'\n';return 1; }
 }

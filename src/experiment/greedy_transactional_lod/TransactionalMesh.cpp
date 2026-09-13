@@ -62,18 +62,23 @@ void TransactionalMesh::Initialize(const TransactionalState& state,WorkLedger& w
     work.MeshVertices+=state.FaceCount()*3;work.MeshIndices+=state.FaceCount()*3;_generation=state.Version();
 }
 
-PreparedMesh TransactionalMesh::Prepare(const TransactionalState& state,const PreparedTopology& target,WorkLedger& work)
+PreparedMesh TransactionalMesh::Prepare(const TransactionalState& state,const PreparedTopology& target,WorkLedger& work,
+    const TransactionalExecution& execution)
 {
     PreparedMesh result;
     if (target.FinalFaceSlots>InvalidSlot/3) throw std::runtime_error("输出槽范围溢出");
     result.VertexCount=target.FinalFaceSlots*3;result.IndexCount=target.FinalActiveCount*3;
     result.PendingVertices=_pendingVertices;result.PendingIndices=_pendingIndices;
-    for (const auto& [slot,record] : target.Faces)
-    {
-        const auto& f=record.Geometry.Vertices;
-        result.Vertices.push_back({slot,Build(state.Config(),{target.Geometry(state,f[0]),target.Geometry(state,f[1]),target.Geometry(state,f[2])})});
-        result.PendingVertices.push_back(slot);
-    }
+    result.Vertices.resize(target.Faces.size());
+    // 先填写私有独占块，法线或数值异常不会留下半份 live 输出
+    execution.Run("mesh_fill",target.Faces.size(),work,[&](auto first,auto last,WorkLedger&) {
+        for (auto index=first;index<last;++index)
+        {
+            const auto& [slot,record]=target.Faces[index];const auto& f=record.Geometry.Vertices;
+            result.Vertices[index]={slot,Build(state.Config(),{target.Geometry(state,f[0]),target.Geometry(state,f[1]),target.Geometry(state,f[2])})};
+        }
+    });
+    for (const auto& item : target.Faces) result.PendingVertices.push_back(item.first);
     result.Indices=target.ActiveWrites;
     // 活动尾部交换来自同一拓扑准备记录，输出组件不另做一遍选择
     for (const auto& [position,slot] : result.Indices)

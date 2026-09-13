@@ -7,7 +7,12 @@
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
-TransactionalPipeline::TransactionalPipeline(const InitialMesh& input) : _state(input),_samples(input.Source) {}
+TransactionalPipeline::TransactionalPipeline(const InitialMesh& input,TransactionalExecution execution)
+    : _execution(std::move(execution)),_state(input),_samples(input.Source)
+{
+    if (!_execution.Workers || (_execution.Workers>1 && !_execution.Dispatch))
+        throw std::runtime_error("持续状态执行配置缺少同步派发");
+}
 
 void TransactionalPipeline::Initialize(WorkLedger& work)
 {
@@ -27,11 +32,11 @@ void TransactionalPipeline::Apply(const CertifiedBatch& batch,WorkLedger& work)
     if (batch.Version!=_state.Version()) throw std::runtime_error("批次快照已过期");
     if (batch.Exchanges.empty()) return;
     // 拓扑、样本和 mesh 共享同一个目标代际，发布之间不插入失败点
-    auto topology=TransactionalCommit::Prepare(_state,batch,work);
+    auto topology=TransactionalCommit::Prepare(_state,batch,work,_execution);
     auto start=std::chrono::steady_clock::now();
     auto samples=_samples.Prepare(_state,topology,work);
     work.Seconds["sample_repair"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
-    start=std::chrono::steady_clock::now();auto mesh=_mesh.Prepare(_state,topology,work);
+    start=std::chrono::steady_clock::now();auto mesh=_mesh.Prepare(_state,topology,work,_execution);
     work.Seconds["mesh_prepare"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
     work.Seconds.try_emplace("derived_publish",0);work.CheckLimit();
     // 全部潜在分配及失败点已越过，旧 live 值到此仍未发生变化
@@ -53,7 +58,7 @@ void TransactionalPipeline::SetView(const Configuration& view,WorkLedger& work)
     if (view.Matrix==old.Matrix && view.Width==old.Width && view.Height==old.Height) return;
     // 新视图的数值域检查和投影结果完成后，才共同替换配置与派生状态
     const auto started=std::chrono::steady_clock::now();
-    auto prepared=_samples.PrepareView(_state,view,work);work.CheckLimit();work.Seconds.try_emplace("view_refresh",0);
+    auto prepared=_samples.PrepareView(_state,view,work,_execution);work.CheckLimit();work.Seconds.try_emplace("view_refresh",0);
     _state._config.Matrix=view.Matrix;_state._config.Width=view.Width;_state._config.Height=view.Height;
     _state._config.SampleIndex=view.SampleIndex;++_state._version;
     _samples.PublishView(std::move(prepared));_mesh.AdvanceGeneration(_state.Version());
@@ -64,7 +69,7 @@ CertifiedBatch TransactionalPipeline::Update(WorkLedger& work)
 {
     const auto start=std::chrono::steady_clock::now();Initialize(work);
     work.Seconds.try_emplace("update",0);
-    auto batch=TransactionalReservation::Plan(_state,_samples,work);
+    auto batch=TransactionalReservation::Plan(_state,_samples,work,_execution);
     Apply(batch,work);
     work.Seconds.at("update")=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
     return batch;

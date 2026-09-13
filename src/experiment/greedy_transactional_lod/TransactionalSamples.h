@@ -59,7 +59,8 @@ public:
     void Refresh(const TransactionalState& state, WorkLedger& work);
     PreparedSamples Prepare(const TransactionalState& state,const PreparedTopology& target,WorkLedger& work);
     void Publish(PreparedSamples&& prepared) noexcept;
-    PreparedView PrepareView(const TransactionalState& state,const Configuration& view,WorkLedger& work) const;
+    PreparedView PrepareView(const TransactionalState& state,const Configuration& view,WorkLedger& work,
+        const TransactionalExecution& execution={}) const;
     void PublishView(PreparedView&& prepared) noexcept;
     std::array<std::uint32_t, 2> Decode(Slot sample) const;
     Point Parameter(Slot sample) const;

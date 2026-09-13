@@ -3,6 +3,7 @@
 #include "experiment/greedy_transactional_lod/TransactionalCommit.h"
 #include "experiment/greedy_transactional_lod/TransactionalValidation.h"
 #include "experiment/greedy_transactional_lod/TransactionalDynamicReference.h"
+#include "experiment/roam_materialization/MaterializationExecutor.h"
 
 #include <algorithm>
 #include <cmath>
@@ -90,7 +91,12 @@ void WriteReport(const std::filesystem::path& path,const Configuration& config,c
                 <<std::quoted(batch.Attempts[i][j].second)<<']';
         out<<']';
     }
-    out<<"],\"exchanges\":[";first=true;
+    out<<"],\"execution\":{";first=true;
+    for (const auto& [phase,values] : work.Execution)
+    {
+        out<<(first ? "" : ",")<<std::quoted(phase)<<":["<<values[0]<<','<<values[1]<<','<<values[2]<<']';first=false;
+    }
+    out<<"},\"exchanges\":[";first=true;
     for (const auto& exchange : batch.Exchanges)
     {
         out<<(first ? "" : ",")<<"{\"rootSlot\":"<<exchange.Receiver.Root<<",\"kind\":"<<std::quoted(std::string(1,exchange.Receiver.Kind))
@@ -115,17 +121,21 @@ void WriteReport(const std::filesystem::path& path,const Configuration& config,c
 
 int main(int argc,char** argv)
 {
+    bool ownsOutput=false;
     try
     {
-        if (argc!=4) throw std::runtime_error("参数：快照文件 单批/persistent/guard/trajectory-a/trajectory-b 的 diagnostic/timing 模式 输出目录");
+        if (argc!=4) throw std::runtime_error("参数：快照文件 单批/persistent/guard/trajectory-a/b/c 的 diagnostic/timing 模式 输出目录");
         const std::filesystem::path snapshot{argv[1]},output{argv[3]};const std::string mode{argv[2]};
         if (mode!="diagnostic" && mode!="timing" && mode!="persistent-diagnostic" && mode!="persistent-timing" &&
             mode!="guard-diagnostic" && mode!="guard-timing" && mode!="trajectory-a-diagnostic" && mode!="trajectory-a-timing" &&
-            mode!="trajectory-b-diagnostic" && mode!="trajectory-b-timing") throw std::runtime_error("运行模式非法");
+            mode!="trajectory-b-diagnostic" && mode!="trajectory-b-timing" &&
+            mode!="trajectory-c-diagnostic" && mode!="trajectory-c-timing") throw std::runtime_error("运行模式非法");
         const bool diagnostic=mode.ends_with("diagnostic"),persistent=mode.starts_with("persistent"),guard=mode.starts_with("guard");
         const bool trajectory=mode.starts_with("trajectory"),dynamicMode=mode.starts_with("trajectory-a");
+        const bool parallel=mode.starts_with("trajectory-c");
         if (std::filesystem::exists(output)) throw std::runtime_error("拒绝覆盖已有输出");
         std::filesystem::create_directories(output);
+        ownsOutput=true;
         WorkLedger initialization;initialization.Deadline=Clock::now()+std::chrono::seconds(120);
         auto started=Clock::now();auto input=TransactionalInput::Load(snapshot);input.Config.HeightGuard=guard;
         initialization.Seconds["input"]=Seconds(started);
@@ -135,7 +145,22 @@ int main(int argc,char** argv)
             started=Clock::now();views=TransactionalInput::Views(std::filesystem::current_path(),input.Config);
             initialization.Seconds["view_file"]=Seconds(started);
         }
-        started=Clock::now();TransactionalDynamicReference reference(input);auto& pipeline=reference.Pipeline();
+        // 线程池在整个轨迹期间复用，启动成本另列；正常 update 包含每次派发与等待
+        started=Clock::now();
+        std::unique_ptr<ParallelRoam::Experiment::RoamMaterialization::MaterializationExecutor> executor;
+        TransactionalExecution execution;execution.Diagnostics=diagnostic;
+        if (parallel)
+        {
+            executor=std::make_unique<ParallelRoam::Experiment::RoamMaterialization::MaterializationExecutor>(4);
+            const auto adapter=executor->Execution();execution.Workers=adapter.Workers;execution.Dispatch=adapter.Dispatch;
+        }
+        initialization.Seconds["executor_initialize"]=Seconds(started);
+        started=Clock::now();
+        std::unique_ptr<TransactionalDynamicReference> reference;
+        std::unique_ptr<TransactionalPipeline> batchPipeline;
+        if (dynamicMode) reference=std::make_unique<TransactionalDynamicReference>(input);
+        else batchPipeline=std::make_unique<TransactionalPipeline>(input,execution);
+        auto& pipeline=dynamicMode ? reference->Pipeline() : *batchPipeline;
         initialization.Seconds["state_initialize"]=Seconds(started);
         pipeline.Initialize(initialization);
         {
@@ -190,7 +215,7 @@ int main(int argc,char** argv)
             CertifiedBatch batch;std::string stop="batch_complete";std::vector<std::array<Identity,3>> decisions;
             if (dynamicMode)
             {
-                auto result=reference.Update(work);batch=std::move(result.Summary);stop=result.Stop;decisions=std::move(result.Decisions);
+                auto result=reference->Update(work);batch=std::move(result.Summary);stop=result.Stop;decisions=std::move(result.Decisions);
             }
             else batch=pipeline.Update(work);
             work.Seconds["frame_update"]=Seconds(frameStart)-preDiagnostic;Quality after;
@@ -231,7 +256,7 @@ int main(int argc,char** argv)
                     }
                 }
                 trajectoryLog<<std::setprecision(17)<<"{\"round\":"<<round<<",\"view\":"<<pipeline.State().Config().SampleIndex
-                    <<",\"strategy\":"<<std::quoted(dynamicMode ? "dynamic-serial" : "batch-serial")
+                    <<",\"strategy\":"<<std::quoted(dynamicMode ? "dynamic-serial" : (parallel ? "batch-parallel" : "batch-serial"))
                     <<",\"stop\":"<<std::quoted(stop)<<",\"transactions\":"<<batch.Exchanges.size()
                     <<",\"faces\":"<<pipeline.State().FaceCount()<<",\"frameUpdateMs\":"<<work.Seconds["frame_update"]*1000;
                 if (diagnostic)
@@ -258,7 +283,7 @@ int main(int argc,char** argv)
     catch (const std::exception& error)
     {
         std::cerr<<error.what()<<'\n';
-        if (argc==4 && std::filesystem::is_directory(argv[3]))
+        if (ownsOutput && argc==4 && std::filesystem::is_directory(argv[3]))
         {
             const auto path=std::filesystem::path(argv[3])/"failure.txt";
             if (!std::filesystem::exists(path)) { std::ofstream out(path);out<<error.what()<<'\n'; }

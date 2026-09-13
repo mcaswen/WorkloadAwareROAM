@@ -235,7 +235,7 @@ GTP-01 单批没有局部续接性能保证；GTP-02 完成后才能称持续原
 
 ## 实现情况
 
-尚未实施。本文件为 GMP-04 的设计产物，已具备阶段/文件/依赖/质量风险和验证边界，供用户 Review。
+四个阶段现已完成，具体出口见下方按阶段追加的实施记录。本文件最初为 GMP-04 的设计产物，以下保留设计确认及后续实现的历史边界
 
 2026-09-14 按原型前结果评审完成文档修订：确认原型前 PASS，区分持续质量未验证与已失败；补齐 P/evidence、高度自由度、批次额度生命周期及恢复观察；全 Q 高度保护降为保守对照。目录、依赖及四阶段结构不变，新增契约分别归属既有 Types/Proposals/Certification、Reservation 和 Samples/Pipeline/Validation，无新组件。未修改代码或原冻结实验，未启动 GTP 实现。
 
@@ -246,3 +246,5 @@ GTP-01 单批没有局部续接性能保证；GTP-02 完成后才能称持续原
 [GTP-02](gtp_02_persistent_state_plan.md)随后完成局部样本/P、共同准备/发布及增量 CPU mesh/Pending。[结果](../../research/cpu_refinement/gtp_02_persistent_state_results.md)记录正常三轮、保守高度对照、局部 oracle 和完整成本。本阶段持续串行状态准入通过；移动视图、动态 A 和多核仍未验证，独立提交后进入 GTP-03
 
 [GTP-03](gtp_03_dynamic_trajectory_plan.md)完成局部有序索引、竞争性动态 A 和固定八次相机更新。[结果](../../research/cpu_refinement/gtp_03_dynamic_trajectory_results.md)确认执行链路及完整成本；返回视图的逐点 excess 没有在一次更新恢复，持续质量仍开放。可以进入同决策 B/C 有限多核测量，不能将这一出口写成生产准入或质量通过
+
+[GTP-04](gtp_04_multicore_plan.md)完成真实 1/4 线程 B/C、异常排空、同批/状态对照和少量 Classic/DOD 上下文。[结果](../../research/cpu_refinement/gtp_04_multicore_results.md)记录完整 1.952×/1.687× 同任务倍率；收益来自认证/评分，微小拓扑记录填写未获得实际多线程扩展。当前绝对成本仍高于 Legacy，test 单线程存在未解决的 12.07% 回归，持续质量风险未消失。**原型四阶段执行收口，尚无直接替代 Legacy 的证据**；依用户要求，提交后另出平台接入性能/复杂度分析，不自动进入生产开发
