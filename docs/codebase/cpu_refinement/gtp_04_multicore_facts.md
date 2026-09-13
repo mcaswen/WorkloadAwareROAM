@@ -64,4 +64,4 @@ Import 用 public mesh 的 TexCoord 与 Position.y 作为实际曲面，按参�
 - Probe main / WriteReport：B/C 配置、execution 证据、分阶段墙钟和文件生命周期
 - FamilyProbe Import / main：公共几何导入、默认策略、家族轨迹和计时外质量
 
-UNCERTAIN：没有 TSAN/硬件 CPU cycles 或 allocator 归因。test 单线程 +12.07% 已定位到相同工作量下的认证等内部成本，尚无单一源码根因。没有真实平台 GPU 上传/绘制、长轨迹恢复或多机器证据。当前数据不支持把这些缺口写成已解决
+UNCERTAIN：没有 TSAN/硬件 CPU cycles 或 allocator 归因。初次 test 单线程 +12.07% 及认证内部差值在排除明显 WSL 启动干扰的同会话核查中均未复现，现记录为无稳定版本相关证据，不能归因到某个源码变化。没有真实平台 GPU 上传/绘制、长轨迹恢复或多机器证据。当前数据不支持把这些缺口写成已解决
