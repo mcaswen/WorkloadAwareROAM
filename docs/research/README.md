@@ -6,6 +6,8 @@
 
 2026-09-14 的[全局优先级事务化 CPU LOD 原型前大规划](../plans/cpu_refinement/greedy_multipass_preprototype_plan.md)已获用户认可并完成评审小修订，可进入 GMP-01 小规划。研究具体聚焦逐修改 greedy 反馈与拓扑写入的解耦，保留批次之间的反馈；multi-pass 是执行形式，一般 one-ring 是提高预算需求兑现能力的原语。四阶段依次冻结快照顺序预留及 P/G/C、完整事务读写/续接义务、两场景共 4～6 个预冻结快照的兑现与工作量审计、原型准入。当前没有新代码或自然结果，不直接实施持久算法，也不把局部重剖分转为独立论文主线。
 
+该大规划及相关记录已按用户要求先提交为 `1b93ca8`。[GMP-01 小规划](../plans/cpu_refinement/gmp_01_execution_contract_plan.md)已完成[执行契约](cpu_refinement/greedy_multipass_contract.md)、七类手算与[实施审查](../reviews/cpu_refinement/gmp_01_execution_contract_review.md)。有限接收目录、P/G/C/E、样本归属、共同预算需求与预留规则已确定；批次组合和自然证据尚待后续阶段。用户已授权按“完成一个小阶段、验证审查、单独提交、再开始下一阶段”自主闭环，不再逐次请求确认；原型与生产接入边界保持。
+
 MPR-02 已提交为 `d635a9b`。[串行成本分析](roam_parallelism/target_materialization_serial_costs.md)与[MPR-03 小规划](../plans/roam_parallelism/target_materialization_prototype_03_plan.md)记录局部向量/记录句柄优化，完整状态与续接核查保持。新增压力样本 k=27,783，两组快验中串行物化约 332→240 ms、四线程约 226 ms；正式重复矩阵已按用户要求停止。小输入仍只有单次诊断，性能风险与统计限制见[结果 §14](roam_parallelism/target_materialization_prototype.md#14-mpr-03-开发快验结果与停止记录)，不宣称稳定多核加速或全部输入性能验收。
 
 用户随后要求直接替换原 DOD 细分拓扑阶段，并保留原／新实现选择。[原生接入大规划](../plans/roam_parallelism/native_materialization_plan.md)已获认可；[NMP-01 小规划](../plans/roam_parallelism/native_materialization_01_plan.md)现已实现独立严格逻辑规划、封闭 Δ/Γ、完整决策轨迹和三点现实核查。有限输入内，第一箭头不需要生产 mutation、全状态复制或旧 pass 产 J；完整目标/队列/历史/预算与 Legacy 一致，正常出口没有目标关系或 heap 布局。MPR 继续保留为独立物化参考，关系恢复协议的实际生产充分性仍留 NMP-02。
