@@ -1,4 +1,6 @@
 #include "experiment/greedy_transactional_lod/TransactionalInput.h"
+#include "experiment/formal/FormalExperimentCamera.h"
+#include "experiment/formal/FormalExperimentManifest.h"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <fstream>
@@ -79,5 +81,28 @@ void TransactionalInput::Write(const TransactionalState& state,const std::filesy
     }
     out<<"]}";out.close();
     if (!out) throw std::runtime_error("几何结果写入失败");
+}
+
+std::vector<Configuration> TransactionalInput::Views(const std::filesystem::path& root,const Configuration& initial)
+{
+    const auto scenarios=Formal::LoadScenarioManifest(root/"docs/parallel-roam/cpu-pilot-scenarios-v1.csv",
+        root,{"test129-a-b4096","peking547-a-b20000"});
+    const auto cameras=Formal::LoadCameraManifest(
+        root/"benchmark-output/roam-materialization/mpr-01/input-freeze/inputs/camera-samples.csv",scenarios);
+    std::vector<Configuration> result;
+    // 只拿相机行，不从这些时刻的 Legacy mesh 重新初始化当前算法
+    for (const auto& camera : cameras)
+    {
+        if (camera.ScenarioId!=initial.Scenario || camera.SampleIndex<14 || camera.SampleIndex>18) continue;
+        const auto view=Formal::BuildCameraView(camera);auto config=initial;
+        config.SampleIndex=camera.SampleIndex;config.Width=camera.DrawableWidth;config.Height=camera.DrawableHeight;
+        for (glm::length_t row=0;row<4;++row) for (glm::length_t column=0;column<4;++column)
+            config.Matrix[static_cast<std::size_t>(row*4+column)]=view.ViewProjection[column][row];
+        // 来源视图必须逐值匹配，不能用近似重建后的相机覆盖已有实验输入
+        if (camera.SampleIndex==14 && config.Matrix!=initial.Matrix) throw std::runtime_error("冻结相机与 seed 矩阵不同");
+        result.push_back(config);
+    }
+    if (result.size()!=5) throw std::runtime_error("缺少冻结相机 14..18");
+    return result;
 }
 }

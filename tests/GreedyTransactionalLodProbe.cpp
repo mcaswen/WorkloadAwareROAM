@@ -2,6 +2,7 @@
 #include "experiment/greedy_transactional_lod/TransactionalPipeline.h"
 #include "experiment/greedy_transactional_lod/TransactionalCommit.h"
 #include "experiment/greedy_transactional_lod/TransactionalValidation.h"
+#include "experiment/greedy_transactional_lod/TransactionalDynamicReference.h"
 
 #include <algorithm>
 #include <cmath>
@@ -71,7 +72,10 @@ void WriteReport(const std::filesystem::path& path,const Configuration& config,c
         <<",\"heightSamples\":"<<work.HeightSamples<<",\"heightExactSamples\":"<<work.HeightExactSamples
         <<",\"heightGuardChecks\":"<<work.HeightGuardChecks<<",\"heightGuardRejected\":"<<work.HeightGuardRejected
         <<",\"capacityGrowths\":"<<work.CapacityGrowths<<",\"capacityBytesReserved\":"<<work.CapacityBytesReserved
-        <<",\"capacityBytesRelocated\":"<<work.CapacityBytesRelocated<<'}';
+        <<",\"capacityBytesRelocated\":"<<work.CapacityBytesRelocated<<",\"candidateUpdates\":"<<work.CandidateUpdates
+        <<",\"donorIndexUpdates\":"<<work.DonorIndexUpdates<<",\"receiverCacheHits\":"<<work.ReceiverCacheHits
+        <<",\"donorCacheHits\":"<<work.DonorCacheHits<<",\"cacheInvalidations\":"<<work.CacheInvalidations
+        <<",\"rootObservations\":"<<work.RootObservations<<'}';
     out<<",\"intents\":[";
     for (std::size_t i=0;i<batch.IntentIds.size();++i)
         out<<(i ? "," : "")<<'['<<batch.IntentIds[i]<<','<<std::quoted(batch.IntentResults[i])<<']';
@@ -113,17 +117,26 @@ int main(int argc,char** argv)
 {
     try
     {
-        if (argc!=4) throw std::runtime_error("参数：快照文件 diagnostic/timing/persistent-diagnostic/persistent-timing/guard-diagnostic/guard-timing 输出目录");
+        if (argc!=4) throw std::runtime_error("参数：快照文件 单批/persistent/guard/trajectory-a/trajectory-b 的 diagnostic/timing 模式 输出目录");
         const std::filesystem::path snapshot{argv[1]},output{argv[3]};const std::string mode{argv[2]};
         if (mode!="diagnostic" && mode!="timing" && mode!="persistent-diagnostic" && mode!="persistent-timing" &&
-            mode!="guard-diagnostic" && mode!="guard-timing") throw std::runtime_error("运行模式非法");
+            mode!="guard-diagnostic" && mode!="guard-timing" && mode!="trajectory-a-diagnostic" && mode!="trajectory-a-timing" &&
+            mode!="trajectory-b-diagnostic" && mode!="trajectory-b-timing") throw std::runtime_error("运行模式非法");
         const bool diagnostic=mode.ends_with("diagnostic"),persistent=mode.starts_with("persistent"),guard=mode.starts_with("guard");
+        const bool trajectory=mode.starts_with("trajectory"),dynamicMode=mode.starts_with("trajectory-a");
         if (std::filesystem::exists(output)) throw std::runtime_error("拒绝覆盖已有输出");
         std::filesystem::create_directories(output);
         WorkLedger initialization;initialization.Deadline=Clock::now()+std::chrono::seconds(120);
         auto started=Clock::now();auto input=TransactionalInput::Load(snapshot);input.Config.HeightGuard=guard;
         initialization.Seconds["input"]=Seconds(started);
-        started=Clock::now();TransactionalPipeline pipeline(input);initialization.Seconds["state_initialize"]=Seconds(started);
+        std::vector<Configuration> views;
+        if (trajectory)
+        {
+            started=Clock::now();views=TransactionalInput::Views(std::filesystem::current_path(),input.Config);
+            initialization.Seconds["view_file"]=Seconds(started);
+        }
+        started=Clock::now();TransactionalDynamicReference reference(input);auto& pipeline=reference.Pipeline();
+        initialization.Seconds["state_initialize"]=Seconds(started);
         pipeline.Initialize(initialization);
         {
             std::ofstream out(output/"initialize.json");out<<std::setprecision(17)<<'{';bool first=true;
@@ -136,14 +149,51 @@ int main(int argc,char** argv)
             TransactionalValidation::Validate(pipeline.State());
             TransactionalValidation::Consume(pipeline.ConsumeMesh(),mirror);
         }
-        const int rounds=persistent ? 3 : 1;
+        const int rounds=trajectory ? 8 : (persistent ? 3 : 1);
+        std::ofstream trajectoryLog;
+        if (trajectory) trajectoryLog.open(output/"trajectory.jsonl");
+        std::vector<double> leavingErrors;std::vector<bool> lastVisible;
+        const std::array<int,8> viewOrder{0,0,0,1,2,3,4,0};
         for (int round=0;round<rounds;++round)
         {
-            const auto directory=persistent ? output/("round-"+std::to_string(round)) : output;
+            const auto directory=(persistent || trajectory) ? output/("round-"+std::to_string(round)) : output;
             std::filesystem::create_directories(directory);
             WorkLedger work;work.Deadline=Clock::now()+std::chrono::seconds(120);
+            if (diagnostic && trajectory)
+            {
+                lastVisible.clear();for (const auto& value : pipeline.Samples().Values()) lastVisible.push_back(value.Visible);
+            }
+            const auto frameStart=Clock::now();
+            if (trajectory) pipeline.SetView(views[static_cast<std::size_t>(viewOrder[static_cast<std::size_t>(round)])],work);
+            double returnBefore=0,newVisibleBefore=0;std::vector<Slot> newlyVisible;
+            const auto excess=[&]() {
+                double maximum=-std::numeric_limits<double>::infinity();
+                for (Slot sid=0;sid<leavingErrors.size();++sid)
+                    if (pipeline.Samples().Values()[sid].Visible)
+                        maximum=std::max(maximum,std::sqrt(pipeline.Samples().Values()[sid].ErrorSquared)-leavingErrors[sid]);
+                return std::isfinite(maximum) ? maximum : 0;
+            };
+            // 逐点质量诊断单列，计时遍不遍历 Q 做额外归因
+            auto qualityStart=Clock::now();
+            if (diagnostic && trajectory)
+            {
+                if (round==7) returnBefore=excess();
+                for (Slot sid=0;sid<lastVisible.size();++sid)
+                    if (pipeline.Samples().Values()[sid].Visible && !lastVisible[sid])
+                    {
+                        newlyVisible.push_back(sid);
+                        newVisibleBefore=std::max(newVisibleBefore,std::sqrt(pipeline.Samples().Values()[sid].ErrorSquared));
+                    }
+            }
             const auto before=diagnostic ? Summarize(pipeline.Samples()) : Quality{};
-            const auto batch=pipeline.Update(work);Quality after;
+            const double preDiagnostic=Seconds(qualityStart);
+            CertifiedBatch batch;std::string stop="batch_complete";std::vector<std::array<Identity,3>> decisions;
+            if (dynamicMode)
+            {
+                auto result=reference.Update(work);batch=std::move(result.Summary);stop=result.Stop;decisions=std::move(result.Decisions);
+            }
+            else batch=pipeline.Update(work);
+            work.Seconds["frame_update"]=Seconds(frameStart)-preDiagnostic;Quality after;
             if (diagnostic)
             {
                 started=Clock::now();WorkLedger check;check.Deadline=Clock::now()+std::chrono::seconds(120);
@@ -152,7 +202,7 @@ int main(int argc,char** argv)
                 TransactionalValidation::Mesh(pipeline.State(),pipeline.Mesh());after=Summarize(pipeline.Samples());
                 if (after.Screen>before.Screen+1e-8) throw std::runtime_error("冻结视图 sampled maximum 上升");
                 if (guard && after.Height>before.Height+1e-10) throw std::runtime_error("高度保护的全 Q 误差上升");
-                if (round==0)
+                if (round==0 && !dynamicMode)
                 {
                     // 反序只作首批诊断，不让整份状态副本进入正常路径
                     TransactionalState reverse(input);auto reversed=batch;std::reverse(reversed.Exchanges.begin(),reversed.Exchanges.end());
@@ -167,16 +217,52 @@ int main(int argc,char** argv)
                 }
                 work.Seconds["diagnostic"]=Seconds(started);
             }
-            else
+            if (trajectory)
+            {
+                double returnAfter=0,newVisibleAfter=0;
+                if (diagnostic)
+                {
+                    for (auto sid : newlyVisible)
+                        newVisibleAfter=std::max(newVisibleAfter,std::sqrt(pipeline.Samples().Values()[sid].ErrorSquared));
+                    if (round==7) returnAfter=excess();
+                    if (round==2)
+                    {
+                        leavingErrors.clear();for (const auto& value : pipeline.Samples().Values()) leavingErrors.push_back(std::sqrt(value.ErrorSquared));
+                    }
+                }
+                trajectoryLog<<std::setprecision(17)<<"{\"round\":"<<round<<",\"view\":"<<pipeline.State().Config().SampleIndex
+                    <<",\"strategy\":"<<std::quoted(dynamicMode ? "dynamic-serial" : "batch-serial")
+                    <<",\"stop\":"<<std::quoted(stop)<<",\"transactions\":"<<batch.Exchanges.size()
+                    <<",\"faces\":"<<pipeline.State().FaceCount()<<",\"frameUpdateMs\":"<<work.Seconds["frame_update"]*1000;
+                if (diagnostic)
+                    trajectoryLog<<",\"returnBeforeExcessPx\":"<<returnBefore<<",\"returnAfterExcessPx\":"<<returnAfter
+                        <<",\"returnRecoveryCensored\":"<<(round==7 && returnAfter>1e-9 ? "true" : "false")
+                        <<",\"newlyVisibleSamples\":"<<newlyVisible.size()<<",\"newlyVisibleBeforeMaxPx\":"<<newVisibleBefore
+                        <<",\"newlyVisibleAfterMaxPx\":"<<newVisibleAfter;
+                trajectoryLog<<",\"decisions\":[";
+                for (std::size_t i=0;i<decisions.size();++i)
+                    trajectoryLog<<(i ? "," : "")<<'['<<decisions[i][0]<<','<<decisions[i][1]<<','<<decisions[i][2]<<']';
+                trajectoryLog<<"]}\n";trajectoryLog.flush();
+            }
+            if (!diagnostic)
             {
                 started=Clock::now();const auto consumed=pipeline.ConsumeMesh();static_cast<void>(consumed);
                 work.Seconds["consume"]=Seconds(started);
             }
             started=Clock::now();TransactionalInput::Write(pipeline.State(),directory/"mesh.json");work.Seconds["mesh_file"]=Seconds(started);
-            WriteReport(directory/"summary.json",input.Config,batch,work,before,after,pipeline.State().FaceCount(),diagnostic);
+            WriteReport(directory/"summary.json",pipeline.State().Config(),batch,work,before,after,pipeline.State().FaceCount(),diagnostic);
             std::cout<<input.Config.Scenario<<'/'<<round<<": 需求 "<<batch.Need<<"，局部可行 "<<batch.Feasible
-                <<"，交换 "<<batch.Executed<<"，空额度 "<<batch.FreeExecuted<<"，更新 "<<work.Seconds["update"]*1000<<" ms\n";
+                <<"，交换 "<<batch.Executed<<"，空额度 "<<batch.FreeExecuted<<"，更新 "<<work.Seconds["frame_update"]*1000<<" ms"<<std::endl;
         }
     }
-    catch (const std::exception& error) { std::cerr<<error.what()<<'\n';return 1; }
+    catch (const std::exception& error)
+    {
+        std::cerr<<error.what()<<'\n';
+        if (argc==4 && std::filesystem::is_directory(argv[3]))
+        {
+            const auto path=std::filesystem::path(argv[3])/"failure.txt";
+            if (!std::filesystem::exists(path)) { std::ofstream out(path);out<<error.what()<<'\n'; }
+        }
+        return 1;
+    }
 }

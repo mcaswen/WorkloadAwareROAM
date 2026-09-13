@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
@@ -86,6 +87,7 @@ struct WorkLedger
     std::uint64_t RepairSamples{}, RepairFaces{}, OrderVisits{}, MeshVertices{}, MeshIndices{}, PendingBlocks{};
     std::uint64_t HeightSamples{}, HeightExactSamples{}, HeightGuardChecks{}, HeightGuardRejected{};
     std::uint64_t CapacityGrowths{}, CapacityBytesReserved{}, CapacityBytesRelocated{};
+    std::uint64_t CandidateUpdates{}, DonorIndexUpdates{}, ReceiverCacheHits{}, DonorCacheHits{}, CacheInvalidations{}, RootObservations{};
     std::map<std::string, std::uint64_t> Reasons;
     std::map<std::string, double> Seconds;
     std::chrono::steady_clock::time_point Deadline{std::chrono::steady_clock::time_point::max()};

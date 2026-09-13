@@ -43,6 +43,7 @@ public:
     PreparedMesh Prepare(const TransactionalState& state,const PreparedTopology& target,WorkLedger& work);
     void Publish(PreparedMesh&& prepared,std::uint64_t generation) noexcept;
     MeshConsumption Consume();
+    void AdvanceGeneration(std::uint64_t value) noexcept { _generation=value; }
     const Terrain::TerrainMeshData& Data() const { return _data; }
 private:
     static std::array<Terrain::TerrainMeshVertex,3> Build(const Configuration& config,const std::array<Point,3>& points);

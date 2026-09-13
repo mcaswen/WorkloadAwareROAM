@@ -3,6 +3,7 @@
 #include "experiment/greedy_transactional_lod/TransactionalCommit.h"
 
 #include <stdexcept>
+#include <cmath>
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
@@ -35,8 +36,28 @@ void TransactionalPipeline::Apply(const CertifiedBatch& batch,WorkLedger& work)
     work.Seconds.try_emplace("derived_publish",0);work.CheckLimit();
     // 全部潜在分配及失败点已越过，旧 live 值到此仍未发生变化
     TransactionalCommit::Publish(_state,std::move(topology),work);
-    start=std::chrono::steady_clock::now();_samples.Publish(std::move(samples));_mesh.Publish(std::move(mesh),_state.Version());
+    start=std::chrono::steady_clock::now();
+    _invalidatedRoots=std::move(samples.InvalidatedRoots);_invalidatedDonors=std::move(samples.InvalidatedDonors);
+    _samples.Publish(std::move(samples));_mesh.Publish(std::move(mesh),_state.Version());
     work.Seconds.at("derived_publish")+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+}
+
+void TransactionalPipeline::SetView(const Configuration& view,WorkLedger& work)
+{
+    Initialize(work);const auto& old=_state.Config();
+    if (view.Scenario!=old.Scenario || view.PrefixLimit!=old.PrefixLimit || view.DonorLimit!=old.DonorLimit ||
+        view.Budget!=old.Budget || view.TerrainSize!=old.TerrainSize || view.HeightScale!=old.HeightScale ||
+        view.SplitPixels!=old.SplitPixels || view.HeightGuard!=old.HeightGuard || !view.Width || !view.Height ||
+        !std::all_of(view.Matrix.begin(),view.Matrix.end(),[](double value) { return std::isfinite(value); }))
+        throw std::runtime_error("视图刷新不能改变几何、预算或质量规则");
+    if (view.Matrix==old.Matrix && view.Width==old.Width && view.Height==old.Height) return;
+    // 新视图的数值域检查和投影结果完成后，才共同替换配置与派生状态
+    const auto started=std::chrono::steady_clock::now();
+    auto prepared=_samples.PrepareView(_state,view,work);work.CheckLimit();work.Seconds.try_emplace("view_refresh",0);
+    _state._config.Matrix=view.Matrix;_state._config.Width=view.Width;_state._config.Height=view.Height;
+    _state._config.SampleIndex=view.SampleIndex;++_state._version;
+    _samples.PublishView(std::move(prepared));_mesh.AdvanceGeneration(_state.Version());
+    work.Seconds.at("view_refresh")+=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
 }
 
 CertifiedBatch TransactionalPipeline::Update(WorkLedger& work)

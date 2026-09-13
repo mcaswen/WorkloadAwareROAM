@@ -15,7 +15,7 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
         "${transactional_dir}/TransactionalPredicates.cpp" "${transactional_dir}/TransactionalCertification.cpp"
         "${transactional_dir}/TransactionalProposals.cpp" "${transactional_dir}/TransactionalReservation.cpp"
         "${transactional_dir}/TransactionalCommit.cpp" "${transactional_dir}/TransactionalPipeline.cpp"
-        "${transactional_dir}/TransactionalMesh.cpp")
+        "${transactional_dir}/TransactionalMesh.cpp" "${transactional_dir}/TransactionalDynamicReference.cpp")
     target_include_directories(parallel_roam_transactional_lod_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../src")
     target_include_directories(parallel_roam_transactional_lod_core SYSTEM PRIVATE "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
     target_link_libraries(parallel_roam_transactional_lod_core PUBLIC parallel_roam_project_options parallel_roam_glm PRIVATE parallel_roam_project_warnings)
@@ -27,7 +27,10 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
     add_executable(parallel_roam_transactional_lod_tests GreedyTransactionalLodTests.cpp
         "${transactional_dir}/TransactionalValidation.cpp")
     add_executable(parallel_roam_transactional_lod_probe GreedyTransactionalLodProbe.cpp
-        "${transactional_dir}/TransactionalInput.cpp" "${transactional_dir}/TransactionalValidation.cpp")
+        "${transactional_dir}/TransactionalInput.cpp" "${transactional_dir}/TransactionalValidation.cpp"
+        ../src/experiment/formal/FormalExperimentCamera.cpp ../src/experiment/formal/FormalExperimentManifest.cpp
+        ../src/experiment/ExperimentCsvCodec.cpp ../src/terrain/HeightMap.cpp ../src/algorithms/TerrainLodView.cpp)
+    target_link_libraries(parallel_roam_transactional_lod_probe PRIVATE ParallelROAM::STB)
     foreach(transactional_target parallel_roam_transactional_lod_tests parallel_roam_transactional_lod_probe)
         target_link_libraries(${transactional_target} PRIVATE parallel_roam_transactional_lod_core parallel_roam_project_warnings)
         target_include_directories(${transactional_target} SYSTEM PRIVATE "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")

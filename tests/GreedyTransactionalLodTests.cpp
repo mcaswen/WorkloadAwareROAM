@@ -5,6 +5,7 @@
 #include "experiment/greedy_transactional_lod/TransactionalValidation.h"
 #include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
 #include "experiment/greedy_transactional_lod/TransactionalPipeline.h"
+#include "experiment/greedy_transactional_lod/TransactionalDynamicReference.h"
 
 #include <algorithm>
 #include <cmath>
@@ -138,10 +139,46 @@ void PersistentStateAndConsumption()
     receiver.Points.at(receiver.NewVertex).Height=100;
     Require(!TransactionalCertification::PreservesHeight(source,samples,receiver,nullptr,initialize),"全 Q 高度保护漏掉退化");
 }
+
+void DynamicEvidenceAndView()
+{
+    auto input=Square();input.Vertices.clear();input.Faces.clear();input.Source={9,9,{}};
+    input.Config.Budget=128;input.Config.SplitPixels=1;
+    for (Identity y=0;y<9;++y) for (Identity x=0;x<9;++x)
+    {
+        input.Vertices.push_back({y*9+x,{static_cast<double>(x)/8,static_cast<double>(y)/8,0}});
+        input.Source.Values.push_back(x%3==1 && y%3==1 ? 65535 : 0);
+    }
+    for (Identity y=0;y<8;++y) for (Identity x=0;x<8;++x)
+    {
+        const auto a=y*9+x,b=a+1,c=a+10,d=a+9;
+        input.Faces.push_back({static_cast<Identity>(input.Faces.size()),{a,b,c}});
+        input.Faces.push_back({static_cast<Identity>(input.Faces.size()),{a,c,d}});
+    }
+    TransactionalDynamicReference cached(input),fresh(input);WorkLedger a,b;
+    cached.Pipeline().Initialize(a);fresh.Pipeline().Initialize(b);
+    a=WorkLedger{};b=WorkLedger{};
+    const auto first=cached.Update(a),second=fresh.Update(b,false);
+    Require(first.Decisions==second.Decisions && first.Stop==second.Stop,"动态证据缓存改变了决策轨迹");
+    Require(TransactionalValidation::Equivalent(cached.Pipeline().State(),fresh.Pipeline().State()),"动态缓存改变端点");
+    Require(a.ReceiverCacheHits+a.DonorCacheHits>0,"动态夹具没有实际命中证据缓存");
+    WorkLedger check;TransactionalValidation::Validate(cached.Pipeline().State());
+    TransactionalValidation::Samples(cached.Pipeline().State(),cached.Pipeline().Samples(),check);
+    auto oldBatch=TransactionalReservation::Plan(cached.Pipeline().State(),cached.Pipeline().Samples(),check);
+    const auto version=cached.Pipeline().State().Version();auto view=input.Config;view.Matrix[0]=.9;view.SampleIndex=15;
+    std::vector<Slot> owners;for (const auto& value : cached.Pipeline().Samples().Values()) owners.push_back(value.Owner);
+    cached.Pipeline().SetView(view,check);
+    Require(cached.Pipeline().State().Version()==version+1,"视图刷新没有失效旧批次");
+    Throws([&] { cached.Pipeline().Apply(oldBatch,check); });
+    for (Slot sid=0;sid<owners.size();++sid) Require(cached.Pipeline().Samples().Values()[sid].Owner==owners[sid],"换相机重新分配了 owner");
+    TransactionalValidation::Samples(cached.Pipeline().State(),cached.Pipeline().Samples(),check);
+    TransactionalValidation::Mesh(cached.Pipeline().State(),cached.Pipeline().Mesh());
+}
 }
 
 int main()
 {
-    try { SamplesAndCertification();ReclamationAndPredicates();PersistentStateAndConsumption();std::cout<<"数值、局部续接、保护与输出消费验证完成\n"; }
+    try { SamplesAndCertification();ReclamationAndPredicates();PersistentStateAndConsumption();DynamicEvidenceAndView();
+        std::cout<<"数值、持续状态、动态证据缓存与视图验证完成\n"; }
     catch (const std::exception& error) { std::cerr<<error.what()<<'\n';return 1; }
 }

@@ -12,6 +12,7 @@ class TransactionalInput
 {
 public:
     static InitialMesh Load(const std::filesystem::path& snapshot);
+    static std::vector<Configuration> Views(const std::filesystem::path& root,const Configuration& initial);
     static void Write(const TransactionalState& state,const std::filesystem::path& output);
 };
 }

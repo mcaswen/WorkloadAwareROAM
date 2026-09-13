@@ -108,6 +108,7 @@ void TransactionalValidation::Samples(const TransactionalState& state,const Tran
 {
     TransactionalSamples oracle(actual.Source());oracle.Refresh(state,work);
     Require(actual.Raw()==oracle.Raw(),"局部 priority 全序与全量 oracle 不同");
+    Require(actual.DonorPool(state.Vertices().size())==oracle.DonorPool(state.Vertices().size()),"局部 donor 顺序与全量 oracle 不同");
     for (auto slot : state.ActiveFaces())
     {
         Require(actual.FaceSamples(slot)==oracle.FaceSamples(slot),"局部闭面贡献与全量 oracle 不同");

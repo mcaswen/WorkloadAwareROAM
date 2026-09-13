@@ -14,16 +14,20 @@ class TransactionalPipeline
 public:
     explicit TransactionalPipeline(const InitialMesh& input);
     void Initialize(WorkLedger& work);
+    void SetView(const Configuration& view,WorkLedger& work);
     CertifiedBatch Update(WorkLedger& work);
     void Apply(const CertifiedBatch& batch,WorkLedger& work);
     MeshConsumption ConsumeMesh() { return _mesh.Consume(); }
     const TransactionalState& State() const { return _state; }
     const TransactionalSamples& Samples() const { return _samples; }
     const Terrain::TerrainMeshData& Mesh() const { return _mesh.Data(); }
+    const std::set<Identity>& InvalidatedRoots() const { return _invalidatedRoots; }
+    const std::set<Identity>& InvalidatedDonors() const { return _invalidatedDonors; }
 private:
     TransactionalState _state;
     TransactionalSamples _samples;
     TransactionalMesh _mesh;
     bool _initialized{};
+    std::set<Identity> _invalidatedRoots, _invalidatedDonors;
 };
 }

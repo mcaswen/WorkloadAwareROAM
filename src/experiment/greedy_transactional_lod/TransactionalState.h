@@ -57,6 +57,7 @@ public:
 
 private:
     friend class TransactionalCommit;
+    friend class TransactionalPipeline;
     Configuration _config;
     std::vector<VertexRecord> _vertices;
     std::vector<FaceRecord> _faces;

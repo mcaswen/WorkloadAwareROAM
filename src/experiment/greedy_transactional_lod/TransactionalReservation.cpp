@@ -48,13 +48,13 @@ bool TransactionalReservation::Conflict(const TransactionFootprint& a,const Tran
 
 CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,const TransactionalSamples& samples,WorkLedger& work)
 {
-    CertifiedBatch batch;batch.Version=state.Version();batch.Raw=samples.Raw().size();
+    CertifiedBatch batch;batch.Version=state.Version();batch.Raw=samples.RawCount();
     std::vector<Proposal> receivers;
-    const auto prefix=std::min(batch.Raw,state.Config().PrefixLimit);
+    const auto prefix=samples.Prefix(state.Config().PrefixLimit);
     // 原始需求完整排序之后才取有限前缀，分母始终保留全域数量
-    for (std::size_t i=0;i<prefix;++i)
+    for (auto root : prefix)
     {
-        work.CheckLimit();const auto root=samples.Raw()[i];batch.IntentIds.push_back(state.Face(root).Id);
+        work.CheckLimit();batch.IntentIds.push_back(state.Face(root).Id);
         auto start=Clock::now();auto proposals=TransactionalProposals::Receivers(state,samples,root);
         work.Seconds["proposal"]+=Seconds(start);
         std::string reason="no_proposal";
@@ -69,22 +69,11 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
         batch.IntentResults.push_back(reason);
         batch.Attempts.push_back(std::move(attempts));
     }
-    batch.Examined=prefix;batch.Receivers=receivers.size();
+    batch.Examined=prefix.size();batch.Receivers=receivers.size();
     // 共同接收集合先完成，预算与 donor 不能改变前端需求的人口
     const auto credits=(state.Config().Budget-state.FaceCount())/2;
     batch.AssignedCredits=std::min(credits,receivers.size());batch.Need=receivers.size()-batch.AssignedCredits;
-    auto start=Clock::now();std::vector<std::pair<double,Identity>> pool;
-    for (const auto& vertex : state.Vertices())
-    {
-        if (!vertex.Active || state.IsBoundary(vertex.Id)) continue;
-        double priority=0;
-        for (auto face : vertex.Incident) priority=std::max(priority,samples.PrioritySquared(face));
-        pool.emplace_back(priority,vertex.Id);
-    }
-    std::sort(pool.begin(),pool.end());
-    // 两种回收能力的对照应使用这个共同池，不能按当前可行性重选低损伤点
-    if (pool.size()>state.Config().DonorLimit) pool.resize(state.Config().DonorLimit);
-    for (const auto& entry : pool) batch.PoolIds.push_back(entry.second);
+    auto start=Clock::now();batch.PoolIds=samples.DonorPool(state.Config().DonorLimit);
     work.Seconds["donor_order"]+=Seconds(start);
     std::map<Identity,Proposal> cache;
     std::vector<TransactionFootprint> reserved;std::set<Identity> used;
