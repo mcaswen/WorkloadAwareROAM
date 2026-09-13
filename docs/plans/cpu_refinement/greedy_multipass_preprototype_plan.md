@@ -1,6 +1,6 @@
 # 全局优先级驱动的事务化 CPU LOD：原型前大规划
 
-> 日期：2026-09-14。类型：**Major Plan，研究契约与原型准入**。状态：**GMP-01 已完成契约、手算与自审；提交后进入 GMP-02。GMP-03/04 尚未启动**。
+> 日期：2026-09-14。类型：**Major Plan，研究契约与原型准入**。状态：**GMP-01 已提交，GMP-02 已完成组合推导与有限续接检查；提交后进入 GMP-03，GMP-04 尚未启动**。
 > 基线：`8af1a41`；事实：[原型前能力基线](../../codebase/cpu_refinement/preprototype_capability_baseline.md)；自审：[规划审查](../../reviews/cpu_refinement/greedy_multipass_preprototype_plan_review.md)。
 > 本规划止于“具备编写并评审原型实现规划的证据”。仅允许后续获批阶段制作有限离线核查工具，不启动持久 C++ 新算法、真实并行提交或生产接入。
 
@@ -441,3 +441,5 @@ B/C 同时区分给定批次的应用时间与含目标发现/认证/选择的�
 随后按用户授权先将上述 Major Plan/记录提交为 `1b93ca8`，再进入 [GMP-01 小规划](gmp_01_execution_contract_plan.md)。小规划与规划自审已形成，契约冻结尚未实施；GMP-02/03/04 未启动。本条及 GMP-01 新文档不属于前述提交。
 
 同日按自主闭环授权完成 GMP-01：[执行契约](../../research/cpu_refinement/greedy_multipass_contract.md)冻结八项以内接收目录、先验角度、P/G/C/E、共同空额度/回收池、精确采样认证、四类参考及成本；七类手算与[实施自审](../../reviews/cpu_refinement/gmp_01_execution_contract_review.md)闭环。纯文档未运行性能基准。GMP-02 尚未实施；后续严格逐阶段完成并提交，不预先批量撰写后续规划。
+
+GMP-01 已独立提交 `64b00aa`。随后完成 [GMP-02](gmp_02_transaction_batch_plan.md)：条件式组合证明、完整状态支持表、四种排列及局部续接独立对照；样本外部归属与接口边写冲突反例保留。相关基线与新增成本已记录，不改生产路径。GMP-03 的自然快照/后端尚未运行。
