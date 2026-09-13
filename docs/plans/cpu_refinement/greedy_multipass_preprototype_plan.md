@@ -1,6 +1,6 @@
 # 全局优先级驱动的事务化 CPU LOD：原型前大规划
 
-> 日期：2026-09-14。类型：**Major Plan，研究契约与原型准入**。状态：**GMP-01/02 已分别提交，GMP-03 完成自然前缀兑现与有限应用核查；提交后进入 GMP-04，尚未批准持久原型实现**。
+> 日期：2026-09-14。类型：**Major Plan，研究契约与原型准入**。状态：**GMP-01～04 已逐阶段闭环；原型前规划完成，下一持续原型 Major Plan 待用户 Review，尚未实施**。
 > 基线：`8af1a41`；事实：[原型前能力基线](../../codebase/cpu_refinement/preprototype_capability_baseline.md)；自审：[规划审查](../../reviews/cpu_refinement/greedy_multipass_preprototype_plan_review.md)。
 > 本规划止于“具备编写并评审原型实现规划的证据”。仅允许后续获批阶段制作有限离线核查工具，不启动持久 C++ 新算法、真实并行提交或生产接入。
 
@@ -445,3 +445,5 @@ B/C 同时区分给定批次的应用时间与含目标发现/认证/选择的�
 GMP-01 已独立提交 `64b00aa`。随后完成 [GMP-02](gmp_02_transaction_batch_plan.md)：条件式组合证明、完整状态支持表、四种排列及局部续接独立对照；样本外部归属与接口边写冲突反例保留。相关基线与新增成本已记录，不改生产路径。GMP-03 的自然快照/后端尚未运行。
 
 GMP-02 已独立提交 `e01cd06`。随后完成 [GMP-03](gmp_03_natural_backend_plan.md)，冻结 sample14/46 × 两场景、64 需求前缀与共同回收池。[结果](../../research/cpu_refinement/transaction_backend_gate.md)记录一般回收 21/23/0/1 个交换及有限续接证据，完整诊断成本与前后来源核查单列。固定视域屏幕误差不增但部分全域高度误差明显上升；有限前缀、未测微观内存计数与未实现持久状态均保留。GMP-04 尚未启动；本阶段提交后才做准入判断。
+
+GMP-03 已提交 `ed277cf`，随后完成 [GMP-04](gmp_04_prototype_admission_plan.md)：近邻原始来源核对、准入矩阵、必要接口事实与[持续原型实现大规划](greedy_transactional_cpu_prototype_plan.md)。结论为受限实验原型可进入设计 Review；自然可执行性不覆盖持续质量、局部维护、完整 CPU 收益或新颖性。新规划把质量保护/续接放在真正多核之前，明确四参考、数值依赖和停止边界。本 Major Plan 到此完成，没有实施新持久算法或生产接入。

@@ -4,11 +4,13 @@
 
 现有 [CPU ROAM 执行与特征分析研究定义](../plans/formal_experiment/cpu_roam_research_definition.md)继续有效。本目录记录独立探索，不自动修改研究问题、启动实现或重开历史实验。
 
-2026-09-14 的[全局优先级事务化 CPU LOD 原型前大规划](../plans/cpu_refinement/greedy_multipass_preprototype_plan.md)已获用户认可并完成评审小修订，可进入 GMP-01 小规划。研究具体聚焦逐修改 greedy 反馈与拓扑写入的解耦，保留批次之间的反馈；multi-pass 是执行形式，一般 one-ring 是提高预算需求兑现能力的原语。四阶段依次冻结快照顺序预留及 P/G/C、完整事务读写/续接义务、两场景共 4～6 个预冻结快照的兑现与工作量审计、原型准入。当前没有新代码或自然结果，不直接实施持久算法，也不把局部重剖分转为独立论文主线。
+2026-09-14 的[全局优先级事务化 CPU LOD 原型前大规划](../plans/cpu_refinement/greedy_multipass_preprototype_plan.md)已按用户认可的范围闭环，当前状态见下文 GMP-01～04。研究具体聚焦逐修改 greedy 反馈与拓扑写入的解耦，保留批次之间的反馈；multi-pass 是执行形式，一般 one-ring 是提高预算需求兑现能力的原语。立项时尚无自然数据，四阶段依次冻结快照顺序预留及 P/G/C、完整事务读写/续接义务、小规模自然兑现与工作量审计、原型准入；实际冻结四个快照。不直接实施持久算法，也不把局部重剖分转为独立论文主线。
 
-该大规划及相关记录已按用户要求先提交为 `1b93ca8`。[GMP-01 小规划](../plans/cpu_refinement/gmp_01_execution_contract_plan.md)已完成[执行契约](cpu_refinement/greedy_multipass_contract.md)、七类手算与[实施审查](../reviews/cpu_refinement/gmp_01_execution_contract_review.md)。有限接收目录、P/G/C/E、样本归属、共同预算需求与预留规则已确定；批次组合和自然证据尚待后续阶段。用户已授权按“完成一个小阶段、验证审查、单独提交、再开始下一阶段”自主闭环，不再逐次请求确认；原型与生产接入边界保持。
+该大规划及相关记录已按用户要求先提交为 `1b93ca8`。[GMP-01 小规划](../plans/cpu_refinement/gmp_01_execution_contract_plan.md)完成[执行契约](cpu_refinement/greedy_multipass_contract.md)、七类手算与[实施审查](../reviews/cpu_refinement/gmp_01_execution_contract_review.md)，冻结有限接收目录、P/G/C/E、样本归属、共同预算需求与预留规则。用户授权按“完成一个小阶段、验证审查、单独提交、再开始下一阶段”自主闭环，不再逐次请求确认；原型与生产接入边界保持。
 
-GMP-01 已提交 `64b00aa`，GMP-02 已提交 `e01cd06`。[事务组合与续接推导](cpu_refinement/transaction_batch_derivation.md)保留共享接口边和外部 owner 反例。随后 [GMP-03](../plans/cpu_refinement/gmp_03_natural_backend_plan.md)完成四个冻结自然快照的有限前缀审计：[一般回收交换数 21/23/0/1](cpu_refinement/transaction_backend_gate.md)，出现自然非平凡批次并能有限应用和生成下轮需求。固定视域屏幕误差不增，但部分全域高度误差明显上升；总体兑现率、长期质量、持久局部维护与 CPU 加速均未成立。按逐阶段提交约定，本阶段提交后才进入 GMP-04 准入评估。
+GMP-01 已提交 `64b00aa`，GMP-02 已提交 `e01cd06`，GMP-03 已提交 `ed277cf`。[事务组合与续接推导](cpu_refinement/transaction_batch_derivation.md)保留共享接口边和外部 owner 反例；四个冻结自然快照的前缀审计得到[一般回收交换数 21/23/0/1](cpu_refinement/transaction_backend_gate.md)，能有限应用和生成下轮需求。固定视域屏幕误差不增，但部分全域高度误差明显上升；总体兑现率、长期质量、持久局部维护与 CPU 加速均未成立。
+
+[GMP-04](../plans/cpu_refinement/gmp_04_prototype_admission_plan.md)随后完成[近邻方法对照](cpu_refinement/transactional_lod_prior_art.md)与准入矩阵，原型前大规划闭环。[下一持续原型 Major Plan](../plans/cpu_refinement/greedy_transactional_cpu_prototype_plan.md)待用户 Review：直接串行内核 → 局部续接/质量保护 → 动态参考/短轨迹 → 有限多核。只批准形成这个设计，不把 v1 批宽当作质量保护变体证据，未实施持续 C++ 新算法或生产开关。
 
 MPR-02 已提交为 `d635a9b`。[串行成本分析](roam_parallelism/target_materialization_serial_costs.md)与[MPR-03 小规划](../plans/roam_parallelism/target_materialization_prototype_03_plan.md)记录局部向量/记录句柄优化，完整状态与续接核查保持。新增压力样本 k=27,783，两组快验中串行物化约 332→240 ms、四线程约 226 ms；正式重复矩阵已按用户要求停止。小输入仍只有单次诊断，性能风险与统计限制见[结果 §14](roam_parallelism/target_materialization_prototype.md#14-mpr-03-开发快验结果与停止记录)，不宣称稳定多核加速或全部输入性能验收。
 

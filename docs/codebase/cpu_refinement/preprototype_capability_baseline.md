@@ -98,3 +98,13 @@ FACT：四快照完整 Q 和 D_raw 已扫描；后续仅前 64 需求和 64 回�
 FACT：源和目标参数域覆盖、边关联、顶点 link、最小角、共享高度、N≤B 与样本覆盖均检查；局部接受对固定 V 作精确投影平方复核。相同视域 sampled maximum 不增，但两个快照的全域 Hmax 大幅上升。当前规则没有视图外高度保护和最小修改解选择，不能宣称跨帧质量正确性。
 
 FACT：全域工作包括首次索引/样本归属/P/排序、诊断复制、最终全量重建与摘要；成本均计入离线总时间。正常持久 ownership、局部缓存修复、法线、输出脏区间、分配器和真实并发仍为 PLANNED；有限下一轮重建不能冒充高效续接实现。未测 Python 对象峰值、逐缓存写与全部事务支持分布，详细未覆盖项已登记。
+
+## 8. GMP-04 原型设计所需接口事实（2026-09-14）
+
+FACT：`MaterializationExecutor::Execution()` 返回 Workers 与同步 Dispatch 回调；适配器拥有既有 DOD 线程池，任务异常收集后传播，部分入队失败会排空/停池。只在新探针包装该回调可以复用调度，不要求新核心依赖 `MaterializationState` 或原层次数据。直接调用旧线程池的裸任务不能自动继承适配器异常保护。
+
+FACT：`TerrainMeshData` 为顶点/索引向量，顶点包含 Position/Normal/UV/Height 等属性；自身无一般网格邻接、持久 sample ownership 或 Pending 协议。`TerrainLodRenderPacket` 已支持借用到下次 Build/Reset 的输出与更新区间；生产算法枚举当前仍只有 Classic/DOD。
+
+FACT：tests 已将 MPR 核心静态库与来源/执行器/验证的探针依赖分开；可借鉴这个构建边界，但新一般网格并不复用 MPR 核心数据。当前 CMake/实验源码未发现 Boost.Multiprecision 或 CGAL 接入。新规划提出的精确回退依赖尚未安装/引入，不能当成现有能力。
+
+GMP-04 只补源码事实与设计，没有创建持续原型目录、生产开关或新数值依赖。
