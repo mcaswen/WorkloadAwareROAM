@@ -10,7 +10,7 @@
 
 GMP-01 已提交 `64b00aa`，GMP-02 已提交 `e01cd06`，GMP-03 已提交 `ed277cf`。[事务组合与续接推导](cpu_refinement/transaction_batch_derivation.md)保留共享接口边和外部 owner 反例；四个冻结自然快照的前缀审计得到[一般回收交换数 21/23/0/1](cpu_refinement/transaction_backend_gate.md)，能有限应用和生成下轮需求。固定视域屏幕误差不增，但部分全域高度误差明显上升；总体兑现率、长期质量、持久局部维护与 CPU 加速均未成立。
 
-[GMP-04](../plans/cpu_refinement/gmp_04_prototype_admission_plan.md)随后完成[近邻方法对照](cpu_refinement/transactional_lod_prior_art.md)与准入矩阵，原型前大规划闭环。[下一持续原型 Major Plan](../plans/cpu_refinement/greedy_transactional_cpu_prototype_plan.md)待用户 Review：直接串行内核 → 局部续接/质量保护 → 动态参考/短轨迹 → 有限多核。只批准形成这个设计，不把 v1 批宽当作质量保护变体证据，未实施持续 C++ 新算法或生产开关。
+[GMP-04](../plans/cpu_refinement/gmp_04_prototype_admission_plan.md)随后完成[近邻方法对照](cpu_refinement/transactional_lod_prior_art.md)与准入矩阵，**原型前 Gate 为 PASS，大规划闭环**。[下一持续原型 Major Plan](../plans/cpu_refinement/greedy_transactional_cpu_prototype_plan.md)已获自主实施授权：直接串行内核 → 局部续接/高度策略 → 动态参考/短轨迹 → 有限多核，每小阶段完成审查并提交后才进入下一阶段。评审后已明确 P/receiver evidence、高度自由度与跨批资源生命周期；全 Q 高度保护只作保守对照，持续视域恢复尚未验证。21/23 是自然批次存在性证据，不是持续批宽或多核收益。当前准备 GTP-01，生产开关不在本规划范围。
 
 MPR-02 已提交为 `d635a9b`。[串行成本分析](roam_parallelism/target_materialization_serial_costs.md)与[MPR-03 小规划](../plans/roam_parallelism/target_materialization_prototype_03_plan.md)记录局部向量/记录句柄优化，完整状态与续接核查保持。新增压力样本 k=27,783，两组快验中串行物化约 332→240 ms、四线程约 226 ms；正式重复矩阵已按用户要求停止。小输入仍只有单次诊断，性能风险与统计限制见[结果 §14](roam_parallelism/target_materialization_prototype.md#14-mpr-03-开发快验结果与停止记录)，不宣称稳定多核加速或全部输入性能验收。
 

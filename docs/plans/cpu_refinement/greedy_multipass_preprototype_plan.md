@@ -446,4 +446,6 @@ GMP-01 已独立提交 `64b00aa`。随后完成 [GMP-02](gmp_02_transaction_batc
 
 GMP-02 已独立提交 `e01cd06`。随后完成 [GMP-03](gmp_03_natural_backend_plan.md)，冻结 sample14/46 × 两场景、64 需求前缀与共同回收池。[结果](../../research/cpu_refinement/transaction_backend_gate.md)记录一般回收 21/23/0/1 个交换及有限续接证据，完整诊断成本与前后来源核查单列。固定视域屏幕误差不增但部分全域高度误差明显上升；有限前缀、未测微观内存计数与未实现持久状态均保留。GMP-04 尚未启动；本阶段提交后才做准入判断。
 
-GMP-03 已提交 `ed277cf`，随后完成 [GMP-04](gmp_04_prototype_admission_plan.md)：近邻原始来源核对、准入矩阵、必要接口事实与[持续原型实现大规划](greedy_transactional_cpu_prototype_plan.md)。结论为受限实验原型可进入设计 Review；自然可执行性不覆盖持续质量、局部维护、完整 CPU 收益或新颖性。新规划把质量保护/续接放在真正多核之前，明确四参考、数值依赖和停止边界。本 Major Plan 到此完成，没有实施新持久算法或生产接入。
+GMP-03 已提交 `ed277cf`，随后完成 [GMP-04](gmp_04_prototype_admission_plan.md)：近邻原始来源核对、准入矩阵、必要接口事实与[持续原型实现大规划](greedy_transactional_cpu_prototype_plan.md)。结论为原型前 PASS，可进入持续原型设计 Review；自然可执行性不覆盖持续质量、局部维护、完整 CPU 收益或新颖性。新规划把局部续接、高度策略与有限轨迹放在真正多核之前，明确四参考、数值依赖和停止边界。本 Major Plan 到此完成，没有实施新持久算法或生产接入。
+
+2026-09-14 按原型前评审修正准入解释：保守的全 Q 局部高度保护只作对照，不是所有模式的硬 Gate；补齐 urgency/认证证据、旧点改高范围、批次额度生命周期与视域返回观察。持续质量未验证不等于失败；21/23 只证明批次存在，兑现流失不等于耗时瓶颈。未更改本大规划的原始实验契约、参数或结果，后续实施仍归新 Major Plan。
