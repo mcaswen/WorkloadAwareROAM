@@ -1,6 +1,6 @@
 # 全局优先级事务化候选：原型前能力基线
 
-> 日期：2026-09-14；源码/推导基线：`8af1a41`。供[原型前大规划](../../plans/cpu_refinement/greedy_multipass_preprototype_plan.md)使用。FACT 表示已读取实现，PLANNED 表示缺口，不把纸面构造写成运行能力。
+> 日期：2026-09-14；立项源码/推导基线：`8af1a41`；GMP-03 实施增量见 §7，之前各节保留立项事实。供[原型前大规划](../../plans/cpu_refinement/greedy_multipass_preprototype_plan.md)使用。FACT 表示已读取实现，PLANNED 表示缺口，不把纸面构造写成运行能力。
 
 ## 1. 研究与实现的边界
 
@@ -77,3 +77,24 @@ FACT：公共 `ITerrainLodAlgorithm::BuildRenderData` 接受 `TerrainLodBuildInp
 FACT：公共 `TerrainLodPassPolicy` 和现有阶段统计带有五阶段语义，已有 `ParallelAssisted` 指原生拓扑执行方式。不能把具有不同候选/拓扑契约的新算法静默放在该 action 下，并继续宣称 P5 的同阶段严格等价。
 
 PLANNED：新状态引擎通过公共算法输入/输出接入；评分、提交与线程调度可复用执行技术及独立纯函数，原生队列/层次/历史/槽位不混用。具体建议及阶段对应见大规划 §4.1～4.5；目前没有实现新的算法 ID、开关或适配器。
+
+## 7. GMP-03 能力增量（2026-09-14）
+
+本节取代上文“尚无自然探针/结果”的当前时态，不追改其立项背景。实现基线 `e01cd06`；[小规划](../../plans/cpu_refinement/gmp_03_natural_backend_plan.md)、[结果/限制](../../research/cpu_refinement/transaction_backend_gate.md)。
+
+| 文件 | 当前实际职责与依赖 |
+| --- | --- |
+| `tests/GreedyMultipassSnapshotProbe.cpp` | 恢复两场景 sample0..46，在 SplitTopology 前导出 sample14/46 当前叶、稳定几何身份、原始高度与视图；输入前后 hash；无生产修改、不调用 Capture 取得 J |
+| `tests/CMakeLists.txt` 新 snapshot probe 目标 | 独立无图形诊断，复用已有来源/计时；不加入全量 CTest |
+| `docs/research/cpu_refinement/checks/transaction_gate_contract.py` | 自有 Snapshot、网格合法性、Q 归属和闭面贡献、P 全序；整数格点包围查询；有理新坐标可继续导入 |
+| `transaction_gate_geometry.py` | 有限 E/F/H 提案、浮点高度拟合与精确有理样本接受；未知不当无解 |
+| `transaction_gate_reclamation.py` | 当前 one-ring、固定耳切与有限 DP、同池配对、读写预留、有限副本应用 |
+| `audit_transaction_backend.py` | 文件/配额/阶段计时/分母/失败编排，独立全量重建下一轮诊断；无多线程 |
+
+FACT：数据流是 DOD 只读来源 → 中立文件 → 当前网格/Q/P → 接收认证 → 回收与预留 → 已批准几何应用。Python 不依赖生产控制器取得目标，也不反向写入生产。旧几何纯函数复用，数值拟合、回收和文件驱动职责分开。
+
+FACT：四快照完整 Q 和 D_raw 已扫描；后续仅前 64 需求和 64 回收中心。一般回收交换数 21/23/0/1，test129 的非平凡批次与 Peking 的一个交换通过有限应用、反序核心比较及下一轮需求生成。没有 full-population 兑现率。共同池均无三价点，消融结果不能作为对 Legacy 性能的评价。
+
+FACT：源和目标参数域覆盖、边关联、顶点 link、最小角、共享高度、N≤B 与样本覆盖均检查；局部接受对固定 V 作精确投影平方复核。相同视域 sampled maximum 不增，但两个快照的全域 Hmax 大幅上升。当前规则没有视图外高度保护和最小修改解选择，不能宣称跨帧质量正确性。
+
+FACT：全域工作包括首次索引/样本归属/P/排序、诊断复制、最终全量重建与摘要；成本均计入离线总时间。正常持久 ownership、局部缓存修复、法线、输出脏区间、分配器和真实并发仍为 PLANNED；有限下一轮重建不能冒充高效续接实现。未测 Python 对象峰值、逐缓存写与全部事务支持分布，详细未覆盖项已登记。

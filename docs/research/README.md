@@ -8,7 +8,7 @@
 
 该大规划及相关记录已按用户要求先提交为 `1b93ca8`。[GMP-01 小规划](../plans/cpu_refinement/gmp_01_execution_contract_plan.md)已完成[执行契约](cpu_refinement/greedy_multipass_contract.md)、七类手算与[实施审查](../reviews/cpu_refinement/gmp_01_execution_contract_review.md)。有限接收目录、P/G/C/E、样本归属、共同预算需求与预留规则已确定；批次组合和自然证据尚待后续阶段。用户已授权按“完成一个小阶段、验证审查、单独提交、再开始下一阶段”自主闭环，不再逐次请求确认；原型与生产接入边界保持。
 
-GMP-01 已提交 `64b00aa`。[GMP-02](../plans/cpu_refinement/gmp_02_transaction_batch_plan.md)随后完成[事务组合与续接推导](cpu_refinement/transaction_batch_derivation.md)、有限检查和[自审](../reviews/cpu_refinement/gmp_02_transaction_batch_review.md)。共享接口边和外部 owner 反例已纳入；通过的是条件式批次正确性及有限续接，不是自然兑现率、生产并行或原型准入。
+GMP-01 已提交 `64b00aa`，GMP-02 已提交 `e01cd06`。[事务组合与续接推导](cpu_refinement/transaction_batch_derivation.md)保留共享接口边和外部 owner 反例。随后 [GMP-03](../plans/cpu_refinement/gmp_03_natural_backend_plan.md)完成四个冻结自然快照的有限前缀审计：[一般回收交换数 21/23/0/1](cpu_refinement/transaction_backend_gate.md)，出现自然非平凡批次并能有限应用和生成下轮需求。固定视域屏幕误差不增，但部分全域高度误差明显上升；总体兑现率、长期质量、持久局部维护与 CPU 加速均未成立。按逐阶段提交约定，本阶段提交后才进入 GMP-04 准入评估。
 
 MPR-02 已提交为 `d635a9b`。[串行成本分析](roam_parallelism/target_materialization_serial_costs.md)与[MPR-03 小规划](../plans/roam_parallelism/target_materialization_prototype_03_plan.md)记录局部向量/记录句柄优化，完整状态与续接核查保持。新增压力样本 k=27,783，两组快验中串行物化约 332→240 ms、四线程约 226 ms；正式重复矩阵已按用户要求停止。小输入仍只有单次诊断，性能风险与统计限制见[结果 §14](roam_parallelism/target_materialization_prototype.md#14-mpr-03-开发快验结果与停止记录)，不宣称稳定多核加速或全部输入性能验收。
 

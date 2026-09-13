@@ -176,6 +176,15 @@ target_link_libraries(parallel_roam_benchmark_command_line_tests PRIVATE
 add_test(NAME terrain_lod_benchmark_command_line COMMAND parallel_roam_benchmark_command_line_tests)
 
 if(TARGET ParallelROAM::STB)
+    # 只读来源诊断不进入默认 CTest，也不链接新算法实现
+    add_executable(parallel_roam_greedy_multipass_snapshot_probe GreedyMultipassSnapshotProbe.cpp
+        ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
+        ../src/benchmark/formal/FormalCpuInput.cpp ../src/algorithms/TerrainLodView.cpp
+        ../src/terrain/HeightMap.cpp ../src/tools/PerformanceTimer.cpp)
+    target_include_directories(parallel_roam_greedy_multipass_snapshot_probe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+    target_link_libraries(parallel_roam_greedy_multipass_snapshot_probe PRIVATE
+        parallel_roam_project_options parallel_roam_project_warnings ParallelROAM::GLM ParallelROAM::STB Threads::Threads)
+
     # 原型核心不依赖 DOD，来源桥接和全量验证只进入独立实验入口
     set(materialization_dir "${CMAKE_CURRENT_SOURCE_DIR}/../src/experiment/roam_materialization")
     add_library(parallel_roam_materialization_core STATIC
