@@ -3,6 +3,8 @@
 > 日期：2026-09-13。承接[有界补丁推导](bounded_patch_refit_derivation.md)的回收不足与形状阻塞问题。继续理论探索，不修改研究主线或生产实现，不提交 Git。
 > 过程证据：[核查脚本](checks/verify_cavity_retriangulation.py)、[实际结果](checks/cavity_retriangulation_results.json)。这是纸面推导加有限精确复核，没有新增 Lean 定理。
 
+> 2026-09-14 定位补记：后续将本页机制作为全局 greedy 多阶段 CPU LOD 的拓扑/预算重分配原语，DP 用于局部可行性审计，不独立主张 remeshing 创新。下一步优先验证执行契约与真实需求兑现，不按本文早期探索出口自动扩展更大补丁；见[原型前规划](../../plans/cpu_refinement/greedy_multipass_preprototype_plan.md)。原有推导与反例保留。
+
 ## 1. 本轮推导对象与记录
 
 上一轮的三价回收可以直接恢复一个三角形，但很多规则网格没有这类点。因此本轮把问题明确为：删除一个当前内部顶点后，能否只用其当前环边界顶点，构造合法、满足形状与质量要求的新补丁，并准确知道释放多少预算？
@@ -228,10 +230,10 @@ E_{new,max}^{height}\ge
 
 ## 7. CR-07：空间独立性和持续维护重新计费
 
-一般顶点回收不再天然面不相交。对不同内部中心 u、v，
+一般顶点回收不再天然面不相交。定义 F_v 为当前包含中心 v 的 incident-triangle set，即回收时删除的面集合；不使用包含所有子单形的 closed star。对不同内部中心 u、v，
 
 \[
-Star(u)\cap Star(v)\ne\varnothing
+F_u\cap F_v\ne\varnothing
 \quad\Longleftrightarrow\quad uv\text{ 是当前网格边}.
 \]
 

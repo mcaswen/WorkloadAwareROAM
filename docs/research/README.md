@@ -1,8 +1,10 @@
 # CPU ROAM 研究探索状态
 
-> 更新日期：2026-09-13；依据：保留此前探索状态，MPR-03 已提交为 `602ed48`，原生接入规划为 `c2cd2d8`。NMP-01 实施与验收已提交 `2f04f48`，见[阶段审查](../reviews/roam_parallelism/native_materialization_01_review.md)。NMP-01P 压力性能未达门槛，契约审计后暂停扩展局部性能修改；候选出生及后续推导已提交为 `2d8809f`，未进入 NMP-02。当前另探索独立 greedy 候选，不修改主线定义。
+> 更新日期：2026-09-14；依据：保留此前探索状态，MPR-03 已提交为 `602ed48`，原生接入规划为 `c2cd2d8`。NMP-01 实施与验收已提交 `2f04f48`，见[阶段审查](../reviews/roam_parallelism/native_materialization_01_review.md)。NMP-01P 压力性能未达门槛，契约审计后暂停扩展局部性能修改；候选出生及后续推导已提交为 `2d8809f`，未进入 NMP-02。当前另探索独立 greedy 候选，不修改主线定义。
 
 现有 [CPU ROAM 执行与特征分析研究定义](../plans/formal_experiment/cpu_roam_research_definition.md)继续有效。本目录记录独立探索，不自动修改研究问题、启动实现或重开历史实验。
+
+2026-09-14 的[全局优先级事务化 CPU LOD 原型前大规划](../plans/cpu_refinement/greedy_multipass_preprototype_plan.md)已获用户认可并完成评审小修订，可进入 GMP-01 小规划。研究具体聚焦逐修改 greedy 反馈与拓扑写入的解耦，保留批次之间的反馈；multi-pass 是执行形式，一般 one-ring 是提高预算需求兑现能力的原语。四阶段依次冻结快照顺序预留及 P/G/C、完整事务读写/续接义务、两场景共 4～6 个预冻结快照的兑现与工作量审计、原型准入。当前没有新代码或自然结果，不直接实施持久算法，也不把局部重剖分转为独立论文主线。
 
 MPR-02 已提交为 `d635a9b`。[串行成本分析](roam_parallelism/target_materialization_serial_costs.md)与[MPR-03 小规划](../plans/roam_parallelism/target_materialization_prototype_03_plan.md)记录局部向量/记录句柄优化，完整状态与续接核查保持。新增压力样本 k=27,783，两组快验中串行物化约 332→240 ms、四线程约 226 ms；正式重复矩阵已按用户要求停止。小输入仍只有单次诊断，性能风险与统计限制见[结果 §14](roam_parallelism/target_materialization_prototype.md#14-mpr-03-开发快验结果与停止记录)，不宣称稳定多核加速或全部输入性能验收。
 
