@@ -97,6 +97,17 @@ Native::NativeTargetPlan Check(std::string_view name, const Dod::DataOrientedRoa
     Require(plain.AddedEvents == plan.AddedEvents && plain.RemovedEvents == plan.RemovedEvents &&
         plain.Obligations == plan.Obligations && plain.Evaluations == plan.Evaluations && plain.Stop == plan.Stop &&
         plain.Iteration == plan.Iteration && plain.Metrics.Work == plan.Metrics.Work, "diagnostics changed the target plan");
+    TraceLog uncachedTrace;
+    StepAudit uncachedAudit;
+    const auto uncached = Native::BuildNativeSplitTarget(source,
+        {uncachedTrace.Sink(), &uncachedAudit, nullptr, StepAudit::Finish, false, nullptr, true});
+    Compare(oldTrace, uncachedTrace); Compare(audit.Final, uncachedAudit.Final);
+    Require(uncached.AddedEvents == plan.AddedEvents && uncached.RemovedEvents == plan.RemovedEvents &&
+        uncached.Obligations == plan.Obligations && uncached.Evaluations == plan.Evaluations &&
+        uncached.Metrics.Work.ScoreEvaluations == uncached.Metrics.Work.ScoreRequests &&
+        uncached.Metrics.Work.ScoreRequests == plan.Metrics.Work.ScoreRequests &&
+        plan.Metrics.Work.ScoreEvaluations + plan.Metrics.Work.ScoreCacheHits == plan.Metrics.Work.ScoreRequests,
+        "pure score reuse changed requests, decisions or output");
     Require(snapshot == StateSnapshot{source}, "planner modified source values, capacity or addresses");
     if (legal)
     {

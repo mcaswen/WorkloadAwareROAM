@@ -11,11 +11,12 @@ namespace ParallelRoam::Algorithms::DataOrientedRoam::Materialization
 using Node = DataOrientedRoamNodeIndex;
 using Field = NativePlanningField;
 
-NativePlanningView::NativePlanningView(const DataOrientedRoamState& source, bool collectReadCoverage)
-    : _source(source), _collectReadCoverage(collectReadCoverage),
+NativePlanningView::NativePlanningView(const DataOrientedRoamState& source, bool collectReadCoverage, NativePlanningCosts* costs)
+    : _source(source), _collectReadCoverage(collectReadCoverage), _costs(costs),
       // 与严格阶段入口相同，余量从当前活动数量计算，不借用可能属于上一阶段的计数器
       _remainingBudget(source.Settings.TriangleBudget > source.ActiveLeafNodes.size()
-          ? source.Settings.TriangleBudget - source.ActiveLeafNodes.size() : 0)
+          ? source.Settings.TriangleBudget - source.ActiveLeafNodes.size() : 0),
+      _overrides(collectReadCoverage || (costs && costs->Detailed))
 {
     // 构造只检查常数规模描述，不复制节点或建立全池身份字典
     if (source.Settings.MaxDepth < 0 || source.Settings.MaxDepth > 20 ||
@@ -24,151 +25,35 @@ NativePlanningView::NativePlanningView(const DataOrientedRoamState& source, bool
         throw std::invalid_argument("unsupported native planning source");
 }
 
-void NativePlanningView::ObserveRead(Node node, bool sourceRead) const
-{
-    if (!IsValidNode(node)) throw std::out_of_range("planning node");
-    ++_metrics.Queries;
-    if (sourceRead)
-    {
-        ++_metrics.SourceQueries;
-        if (_collectReadCoverage) _sourceNodesRead.insert(node);
-    }
-}
-
-std::uint64_t NativePlanningView::Baseline(Node node, Field field) const
-{
-    const bool old = node < _source.Nodes.size();
-    ObserveRead(node, old);
-    if (!old)
-    {
-        // 新缓存先处于休眠状态；创建轮次与默认激活轮次一致，关系等待逻辑提交填写
-        if (field <= Field::RightNeighbor) return InvalidDataOrientedRoamNodeIndex;
-        if (field == Field::ActivatedBuild) return _source.BuildSequence;
-        return 0;
-    }
-    const auto& pool = _source.Nodes;
-    switch (field)
-    {
-    case Field::LeftChild: return pool.LeftChildAt(node);
-    case Field::RightChild: return pool.RightChildAt(node);
-    case Field::BaseNeighbor: return pool.BaseNeighborAt(node);
-    case Field::LeftNeighbor: return pool.LeftNeighborAt(node);
-    case Field::RightNeighbor: return pool.RightNeighborAt(node);
-    case Field::ActivatedBuild: return pool.ActivatedBuildIdAt(node);
-    case Field::SplitBuild: return pool.SplitBuildIdAt(node);
-    case Field::MergeBuild: return pool.MergeBuildIdAt(node);
-    case Field::ForcedActivation: return pool.ActivatedByForcedSplitAt(node);
-    case Field::IsSplit: return pool.IsSplitAt(node);
-    case Field::Activity:
-        if (_source.NodeMembership[node].ActiveLeafPosition != InvalidDataOrientedRoamPosition)
-            return static_cast<std::uint64_t>(NativePlanningActivity::Leaf);
-        return static_cast<std::uint64_t>(_source.NodeMembership[node].ActiveInternalPosition != InvalidDataOrientedRoamPosition
-            ? NativePlanningActivity::Internal : NativePlanningActivity::Dormant);
-    case Field::SplitBlockedBuild: return _source.SplitQueueBlockedBuildIds.at(node);
-    case Field::CurrentSplitPath: return _source.CurrentSplitPaths.contains(pool.PathIdAt(node));
-    default: throw std::out_of_range("planning field");
-    }
-}
-
-std::uint64_t NativePlanningView::Read(Node node, Field field) const
-{
-    if (field >= Field::Count) throw std::out_of_range("planning field");
-    const auto found = _overrides.find(node);
-    if (found != _overrides.end() && found->second[static_cast<std::size_t>(field)])
-    {
-        // 命中覆盖不是一次来源读取，诊断不能把私有查询计成旧状态覆盖
-        ObserveRead(node, false);
-        return *found->second[static_cast<std::size_t>(field)];
-    }
-    return Baseline(node, field);
-}
-
-std::uint64_t NativePlanningView::Initial(Node node, Field field) const
-{
-    if (field >= Field::Count) throw std::out_of_range("planning initial field");
-    return Baseline(node, field);
-}
-
 void NativePlanningView::Write(Node node, Field field, std::uint64_t value)
 {
-    if (Read(node, field) == value) return;
-    if (field <= Field::RightNeighbor && value != InvalidDataOrientedRoamNodeIndex && value >= NodeCount())
-        throw std::out_of_range("planning relation target");
-    if ((field == Field::Activity && value > static_cast<std::uint64_t>(NativePlanningActivity::Internal)) ||
-        ((field == Field::ForcedActivation || field == Field::IsSplit || field == Field::CurrentSplitPath) && value > 1))
-        throw std::invalid_argument("planning flag value");
-    const auto baseline = Baseline(node, field);
-    auto& slot = _overrides[node][static_cast<std::size_t>(field)];
-    slot = value == baseline ? std::nullopt : std::optional{value};
-    // 恢复原值也保留曾触及记录，累计覆盖不能因最终净差分小而消失
-    ++_metrics.FieldWrites;
+    WriteFields(node, {{field, value}});
 }
 
-Node NativePlanningView::Relation(Node node, Field field) const
+void NativePlanningView::WriteFields(Node node, std::initializer_list<std::pair<Field, std::uint64_t>> values)
 {
-    if (field > Field::RightNeighbor) throw std::invalid_argument("field is not a relation");
-    return static_cast<Node>(Read(node, field));
-}
-
-NativePlanningActivity NativePlanningView::Activity(Node node) const
-{
-    return static_cast<NativePlanningActivity>(Read(node, Field::Activity));
-}
-
-std::uint64_t NativePlanningView::Path(Node node) const
-{
-    const bool old = node < _source.Nodes.size();
-    ObserveRead(node, old);
-    return old ? _source.Nodes.PathIdAt(node) : _virtualNodes[node - _source.Nodes.size()].Path;
-}
-
-Node NativePlanningView::Parent(Node node) const
-{
-    const bool old = node < _source.Nodes.size();
-    ObserveRead(node, old);
-    return old ? _source.Nodes.ParentAt(node) : _virtualNodes[node - _source.Nodes.size()].Parent;
-}
-
-int NativePlanningView::Depth(Node node) const
-{
-    const bool old = node < _source.Nodes.size();
-    ObserveRead(node, old);
-    return old ? _source.Nodes.DepthAt(node) : _virtualNodes[node - _source.Nodes.size()].Depth;
-}
-
-TriangleDomain NativePlanningView::Domain(Node node) const
-{
-    const bool old = node < _source.Nodes.size();
-    ObserveRead(node, old);
-    return old ? _source.Nodes.DomainAt(node) : _virtualNodes[node - _source.Nodes.size()].Domain;
-}
-
-float NativePlanningView::GeometricError(Node node) const
-{
-    const bool old = node < _source.Nodes.size();
-    ObserveRead(node, old);
-    return old ? _source.Nodes.GeometricErrorAt(node) : _virtualNodes[node - _source.Nodes.size()].GeometricError;
-}
-
-std::uint8_t NativePlanningView::VarianceTree(Node node) const
-{
-    const bool old = node < _source.Nodes.size();
-    ObserveRead(node, old);
-    return old ? _source.Nodes.VarianceTreeIndexAt(node) : _virtualNodes[node - _source.Nodes.size()].VarianceTree;
-}
-
-std::size_t NativePlanningView::VarianceIndex(Node node) const
-{
-    const bool old = node < _source.Nodes.size();
-    ObserveRead(node, old);
-    return old ? _source.Nodes.VarianceIndexAt(node) : _virtualNodes[node - _source.Nodes.size()].VarianceIndex;
-}
-
-std::uint64_t NativePlanningView::CreatedBuild(Node node) const
-{
-    const bool old = node < _source.Nodes.size();
-    ObserveRead(node, old);
-    return old ? _source.Nodes.CreatedBuildIds[node] : _source.BuildSequence;
+    if (!IsValidNode(node)) throw std::out_of_range("planning node");
+    auto found = _overrides.Find(node);
+    for (const auto [field, value] : values)
+    {
+        if (field >= Field::Count) throw std::out_of_range("planning field");
+        const auto index = static_cast<std::size_t>(field);
+        const bool present = found != decltype(_overrides)::Missing && (_overrides.At(found).Present & (1U << index));
+        if (present) ObserveRead(node, false);
+        const auto previous = present ? _overrides.At(found).Get(field) : Baseline(node, field);
+        if (previous == value) continue;
+        if (field <= Field::RightNeighbor && value != InvalidDataOrientedRoamNodeIndex && value >= NodeCount())
+            throw std::out_of_range("planning relation target");
+        if ((field == Field::Activity && value > static_cast<std::uint64_t>(NativePlanningActivity::Internal)) ||
+            ((field == Field::ForcedActivation || field == Field::IsSplit || field == Field::CurrentSplitPath) && value > 1))
+            throw std::invalid_argument("planning flag value");
+        if (found == decltype(_overrides)::Missing) found = _overrides.InsertMissing(node);
+        auto& fields = _overrides.At(found);
+        fields.Set(field, value);
+        fields.Present |= static_cast<std::uint16_t>(1U << index);
+        // 恢复原值也保留曾触及记录，累计覆盖不能因最终净差分小而消失
+        ++_metrics.FieldWrites;
+    }
 }
 
 Node NativePlanningView::FindPath(std::uint64_t path) const
@@ -188,6 +73,7 @@ Node NativePlanningView::FindPath(std::uint64_t path) const
 
 std::array<Node, 2> NativePlanningView::CreateChildren(Node parent)
 {
+    NativePlanningCostScope cost{_costs, NativePlanningCost::Create, true};
     if (Relation(parent, Field::LeftChild) != InvalidDataOrientedRoamNodeIndex ||
         Relation(parent, Field::RightChild) != InvalidDataOrientedRoamNodeIndex)
         throw std::logic_error("planning children already cached");
@@ -233,16 +119,20 @@ std::vector<Node> NativePlanningView::TouchedNodes() const
 NativePlanningViewMetrics NativePlanningView::Metrics() const
 {
     // 汇总只遍历覆盖记录；ChangedFields 与累计节点记录数量具有不同含义
+    std::size_t oldRecords = 0, virtualRecords = 0, changed = 0;
+    for (const auto& [node, fields] : _overrides)
+    {
+        if (node < _source.Nodes.size()) ++oldRecords;
+        else ++virtualRecords;
+        for (std::size_t index = 0; index < static_cast<std::size_t>(Field::Count); ++index)
+            if ((fields.Present & (1U << index)) && fields.Get(static_cast<Field>(index)) != Baseline(node, static_cast<Field>(index))) ++changed;
+    }
+    // 基态比较也是真实查询，先完成遍历再冻结计数，避免把收尾读漏在返回指标之外
     auto result = _metrics;
     result.VirtualNodes = _virtualNodes.size();
     result.ReadCoverageCollected = _collectReadCoverage;
     result.DistinctSourceNodesRead = _sourceNodesRead.size();
-    for (const auto& [node, fields] : _overrides)
-    {
-        if (node < _source.Nodes.size()) ++result.OldNodeRecords;
-        else ++result.VirtualNodeRecords;
-        for (const auto& field : fields) result.ChangedFields += static_cast<std::size_t>(field.has_value());
-    }
+    result.OldNodeRecords = oldRecords; result.VirtualNodeRecords = virtualRecords; result.ChangedFields = changed;
     return result;
 }
 }

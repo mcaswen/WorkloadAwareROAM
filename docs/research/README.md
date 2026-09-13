@@ -1,6 +1,6 @@
 # CPU ROAM 研究探索状态
 
-> 更新日期：2026-09-13；依据：保留此前探索状态，MPR-03 已提交为 `602ed48`，原生接入规划为 `c2cd2d8`。NMP-01 实施与验收完成，见[阶段审查](../reviews/roam_parallelism/native_materialization_01_review.md)：固定范围严格语义解耦通过，压力 heap 覆盖及规划成本需 Review；未进入 NMP-02。
+> 更新日期：2026-09-13；依据：保留此前探索状态，MPR-03 已提交为 `602ed48`，原生接入规划为 `c2cd2d8`。NMP-01 实施与验收已提交 `2f04f48`，见[阶段审查](../reviews/roam_parallelism/native_materialization_01_review.md)。[NMP-01P 小规划](../plans/roam_parallelism/native_planner_performance_plan.md)已获授权并在实施，当前压力性能未达门槛，继续优化；未进入 NMP-02。
 
 现有 [CPU ROAM 执行与特征分析研究定义](../plans/formal_experiment/cpu_roam_research_definition.md)继续有效。本目录记录独立探索，不自动修改研究问题、启动实现或重开历史实验。
 
@@ -8,7 +8,7 @@ MPR-02 已提交为 `d635a9b`。[串行成本分析](roam_parallelism/target_mat
 
 用户随后要求直接替换原 DOD 细分拓扑阶段，并保留原／新实现选择。[原生接入大规划](../plans/roam_parallelism/native_materialization_plan.md)已获认可；[NMP-01 小规划](../plans/roam_parallelism/native_materialization_01_plan.md)现已实现独立严格逻辑规划、封闭 Δ/Γ、完整决策轨迹和三点现实核查。有限输入内，第一箭头不需要生产 mutation、全状态复制或旧 pass 产 J；完整目标/队列/历史/预算与 Legacy 一致，正常出口没有目标关系或 heap 布局。MPR 继续保留为独立物化参考，关系恢复协议的实际生产充分性仍留 NMP-02。
 
-NMP-01 不能合并成一个无保留的成功结论：压力点旧节点覆盖 8.393%，但合并堆写/读覆盖为 57.594%/76.035%；T_plan 约 1088.565 ms，同轮 Legacy 完整细分阶段约 61.630 ms。当前有序覆盖版本的规划成本高，未体现完整更新收益。阶段结论是语义解耦成立、压力 heap 与容器费用需要 Review；未自动转向新优化或开启 NMP-02。此前 test129 计时波动的原因继续保留，不追加微秒追测。
+NMP-01 不能合并成一个无保留的成功结论：原压力点旧节点覆盖8.393%，合并堆写/读覆盖57.594%/76.035%；原Tplan约1088.565ms，同轮Legacy约61.630ms。有序覆盖成本高不反证语义解耦。NMP-01P已从覆盖/堆/缓存优化继续扩展到连续决策堆、四字段成员投影和局部访问复用；当前三点完整轨迹一致，压力Tplan约133.892ms、同轮Legacy61.801ms，仍未达到80%门槛。节点页初始化与成员/堆的O(N+Q)准备完整计费，七字段拓扑投影因无可靠总收益撤回；详细成本和空间交换见小规划§9.13。用户已授权继续按热点调整方案，固定优化包数限制已撤销；50%目标保持，未开启NMP-02。此前test129微秒波动不重开调查。
 
 | 方向 | 当前状态 | 范围与记录 |
 | --- | --- | --- |

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "algorithms/data_oriented_roam/materialization/NativePlanningView.h"
+#include "algorithms/data_oriented_roam/materialization/NativePlanningHeapSlots.h"
+#include "algorithms/data_oriented_roam/materialization/NativePlanningMembership.h"
 
 #include <array>
-#include <map>
 #include <set>
 
 namespace ParallelRoam::Algorithms::DataOrientedRoam::Materialization
@@ -31,13 +32,22 @@ public:
     /// </summary>
     void UpsertMerge(DataOrientedRoamNodeIndex representative, DataOrientedRoamNodeIndex partner, float score);
     bool RemoveMerge(DataOrientedRoamNodeIndex eitherSide);
+    /// <summary>
+    /// 封闭维护区间内先撤销逻辑代表，刷新结束再删除没有恢复的旧 heap 条目
+    /// 区间内禁止查询合并队首或外部审计，不得跨根、重入或遗漏结束调用
+    /// </summary>
+    void BeginMergeMaintenance();
+    void InvalidateMerge(DataOrientedRoamNodeIndex eitherSide);
+    void FinishMergeMaintenance();
     [[nodiscard]] DataOrientedRoamNodeIndex MergeRepresentative(DataOrientedRoamNodeIndex node) const;
     [[nodiscard]] DataOrientedRoamNodeIndex MergePartner(DataOrientedRoamNodeIndex representative) const;
 
     // 下列全堆核查只用于外部诊断，不属于根选择或正常规划出口
     [[nodiscard]] bool Validate(NativePlanningQueueKind kind) const;
     [[nodiscard]] NativePlanningQueueMetrics Metrics(NativePlanningQueueKind kind) const;
-    [[nodiscard]] std::size_t MergeRelationRecords() const noexcept { return _representatives.size() + _partners.size(); }
+    [[nodiscard]] std::size_t MergeRelationRecords() const noexcept
+    { return _members.Records(NativePlanningMembership::Field::Representative) + _members.Records(NativePlanningMembership::Field::Partner); }
+    [[nodiscard]] std::array<NativePlanningStorageMetrics, 6> StorageMetrics() const;
 
 private:
     /// <summary>
@@ -46,22 +56,21 @@ private:
     struct Heap
     {
         std::size_t Length{0}, SourceVisible{0};
-        std::map<std::size_t, NativePlanningQueueEntry> Cells;
-        std::map<DataOrientedRoamNodeIndex, std::size_t> Reverse;
+        NativePlanningHeapSlots Cells;
         mutable NativePlanningQueueMetrics Counters;
         mutable std::set<std::size_t> SourceSlotsRead;
     };
     [[nodiscard]] bool Precedes(NativePlanningQueueKind kind,
         NativePlanningQueueEntry left, NativePlanningQueueEntry right) const;
-    void Write(NativePlanningQueueKind kind, std::size_t index, NativePlanningQueueEntry entry);
-    void Swap(NativePlanningQueueKind kind, std::size_t left, std::size_t right);
-    void Restore(NativePlanningQueueKind kind, std::size_t index);
+    void Restore(NativePlanningQueueKind kind, std::size_t index, NativePlanningQueueEntry entry);
     void Upsert(NativePlanningQueueKind kind, DataOrientedRoamNodeIndex node, float score);
     bool Remove(NativePlanningQueueKind kind, DataOrientedRoamNodeIndex node);
 
     NativePlanningView& _view;
     bool _collectReadCoverage;
     std::array<Heap, 2> _heaps;
-    std::map<DataOrientedRoamNodeIndex, DataOrientedRoamNodeIndex> _representatives, _partners;
+    NativePlanningMembership _members;
+    std::vector<DataOrientedRoamNodeIndex> _deferredMerge;
+    bool _mergeMaintenance{false};
 };
 }

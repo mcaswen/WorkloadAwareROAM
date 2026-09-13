@@ -40,4 +40,48 @@ void Restore(std::size_t size, std::size_t index, Precedes&& precedes, Swap&& sw
     if (index > 0 && precedes(index, (index - 1U) / 2U)) SiftUp(index, precedes, swap);
     else SiftDown(size, index, precedes, swap);
 }
+
+// 携带待定位值沿洞搬移，比较后的条目直接复用；修复期间不允许查询反向成员或重入
+template<class Value, class Read, class Write, class Precedes>
+void FillHole(std::size_t size, std::size_t index, const Value& value, Read&& read, Write&& write, Precedes&& precedes)
+{
+    if (index >= size) return;
+    if (index > 0)
+    {
+        auto parent = (index - 1U) / 2U;
+        auto entry = read(parent);
+        if (precedes(value, entry))
+        {
+            for (;;)
+            {
+                write(index, entry);
+                index = parent;
+                if (index == 0) break;
+                parent = (index - 1U) / 2U;
+                entry = read(parent);
+                if (!precedes(value, entry)) break;
+            }
+            write(index, value);
+            return;
+        }
+    }
+    for (;;)
+    {
+        const auto left = index * 2U + 1U;
+        if (left >= size) break;
+        const auto right = left + 1U;
+        auto best = left;
+        auto entry = read(left);
+        if (right < size)
+        {
+            const auto alternative = read(right);
+            if (precedes(alternative, entry)) { best = right; entry = alternative; }
+        }
+        if (!precedes(entry, value)) break;
+        write(index, entry);
+        index = best;
+    }
+    // 调用者没有预先填洞，无移动时也必须落位，随后才允许观察反向成员
+    write(index, value);
+}
 }

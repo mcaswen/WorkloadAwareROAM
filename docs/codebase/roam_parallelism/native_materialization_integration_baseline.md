@@ -191,6 +191,8 @@ PrepareDataOrientedRoamFrame
 
 ## 11. NMP-01 独立严格规划与验收
 
+以下保留 `2f04f48` 基线事实；当前工作区的存储、计费与候选维护变化以 §12 为准。
+
 ### 11.1 新文件与执行路径
 
 **FACT**：`materialization/NativeTargetPlanner.h/.cpp` 实现 `BuildNativeSplitTarget(source, audit)`；`NativeRefinementSimulation.h/.cpp` 持有 View/Queues 借用、实际求值缓存及失败合并处置集合。两者均只在同步调用内使用。Simulation 不可复制，负责 `Split/Merge/Block/RemoveFailedMerge` 与局部候选维护，不选择全局根；Planner 冻结迭代上限、执行严格循环、生成净结果，不写生产池/活动索引/mesh。
@@ -237,3 +239,59 @@ Legacy 路径：原 `RunStrictSplitStep<false,false>` 仍执行生产 mutator；
 - 当前覆盖表示的各项耗时占比及更换容器后的可获得收益未测量，压力堆覆盖不能称为 u≪Q。
 - 关系恢复协议的原生局部实现与新旧切换续接仍需 NMP-02 验证。
 - test129 短计时偏移的版本因果与离群值来源未解释，已达到本轮复测上限。
+
+## 12. NMP-01P 当前中间实现
+
+**FACT（2026-09-13，尚未提交）**：Planner 接口、独立控制器、只读来源、结果 Δ/封闭 Γ 及同任务契约保持。§10 的 map 覆盖、optional 字段、交换式修复与 §11 的每次实际求值描述已被本节更新。性能优化尚未结束，NMP-02 没有启动；成本见[小规划 §9](../../plans/roam_parallelism/native_planner_performance_plan.md#9-实施过程)。
+
+### 12.1 存储和节点访问
+
+**FACT**：新增 `NativePlanningStorage.h`，模板参数 `Key/Value/Paged`，追加式连续 `Record{first,second}`。Find/Ensure/InsertMissing 返回稳定数值记录号，At/RecordAt 的引用随 vector 扩容失效；没有物理删除。显式无效值由业务负责，源回退与无效覆盖不混同。记录几何增长，32位编码零代表缺失，编码容量耗尽会抛异常。
+
+哈希实例使用完整键加32位记录编码、固定0.75负载上限及逐步倍增；重散列只扫描已存记录。当前只有View节点与评分缓存使用`Paged=true`，两堆与成员已改为下述独立连续表示。哈希宽键组件仍保留独立测试，不根据案例名或运行时负载切换存储。
+
+**FACT**：新增 `NativePlanningPageIndex.h`，256个uint32编码组成一页，独占页指针目录按最高已写页号增长。Find检查缺失目录/页且不分配；Prepare拒绝超过32位的写键，几何扩目录、初始化中间空项、按需分配零页。页只保存记录编号，不从来源复制节点或队列。销毁遍历目录并释放页，均属于Tplan。
+
+计量分开记录实际records、记录capacity/移动、索引capacity/字节、分配/清零、目录size/capacity/初始化/移动和峰值。哈希探测与页索引层数不是相同指标，后者不得解释成CPU字段load。峰值按请求字节计，不含分配器元数据；八表峰值和只能作为整体上界。正常计时不累计索引探测，详细成本或覆盖诊断才累计。
+
+**FACT**：View Fields由13个optional先改为值数组，再压缩为五个uint32关系、四个uint64轮次、uint8标记及uint16存在位图，Fields56字节、含节点键的记录64字节。轮次保留全部64位，Activity占两位且不等同于IsSplit。Write委托WriteFields按原顺序处理相邻赋值，一次定位、逐字段比较旧值/校验/计数；恢复基值仍保留存在位和累计触及。最终ChangedFields由Metrics比较入口值，Baseline和收尾读取均计入Queries/SourceQueries。
+
+固定Field读取实例与运行时读取共享来源映射，保留节点/字段检查和读计数，没有改变优化器或浮点选项。Inspect返回仅在无View写入区间有效的ReadCursor，保存节点/记录号而非指针；MergeRepresentative与AppendNeighborhood在局部无写区间复用它，不跨递归或修改缓存资格。Extract用TouchedCount/TouchedNode/ReadTouched按已定位记录读取，TouchedNodes仍供组件调用。虚拟孩子仍是独立静态求值记录。
+
+**FACT**：新增`NativePlanningHeapSlots.h`，首次真实修复复制该决策堆的Score/Node及从View查询的Path键；复制前At借用来源。私有条目16字节，逐槽曾写标记另存uint8数组。Prepare在修复前准备长度，SetPrepared只访问已验证下标；截断保留物理高水位，后来追加完整覆盖。按来源Q复制、正常几何增长，容量/搬移/标记初始化/销毁均在Tplan。
+
+**FACT**：新增`NativePlanningMembership.h`，队列拥有四字段成员投影：SplitPosition、MergePosition、Representative、Partner与曾写位图，每行20字节。首次旧节点写时复制N行；新虚拟节点使用独立增长尾部，虚拟写不强制旧域复制。触及列表和四字段累计写数分开计量，不将初始化行数冒充逻辑修改。它不复制ActiveLeaf/InternalPosition，活动资格仍归View。全部状态只活在本次规划，非完整State副本。
+
+**FACT**：八个Storage历史位置中只有节点、细分槽、共享成员、合并槽和评分五项非空，共享字段空位为零，不能重复相加。试验性的七字段拓扑投影已撤回，源码没有`NativePlanningTopologyFields`；其O(N)拓扑初始化及较慢结果只作为§9.10历史证据保留。
+
+### 12.2 堆修复与封闭候选维护
+
+**FACT**：`DataOrientedRoamIndexedHeap.h::FillHole`接收调用方已持有的值，沿洞搬移并在末尾落位，无需先写槽再读回；旧Restore未改，Legacy不调用新原语。Queues修复入口准备私有存储并验证待填索引/身份，封闭内核复用Heap引用，保留逐次读写/成员/比较计数。条目携带不变Path用于平分比较，外部Validate核查缓存身份。修复期间不重入或查询暂未落位成员，返回前反向位置恢复；Upsert仅在分数位值相同时跳过修复，仍区分正负零。
+
+Queues的BeginMergeMaintenance/InvalidateMerge/FinishMergeMaintenance仅用于原Simulation Invalidate→修改→Refresh区间。Invalidate立即清除代表/伙伴映射并记录旧代表，暂留heap条目；Refresh保持原候选顺序和评分时机，重新接纳原代表时更新原条目；Finish删除未恢复代表并清空待清理列表。一个旧代表只能因首次逻辑失效进入一次列表。
+
+新增 bool `_mergeMaintenance` 和vector `_deferredMerge`归Queues独占。Merge Top、Validate和Metrics拒绝未关闭区间；该区间内没有根选择/外部回调/forced递归。正常刷新末尾和原防御失败出口都完成清理；异常终止整次Planner并由RAII释放私有状态，不尝试继续使用半维护队列。物理heap排列可与Legacy不同，唯一score/Path全序与逻辑成员保持。
+
+计数分别给出DeferredRemovals/RestoredEntries/DeferredErases/UnchangedUpserts/DeferredPeak/DeferredCapacity，不把逻辑失效数当作物理删堆数。当前压力42977次失效、25115次恢复、17862次最终删堆；待清理列表峰值5、容量8。内存与清理费用在调用内。
+
+### 12.3 评分、计费与生命周期
+
+**FACT**：Simulation在一次固定视图/几何/设置调用内复用纯评分值，默认cacheScores=true；诊断可禁用，但不是生产/GUI策略开关。Requests=Evaluations+Hits，压力85900=51667+34233。动态活动资格、轮次抑制及CanMerge仍在原位置复核；±最大有限数等抑制结果不写入纯缓存。不同调用无缓存继承，输出仍按Path排序。
+
+`NativePlanningAudit::Costs`同步借用有限计时接收结构；不能同时开启事件/回调/读覆盖。`NativePlanningCosts/CostScope`在Types中以嵌套活动区间累加互斥自耗时，Finish幂等并恢复父区间。普通调用不读时钟；详细模式按语义操作计时，不逐字段计时。诊断开销不通过事后扣减伪装成精确普通时间。
+
+Build中的三个私有拥有者改为就地optional，只为显式控制构造/销毁区间，不额外分配对象。顺序仍View→Queues→Simulation；Extract/指标冻结→外部最终审计→Simulation/Queues/View逆序reset。返回值不引用工作区，普通Tplan外包络包含所有reset，返回结果清理由探针另计。
+
+### 12.4 入口、验证和剩余边界
+
+**FACT**：现有Probe增精确冻结case选择、all/timing/diagnostic/cost、反转方法顺序和no-score-cache；不允许改工作负载参数。普通计时一次预热+两次记录，Legacy副本在其方法结束即销毁，复位在Legacy计时外；新旧核心比较使用同一新包络。原探针保留副本至Planner之后，相关历史数据不可当作相同包络。
+
+**FACT**：当前组件覆盖哈希碰撞/页边界/目录增长/稳定记录/显式无效/宽键拒绝，以及洞修复、连续尾部重用、封闭维护中的存活/失效/伙伴改组/未关闭观察拒绝。11个规划配置在原完整逐步投影和事件对照下通过，缓存开启/关闭分别核对分数位值与续接义务。
+
+当前`local-access/natural.csv`三个输入完整匹配69/413/156720事件、完整目标/续接投影、Γ、预算、停止及来源快照。均值Legacy/Planner(ms)为0.050051/0.050191、0.764228/0.529029、61.801414/133.891678；压力Planner两次131.344162/136.439194ms。历史各组和失败试验保留，不挑最快结果；同进程两次不是两个独立统计单位。
+
+**FACT**：当前压力五项预留合计36642456字节，分项峰值和44669251字节仅为上界。节点/评分页仍初始化732928/686336个编码；堆复制195367/32856条、成员投影复制745072行。View不同旧节点读273990并不包含成员投影的全N行来源复制；节点写记录62537和虚拟写记录25290保持。不能再把整个Planner来源读取称为稀疏。
+
+**INFERENCE**：当前费用除了严格目标发现的候选/失败/预算/O(log Q)堆维护外，还含显式O(N+Q)准备、页/目录初始化、记录移动和O(z log z)输出排序，不是给定目标MPR的O(k)物化界。压力费用比2.166，仍未达80%门槛。当前粗成本134.839ms包含循环114.357、提取14.224、汇总5.618、销毁0.633ms；仅优化收尾不足以达标。
+
+**UNCERTAIN**：紧凑字段、内联、缓存、局部定位的独立收益未由正式统计分离；组合版本是当前开发证据。详细互斥遍224.547ms受计时扰动，不得按比例归因给普通133.892ms。后续跨操作合并维护或资格缓存尚未实现，必须先证明观察时刻/失效契约，不能据本轮结果保证50%目标或反证优化空间。

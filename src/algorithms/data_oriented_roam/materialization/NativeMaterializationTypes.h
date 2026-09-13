@@ -6,10 +6,94 @@
 #include <cstddef>
 #include <compare>
 #include <cstdint>
+#include <array>
+#include <chrono>
 #include <vector>
 
 namespace ParallelRoam::Algorithms::DataOrientedRoam::Materialization
 {
+/// <summary>
+/// 规划调用内的互斥成本区间，细项只在独立诊断遍启用
+/// 前置控制保留递归与未被其他区间覆盖的访问，不把调用顺序当作必要关键路径
+/// </summary>
+enum class NativePlanningCost : std::size_t
+{
+    Construct, Control, Prerequisite, MergeControl, Neighborhood, CandidateMaintenance,
+    Eligibility, Score, Queue, Create, SplitChanges, MergeChanges,
+    Extract, Sort, Metrics, Destroy, Count
+};
+
+/// <summary>
+/// 同步借用的成本接收器，仅累加当前活动区间，嵌套调用不会重复计时
+/// 诊断扰动留在测得的包络内，不能把这些子项冒充普通遍的精确耗时
+/// </summary>
+struct NativePlanningCosts
+{
+    static constexpr auto Count = static_cast<std::size_t>(NativePlanningCost::Count);
+    std::array<double, Count> Milliseconds{};
+    std::array<std::size_t, Count> Calls{};
+    bool Detailed{false};
+    NativePlanningCost Active{NativePlanningCost::Count};
+    std::chrono::steady_clock::time_point Since{};
+};
+
+/// <summary>
+/// 暂停父区间并在退出时恢复，普通调用不读取时钟
+/// 作用域不可复制；提前结束用于在销毁工作区之前结束指标计量
+/// </summary>
+class NativePlanningCostScope
+{
+public:
+    NativePlanningCostScope(NativePlanningCosts* costs, NativePlanningCost kind, bool detail = false)
+        : _costs(costs && (!detail || costs->Detailed) ? costs : nullptr)
+    {
+        if (!_costs) return;
+        _previous = _costs->Active;
+        Account();
+        _costs->Active = kind;
+        ++_costs->Calls[static_cast<std::size_t>(kind)];
+    }
+    NativePlanningCostScope(const NativePlanningCostScope&) = delete;
+    NativePlanningCostScope& operator=(const NativePlanningCostScope&) = delete;
+    ~NativePlanningCostScope() { Finish(); }
+    void Finish()
+    {
+        if (!_costs) return;
+        Account();
+        _costs->Active = _previous;
+        _costs = nullptr;
+    }
+private:
+    void Account()
+    {
+        const auto now = std::chrono::steady_clock::now();
+        if (_costs->Active != NativePlanningCost::Count)
+            _costs->Milliseconds[static_cast<std::size_t>(_costs->Active)] +=
+                std::chrono::duration<double, std::milli>(now - _costs->Since).count();
+        _costs->Since = now;
+    }
+    NativePlanningCosts* _costs;
+    NativePlanningCost _previous{NativePlanningCost::Count};
+};
+
+/// <summary>
+/// 区分有效记录、预留容量和增长费用；峰值只描述本表请求的同时存活字节
+/// 不包含分配器元数据或整进程驻留，多个表峰值之和只能作为上界
+/// </summary>
+struct NativePlanningStorageMetrics
+{
+    std::size_t Records{0}, RecordCapacity{0}, IndexCapacity{0}, RecordBytes{0}, IndexBytes{0};
+    std::size_t ReservedBytes{0}, PeakReservedBytes{0}, Allocations{0}, Rehashes{0};
+    std::size_t MovedRecords{0}, RehashedRecords{0}, InitializedSlots{0};
+    std::size_t Lookups{0}, Probes{0}, MaximumProbe{0};
+    // 页容量与目录高水位分开，哈希版本保持为零；两种索引的探测含义不同
+    bool PagedIndex{false};
+    bool DenseIndex{false};
+    std::size_t SourceCopies{0};
+    std::size_t MovedIndexEntries{0};
+    std::size_t IndexPages{0}, DirectorySize{0}, DirectoryCapacity{0}, DirectoryInitialized{0}, DirectoryMoved{0};
+};
+
 /// <summary>
 /// 区分活动资格与节点曾经创建的事实，休眠缓存不属于当前目标 cut
 /// </summary>
@@ -51,6 +135,8 @@ struct NativePlanningQueueEntry
 {
     float Score{0};
     DataOrientedRoamNodeIndex Node{InvalidDataOrientedRoamNodeIndex};
+    // 稳定身份在规划内不变，搬移时随条目携带，避免平分比较重新访问节点来源
+    std::uint64_t Path{0};
     bool operator==(const NativePlanningQueueEntry&) const = default;
 };
 
@@ -63,6 +149,9 @@ struct NativePlanningQueueMetrics
     std::size_t OldSlotsWritten{0}, AppendedSlotsWritten{0}, ReverseRecords{0};
     std::size_t DistinctSourceSlotsRead{0}, MembershipReads{0}, MembershipWrites{0};
     bool ReadCoverageCollected{false};
+    // 逻辑失效与实际 heap 删除分开，区间内恢复的成员无需往返搬运
+    std::size_t DeferredRemovals{0}, RestoredEntries{0}, DeferredErases{0}, UnchangedUpserts{0};
+    std::size_t DeferredPeak{0}, DeferredCapacity{0};
 };
 
 /// <summary>
@@ -102,6 +191,7 @@ struct NativePlanningWork
     std::size_t SplitRoots{0}, SplitRootFailures{0}, MergeRoots{0}, MergeRootFailures{0}, Exchanges{0};
     std::size_t SplitAttempts{0}, ForcedAttempts{0}, PrimitiveSplits{0}, ForcedSplits{0}, PrimitiveMerges{0};
     std::size_t BudgetRejections{0}, ScoreEvaluations{0}, NeighborhoodVisits{0}, CandidateChecks{0};
+    std::size_t ScoreRequests{0}, ScoreCacheHits{0};
     bool operator==(const NativePlanningWork&) const = default;
 };
 
@@ -114,6 +204,8 @@ struct NativePlanningMetrics
     NativePlanningQueueMetrics SplitQueue, MergeQueue;
     NativePlanningWork Work;
     std::size_t MergeRelationRecords{0}, ExtractionNodes{0}, ObligationPeak{0}, PayloadBytes{0};
+    // 节点、两堆槽、共享成员投影和评分分别计费；共享字段的历史表位保持零值
+    std::array<NativePlanningStorageMetrics, 8> Storage{};
 };
 
 /// <summary>

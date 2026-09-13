@@ -17,7 +17,7 @@ template<bool Trace>
 bool NativeRefinementSimulation<Trace>::Leaf(Node node) const
 {
     // 原 primitive 判断缓存 IsSplit；队列资格另行检查活动成员，二者不能混用
-    return _view.IsValidNode(node) && _view.Read(node, Field::IsSplit) == 0;
+    return _view.IsValidNode(node) && _view.Read<Field::IsSplit>(node) == 0;
 }
 
 template<bool Trace>
@@ -29,10 +29,19 @@ bool NativeRefinementSimulation<Trace>::Active(Node node, Activity activity) con
 template<bool Trace>
 float NativeRefinementSimulation<Trace>::Score(Node node)
 {
+    NativePlanningCostScope cost{_view.Costs(), NativePlanningCost::Score, true};
+    ++Work.ScoreRequests;
+    auto record = _scores.Find(node);
+    if (_cacheScores && record != decltype(_scores)::Missing)
+    {
+        ++Work.ScoreCacheHits;
+        return _scores.At(record);
+    }
     ++Work.ScoreEvaluations;
     const float score = ComputeScreenErrorScore(_view.Source(), _view.Domain(node), _view.GeometricError(node));
-    // 首版不跳过原本需要的求值，缓存只复用给后续物化，不改变控制器工作量口径
-    _scores[node] = score;
+    // 只复用冻结几何与视图的纯值，活动资格和轮次抑制仍由调用方实时判断
+    if (record == decltype(_scores)::Missing) record = _scores.InsertMissing(node);
+    _scores.At(record) = score;
     return score;
 }
 
@@ -42,8 +51,8 @@ float NativeRefinementSimulation<Trace>::SplitScore(Node node)
     const auto& source = _view.Source();
     // 抑制值仍是有限数，成员留在 Q_s 中；队首停止规则决定本轮是否继续
     if (!Active(node, Activity::Leaf) || _view.Depth(node) >= source.Settings.MaxDepth ||
-        _view.Read(node, Field::SplitBlockedBuild) == source.BuildSequence ||
-        _view.Read(node, Field::MergeBuild) == source.BuildSequence) return -Maximum;
+        _view.Read<Field::SplitBlockedBuild>(node) == source.BuildSequence ||
+        _view.Read<Field::MergeBuild>(node) == source.BuildSequence) return -Maximum;
     return Score(node);
 }
 
@@ -56,40 +65,50 @@ bool NativeRefinementSimulation<Trace>::WantsSplit(Node node, float score) const
 template<bool Trace>
 auto NativeRefinementSimulation<Trace>::MergeRepresentative(Node node) -> Node
 {
+    NativePlanningCostScope cost{_view.Costs(), NativePlanningCost::Eligibility, true};
     ++Work.CandidateChecks;
     // 缓存存在不等于活动，父和孩子都必须仍由当前 cut 接纳
-    if (!Active(node, Activity::Internal) || !Active(Relation(node, Field::LeftChild), Activity::Leaf) ||
-        !Active(Relation(node, Field::RightChild), Activity::Leaf)) return Invalid;
-    const auto base = Relation(node, Field::BaseNeighbor);
+    if (!_view.IsValidNode(node)) return Invalid;
+    const auto current = _view.Inspect(node);
+    if (current.template Read<Field::Activity>() != static_cast<std::uint64_t>(Activity::Internal) ||
+        !Active(static_cast<Node>(current.template Read<Field::LeftChild>()), Activity::Leaf) ||
+        !Active(static_cast<Node>(current.template Read<Field::RightChild>()), Activity::Leaf)) return Invalid;
+    const auto base = static_cast<Node>(current.template Read<Field::BaseNeighbor>());
     if (!_view.IsValidNode(base) || Active(base, Activity::Leaf)) return node;
     // 跨菱形资格要求双向底边和四个活动叶，代表只由稳定身份决定
-    if (!Active(base, Activity::Internal) || Relation(base, Field::BaseNeighbor) != node ||
-        !Active(Relation(base, Field::LeftChild), Activity::Leaf) ||
-        !Active(Relation(base, Field::RightChild), Activity::Leaf)) return Invalid;
+    const auto opposite = _view.Inspect(base);
+    if (opposite.template Read<Field::Activity>() != static_cast<std::uint64_t>(Activity::Internal) ||
+        opposite.template Read<Field::BaseNeighbor>() != node ||
+        !Active(static_cast<Node>(opposite.template Read<Field::LeftChild>()), Activity::Leaf) ||
+        !Active(static_cast<Node>(opposite.template Read<Field::RightChild>()), Activity::Leaf)) return Invalid;
     return _view.Path(node) < _view.Path(base) ? node : base;
 }
 
 template<bool Trace>
 bool NativeRefinementSimulation<Trace>::CanMerge(Node node)
 {
+    NativePlanningCostScope cost{_view.Costs(), NativePlanningCost::Eligibility, true};
     // 实际执行前的复核与候选入堆条件分开，保留原评分时机和防御性失败分支
-    if (!_view.IsValidNode(node) || Leaf(node) || !Leaf(Relation(node, Field::LeftChild)) ||
-        !Leaf(Relation(node, Field::RightChild))) return false;
+    if (!_view.IsValidNode(node) || Leaf(node) || !Leaf(Relation<Field::LeftChild>(node)) ||
+        !Leaf(Relation<Field::RightChild>(node))) return false;
     if (Score(node) > Maximum) return false;
     // 评分上限按原比较处理，不用队列中的陈旧缓存代替 primitive 复核
-    const auto base = Relation(node, Field::BaseNeighbor);
+    const auto base = Relation<Field::BaseNeighbor>(node);
     if (!_view.IsValidNode(base) || Leaf(base)) return true;
-    if (Relation(base, Field::BaseNeighbor) != node || !Leaf(Relation(base, Field::LeftChild)) ||
-        !Leaf(Relation(base, Field::RightChild))) return false;
+    if (Relation<Field::BaseNeighbor>(base) != node || !Leaf(Relation<Field::LeftChild>(base)) ||
+        !Leaf(Relation<Field::RightChild>(base))) return false;
     return !(Score(base) > Maximum);
 }
 
 template<bool Trace>
 void NativeRefinementSimulation<Trace>::AppendNeighborhood(Node node, DataOrientedRoamNeighborhood& nodes)
 {
+    NativePlanningCostScope cost{_view.Costs(), NativePlanningCost::Neighborhood, true};
     if (!_view.IsValidNode(node)) return;
-    const Node seeds[]{node, _view.Parent(node), Relation(node, Field::LeftChild), Relation(node, Field::RightChild),
-        Relation(node, Field::BaseNeighbor), Relation(node, Field::LeftNeighbor), Relation(node, Field::RightNeighbor)};
+    const auto current = _view.Inspect(node);
+    const Node seeds[]{node, _view.Parent(node), static_cast<Node>(current.template Read<Field::LeftChild>()),
+        static_cast<Node>(current.template Read<Field::RightChild>()), static_cast<Node>(current.template Read<Field::BaseNeighbor>()),
+        static_cast<Node>(current.template Read<Field::LeftNeighbor>()), static_cast<Node>(current.template Read<Field::RightNeighbor>())};
     const auto append = [&](Node candidate) {
         ++Work.NeighborhoodVisits;
         if (_view.IsValidNode(candidate)) nodes.append_unique(candidate);
@@ -97,30 +116,33 @@ void NativeRefinementSimulation<Trace>::AppendNeighborhood(Node node, DataOrient
     // 先保存修改前邻域，再追加修改后邻域；去重顺序保持与原局部维护一致
     for (const auto seed : seeds) append(seed);
     for (const auto seed : seeds)
-        if (_view.IsValidNode(seed)) { append(_view.Parent(seed)); append(Relation(seed, Field::BaseNeighbor)); }
+        if (_view.IsValidNode(seed)) { append(_view.Parent(seed)); append(Relation<Field::BaseNeighbor>(seed)); }
 }
 
 template<bool Trace>
 void NativeRefinementSimulation<Trace>::Invalidate(const DataOrientedRoamNeighborhood& nodes)
 {
-    for (const auto node : nodes) (void)_queues.RemoveMerge(node);
+    NativePlanningCostScope cost{_view.Costs(), NativePlanningCost::CandidateMaintenance, true};
+    _queues.BeginMergeMaintenance();
+    for (const auto node : nodes) _queues.InvalidateMerge(node);
 }
 
 template<bool Trace>
 void NativeRefinementSimulation<Trace>::Refresh(const DataOrientedRoamNeighborhood& nodes)
 {
+    NativePlanningCostScope cost{_view.Costs(), NativePlanningCost::CandidateMaintenance, true};
     const auto build = _view.Source().BuildSequence;
     for (const auto node : nodes)
     {
         // 已存在的代表不重新评分，避免额外刷新改变原控制器的候选语义
         const auto representative = MergeRepresentative(node);
         if (representative == Invalid || _queues.MergeRepresentative(representative) != Invalid) continue;
-        auto partner = Relation(representative, Field::BaseNeighbor);
-        if (!Active(partner, Activity::Internal) || Relation(partner, Field::BaseNeighbor) != representative) partner = Invalid;
+        auto partner = Relation<Field::BaseNeighbor>(representative);
+        if (!Active(partner, Activity::Internal) || Relation<Field::BaseNeighbor>(partner) != representative) partner = Invalid;
         float score = Maximum;
         // 本轮刚细分的任一侧都会抑制整组立即合并，不能仅检查代表一侧
-        if (_view.Read(representative, Field::SplitBuild) != build &&
-            (partner == Invalid || _view.Read(partner, Field::SplitBuild) != build))
+        if (_view.Read<Field::SplitBuild>(representative) != build &&
+            (partner == Invalid || _view.Read<Field::SplitBuild>(partner) != build))
         {
             score = Score(representative);
             if (partner != Invalid) score = std::max(score, Score(partner));
@@ -130,6 +152,8 @@ void NativeRefinementSimulation<Trace>::Refresh(const DataOrientedRoamNeighborho
         _failedMergeRemovals.erase(_view.Path(representative));
         if (partner != Invalid) _failedMergeRemovals.erase(_view.Path(partner));
     }
+    // 原刷新顺序和评分已完成，根选择恢复前清除未恢复的暂留条目
+    _queues.FinishMergeMaintenance();
 }
 
 template<bool Trace>
@@ -144,32 +168,31 @@ void NativeRefinementSimulation<Trace>::Replace(Node neighbor, Node oldNode, Nod
 template<bool Trace>
 void NativeRefinementSimulation<Trace>::CommitSplit(Node node, Node base, bool forced)
 {
-    if (Relation(node, Field::LeftChild) == Invalid || Relation(node, Field::RightChild) == Invalid)
+    NativePlanningCostScope cost{_view.Costs(), NativePlanningCost::SplitChanges, true};
+    if (Relation<Field::LeftChild>(node) == Invalid || Relation<Field::RightChild>(node) == Invalid)
         (void)_view.CreateChildren(node);
     // 创建缓存先于邻域冻结，复用路径保留同一身份，均不写生产池
     DataOrientedRoamNeighborhood neighborhood;
     AppendNeighborhood(node, neighborhood); AppendNeighborhood(base, neighborhood);
     Invalidate(neighborhood);
-    const auto left = Relation(node, Field::LeftChild), right = Relation(node, Field::RightChild);
+    const auto left = Relation<Field::LeftChild>(node), right = Relation<Field::RightChild>(node);
     const auto build = _view.Source().BuildSequence;
     // 父激活轮次保持原值，只有孩子此次被重新激活；净出口必须区分这两种历史
-    _view.Write(node, Field::IsSplit, 1); _view.Write(node, Field::SplitBuild, build);
+    _view.WriteFields(node, {{Field::IsSplit, 1}, {Field::SplitBuild, build}});
     for (const auto child : {left, right})
     {
-        for (const auto field : {Field::BaseNeighbor, Field::LeftNeighbor, Field::RightNeighbor})
-            _view.Write(child, field, Invalid);
-        _view.Write(child, Field::ActivatedBuild, build);
-        _view.Write(child, Field::ForcedActivation, forced ? 1 : 0);
+        _view.WriteFields(child, {{Field::BaseNeighbor, Invalid}, {Field::LeftNeighbor, Invalid}, {Field::RightNeighbor, Invalid},
+            {Field::ActivatedBuild, build}, {Field::ForcedActivation, forced ? 1U : 0U}});
     }
     // 新关系仅为继续规划服务，最终邻接不随正常结果导出
     _view.Write(left, Field::LeftNeighbor, right); _view.Write(right, Field::RightNeighbor, left);
-    const auto outerLeft = Relation(node, Field::LeftNeighbor), outerRight = Relation(node, Field::RightNeighbor);
+    const auto outerLeft = Relation<Field::LeftNeighbor>(node), outerRight = Relation<Field::RightNeighbor>(node);
     // 前置可能已改写外侧关系，此处读取当前私有值而不是入口快照
     _view.Write(left, Field::BaseNeighbor, outerLeft); _view.Write(right, Field::BaseNeighbor, outerRight);
     Replace(outerLeft, node, left); Replace(outerRight, node, right);
     if (_view.IsValidNode(base) && !Leaf(base))
     {
-        const auto baseLeft = Relation(base, Field::LeftChild), baseRight = Relation(base, Field::RightChild);
+        const auto baseLeft = Relation<Field::LeftChild>(base), baseRight = Relation<Field::RightChild>(base);
         _view.Write(left, Field::RightNeighbor, baseRight); _view.Write(right, Field::LeftNeighbor, baseLeft);
         if (_view.IsValidNode(baseRight)) _view.Write(baseRight, Field::LeftNeighbor, left);
         if (_view.IsValidNode(baseLeft)) _view.Write(baseLeft, Field::RightNeighbor, right);
@@ -203,6 +226,7 @@ void NativeRefinementSimulation<Trace>::ReleaseBudget()
 template<bool Trace>
 bool NativeRefinementSimulation<Trace>::Split(Node node, Node forcedFrom)
 {
+    NativePlanningCostScope cost{_view.Costs(), NativePlanningCost::Prerequisite, true};
     const bool forced = forcedFrom != Invalid;
     ++Work.SplitAttempts;
     if (forced) ++Work.ForcedAttempts;
@@ -237,23 +261,23 @@ bool NativeRefinementSimulation<Trace>::Split(Node node, Node forcedFrom)
         attempt.Result = DecisionReason::PrerequisiteFailed;
         return false;
     };
-    auto base = Relation(node, Field::BaseNeighbor);
+    auto base = Relation<Field::BaseNeighbor>(node);
     if (_view.Source().Settings.EnableLocalConstraints)
     {
         int guard = 0;
-        while (_view.IsValidNode(base) && base != forcedFrom && Relation(base, Field::BaseNeighbor) != node &&
+        while (_view.IsValidNode(base) && base != forcedFrom && Relation<Field::BaseNeighbor>(base) != node &&
             guard < _view.Source().Settings.MaxDepth + 2)
         {
             if (!prerequisite(base)) return false;
             // 成功前置可替换本根底边，必须重新查关系后再判断下一项依赖
-            base = Relation(node, Field::BaseNeighbor);
+            base = Relation<Field::BaseNeighbor>(node);
             ++guard;
         }
         // guard 达界本身不新增失败语义，继续执行原来的对侧叶检查
         if (_view.IsValidNode(base) && Leaf(base) && base != forcedFrom)
         {
             if (!prerequisite(base)) return false;
-            base = Relation(node, Field::BaseNeighbor);
+            base = Relation<Field::BaseNeighbor>(node);
         }
     }
     CommitSplit(node, base, forced);
@@ -264,15 +288,14 @@ bool NativeRefinementSimulation<Trace>::Split(Node node, Node forcedFrom)
 template<bool Trace>
 void NativeRefinementSimulation<Trace>::CommitMerge(Node node)
 {
-    const auto left = Relation(node, Field::LeftChild), right = Relation(node, Field::RightChild);
-    const auto outerLeft = Relation(left, Field::BaseNeighbor), outerRight = Relation(right, Field::BaseNeighbor);
+    NativePlanningCostScope cost{_view.Costs(), NativePlanningCost::MergeChanges, true};
+    const auto left = Relation<Field::LeftChild>(node), right = Relation<Field::RightChild>(node);
+    const auto outerLeft = Relation<Field::BaseNeighbor>(left), outerRight = Relation<Field::BaseNeighbor>(right);
     // 父恢复为叶时以孩子的当前外边为准，不复活父记录里的历史左右邻接
     Replace(outerLeft, left, node); Replace(outerRight, right, node);
-    _view.Write(node, Field::LeftNeighbor, outerLeft); _view.Write(node, Field::RightNeighbor, outerRight);
-    _view.Write(node, Field::IsSplit, 0);
-    _view.Write(node, Field::ActivatedBuild, _view.Source().BuildSequence);
-    _view.Write(node, Field::MergeBuild, _view.Source().BuildSequence);
-    _view.Write(node, Field::ForcedActivation, 0);
+    _view.WriteFields(node, {{Field::LeftNeighbor, outerLeft}, {Field::RightNeighbor, outerRight}, {Field::IsSplit, 0},
+        {Field::ActivatedBuild, _view.Source().BuildSequence}, {Field::MergeBuild, _view.Source().BuildSequence},
+        {Field::ForcedActivation, 0}});
     for (const auto child : {left, right})
     {
         (void)_queues.RemoveSplit(child);
@@ -290,15 +313,20 @@ void NativeRefinementSimulation<Trace>::CommitMerge(Node node)
 template<bool Trace>
 bool NativeRefinementSimulation<Trace>::Merge(Node node)
 {
+    NativePlanningCostScope cost{_view.Costs(), NativePlanningCost::MergeControl, true};
     if (!CanMerge(node)) return false;
-    const auto base = Relation(node, Field::BaseNeighbor);
+    const auto base = Relation<Field::BaseNeighbor>(node);
     DataOrientedRoamNeighborhood neighborhood;
     AppendNeighborhood(node, neighborhood); AppendNeighborhood(base, neighborhood);
     Invalidate(neighborhood);
     const bool diamond = _view.IsValidNode(base) && !Leaf(base);
     if (diamond)
     {
-        if (Relation(base, Field::BaseNeighbor) != node) return false;
+        if (Relation<Field::BaseNeighbor>(base) != node)
+        {
+            _queues.FinishMergeMaintenance();
+            return false;
+        }
         _view.Write(node, Field::BaseNeighbor, base); _view.Write(base, Field::BaseNeighbor, node);
     }
     CommitMerge(node);
@@ -337,6 +365,7 @@ std::vector<NativeScoreEvaluation> NativeRefinementSimulation<Trace>::Evaluation
     result.reserve(_scores.size());
     // 转换只扫描实际求值缓存，排序和结果分配都属于规划费用
     for (const auto& [node, score] : _scores) result.push_back({_view.Path(node), score});
+    NativePlanningCostScope sortCost{_view.Costs(), NativePlanningCost::Sort, true};
     std::sort(result.begin(), result.end(), [](const auto& a, const auto& b) { return a.Path < b.Path; });
     return result;
 }

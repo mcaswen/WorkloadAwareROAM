@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <array>
+#include <optional>
 #include <stdexcept>
 
 namespace ParallelRoam::Algorithms::DataOrientedRoam::Materialization
@@ -38,23 +39,24 @@ void Extract(NativePlanningView& view,
     NativeRefinementSimulation<Trace>& simulation, NativeTargetPlan& result)
 {
     const auto& source = view.Source();
-    const auto touched = view.TouchedNodes();
     // 累计触及记录可以大于净差分，往返修改仍须检查是否留下历史义务
-    result.Metrics.ExtractionNodes = touched.size();
+    result.Metrics.ExtractionNodes = view.TouchedCount();
     constexpr std::array fields{Field::ActivatedBuild, Field::SplitBuild, Field::MergeBuild,
         Field::ForcedActivation, Field::SplitBlockedBuild};
     constexpr std::array kinds{Obligation::ActivatedBuild, Obligation::SplitBuild, Obligation::MergeBuild,
         Obligation::ForcedActivation, Obligation::SplitBlockedBuild};
-    for (const auto node : touched)
+    for (std::size_t record = 0; record < view.TouchedCount(); ++record)
     {
-        const auto oldActivity = static_cast<Activity>(view.Initial(node, Field::Activity)), targetActivity = view.Activity(node);
+        const auto node = view.TouchedNode(record);
+        const auto oldActivity = static_cast<Activity>(view.Initial(node, Field::Activity));
+        const auto targetActivity = static_cast<Activity>(view.ReadTouched(record, Field::Activity));
         const auto path = view.Path(node);
         // 事件是否存在由活动内部资格决定，不能由缓存 IsSplit 或物理创建次序代替
         if (oldActivity != Activity::Internal && targetActivity == Activity::Internal) result.AddedEvents.push_back(path);
         if (oldActivity == Activity::Internal && targetActivity != Activity::Internal) result.RemovedEvents.push_back(path);
         for (std::size_t index = 0; index < fields.size(); ++index)
         {
-            const auto value = view.Read(node, fields[index]);
+            const auto value = view.ReadTouched(record, fields[index]);
             if (value != DefaultHistory(view, node, fields[index], oldActivity, targetActivity))
                 result.Obligations.push_back({kinds[index], path, value});
         }
@@ -74,9 +76,11 @@ void Extract(NativePlanningView& view,
     }
     // 遍历的是最终工作区记录，每个键只产出一次；排序仅规范化输出而不构造完整 J
     result.Metrics.ObligationPeak = result.Obligations.size();
+    NativePlanningCostScope sortCost{view.Costs(), NativePlanningCost::Sort, true};
     std::sort(result.AddedEvents.begin(), result.AddedEvents.end());
     std::sort(result.RemovedEvents.begin(), result.RemovedEvents.end());
     std::sort(result.Obligations.begin(), result.Obligations.end());
+    sortCost.Finish();
     result.Evaluations = simulation.Evaluations();
     result.Metrics.PayloadBytes = (result.AddedEvents.size() + result.RemovedEvents.size()) * sizeof(std::uint64_t) +
         result.Obligations.size() * sizeof(NativeContinuationObligation) + result.Evaluations.size() * sizeof(NativeScoreEvaluation);
@@ -85,11 +89,19 @@ void Extract(NativePlanningView& view,
 template<bool Trace>
 NativeTargetPlan Build(const DataOrientedRoamState& source, const NativePlanningAudit& audit)
 {
-    NativePlanningView view{source, audit.CollectReadCoverage};
-    NativePlanningQueues queues{view, audit.CollectReadCoverage};
+    NativePlanningCostScope construction{audit.Costs, NativePlanningCost::Construct};
+    // 显式结束拥有者的寿命以计入销毁，optional 的就地存储不引入额外堆对象
+    std::optional<NativePlanningView> viewOwner{std::in_place, source, audit.CollectReadCoverage, audit.Costs};
+    auto& view = *viewOwner;
+    std::optional<NativePlanningQueues> queuesOwner{std::in_place, view, audit.CollectReadCoverage};
+    auto& queues = *queuesOwner;
     DecisionTraceCursor trace{audit.Decisions};
-    NativeRefinementSimulation<Trace> simulation{view, queues, Trace ? &trace : nullptr};
+    std::optional<NativeRefinementSimulation<Trace>> simulationOwner{
+        std::in_place, view, queues, Trace ? &trace : nullptr, !audit.DisableScoreCache};
+    auto& simulation = *simulationOwner;
     NativeTargetPlan result;
+    construction.Finish();
+    NativePlanningCostScope control{audit.Costs, NativePlanningCost::Control};
     result.BuildSequence = source.BuildSequence;
     result.SourceNodeCount = source.Nodes.size(); result.SourceLeafCount = source.ActiveLeafNodes.size();
     // 这些值描述本次同步输入，不是可跨状态套用的序列化事务认证令牌
@@ -175,13 +187,27 @@ NativeTargetPlan Build(const DataOrientedRoamState& source, const NativePlanning
     result.RemainingBudget = view.RemainingBudget();
     if (result.FinalLeafCount + result.RemainingBudget != result.BudgetCap)
         throw std::logic_error("native planning budget ledger disagrees with leaf count");
-    Extract(view, simulation, result);
+    control.Finish();
+    {
+        NativePlanningCostScope extraction{audit.Costs, NativePlanningCost::Extract};
+        Extract(view, simulation, result);
+    }
     // 先冻结执行和提取成本，再让外部验证器做全量遍历，避免将审计扫描混入覆盖报告
+    NativePlanningCostScope metrics{audit.Costs, NativePlanningCost::Metrics};
     result.Metrics.View = view.Metrics();
     // 读覆盖来自诊断遍；其中包括轻量轨迹取稳定身份的查询，不能冒充无诊断 load 数
     result.Metrics.SplitQueue = queues.Metrics(Kind::Split); result.Metrics.MergeQueue = queues.Metrics(Kind::Merge);
     result.Metrics.MergeRelationRecords = queues.MergeRelationRecords(); result.Metrics.Work = simulation.Work;
+    result.Metrics.Storage[0] = view.StorageMetrics();
+    const auto queueStorage = queues.StorageMetrics();
+    std::copy(queueStorage.begin(), queueStorage.end(), result.Metrics.Storage.begin() + 1);
+    result.Metrics.Storage[7] = simulation.StorageMetrics();
+    metrics.Finish();
     if (audit.Finished) audit.Finished(audit.Context, view, queues, result);
+    {
+        NativePlanningCostScope destruction{audit.Costs, NativePlanningCost::Destroy};
+        simulationOwner.reset(); queuesOwner.reset(); viewOwner.reset();
+    }
     // 返回后局部容器析构仍在调用包络内，调用方另计结果所有权的清理成本
     return result;
 }
@@ -189,6 +215,8 @@ NativeTargetPlan Build(const DataOrientedRoamState& source, const NativePlanning
 
 NativeTargetPlan BuildNativeSplitTarget(const DataOrientedRoamState& source, const NativePlanningAudit& audit)
 {
+    if (audit.Costs && (audit.Decisions.Append || audit.AfterStep || audit.Finished || audit.CollectReadCoverage))
+        throw std::invalid_argument("cost observation must not include semantic audits");
     // 此入口验证固定实验契约，不悄悄改变来源设置或将非共形状态修成另一任务
     if (!source.Settings.EnableLocalConstraints || source.Settings.MirrorSplitScoresToNodePool ||
         source.Settings.TriangleBudget < source.ActiveLeafNodes.size())

@@ -15,6 +15,9 @@ struct NativePlanningAudit
     void (*AfterStep)(void*, const NativePlanningView&, const NativePlanningQueues&){nullptr};
     void (*Finished)(void*, const NativePlanningView&, const NativePlanningQueues&, const NativeTargetPlan&){nullptr};
     bool CollectReadCoverage{false};
+    NativePlanningCosts* Costs{nullptr};
+    // 仅用于独立缓存消融，普通规划始终复用本调用的纯值
+    bool DisableScoreCache{false};
 };
 
 /// <summary>
