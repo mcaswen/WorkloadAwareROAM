@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "script_sha256": "a7c572dbc9c7ead584e939702623b00cc8be181d508278ca18ae03d0fc9cea24",
+  "arithmetic": "几何与高度使用 fractions.Fraction；组合检查使用整数",
+  "BP01_history_and_degree": {
+    "status": "通过；错误历史恢复被反例排除",
+    "center_degree": [
+      3,
+      4,
+      3
+    ],
+    "face_count": [
+      3,
+      5,
+      3
+    ],
+    "outside_faces_changed_by_wrong_reset": [
+      {
+        "face": [
+          "a",
+          "v",
+          "c"
+        ],
+        "current_height": "1/3",
+        "historical_reset_height": "0"
+      },
+      {
+        "face": [
+          "b",
+          "c",
+          "v"
+        ],
+        "current_height": "1/3",
+        "historical_reset_height": "0"
+      }
+    ]
+  },
+  "BP02_current_donor_geometry": {
+    "status": "通过",
+    "states": 36,
+    "independently_validated_removals": 70,
+    "boundary_counterexamples": 4,
+    "construction": "4 条确定性面重心插入序列，每条 0～8 次插入；未假定最小角约束"
+  },
+  "BP03_disjoint_application": {
+    "status": "通过",
+    "orders_compared": 2,
+    "shared_boundary_degree_delta": {
+      "a": 2,
+      "c": 2
+    },
+    "scope": "串行排列逻辑等价；共享度数需归约，不是并发内存安全测试"
+  },
+  "BP04_shape_deadlock": {
+    "status": "通过；受限操作集停滞反例成立",
+    "triangles": 8,
+    "interior_degree_three_donors": 0,
+    "angles_degrees": [
+      45,
+      45,
+      90
+    ],
+    "angle_floor_degrees": 30,
+    "reason": "1→3 必须把原 45° 角分为两个至少 30° 的角，不可能；不否定其他原语"
+  },
+  "BP05_four_rotations": {
+    "status": "通过",
+    "D": 3,
+    "b": 4,
+    "forbidden_matrices": 50625,
+    "minimum_best_rotation_width": 1,
+    "scope": "有限组合核查，不验证一般 D 的定理、几何选择器或实际并行宽度"
+  },
+  "BP06_quantized_descent": {
+    "status": "通过",
+    "accepted_error_transitions": 5062,
+    "eta": "1/2",
+    "unchanged_global_maximum": "3",
+    "scope": "固定样本误差向量核查；不证明这些向量都有实际网格实现，也不证明质量达标"
+  },
+  "limitations": "非 Lean 证明；不计算连续屏幕误差，不执行真实线程，不测 CPU 性能。"
+}

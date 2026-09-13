@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "source_sha256": {
+    "verify_cavity_retriangulation.py": "508ab5f5e33fc10b4d3321f400f761698593de69d6c886777717b15de209ecea",
+    "verify_bounded_patch_refit.py": "a7c572dbc9c7ead584e939702623b00cc8be181d508278ca18ae03d0fc9cea24"
+  },
+  "CR01_dp_vs_ear_enumeration": {
+    "status": "通过",
+    "comparisons": 48,
+    "fixtures": [
+      {
+        "fixture": "square",
+        "degree": 4,
+        "ear_triangulations": 2,
+        "legal_by_angle_floor": {
+          "0": 2,
+          "30": 2,
+          "45": 2
+        }
+      },
+      {
+        "fixture": "grid_hexagon",
+        "degree": 6,
+        "ear_triangulations": 14,
+        "legal_by_angle_floor": {
+          "0": 14,
+          "30": 2,
+          "45": 2
+        }
+      },
+      {
+        "fixture": "wide_hexagon",
+        "degree": 6,
+        "ear_triangulations": 14,
+        "legal_by_angle_floor": {
+          "0": 14,
+          "30": 0,
+          "45": 0
+        }
+      },
+      {
+        "fixture": "concave_pentagon",
+        "degree": 5,
+        "ear_triangulations": 1,
+        "legal_by_angle_floor": {
+          "0": 1,
+          "30": 1,
+          "45": 0
+        }
+      }
+    ],
+    "scope": "固定边界高度、有限样本最大高度误差；不验证真实透视与连续质量"
+  },
+  "CR02_irreducible_cavities": {
+    "status": "通过",
+    "shape_obstruction": {
+      "old_minimum_angle_at_least": 45,
+      "requested_floor": 30,
+      "rejected_ears": 6,
+      "result": "全部无新增顶点重剖分不满足形状下限"
+    },
+    "quality_obstruction": {
+      "boundary_height_range": [
+        0,
+        0
+      ],
+      "reference_at_removed_vertex": 1,
+      "optimal_sampled_error": "1",
+      "rejected_quality_threshold": "1/2"
+    }
+  },
+  "CR03_budget_exchange": {
+    "status": "通过",
+    "initial_interior_degree_three_count": 0,
+    "donor_face_change": [
+      6,
+      4
+    ],
+    "receiver_face_change": [
+      2,
+      4
+    ],
+    "active_triangle_trajectory": [
+      16,
+      14,
+      16
+    ],
+    "budget": 16,
+    "angle_floor_degrees": 30,
+    "samples": 561,
+    "sampled_height_error": [
+      "1",
+      "1/4"
+    ],
+    "new_maximum_points": [
+      [
+        "13/4",
+        "1/4"
+      ],
+      [
+        "13/4",
+        "3/4"
+      ],
+      [
+        "15/4",
+        "1/4"
+      ],
+      [
+        "15/4",
+        "3/4"
+      ]
+    ],
+    "eta": "1/2",
+    "scope": "固定 16 面解析夹具；连续 1/4 上界另由文档代数证明，不是自然轨迹或性能结果"
+  },
+  "limitations": "纸面推导的有限复核；没有一般形式化证明、生产实现或 CPU 性能测量。"
+}
