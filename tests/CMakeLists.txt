@@ -242,7 +242,7 @@ if(TARGET ParallelROAM::STB)
         ParallelROAM::GLM ParallelROAM::STB Threads::Threads)
     foreach(discovery_test IN ITEMS DataOrientedRoamPassExecution DataOrientedRoamWorkloadProbe
         DataOrientedRoamPassExperiment FormalCpuPair DataOrientedRoamSplitPrefix FormalSplitTopologyEquivalence OrderingGate
-        DataOrientedRoamNativeTarget DataOrientedRoamNativePlanning DataOrientedRoamNativePlanner)
+        DataOrientedRoamNativeTarget DataOrientedRoamNativePlanning DataOrientedRoamNativePlanner DataOrientedRoamCandidateBirth)
         add_executable(parallel_roam_${discovery_test}_tests ${discovery_test}Tests.cpp
             ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES} ../src/algorithms/TerrainLodView.cpp
             ../src/terrain/HeightMap.cpp ../src/tools/PerformanceTimer.cpp)
