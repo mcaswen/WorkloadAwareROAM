@@ -53,6 +53,8 @@ struct Configuration
     std::size_t PrefixLimit{64}, DonorLimit{64};
     std::size_t SampleVisitLimit{1000000};
     bool HeightGuard{};
+    // 新点仍按原规则拟合；旧点的高度在整个存活期保持不变
+    bool PreserveSurvivingHeights{};
     bool UsesZeroToOneDepth{};
 };
 

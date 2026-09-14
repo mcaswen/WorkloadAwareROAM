@@ -1,4 +1,5 @@
 #include "benchmark/TransactionalPlatformReplay.h"
+#include "benchmark/TransactionalPlatformProtocol.h"
 #include "algorithms/TerrainLodAlgorithmRegistry.h"
 #include "experiment/formal/FormalExperimentCamera.h"
 #include "experiment/mesh_quality/PlatformMeshArtifact.h"
@@ -19,35 +20,7 @@ namespace
 using Clock=std::chrono::steady_clock;
 double Ms(Clock::time_point start) { return std::chrono::duration<double,std::milli>(Clock::now()-start).count(); }
 void Require(bool ok,const std::string& message) { if (!ok) throw std::runtime_error(message); }
-constexpr std::array<std::uint32_t,24> Views{14,14,14,15,16,18,22,26,30,34,38,42,46,50,54,58,14,14,14,14,14,14,14,14};
 
-/// <summary>
-/// 重用 A 相机；压力输入保留已有 orbit64 的 float 公式和运算顺序
-/// 后端只选择投影深度域，不改变相机或屏幕尺寸
-/// </summary>
-Render::RenderContext Camera(bool peking,std::uint32_t index,bool zo)
-{
-    Experiment::Formal::CameraSample sample;
-    if (peking)
-    {
-        const float t=static_cast<float>(index)/63.0F,angle=t*6.28318530718F;
-        sample.Position={std::cos(angle)*58.0F,20.0F+std::sin(angle*2.0F)*3.0F,std::sin(angle)*58.0F};
-        sample.Target={std::cos(angle+.55F)*10.0F,4.0F,std::sin(angle+.55F)*10.0F};
-    }
-    else
-    {
-        Experiment::Formal::FormalScenario scenario;scenario.TrajectoryId="A";
-        scenario.Settings.TerrainSize=30;
-        sample=Experiment::Formal::GenerateCameraSample(scenario,index);
-    }
-    Render::RenderContext c;c.CameraPosition=sample.Position;
-    c.CameraForward=glm::normalize(sample.Target-sample.Position);
-    c.View=glm::lookAtRH(sample.Position,sample.Target,glm::vec3{0,1,0});
-    c.DrawableWidth=1280;c.DrawableHeight=720;c.UsesZeroToOneDepth=zo;
-    c.Projection=zo ? glm::perspectiveRH_ZO(glm::radians(60.0F),1280.0F/720.0F,.1F,500.0F)
-                    : glm::perspectiveRH_NO(glm::radians(60.0F),1280.0F/720.0F,.1F,500.0F);
-    return c;
-}
 }
 
 int RunTransactionalPlatformReplay(int argc,char** argv)
@@ -58,14 +31,17 @@ int RunTransactionalPlatformReplay(int argc,char** argv)
     try
     {
         Require(argc==7 && std::string_view(argv[1])=="--transactional-platform-replay",
-            "Usage: --transactional-platform-replay test129|peking classic|dod|transactional 1|8 OUTPUT normal|export");
+            "Usage: --transactional-platform-replay test129|peking classic|dod|transactional 1|8 OUTPUT normal|export|normal-immutable|export-immutable");
         const bool peking=std::string_view(argv[2])=="peking";
         Require(peking || std::string_view(argv[2])=="test129","Unknown frozen input");
         const auto id=Algorithms::ParseTerrainLodAlgorithm(argv[3]);Require(id.has_value(),"Algorithm unavailable");
         const std::string_view threads(argv[4]);Require(threads=="1" || threads=="8","Workers must be 1 or 8");
         const std::size_t workers=threads=="1" ? 1 : 8;
-        const std::filesystem::path output(argv[5]);const bool exporting=std::string_view(argv[6])=="export";
-        Require(exporting || std::string_view(argv[6])=="normal","Unknown replay mode");
+        const std::filesystem::path output(argv[5]);const std::string_view mode(argv[6]);
+        const bool immutable=mode=="normal-immutable" || mode=="export-immutable";
+        const bool exporting=mode=="export" || mode=="export-immutable";
+        Require(exporting || mode=="normal" || mode=="normal-immutable","Unknown replay mode");
+        Require(!immutable || *id==Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod,"Height policy requires transactional algorithm");
         Require(!std::filesystem::exists(output),"Refusing to overwrite replay output");
         std::filesystem::create_directories(output);
         std::string error;const auto setup=Clock::now();
@@ -80,6 +56,7 @@ int RunTransactionalPlatformReplay(int argc,char** argv)
         settings.RoamScreenSpaceSplitThresholdPixels=peking ? .25F : 4.0F;
         settings.RoamScreenSpaceMergeThresholdPixels=peking ? .10F : 2.0F;
         settings.Transactional.WorkerCount=workers;
+        settings.Transactional.PreserveSurvivingHeights=immutable;
         settings.Transactional.PrefixLimit=settings.Transactional.DonorLimit=peking ? 160 : 64;
         auto& policy=settings.RoamPassPolicy;
         policy.SplitScoreWorkerCount=policy.MergeScoreWorkerCount=policy.SplitTopologyWorkerCount=
@@ -90,14 +67,15 @@ int RunTransactionalPlatformReplay(int argc,char** argv)
         renderer.ResetTerrainLodAlgorithm();
         std::ofstream meta(output/"environment.txt");meta<<std::setprecision(17)
             <<"backend="<<graphics->Name()<<"\nadapter="<<graphics->AdapterName()<<"\nversion="<<graphics->VersionString()
-            <<"\nsetupMs="<<Ms(setup)<<"\nasset="<<asset<<"\nworkers="<<workers<<"\nmode="<<argv[6]<<'\n';
+            <<"\nsetupMs="<<Ms(setup)<<"\nasset="<<asset<<"\nworkers="<<workers<<"\nmode="<<argv[6]
+            <<"\npreserveSurvivingHeights="<<immutable<<'\n';
         std::ofstream csv(output/"frames.csv");csv.exceptions(std::ios::badbit|std::ios::failbit);csv<<std::setprecision(17);
         csv<<"frame,sample,ok,faces,sequence,hash,cpuMs,uploadMs,uploadBytes,beginMs,waitMs,renderMs,presentMs,frameMs,gpuDelayedMs,split,merge,status,updated,cold,seedFaces,samples,raw,examined,receivers,need,feasible,exchanges,free,pairs,conflicts,donorReuse,touches,evaluations,vertexWrites,indexWrites,seedMs,initializeMs,viewMs,receiverMs,donorMs,reservationMs,topologyPrepareMs,topologyPublishMs,sampleRepairMs,meshPrepareMs,continuationMs,adapterMs\n";
-        const std::size_t count=graphics->UsesZeroToOneDepth() ? 8 : Views.size();
+        const std::size_t count=graphics->UsesZeroToOneDepth() ? 8 : PlatformReplayViews.size();
         for (std::size_t i=0;i<count;++i)
         {
             SDL_Event event;while (SDL_PollEvent(&event)) Require(event.type!=SDL_QUIT,"Replay window closed");
-            const auto view=Camera(peking,Views[i],graphics->UsesZeroToOneDepth());
+            const auto view=PlatformReplayCamera(peking,PlatformReplayViews[i],graphics->UsesZeroToOneDepth());
             renderer.RequestMeshRebuild();const auto frame=Clock::now();auto part=Clock::now();graphics->BeginFrame();
             const double beginMs=Ms(part),waitMs=graphics->LastGpuWaitMilliseconds();
             const bool ok=renderer.UpdateForView(view,&error);part=Clock::now();renderer.Render(view);
@@ -122,7 +100,7 @@ int RunTransactionalPlatformReplay(int argc,char** argv)
             }
             const auto hash=Experiment::MeshQuality::PlatformMeshHash(*mesh);
             const auto t=stats.RoamLodStats.Transactional.value_or(Algorithms::TransactionalLodStats{});
-            csv<<i<<','<<Views[i]<<','<<ok<<','<<stats.TriangleCount<<','<<stats.RoamBuildSequence<<','<<hash
+            csv<<i<<','<<PlatformReplayViews[i]<<','<<ok<<','<<stats.TriangleCount<<','<<stats.RoamBuildSequence<<','<<hash
                 <<','<<stats.RoamUpdateMilliseconds<<','<<stats.RoamCpuUploadMilliseconds<<','<<stats.RoamCpuGpuUploadBytes
                 <<','<<beginMs<<','<<waitMs<<','<<renderMs<<','<<presentMs<<','<<frameMs<<','<<graphics->LastGpuFrameMilliseconds()
                 <<','<<stats.RoamSplitCount<<','<<stats.RoamMergeCount<<','<<(stats.RoamLodStats.Transactional ? int(t.Status) : -1)

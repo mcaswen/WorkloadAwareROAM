@@ -19,6 +19,14 @@ if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
     target_include_directories(parallel_roam_transactional_adapter_test_support PUBLIC ../src)
     target_link_libraries(parallel_roam_transactional_adapter_test_support PUBLIC
         parallel_roam_project_options ParallelROAM::GLM ParallelROAM::STB Threads::Threads)
+    add_executable(parallel_roam_transactional_quality_provenance_probe TransactionalQualityProvenanceProbe.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalQualityProvenance.cpp)
+    target_link_libraries(parallel_roam_transactional_quality_provenance_probe PRIVATE
+        parallel_roam_transactional_lod_adapter parallel_roam_transactional_adapter_test_support parallel_roam_project_warnings)
+    add_executable(parallel_roam_transactional_height_policy_tests TransactionalHeightPolicyTests.cpp)
+    target_link_libraries(parallel_roam_transactional_height_policy_tests PRIVATE
+        parallel_roam_transactional_lod_adapter parallel_roam_transactional_adapter_test_support parallel_roam_project_warnings)
+    add_test(NAME transactional_height_policy COMMAND parallel_roam_transactional_height_policy_tests)
     add_executable(parallel_roam_transactional_adapter_tests TransactionalTerrainLodAlgorithmTests.cpp)
     target_link_libraries(parallel_roam_transactional_adapter_tests PRIVATE
         parallel_roam_transactional_lod_adapter parallel_roam_transactional_adapter_test_support parallel_roam_project_warnings)

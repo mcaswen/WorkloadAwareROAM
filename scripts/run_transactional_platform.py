@@ -30,7 +30,7 @@ def quote(text):
     return "'" + text.replace("'", "''") + "'"
 
 
-def native_run(output, name, exe, case, algorithm, workers, mode):
+def native_run(output, name, exe, case, algorithm, workers, mode, *, arguments=None):
     record = output / "commands" / f"{name}.json"
     if record.exists():
         return json.loads(record.read_text())
@@ -41,7 +41,8 @@ def native_run(output, name, exe, case, algorithm, workers, mode):
         return {"status": "not-run-total-cap"}
     logs = output / "logs"
     logs.mkdir(parents=True, exist_ok=True)
-    args = ["--transactional-platform-replay", case, algorithm, str(workers), win(output / name), mode]
+    args = arguments if arguments is not None else [
+        "--transactional-platform-replay", case, algorithm, str(workers), win(output / name), mode]
     # 只控制本次创建的进程；不用 Linux RSS/affinity 冒充原生 Windows 指标
     helper = logs / f"{name}.ps1"
     helper.write_text("\n".join([

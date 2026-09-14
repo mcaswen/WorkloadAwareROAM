@@ -37,6 +37,7 @@ Configuration TransactionalSeedBuilder::ConfigurationFor(const TerrainLodBuildIn
     c.TerrainSize=s.TerrainSize;c.HeightScale=s.HeightScale;c.SplitPixels=s.ScreenSpaceSplitThresholdPixels;
     c.PrefixLimit=s.Transactional.PrefixLimit;c.DonorLimit=s.Transactional.DonorLimit;
     c.HeightGuard=s.Transactional.HeightGuard;c.SampleVisitLimit=s.Transactional.SampleVisitLimit;
+    c.PreserveSurvivingHeights=s.Transactional.PreserveSurvivingHeights;
     c.Width=v.DrawableWidth;c.Height=v.DrawableHeight;c.UsesZeroToOneDepth=v.UsesZeroToOneDepth;
     for (int row=0;row<4;++row) for (int col=0;col<4;++col)
         c.Matrix[static_cast<std::size_t>(row*4+col)]=v.ViewProjection[col][row];

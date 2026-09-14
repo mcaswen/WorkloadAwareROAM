@@ -42,7 +42,10 @@ Proposal Prepare(const TransactionalState& state,const TransactionalSamples& sam
             }
         else result.Faces.push_back(old);
     }
-    result.Free=kind=='H' ? std::vector<Identity>{oldCenter,result.NewVertex} : std::vector<Identity>{result.NewVertex};
+    // 在构造时限制自由变量，使拟合、证书和写足迹使用同一高度策略
+    // 保留完整 H 支持与目录身份，不在认证后回写旧高度
+    result.Free=kind=='H' && !state.Config().PreserveSurvivingHeights ?
+        std::vector<Identity>{oldCenter,result.NewVertex} : std::vector<Identity>{result.NewVertex};
     result.Samples=samples.VisibleSupport(result.Support);
     return result;
 }

@@ -64,6 +64,7 @@ void TransactionalPipeline::SetView(const Configuration& view,WorkLedger& work)
     if (view.Scenario!=old.Scenario || view.PrefixLimit!=old.PrefixLimit || view.DonorLimit!=old.DonorLimit ||
         view.Budget!=old.Budget || view.TerrainSize!=old.TerrainSize || view.HeightScale!=old.HeightScale ||
         view.SplitPixels!=old.SplitPixels || view.HeightGuard!=old.HeightGuard || view.SampleVisitLimit!=old.SampleVisitLimit ||
+        view.PreserveSurvivingHeights!=old.PreserveSurvivingHeights ||
         !view.Width || !view.Height ||
         !std::all_of(view.Matrix.begin(),view.Matrix.end(),[](double value) { return std::isfinite(value); }))
         throw std::runtime_error("视图刷新不能改变几何、预算或质量规则");

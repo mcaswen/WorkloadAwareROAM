@@ -15,6 +15,8 @@ struct TransactionalLodSettings
     std::size_t DonorLimit{64};
     std::size_t SampleVisitLimit{1000000};
     bool HeightGuard{};
+    // 保留旧点高度只限制拟合自由度，不保证重连后的内部曲面误差
+    bool PreserveSurvivingHeights{};
     bool operator==(const TransactionalLodSettings&) const = default;
 };
 }
