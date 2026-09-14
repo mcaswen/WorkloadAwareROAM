@@ -20,6 +20,17 @@ class CpuProfileCliTests(unittest.TestCase):
             self.assertIn("必须为 1", result.stderr)
             self.assertFalse(output.exists())
 
+    def test_scaling_options_rejected_for_incompatible_modes(self):
+        for mode, option, value in (("trajectory-b-timing", "--workers", "8"),
+                                    ("dod", "--limit-policy", "scaled")):
+            with tempfile.TemporaryDirectory() as name:
+                output = Path(name) / "result"
+                result = subprocess.run([sys.executable, str(ROOT / "scripts/run_cpu_profile.py"), "perf",
+                    "--mode", mode, option, value, "--executable", "missing", "--snapshot", "missing",
+                    "--output", str(output)], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 2)
+                self.assertFalse(output.exists())
+
     def test_existing_output_never_replaced(self):
         with tempfile.TemporaryDirectory() as name:
             output = Path(name)

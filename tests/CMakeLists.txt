@@ -40,12 +40,14 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
     add_executable(parallel_roam_transactional_lod_probe GreedyTransactionalLodProbe.cpp
         ../src/tools/profiling/ProfileSession.cpp
         "${transactional_dir}/TransactionalInput.cpp" "${transactional_dir}/TransactionalValidation.cpp"
+        "${transactional_dir}/TransactionalScalingProtocol.cpp" "${transactional_dir}/TransactionalQualityReport.cpp"
         ../src/experiment/formal/FormalExperimentCamera.cpp ../src/experiment/formal/FormalExperimentManifest.cpp
         ../src/experiment/ExperimentCsvCodec.cpp ../src/terrain/HeightMap.cpp ../src/algorithms/TerrainLodView.cpp)
     target_link_libraries(parallel_roam_transactional_lod_probe PRIVATE ParallelROAM::STB)
     add_executable(parallel_roam_transactional_lod_family_probe GreedyTransactionalLodFamilyProbe.cpp
         ../src/tools/profiling/ProfileSession.cpp
         "${transactional_dir}/TransactionalInput.cpp" "${transactional_dir}/TransactionalValidation.cpp"
+        "${transactional_dir}/TransactionalScalingProtocol.cpp" "${transactional_dir}/TransactionalQualityReport.cpp"
         ${PARALLEL_ROAM_DOD_SOURCES}
         ../src/algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.cpp
         ../src/algorithms/classic_roam/ClassicRoamMeshBuilder.cpp ../src/algorithms/classic_roam/ClassicRoamMeshEmit.cpp
@@ -69,6 +71,13 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
     target_link_libraries(parallel_roam_transactional_priority_index_tests PRIVATE
         parallel_roam_transactional_lod_core parallel_roam_project_warnings)
     add_test(NAME transactional_priority_index COMMAND parallel_roam_transactional_priority_index_tests)
+    add_executable(parallel_roam_transactional_scaling_protocol_tests TransactionalScalingProtocolTests.cpp
+        "${transactional_dir}/TransactionalScalingProtocol.cpp"
+        ../src/experiment/formal/FormalExperimentCamera.cpp ../src/algorithms/TerrainLodView.cpp)
+    target_include_directories(parallel_roam_transactional_scaling_protocol_tests PRIVATE ../src)
+    target_link_libraries(parallel_roam_transactional_scaling_protocol_tests PRIVATE
+        parallel_roam_project_options parallel_roam_project_warnings ParallelROAM::GLM)
+    add_test(NAME transactional_scaling_protocol COMMAND parallel_roam_transactional_scaling_protocol_tests)
 endif()
 
 if(WIN32)
@@ -251,6 +260,7 @@ add_test(NAME terrain_lod_benchmark_command_line COMMAND parallel_roam_benchmark
 if(TARGET ParallelROAM::STB)
     # 只读来源诊断不进入默认 CTest，也不链接新算法实现
     add_executable(parallel_roam_greedy_multipass_snapshot_probe GreedyMultipassSnapshotProbe.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalScalingProtocol.cpp
         ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
         ../src/benchmark/formal/FormalCpuInput.cpp ../src/algorithms/TerrainLodView.cpp
         ../src/terrain/HeightMap.cpp ../src/tools/PerformanceTimer.cpp)

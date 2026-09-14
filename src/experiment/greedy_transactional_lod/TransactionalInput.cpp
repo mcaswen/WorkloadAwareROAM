@@ -1,4 +1,5 @@
 #include "experiment/greedy_transactional_lod/TransactionalInput.h"
+#include "experiment/greedy_transactional_lod/TransactionalScalingProtocol.h"
 #include "experiment/formal/FormalExperimentCamera.h"
 #include "experiment/formal/FormalExperimentManifest.h"
 
@@ -9,13 +10,14 @@
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
-InitialMesh TransactionalInput::Load(const std::filesystem::path& snapshot)
+InitialMesh TransactionalInput::Load(const std::filesystem::path& snapshot,std::string_view limitPolicy,const std::filesystem::path& sourceDirectory)
 {
     using boost::property_tree::ptree;
     ptree data;boost::property_tree::read_json(snapshot.string(),data);
     InitialMesh input;auto& c=input.Config;
     c.Scenario=data.get<std::string>("scenario");c.SampleIndex=data.get<std::uint32_t>("sampleIndex");
-    if (c.Scenario!="test129-a-b4096" && c.Scenario!="peking547-a-b20000")
+    const bool scaling=TransactionalScalingProtocol::Budget(c.Scenario).has_value();
+    if (!scaling && (limitPolicy!="fixed64" || (c.Scenario!="test129-a-b4096" && c.Scenario!="peking547-a-b20000")))
         throw std::runtime_error("仅支持冻结自然来源");
     c.Budget=data.get<std::size_t>("budget");c.TerrainSize=data.get<double>("size");c.HeightScale=data.get<double>("scale");
     c.SplitPixels=data.get<double>("splitPixels");c.Width=data.get<std::uint32_t>("width");c.Height=data.get<std::uint32_t>("height");
@@ -42,7 +44,7 @@ InitialMesh TransactionalInput::Load(const std::filesystem::path& snapshot)
         for (auto& id : face.Vertices) id=(it++)->second.get_value<Identity>();
         input.Faces.push_back(face);
     }
-    ptree source;boost::property_tree::read_json((snapshot.parent_path()/(c.Scenario+"-source.json")).string(),source);
+    ptree source;boost::property_tree::read_json(((sourceDirectory.empty() ? snapshot.parent_path() : sourceDirectory)/(c.Scenario+"-source.json")).string(),source);
     // 原始样本独立加载，当前网格拟合高度不能反向污染参考
     input.Source.Width=source.get<std::uint32_t>("width");input.Source.Height=source.get<std::uint32_t>("height");
     for (const auto& entry : source.get_child("values"))
@@ -50,6 +52,12 @@ InitialMesh TransactionalInput::Load(const std::filesystem::path& snapshot)
         const auto value=entry.second.get_value<std::uint32_t>();
         if (value>65535) throw std::runtime_error("原始样本超出 uint16");
         input.Source.Values.push_back(static_cast<std::uint16_t>(value));
+    }
+    if (scaling)
+    {
+        if (input.Source.Width!=547 || input.Source.Height!=547 ||
+            input.Source.Values.size()!=547U*547U) throw std::runtime_error("压力参考尺寸不符");
+        TransactionalScalingProtocol::ConfigureLimits(c,limitPolicy);
     }
     return input;
 }
@@ -85,6 +93,14 @@ void TransactionalInput::Write(const TransactionalState& state,const std::filesy
 
 std::vector<Configuration> TransactionalInput::Views(const std::filesystem::path& root,const Configuration& initial)
 {
+    if (TransactionalScalingProtocol::Budget(initial.Scenario))
+    {
+        TransactionalScalingProtocol::Validate(initial);
+        std::vector<Configuration> result;
+        for (std::uint32_t index=14;index<=18;++index)
+            result.push_back(TransactionalScalingProtocol::View(initial,index));
+        return result;
+    }
     const auto scenarios=Formal::LoadScenarioManifest(root/"docs/parallel-roam/cpu-pilot-scenarios-v1.csv",
         root,{"test129-a-b4096","peking547-a-b20000"});
     const auto cameras=Formal::LoadCameraManifest(

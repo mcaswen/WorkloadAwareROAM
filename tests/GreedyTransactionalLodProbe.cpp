@@ -1,4 +1,6 @@
 #include "experiment/greedy_transactional_lod/TransactionalInput.h"
+#include "experiment/greedy_transactional_lod/TransactionalScalingProtocol.h"
+#include "experiment/greedy_transactional_lod/TransactionalQualityReport.h"
 #include "experiment/greedy_transactional_lod/TransactionalPipeline.h"
 #include "experiment/greedy_transactional_lod/TransactionalCommit.h"
 #include "experiment/greedy_transactional_lod/TransactionalValidation.h"
@@ -19,28 +21,8 @@ using namespace ParallelRoam::Experiment::GreedyTransactionalLod;
 using Clock=std::chrono::steady_clock;
 double Seconds(Clock::time_point start) { return std::chrono::duration<double>(Clock::now()-start).count(); }
 
-/// <summary>
-/// 诊断摘要仍报告独立绝对质量，局部接受不替代全域量
-/// </summary>
-struct Quality
-{
-    double Screen{}, Height{}, Rms{};
-    Slot ScreenSample{}, HeightSample{};
-};
-
-Quality Summarize(const TransactionalSamples& samples)
-{
-    Quality result;double sum=0;std::size_t visible=0;
-    for (Slot sid=0;sid<samples.SampleCount();++sid)
-    {
-        const auto& v=samples.Value(sid);
-        if (v.ErrorSquared>result.Screen) { result.Screen=v.ErrorSquared;result.ScreenSample=sid; }
-        if (v.HeightError>result.Height) { result.Height=v.HeightError;result.HeightSample=sid; }
-        if (v.Visible) { sum+=v.ErrorSquared;++visible; }
-    }
-    result.Screen=std::sqrt(result.Screen);result.Rms=visible ? std::sqrt(sum/static_cast<double>(visible)) : 0;
-    return result;
-}
+using Quality=TransactionalQualitySummary;
+Quality Summarize(const TransactionalSamples& samples) { return TransactionalQualityReport::Summarize(samples); }
 
 void WriteReport(const std::filesystem::path& path,const Configuration& config,const CertifiedBatch& batch,
     const WorkLedger& work,const Quality& before,const Quality& after,std::size_t faces,bool diagnostic)
@@ -134,7 +116,7 @@ int main(int argc,char** argv)
     bool ownsOutput=false;
     try
     {
-        if (argc!=4 && argc!=6) throw std::runtime_error("参数：快照文件 运行模式 输出目录 [--profile 重放次数]");
+        if (argc<4 || (argc-4)%2) throw std::runtime_error("参数：快照文件 运行模式 输出目录 [--profile 重放次数]");
         const std::filesystem::path snapshot{argv[1]},rootOutput{argv[3]};const std::string mode{argv[2]};
         if (mode!="diagnostic" && mode!="timing" && mode!="persistent-diagnostic" && mode!="persistent-timing" &&
             mode!="guard-diagnostic" && mode!="guard-timing" && mode!="trajectory-a-diagnostic" && mode!="trajectory-a-timing" &&
@@ -143,11 +125,25 @@ int main(int argc,char** argv)
         const bool diagnostic=mode.ends_with("diagnostic"),persistent=mode.starts_with("persistent"),guard=mode.starts_with("guard");
         const bool trajectory=mode.starts_with("trajectory"),dynamicMode=mode.starts_with("trajectory-a");
         const bool parallel=mode.starts_with("trajectory-c");
-        const bool profiling=argc==6;
-        std::size_t replayCharacters{};
-        const int replays=profiling ? std::stoi(argv[5],&replayCharacters) : 1;
-        if (profiling && (std::string(argv[4])!="--profile" || replayCharacters!=std::string(argv[5]).size() ||
-            !trajectory || diagnostic || replays<1 || replays>32))
+        bool profiling=false;int replays=1;std::size_t workers=parallel ? 4U : 1U;
+        std::string limitPolicy="fixed64";std::set<std::string> options;
+        for (int i=4;i<argc;i+=2)
+        {
+            const std::string key=argv[i],value=argv[i+1];
+            if (!options.insert(key).second) throw std::runtime_error("重复参数");
+            if (key=="--profile")
+            {
+                std::size_t used{};replays=std::stoi(value,&used);
+                if (used!=value.size()) throw std::runtime_error("重放次数非法");
+                profiling=true;
+            }
+            else if (key=="--workers" && (value=="4" || value=="8") && parallel)
+                workers=value=="4" ? 4U : 8U;
+            else if (key=="--limit-policy" && (value=="fixed64" || value=="scaled") && trajectory && !dynamicMode)
+                limitPolicy=value;
+            else throw std::runtime_error("运行参数或组合非法");
+        }
+        if (profiling && (!trajectory || diagnostic || replays<1 || replays>32))
             throw std::runtime_error("profile 仅允许轨迹计时模式和 1～32 次同种子重放");
         if (std::filesystem::exists(rootOutput)) throw std::runtime_error("拒绝覆盖已有输出");
         std::filesystem::create_directories(rootOutput);
@@ -155,7 +151,8 @@ int main(int argc,char** argv)
         std::unique_ptr<ParallelRoam::Tools::Profiling::ProfileSession> profile;
         if (profiling) profile=std::make_unique<ParallelRoam::Tools::Profiling::ProfileSession>(rootOutput/"profile-windows.csv");
         WorkLedger initialization;initialization.Deadline=Clock::now()+std::chrono::seconds(120);
-        auto started=Clock::now();auto input=TransactionalInput::Load(snapshot);input.Config.HeightGuard=guard;
+        auto started=Clock::now();auto input=TransactionalInput::Load(snapshot,limitPolicy);input.Config.HeightGuard=guard;
+        const bool scaling=TransactionalScalingProtocol::Budget(input.Config.Scenario).has_value();
         initialization.Seconds["input"]=Seconds(started);
         std::vector<Configuration> views;
         if (trajectory)
@@ -169,7 +166,7 @@ int main(int argc,char** argv)
         TransactionalExecution execution;execution.Diagnostics=diagnostic;
         if (parallel)
         {
-            executor=std::make_unique<ParallelRoam::Experiment::RoamMaterialization::MaterializationExecutor>(4);
+            executor=std::make_unique<ParallelRoam::Experiment::RoamMaterialization::MaterializationExecutor>(workers);
             const auto adapter=executor->Execution();execution.Workers=adapter.Workers;execution.Dispatch=adapter.Dispatch;
         }
         initialization.Seconds["executor_initialize"]=Seconds(started);
@@ -245,6 +242,14 @@ int main(int argc,char** argv)
                 }
                 else batch=pipeline.Update(work);
                 work.Seconds["frame_update"]=Seconds(frameStart)-preDiagnostic;Quality after;
+                // 就绪边界包含 Pending 消费与其临时记录释放，文件和质量输出随后执行
+                if (!diagnostic)
+                {
+                    started=Clock::now();
+                    { const auto consumed=pipeline.ConsumeMesh();static_cast<void>(consumed); }
+                    work.Seconds["consume"]=Seconds(started);
+                    work.Seconds["frame_ready"]=work.Seconds["frame_update"]+work.Seconds["consume"];
+                }
                 if (profile) profile->End();
                 if (diagnostic)
                 {
@@ -298,17 +303,31 @@ int main(int argc,char** argv)
                         trajectoryLog<<(i ? "," : "")<<'['<<decisions[i][0]<<','<<decisions[i][1]<<','<<decisions[i][2]<<']';
                     trajectoryLog<<"]}\n";trajectoryLog.flush();
                 }
-                if (!diagnostic)
+                if (scaling)
                 {
-                    started=Clock::now();const auto consumed=pipeline.ConsumeMesh();static_cast<void>(consumed);
-                    work.Seconds["consume"]=Seconds(started);
+                    // 这些观察只导出状态，不能计入正式墙钟或假装为算法固有维护
+                    std::size_t associations=0;
+                    for (auto slot : pipeline.State().ActiveFaces()) associations+=pipeline.Samples().FaceSamples(slot).size();
+                    std::ofstream metrics(directory/"configuration.json");
+                    metrics<<"{\"limitPolicy\":"<<std::quoted(limitPolicy)<<",\"requestedWorkers\":"<<workers
+                        <<",\"prefixLimit\":"<<input.Config.PrefixLimit<<",\"donorLimit\":"<<input.Config.DonorLimit
+                        <<",\"budget\":"<<input.Config.Budget<<",\"q\":"<<pipeline.Samples().SampleCount()
+                        <<",\"associations\":"<<associations<<",\"faceSlots\":"<<pipeline.State().Faces().size()
+                        <<",\"vertexSlots\":"<<pipeline.State().Vertices().size()<<",\"rawAfter\":"<<pipeline.Samples().RawCount()<<"}";
+                    if (diagnostic) TransactionalQualityReport::Write(pipeline.Samples(),directory);
                 }
                 started=Clock::now();TransactionalInput::Write(pipeline.State(),directory/"mesh.json");work.Seconds["mesh_file"]=Seconds(started);
                 WriteReport(directory/"summary.json",pipeline.State().Config(),batch,work,before,after,pipeline.State().FaceCount(),diagnostic);
                 std::cout<<input.Config.Scenario<<'/'<<round<<": 需求 "<<batch.Need<<"，局部可行 "<<batch.Feasible
                     <<"，交换 "<<batch.Executed<<"，空额度 "<<batch.FreeExecuted<<"，更新 "<<work.Seconds["frame_update"]*1000<<" ms"<<std::endl;
             }
+            started=Clock::now();reference.reset();batchPipeline.reset();
+            if (scaling)
+            { std::ofstream life(output/"lifetime.json");life<<"{\"stateDestroyMs\":"<<Seconds(started)*1000<<"}"; }
         }
+        started=Clock::now();executor.reset();
+        if (scaling)
+        { std::ofstream life(rootOutput/"executor-lifetime.json");life<<"{\"destroyMs\":"<<Seconds(started)*1000<<"}"; }
         if (profile) profile->Finish();
     }
     catch (const std::exception& error)

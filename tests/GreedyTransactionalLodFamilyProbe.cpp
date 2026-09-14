@@ -1,8 +1,11 @@
+#include <set>
 #include "algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.h"
 #include "experiment/formal/FormalExperimentCamera.h"
 #include "experiment/formal/FormalExperimentManifest.h"
 #include "experiment/greedy_transactional_lod/TransactionalInput.h"
+#include "experiment/greedy_transactional_lod/TransactionalScalingProtocol.h"
+#include "experiment/greedy_transactional_lod/TransactionalQualityReport.h"
 #include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
 #include "experiment/greedy_transactional_lod/TransactionalSamples.h"
 #include "experiment/greedy_transactional_lod/TransactionalValidation.h"
@@ -56,10 +59,16 @@ int main(int argc,char** argv)
     bool ownsOutput=false;
     try
     {
-        if (argc!=4 && argc!=6) throw std::runtime_error("参数：sample14 快照 classic/dod 输出目录 [--profile 1]");
-        const bool profiling=argc==6;
-        if (profiling && (std::string(argv[4])!="--profile" || std::string(argv[5])!="1"))
-            throw std::runtime_error("家族采集只支持原八轮，重放次数必须为 1");
+        if (argc<4 || (argc-4)%2) throw std::runtime_error("参数：快照 classic/dod 输出目录 [--workers 4/8] [--profile 1]");
+        bool profiling=false;std::size_t workers=0;std::set<std::string> options;
+        for (int i=4;i<argc;i+=2)
+        {
+            const std::string key=argv[i],value=argv[i+1];
+            if (!options.insert(key).second) throw std::runtime_error("重复参数");
+            if (key=="--profile" && value=="1") profiling=true;
+            else if (key=="--workers" && (value=="4" || value=="8")) workers=value=="4" ? 4U : 8U;
+            else throw std::runtime_error("家族参数非法");
+        }
         const std::string family{argv[2]};const std::filesystem::path output{argv[3]},root=std::filesystem::current_path();
         if (family!="classic" && family!="dod") throw std::runtime_error("家族编号非法");
         if (std::filesystem::exists(output)) throw std::runtime_error("拒绝覆盖输出");
@@ -68,17 +77,25 @@ int main(int argc,char** argv)
         std::unique_ptr<Tools::Profiling::ProfileSession> profile;
         if (profiling) profile=std::make_unique<Tools::Profiling::ProfileSession>(output/"profile-windows.csv");
         auto initial=TransactionalInput::Load(argv[1]);
-        const auto scenarios=Experiment::Formal::LoadScenarioManifest(root/"docs/parallel-roam/cpu-pilot-scenarios-v1.csv",
-            root,{"test129-a-b4096","peking547-a-b20000"});
-        const auto cameras=Experiment::Formal::LoadCameraManifest(
+        const auto budget=TransactionalScalingProtocol::Budget(initial.Config.Scenario);
+        const bool scaling=budget.has_value();
+        if (scaling && (family!="dod" || !workers)) throw std::runtime_error("压力基线必须显式指定 DOD 线程数");
+        const auto scenarios=scaling ? std::vector{TransactionalScalingProtocol::Scenario(root,*budget,workers)} :
+            Experiment::Formal::LoadScenarioManifest(root/"docs/parallel-roam/cpu-pilot-scenarios-v1.csv",
+                root,{"test129-a-b4096","peking547-a-b20000"});
+        auto cameras=scaling ? std::vector<Experiment::Formal::CameraSample>{} : Experiment::Formal::LoadCameraManifest(
             root/"benchmark-output/roam-materialization/mpr-01/input-freeze/inputs/camera-samples.csv",scenarios);
+        if (scaling)
+            for (std::uint32_t index=0;index<=18;++index)
+            { auto camera=TransactionalScalingProtocol::Camera(index);camera.ScenarioId=initial.Config.Scenario;cameras.push_back(camera); }
         const auto scenario=std::find_if(scenarios.begin(),scenarios.end(),[&](const auto& row) { return row.ScenarioId==initial.Config.Scenario; });
         if (scenario==scenarios.end()) throw std::runtime_error("来源场景未冻结");
         Terrain::HeightMap source;std::string error;
         if (!source.LoadFromFile(scenario->HeightMapPath,&error)) throw std::runtime_error(error);
         auto settings=scenario->Settings;
         // 清单为历史严格配对强制串行，这里恢复正常默认动作和自动线程选择
-        settings.PassPolicy=Algorithms::TerrainLodPassPolicy{};settings.EnableParallelSplit=true;
+        if (!scaling) settings.PassPolicy=Algorithms::TerrainLodPassPolicy{};
+        settings.EnableParallelSplit=true;
         settings.EnablePassEvidence=false;settings.EnableTopologyPairEvidence=false;settings.EnableTopologyValidation=false;
         std::unique_ptr<Algorithms::ITerrainLodAlgorithm> algorithm;
         if (family=="classic") algorithm=std::make_unique<Algorithms::ClassicRoam::ClassicRoamTerrainLodAlgorithm>();
@@ -86,31 +103,87 @@ int main(int argc,char** argv)
         std::ofstream rows(output/"trajectory.jsonl");rows<<std::setprecision(17);
         Algorithms::TerrainLodRenderPacket packet;double bootstrap=0;
         const std::array<unsigned,8> views{14,14,14,15,16,17,18,14};
-        for (std::size_t step=0;step<22;++step)
+        const std::size_t prefix=scaling ? 15U : 14U;
+        for (std::size_t step=0;step<prefix+8;++step)
         {
-            const auto index=step<14 ? static_cast<unsigned>(step) : views[step-14];
+            const auto index=step<prefix ? static_cast<unsigned>(step) : views[step-prefix];
             const auto camera=std::find_if(cameras.begin(),cameras.end(),[&](const auto& row) {
                 return row.ScenarioId==initial.Config.Scenario && row.SampleIndex==index;
             });
             if (camera==cameras.end()) throw std::runtime_error("相机行缺失");
             Algorithms::TerrainLodBuildInput input{&source,Experiment::Formal::BuildCameraView(*camera),settings};
-            if (profile && step>=14) profile->Begin(0,static_cast<int>(step-14));
+            if (profile && step>=prefix) profile->Begin(0,static_cast<int>(step-prefix));
             const auto started=Clock::now();
             if (!algorithm->BuildRenderData(input,packet,&error)) throw std::runtime_error(error);
             const auto ms=std::chrono::duration<double,std::milli>(Clock::now()-started).count();
-            if (profile && step>=14) profile->End();
+            if (profile && step>=prefix) profile->End();
             if (!packet.HasConsistentResourceContract() || packet.ActiveTriangleCount>settings.TriangleBudget)
                 throw std::runtime_error("家族公共输出或预算非法");
-            if (step<14) { bootstrap+=ms;continue; }
+            if (step<prefix)
+            {
+                bootstrap+=ms;
+                if (scaling && step==14)
+                {
+                    const auto seed=Import(*packet.ResolveCpuMesh(),initial);
+                    // 不依赖来源身份或面排列，只比较完整的参数域几何
+                    const auto key=[](const InitialMesh& mesh) {
+                        std::map<Identity,Point> vertices(mesh.Vertices.begin(),mesh.Vertices.end());
+                        std::vector<std::array<std::array<double,3>,3>> result;
+                        for (const auto& face : mesh.Faces)
+                        {
+                            std::array<std::array<double,3>,3> points;
+                            for (std::size_t i=0;i<3;++i)
+                            { const auto& p=vertices.at(face.Vertices[i]);points[i]={p.U,p.V,p.Height}; }
+                            std::sort(points.begin(),points.end());result.push_back(points);
+                        }
+                        std::sort(result.begin(),result.end());return result;
+                    };
+                    if (key(seed)!=key(initial)) throw std::runtime_error("DOD 前缀几何与冻结种子不同");
+                    std::ofstream(output/"seed-match.txt")<<"logical_geometry_equal\n";
+                }
+                continue;
+            }
             const auto& stats=algorithm->Stats();
-            rows<<"{\"round\":"<<step-14<<",\"view\":"<<index<<",\"family\":"<<std::quoted(family)
+            rows<<"{\"round\":"<<step-prefix<<",\"view\":"<<index<<",\"family\":"<<std::quoted(family)
                 <<",\"buildMs\":"<<ms<<",\"faces\":"<<packet.ActiveTriangleCount<<",\"workers\":"<<stats.CpuWorkerCount
                 <<",\"scoreMs\":"<<stats.CpuMergeCandidateMarkMilliseconds+stats.CpuSplitCandidateMarkMilliseconds
                 <<",\"topologyMs\":"<<stats.CpuMergeTopologyMilliseconds+stats.CpuSplitTopologyMilliseconds
                 <<",\"meshMs\":"<<stats.CpuMeshEmitMilliseconds<<"}\n";
             rows.flush();
+            if (scaling)
+            {
+                auto exported=Import(*packet.ResolveCpuMesh(),initial);
+                exported.Config=TransactionalScalingProtocol::View(initial.Config,index);
+                const auto directory=output/("round-"+std::to_string(step-prefix));
+                std::filesystem::create_directories(directory);
+                TransactionalState state(exported);TransactionalInput::Write(state,directory/"mesh.json");
+                std::ofstream work(directory/"work.json");
+                work<<"{\"split\":"<<stats.SplitCount<<",\"forcedSplit\":"<<stats.ForcedSplitCount
+                    <<",\"merge\":"<<stats.MergeCount<<",\"activeNodes\":"<<stats.ActiveNodeCount
+                    <<",\"requestedWorkers\":"<<workers<<",\"actualWorkers\":"<<stats.CpuWorkerCount<<"}";
+            }
         }
         if (profile) profile->Finish();
+        if (scaling)
+        {
+            const auto destroy=Clock::now();algorithm.reset();
+            const auto destroyMs=std::chrono::duration<double,std::milli>(Clock::now()-destroy).count();
+            // 完整轨迹结束后再评价，避免每帧全 Q 校验改变下一帧缓存条件
+            const auto evaluation=Clock::now();
+            for (int round=0;round<8;++round)
+            {
+                const auto directory=output/("round-"+std::to_string(round));
+                const auto mesh=TransactionalInput::Load(directory/"mesh.json","fixed64",std::filesystem::path(argv[1]).parent_path());
+                TransactionalState state(mesh);TransactionalValidation::Validate(state);
+                TransactionalSamples samples(mesh.Source);WorkLedger check;samples.Refresh(state,check);
+                TransactionalQualityReport::Write(samples,directory);
+            }
+            const auto qualityMs=std::chrono::duration<double,std::milli>(Clock::now()-evaluation).count();
+            std::ofstream life(output/"lifetime.json");
+            life<<std::setprecision(17)<<"{\"bootstrapMs\":"<<bootstrap<<",\"stateDestroyMs\":"<<destroyMs
+                <<",\"qualityMs\":"<<qualityMs<<"}";
+            return 0;
+        }
         // 仅返回帧作全 Q 离线评价，计时路径没有引入新原型的样本维护
         const auto started=Clock::now();auto imported=Import(*packet.ResolveCpuMesh(),std::move(initial));
         TransactionalState state(imported);TransactionalValidation::Validate(state);

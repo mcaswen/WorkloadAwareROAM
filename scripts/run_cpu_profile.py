@@ -29,7 +29,8 @@ def source_manifest():
 def archive_inputs(snapshot, work, mode):
     """只归档探针实际读取的冻结依赖，不扫描整个资产或历史实验目录。"""
     scenario = json.loads(snapshot.read_text())["scenario"]
-    if scenario not in ("test129-a-b4096", "peking547-a-b20000"):
+    scaling = scenario in {f"peking547-sve-orbit64-b{b}" for b in (20000, 50000, 100000, 200000)}
+    if not scaling and scenario not in ("test129-a-b4096", "peking547-a-b20000"):
         raise ValueError("仅支持已冻结的自然来源")
     manifest = ROOT / "docs/parallel-roam/cpu-pilot-scenarios-v1.csv"
     cameras = ROOT / "benchmark-output/roam-materialization/mpr-01/input-freeze/inputs/camera-samples.csv"
@@ -37,7 +38,13 @@ def archive_inputs(snapshot, work, mode):
              "snapshot/" + scenario + "-source.json": snapshot.parent / (scenario + "-source.json"),
              "repository/" + str(manifest.relative_to(ROOT)): manifest,
              "repository/" + str(cameras.relative_to(ROOT)): cameras}
-    if mode in ("classic", "dod"):
+    if scaling:
+        paths = {"snapshot/" + snapshot.name: snapshot,
+                 "snapshot/" + scenario + "-source.json": snapshot.parent / (scenario + "-source.json"),
+                 "snapshot/cameras.json": snapshot.parent / "cameras.json"}
+    if scaling and mode == "dod":
+        paths["repository/assets/heightmaps/Hm_Terrain_Peking_513.png"] = ROOT / "assets/heightmaps/Hm_Terrain_Peking_513.png"
+    elif mode in ("classic", "dod"):
         with manifest.open() as stream:
             row = next(r for r in csv.DictReader(stream) if r["scenarioId"] == scenario)
         asset = ROOT / row["heightMapPath"]
@@ -59,6 +66,8 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--mode", default="trajectory-c-timing", choices=("trajectory-a-timing", "trajectory-b-timing", "trajectory-c-timing", "classic", "dod"))
     parser.add_argument("--replays", type=int, choices=range(1, 33), default=1)
+    parser.add_argument("--workers", type=int, choices=(4, 8))
+    parser.add_argument("--limit-policy", choices=("fixed64", "scaled"))
     parser.add_argument("--perf", default="perf")
     parser.add_argument("--capture", type=Path)
     parser.add_argument("--csvexport", type=Path)
@@ -67,6 +76,10 @@ def main():
     args = parser.parse_args()
     if args.mode in ("classic", "dod") and args.replays != 1:
         parser.error("家族采集只支持原八轮，--replays 必须为 1")
+    if args.workers and args.mode not in ("trajectory-c-timing", "dod"):
+        parser.error("--workers 仅用于 C 或 DOD")
+    if args.limit_policy and args.mode not in ("trajectory-b-timing", "trajectory-c-timing"):
+        parser.error("--limit-policy 仅用于 B/C")
     if args.backend == "tracy":
         if not args.capture or not args.csvexport:
             parser.error("Tracy 需要 --capture 与 --csvexport")
@@ -81,7 +94,8 @@ def main():
     result = {"executable": file_identity(args.executable), "snapshot": file_identity(args.snapshot),
               "source_commit": subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip(),
               "environment": inspect_environment(args.perf), "native_work": str(work),
-              "backend": args.backend, "mode": args.mode, "replays": args.replays, "complete": False}
+              "backend": args.backend, "mode": args.mode, "replays": args.replays,
+              "workers": args.workers, "limit_policy": args.limit_policy, "complete": False}
     (work / "source-files.json").write_text(json.dumps(source_manifest(), ensure_ascii=False, indent=2), encoding="utf-8")
     # 保存实际带符号程序，后续重编译不能改变旧采样对应的符号身份
     shutil.copy2(args.executable, work / "recorded-executable")
@@ -93,6 +107,10 @@ def main():
     try:
         result["inputs"] = archive_inputs(args.snapshot, work, args.mode)
         arguments = [str(args.snapshot), args.mode, str(work / "program"), "--profile", str(args.replays)]
+        if args.workers:
+            arguments.extend(["--workers", str(args.workers)])
+        if args.limit_policy:
+            arguments.extend(["--limit-policy", args.limit_policy])
         if args.backend == "perf":
             result["record"] = perf_backend.record(args.perf, args.executable, arguments, work, ROOT)
             if not result["record"]["complete"]:

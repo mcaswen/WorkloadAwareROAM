@@ -5,6 +5,7 @@
 #include "benchmark/formal/FormalCpuInput.h"
 #include "experiment/formal/FormalExperimentCamera.h"
 #include "experiment/formal/FormalExperimentManifest.h"
+#include "experiment/greedy_transactional_lod/TransactionalScalingProtocol.h"
 
 #include <stb_image.h>
 
@@ -130,14 +131,37 @@ int main(int argc, char** argv)
         if (argc != 4) throw std::runtime_error("参数：资产根目录 baseline/capture 输出目录");
         const std::filesystem::path root{argv[1]}, directory{argv[3]};
         const std::string mode{argv[2]};
-        if (mode != "baseline" && mode != "capture") throw std::runtime_error("模式非法");
+        using Scaling=Experiment::GreedyTransactionalLod::TransactionalScalingProtocol;
+        const bool scaling=mode.starts_with("scaling-");
+        const auto budget=scaling ? Scaling::Budget("peking547-sve-orbit64-b"+mode.substr(8)) : std::nullopt;
+        if (mode != "baseline" && mode != "capture" && !budget) throw std::runtime_error("模式非法");
         if (std::filesystem::exists(directory)) throw std::runtime_error("拒绝覆盖已有输出");
         // 资产与相机清单须使用相同场景子集，保留原清单的全部姿态校验
-        const auto scenarios = Formal::LoadScenarioManifest(root / "docs/parallel-roam/cpu-pilot-scenarios-v1.csv",
-            root, {"test129-a-b4096", "peking547-a-b20000"});
-        const auto cameras = Formal::LoadCameraManifest(
+        const auto scenarios = scaling ? std::vector{Scaling::Scenario(root,*budget,4)} :
+            Formal::LoadScenarioManifest(root / "docs/parallel-roam/cpu-pilot-scenarios-v1.csv",
+                root, {"test129-a-b4096", "peking547-a-b20000"});
+        auto cameras = scaling ? std::vector<Formal::CameraSample>{} : Formal::LoadCameraManifest(
             root / "benchmark-output/roam-materialization/mpr-01/input-freeze/inputs/camera-samples.csv", scenarios);
+        if (scaling)
+            for (std::uint32_t index=0;index<=18;++index)
+            { auto camera=Scaling::Camera(index);camera.ScenarioId=scenarios.front().ScenarioId;cameras.push_back(camera); }
         std::filesystem::create_directories(directory);
+        if (scaling)
+        {
+            std::ofstream manifest(directory/"cameras.json");manifest<<std::setprecision(17)<<'[';
+            for (std::size_t i=0;i<cameras.size();++i)
+            {
+                const auto& camera=cameras[i];const auto view=Formal::BuildCameraView(camera);
+                manifest<<(i ? "," : "")<<"{\"sampleIndex\":"<<camera.SampleIndex<<",\"position\":["
+                    <<camera.Position.x<<','<<camera.Position.y<<','<<camera.Position.z<<"],\"target\":["
+                    <<camera.Target.x<<','<<camera.Target.y<<','<<camera.Target.z<<"],\"matrix\":[";
+                for (glm::length_t row=0;row<4;++row)
+                    for (glm::length_t column=0;column<4;++column)
+                        manifest<<(row || column ? "," : "")<<view.ViewProjection[column][row];
+                manifest<<"]}";
+            }
+            manifest<<']';if (!manifest) throw std::runtime_error("压力相机清单写入失败");
+        }
         std::ofstream times(directory / "source-times.csv");
         times << "scenario,mode,buildMs,captureMs,finalInputHash\n" << std::setprecision(17);
         for (const auto& scenario : scenarios)
@@ -145,15 +169,34 @@ int main(int argc, char** argv)
             Terrain::HeightMap heightMap;
             std::string error;
             if (!heightMap.LoadFromFile(scenario.HeightMapPath, &error)) throw std::runtime_error(error);
-            if (mode == "capture") WriteSource(scenario, directory / (scenario.ScenarioId + "-source.json"));
+            if (mode == "capture" || scaling) WriteSource(scenario, directory / (scenario.ScenarioId + "-source.json"));
             Dod::DataOrientedRoamPipeline pipeline;
             // 每场景独立恢复持续状态；不以复制旧结果替代原轨迹前缀
-            const auto settings = Benchmark::Formal::MakeCpuSourceSettings(scenario);
+            auto settings = Benchmark::Formal::MakeCpuSourceSettings(scenario);
+            if (scaling)
+            {
+                settings.PassPolicy=scenario.Settings.PassPolicy;
+                settings.EnablePassEvidence=settings.EnableTopologyValidation=false;
+                settings.EnableTopologyPairEvidence=false;
+            }
             double captureMs = 0;
             const auto started = Clock::now();
             for (const auto& camera : cameras)
             {
                 if (camera.ScenarioId != scenario.ScenarioId || camera.SampleIndex > 46) continue;
+                if (scaling)
+                {
+                    if (camera.SampleIndex>14) continue;
+                    // 完整 CPU 更新后再导出，与家族基线的公共帧边界对应
+                    static_cast<void>(pipeline.Build(heightMap,80.0F,12.0F,Formal::BuildCameraView(camera),settings));
+                    if (camera.SampleIndex==14)
+                    {
+                        const auto timer=Clock::now();
+                        Capture(pipeline.State(),scenario,14,directory/(scenario.ScenarioId+"-14.json"));
+                        captureMs+=Milliseconds(timer);
+                    }
+                    continue;
+                }
                 // 原管线只恢复固定来源前缀；回调不执行任何新目标发现
                 static_cast<void>(pipeline.BuildWithPassObserver(heightMap, scenario.Settings.TerrainSize,
                     scenario.Settings.HeightScale, Formal::BuildCameraView(camera), settings,
