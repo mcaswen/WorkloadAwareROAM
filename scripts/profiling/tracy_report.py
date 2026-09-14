@@ -88,19 +88,26 @@ def summarize_tracy(text, expected_frames):
                               "main_stage_ns": {name: sum(z["duration"] for z in selected if z["name"] == name and
                                                           z["thread"] == frame["thread"])
                                                 for name in ("gtp.set_view", "gtp.update", "gtp.reservation",
-                                                             "gtp.samples.prepare", "gtp.commit.publish")}})
+                                                             "gtp.samples.prepare", "gtp.commit.publish", "dod.build",
+                                                             "dod.merge_score", "dod.merge_topology", "dod.split_score",
+                                                             "dod.split_topology", "dod.mesh", "classic.build_packet")}})
     return {"complete": True, "total_zones": len(zones), "roi_zones": sum(f["zones"] for f in frame_results),
             "frames": frame_results, "functions": dict(aggregate),
             "task_threads": sorted({t["thread"] for t in all_tasks}),
+            "roi_pool_threads": sorted({z["thread"] for z in zones if z["name"] == "pool.task" and
+                                        any(contains(f, z) for f in frames)}),
             "thread_id_semantics": "Tracy export thread ID; not OS TID"}
 
 
 def markdown_tracy(summary):
     lines = ["# 函数与线程时间线", "", "区间为墙钟；同线程嵌套与跨线程工作不可重复求和作为帧时间。", "",
-             "| 帧 | 窗口 ms | 标记数 | 视图刷新 ms | 更新 ms |", "| --- | ---: | ---: | ---: | ---: |"]
+             "| 帧 | 窗口 ms | 标记数 | 视图刷新 ms | 更新或家族构建 ms |", "| --- | ---: | ---: | ---: | ---: |"]
     for f in summary["frames"]:
+        update = next((f["main_stage_ns"].get(name, 0) for name in
+                       ("gtp.update", "dod.build", "classic.build_packet") if f["main_stage_ns"].get(name, 0)), None)
+        update_text = f"{update/1e6:.3f}" if update is not None else "未标记该入口"
         lines.append(f'| {f["identity"]} | {f["wall_ns"]/1e6:.3f} | {f["zones"]} | '
-                     f'{f["main_stage_ns"]["gtp.set_view"]/1e6:.3f} | {f["main_stage_ns"]["gtp.update"]/1e6:.3f} |')
+                     f'{f["main_stage_ns"]["gtp.set_view"]/1e6:.3f} | {update_text} |')
     lines.extend(["", "## 函数区间", "", "self 仅扣已标记同线程子区间，仍包含未标记的下层函数。", "",
                   "| 区间 | 次数 | 含子区间 ms | self ms |", "| --- | ---: | ---: | ---: |"])
     for name, entry in sorted(summary["functions"].items(), key=lambda item: -item[1]["inclusive_ns"]):

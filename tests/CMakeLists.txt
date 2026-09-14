@@ -43,6 +43,7 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
         ../src/experiment/ExperimentCsvCodec.cpp ../src/terrain/HeightMap.cpp ../src/algorithms/TerrainLodView.cpp)
     target_link_libraries(parallel_roam_transactional_lod_probe PRIVATE ParallelROAM::STB)
     add_executable(parallel_roam_transactional_lod_family_probe GreedyTransactionalLodFamilyProbe.cpp
+        ../src/tools/profiling/ProfileSession.cpp
         "${transactional_dir}/TransactionalInput.cpp" "${transactional_dir}/TransactionalValidation.cpp"
         ${PARALLEL_ROAM_DOD_SOURCES}
         ../src/algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.cpp

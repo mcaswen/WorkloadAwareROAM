@@ -1,6 +1,7 @@
 """在冻结自然轨迹上采集函数热点，所有采集数据保留到独立目录。"""
 
 import argparse
+import csv
 import json
 from pathlib import Path
 import shutil
@@ -25,13 +26,38 @@ def source_manifest():
             if name and (ROOT / name).is_file()}
 
 
+def archive_inputs(snapshot, work, mode):
+    """只归档探针实际读取的冻结依赖，不扫描整个资产或历史实验目录。"""
+    scenario = json.loads(snapshot.read_text())["scenario"]
+    if scenario not in ("test129-a-b4096", "peking547-a-b20000"):
+        raise ValueError("仅支持已冻结的自然来源")
+    manifest = ROOT / "docs/parallel-roam/cpu-pilot-scenarios-v1.csv"
+    cameras = ROOT / "benchmark-output/roam-materialization/mpr-01/input-freeze/inputs/camera-samples.csv"
+    paths = {"snapshot/" + snapshot.name: snapshot,
+             "snapshot/" + scenario + "-source.json": snapshot.parent / (scenario + "-source.json"),
+             "repository/" + str(manifest.relative_to(ROOT)): manifest,
+             "repository/" + str(cameras.relative_to(ROOT)): cameras}
+    if mode in ("classic", "dod"):
+        with manifest.open() as stream:
+            row = next(r for r in csv.DictReader(stream) if r["scenarioId"] == scenario)
+        asset = ROOT / row["heightMapPath"]
+        paths["repository/" + str(asset.relative_to(ROOT))] = asset
+    result = {}
+    for name, source in paths.items():
+        target = work / "inputs" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+        result[name] = file_identity(source)
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description="CPU 自然轨迹函数采样")
     parser.add_argument("backend", choices=("perf", "tracy"))
     parser.add_argument("--executable", type=Path, required=True)
     parser.add_argument("--snapshot", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--mode", default="trajectory-c-timing", choices=("trajectory-a-timing", "trajectory-b-timing", "trajectory-c-timing"))
+    parser.add_argument("--mode", default="trajectory-c-timing", choices=("trajectory-a-timing", "trajectory-b-timing", "trajectory-c-timing", "classic", "dod"))
     parser.add_argument("--replays", type=int, choices=range(1, 33), default=1)
     parser.add_argument("--perf", default="perf")
     parser.add_argument("--capture", type=Path)
@@ -39,6 +65,8 @@ def main():
     parser.add_argument("--callgraph", choices=("fp", "dwarf,16384"), default="fp")
     parser.add_argument("--native-work-root", type=Path, default=Path.home() / ".cache/roam-profiling/runs")
     args = parser.parse_args()
+    if args.mode in ("classic", "dod") and args.replays != 1:
+        parser.error("家族采集只支持原八轮，--replays 必须为 1")
     if args.backend == "tracy":
         if not args.capture or not args.csvexport:
             parser.error("Tracy 需要 --capture 与 --csvexport")
@@ -63,6 +91,7 @@ def main():
         if path.exists():
             shutil.copy2(path, work / path.name)
     try:
+        result["inputs"] = archive_inputs(args.snapshot, work, args.mode)
         arguments = [str(args.snapshot), args.mode, str(work / "program"), "--profile", str(args.replays)]
         if args.backend == "perf":
             result["record"] = perf_backend.record(args.perf, args.executable, arguments, work, ROOT)
@@ -81,6 +110,8 @@ def main():
             if not result["record"]["complete_exit"]:
                 raise RuntimeError("Tracy 或被测进程未完整结束")
             result["exports"] = tracy_backend.export(args.csvexport, work)
+        if file_identity(args.executable)["sha256"] != result["executable"]["sha256"]:
+            raise RuntimeError("采集期间程序发生变化，不能确认符号身份")
         if any(value["status"] != "ok" for value in result["exports"].values()):
             raise RuntimeError("官方工具导出失败")
         windows = read_windows((work / "program/profile-windows.csv").read_text(), expected=8 * args.replays)

@@ -3,6 +3,7 @@
 #include "algorithms/ITerrainLodAlgorithm.h"
 #include "algorithms/RoamNestedWedgie.h"
 #include "tools/PerformanceTimer.h"
+#include "profiling/CpuProfiling.h"
 
 #include <algorithm>
 #include <vector>
@@ -21,6 +22,7 @@ const Terrain::TerrainMeshData& ClassicRoamMeshBuilder::Build(
     const TerrainLodViewInput& view,
     const ClassicRoamSettings& settings)
 {
+    ROAM_CPU_ZONE("classic.build");
     Tools::PerformanceTimer updateTimer;
     ++_buildSequence;
     ClassicRoamSettings normalizedSettings = settings;
@@ -79,12 +81,18 @@ const Terrain::TerrainMeshData& ClassicRoamMeshBuilder::Build(
     const float prepareMilliseconds = updateTimer.ElapsedMilliseconds();
 
     // Q_s 和 Q_m 随活动拓扑跨帧保留，本帧只刷新分数并维护受拓扑变化影响的成员
-    OptimizeWithPersistentDualQueues();
+    {
+        ROAM_CPU_ZONE("classic.dual_queue_update");
+        OptimizeWithPersistentDualQueues();
+    }
 
     // 按拓扑修改顺序更新跨帧保留的网格，只重写细分或合并影响的连续槽位
     Tools::PerformanceTimer meshEmitTimer;
-    ApplyIncrementalMeshUpdates();
-    FinalizeIncrementalMeshUpdate();
+    {
+        ROAM_CPU_ZONE("classic.mesh");
+        ApplyIncrementalMeshUpdates();
+        FinalizeIncrementalMeshUpdate();
+    }
     const float meshEmitMilliseconds = meshEmitTimer.Stop();
 
     if (_settings.EnableTopologyValidation)

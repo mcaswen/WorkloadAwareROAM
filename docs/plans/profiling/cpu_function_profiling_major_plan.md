@@ -1,6 +1,6 @@
 # CPU 函数热点与线程时序分析大规划：perf + Tracy
 
-> 2026-09-14；Major Plan，阶段编号 FPR。**用户已确认实施，并允许后续小规划自主闭环；先提交现有规划，再依次实施。** 本规划是后续工作削减的测量前置，不启动 GWR 优化。
+> 2026-09-14；Major Plan，阶段编号 FPR。**FPR-01～04 已按顺序实现、实测与审查闭环。** 用户已确认实施，并允许后续小规划自主闭环；本规划是后续工作削减的测量前置，GWR 未实施。[结果入口](../../research/profiling/cpu_function_profiling_findings.md) / [使用指南](../../research/profiling/cpu_profiling_usage.md)。
 >
 > 依据：[开发规范](../../standards/development_guidelines.md)、[规划规范](../plan_guideline.md)、[GTP-04 代码事实](../../codebase/cpu_refinement/gtp_04_multicore_facts.md)、[性能与复杂度分析](../../research/cpu_refinement/gtp_platform_performance_analysis.md)、[GWR 待确认规划](../cpu_refinement/greedy_transactional_work_reduction_plan.md)。当前提交基点为 `b13aaf5`；此前未提交的 GWR 文档继续保留。
 
@@ -300,3 +300,5 @@ FPR-01 已完成[能力闭环](../../research/profiling/fpr_01_capability_report
 FPR-02 已取得[真实自然函数报告](../../research/profiling/fpr_02_function_sampling_report.md)，两场景 2558/2508 个有效样本、264 帧结果一致。关闭探针短对照有约 11% 均值上升疑点，按已授权后续插桩开销核查承接；工具能力完成，不将其写成无条件性能合格。下一阶段补时序与三类构建扰动证据。
 
 FPR-03 已取得[完整函数与任务时序](../../research/profiling/fpr_03_thread_timeline_report.md)：两场景 13566/4447 个 ROI 区间，真实断连与结果一致性通过。原关闭疑点未持续重现，当前均值/中位数变化均低于 5%；按无版本相关证据关闭，保留全部历史快验。Tracy 捕获均值相对未连接约 +0.8%/+1.9%，Peking 单轮 P95 超建议线，保留结构诊断限制。进入 FPR-04 汇总，不实施 GWR。
+
+FPR-04 已完成公共家族入口、DOD 五阶段 437 个区间实测、Classic 入口、关闭性能核查及[最终归因](../../research/profiling/cpu_function_profiling_findings.md)。[使用契约](../../research/profiling/cpu_profiling_usage.md)与[最终审查](../../reviews/profiling/fpr_04_attribution_review.md)齐备。当前实测支持优先核查 dense-Q、建序/边界资格、数值证据复用；Accepts 调用数多但本身便宜，ClipPolygon 尚无首要热点证据。全部阶段完成，不预支优化收益。

@@ -13,6 +13,7 @@
 #include "algorithms/data_oriented_roam/DataOrientedRoamValidation.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamVariance.h"
 #include "tools/PerformanceTimer.h"
+#include "profiling/CpuProfiling.h"
 
 #include <algorithm>
 #include <utility>
@@ -369,6 +370,7 @@ void DataOrientedRoamPipeline::BuildInternal(
     const DataOrientedRoamSettings& settings,
     const DataOrientedRoamPassObserver& observer)
 {
+    ROAM_CPU_ZONE("dod.build");
     DataOrientedRoamState& state = *_state;
     Tools::PerformanceTimer updateTimer;
     if (!PrepareDataOrientedRoamFrame(state, heightMap, terrainSize, heightScale, view, settings))

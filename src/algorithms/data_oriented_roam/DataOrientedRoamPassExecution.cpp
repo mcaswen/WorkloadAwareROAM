@@ -8,6 +8,7 @@
 #include "algorithms/data_oriented_roam/DataOrientedRoamTopology.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamVariance.h"
 #include "tools/PerformanceTimer.h"
+#include "profiling/CpuProfiling.h"
 
 #include <algorithm>
 #include <stdexcept>
@@ -22,6 +23,7 @@ bool PrepareDataOrientedRoamFrame(
     const TerrainLodViewInput& view,
     const DataOrientedRoamSettings& settings)
 {
+    ROAM_CPU_ZONE("dod.prepare");
     constexpr int MaximumSupportedDepth = 20;
     ++state.BuildSequence;
 
@@ -86,14 +88,21 @@ void ExecuteDataOrientedRoamPass(DataOrientedRoamState& state, TerrainLodPassId 
     // 拓扑入口只消费本帧已评分队列以保持观察边界与真实输入一致
     switch (passId)
     {
-    case TerrainLodPassId::MergeScore: RefreshPersistentMergeQueuePriorities(state); break;
-    case TerrainLodPassId::MergeTopology: CommitScoredMergeTopology(state); break;
-    case TerrainLodPassId::SplitScore: RefreshPersistentSplitQueuePriorities(state); break;
-    case TerrainLodPassId::SplitTopology: CommitScoredSplitTopology(state); break;
+    case TerrainLodPassId::MergeScore:
+        { ROAM_CPU_ZONE("dod.merge_score"); RefreshPersistentMergeQueuePriorities(state); break; }
+    case TerrainLodPassId::MergeTopology:
+        { ROAM_CPU_ZONE("dod.merge_topology"); CommitScoredMergeTopology(state); break; }
+    case TerrainLodPassId::SplitScore:
+        { ROAM_CPU_ZONE("dod.split_score"); RefreshPersistentSplitQueuePriorities(state); break; }
+    case TerrainLodPassId::SplitTopology:
+        { ROAM_CPU_ZONE("dod.split_topology"); CommitScoredSplitTopology(state); break; }
     case TerrainLodPassId::MeshEmit:
+    {
+        ROAM_CPU_ZONE("dod.mesh");
         ApplyIncrementalMeshUpdates(state);
         FinalizeIncrementalMeshUpdate(state);
         break;
+    }
     default: throw std::invalid_argument{"Expected a CPU ROAM pass"};
     }
 }

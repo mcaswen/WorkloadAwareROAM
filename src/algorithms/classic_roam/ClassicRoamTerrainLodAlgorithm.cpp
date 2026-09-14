@@ -2,6 +2,7 @@
 
 #include "algorithms/TerrainLodProfiling.h"
 #include "algorithms/TerrainLodResultValidation.h"
+#include "profiling/CpuProfiling.h"
 
 namespace ParallelRoam::Algorithms::ClassicRoam
 {
@@ -32,6 +33,7 @@ bool ClassicRoamTerrainLodAlgorithm::BuildRenderData(
     TerrainLodRenderPacket& outPacket,
     std::string* errorMessage)
 {
+    ROAM_CPU_ZONE("classic.build_packet");
     _stats = {};
     outPacket = {};
 
