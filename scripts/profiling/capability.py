@@ -3,28 +3,19 @@
 import argparse
 from collections import Counter
 import csv
-import hashlib
 import io
 import json
 import os
 from pathlib import Path
 import re
 import shutil
-import signal
 import subprocess
 import tempfile
 import time
 
 from profiling.environment import command, inspect_environment
-
-
-def identity(path):
-    path = Path(path).resolve(strict=True)
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for block in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(block)
-    return {"path": str(path), "bytes": path.stat().st_size, "sha256": digest.hexdigest()}
+from profiling.process import stop_process
+from cpu_pilot_support import file_identity as identity
 
 
 def perf_stack_coverage(text):
@@ -64,18 +55,6 @@ def tracy_fixture_coverage(text):
               len(complete) == 1 and len(frame_end) == 1 and complete[0] >= frame_end[0])
     return {"passed": passed, "zone_counts": dict(counts), "threads": sorted(business_threads),
             "durations_valid": durations_valid}
-
-
-def stop_process(process):
-    """只结束本次启动的进程组，确保异常退出不遗留采集器。"""
-    if process.poll() is not None:
-        return
-    os.killpg(process.pid, signal.SIGTERM)
-    try:
-        process.wait(timeout=3)
-    except subprocess.TimeoutExpired:
-        os.killpg(process.pid, signal.SIGKILL)
-        process.wait(timeout=3)
 
 
 def capture_tracy(capture, executable, arguments, work, timeout=35):

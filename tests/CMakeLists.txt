@@ -1,5 +1,7 @@
 if(PARALLEL_ROAM_BUILD_PROFILING_TESTS)
-    add_executable(parallel_roam_cpu_profiling_tests CpuProfilingTests.cpp)
+    add_executable(parallel_roam_cpu_profiling_tests CpuProfilingTests.cpp
+        ../src/tools/profiling/ProfileSession.cpp)
+    target_include_directories(parallel_roam_cpu_profiling_tests PRIVATE ../src)
     target_link_libraries(parallel_roam_cpu_profiling_tests PRIVATE
         parallel_roam_project_options parallel_roam_project_warnings Threads::Threads)
     add_test(NAME cpu_profiling_fixture COMMAND parallel_roam_cpu_profiling_tests)
@@ -35,6 +37,7 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
     add_executable(parallel_roam_transactional_lod_tests GreedyTransactionalLodTests.cpp
         "${transactional_dir}/TransactionalValidation.cpp")
     add_executable(parallel_roam_transactional_lod_probe GreedyTransactionalLodProbe.cpp
+        ../src/tools/profiling/ProfileSession.cpp
         "${transactional_dir}/TransactionalInput.cpp" "${transactional_dir}/TransactionalValidation.cpp"
         ../src/experiment/formal/FormalExperimentCamera.cpp ../src/experiment/formal/FormalExperimentManifest.cpp
         ../src/experiment/ExperimentCsvCodec.cpp ../src/terrain/HeightMap.cpp ../src/algorithms/TerrainLodView.cpp)

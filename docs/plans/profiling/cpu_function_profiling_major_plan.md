@@ -296,3 +296,5 @@ Tracy 默认只需原八轮的一次完整记录；它按事件记录，不为�
 规划撰写时只完成只读核查与[规划审查](../../reviews/profiling/cpu_function_profiling_plan_review.md)，随后用户批准实施并先提交文档为 `77ef897`。
 
 FPR-01 已完成[能力闭环](../../research/profiling/fpr_01_capability_report.md)：perf 软件/硬件事件可打开，FP 187 个样本恢复三个线程调用栈，Tracy 完整捕获并读回解析区间。DWARF 子线程展开失败保留限制，依 §5 条件变体改用 FP；原始采集写 ext4 后归档。默认原型二进制未变，业务标记与自然窗口尚未接入。FPR-02～04 按顺序继续；GWR 暂停。
+
+FPR-02 已取得[真实自然函数报告](../../research/profiling/fpr_02_function_sampling_report.md)，两场景 2558/2508 个有效样本、264 帧结果一致。关闭探针短对照有约 11% 均值上升疑点，按已授权后续插桩开销核查承接；工具能力完成，不将其写成无条件性能合格。下一阶段补时序与三类构建扰动证据。

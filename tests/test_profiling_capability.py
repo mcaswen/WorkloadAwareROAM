@@ -9,9 +9,24 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from profiling.capability import perf_stack_coverage, tracy_fixture_coverage
 from profiling.environment import command
+from profiling.report import read_windows, summarize_perf
 
 
 class ProfilingCapabilityTests(unittest.TestCase):
+    def test_windows_and_event_weights(self):
+        windows = read_windows("replay,round,start_ns,end_ns,enable_ns,disable_ns\n0,0,1000000000,2000000000,5,6\n# complete\n", 1)
+        text = ("task 1/2 0.900000000: 10 cpu-clock:u:\n\t01 outside (/exe)\n\n"
+                "task 1/2 1.100000000: 20 cpu-clock:u:\n\t01 leaf (/exe)\n\t02 parent (/exe)\n\t03 parent (/exe)\n\n"
+                "task 1/3 1.900000000: 30 cpu-clock:u:\n\n")
+        result = summarize_perf(text, windows)
+        self.assertEqual((result["roi_samples"], result["outside_samples"], result["missing_stack_samples"]), (2, 1, 1))
+        self.assertEqual(result["roi_event_weight"], 50)
+        self.assertEqual(next(row for row in result["inclusive"] if row["function"] == "parent")["percent"], 40)
+        with self.assertRaises(ValueError):
+            read_windows("replay,round,start_ns,end_ns,enable_ns,disable_ns\n")
+        with self.assertRaises(ValueError):
+            read_windows("replay,round,start_ns,end_ns,enable_ns,disable_ns\n0,0,9,8,0,0\n# complete\n")
+
     def test_missing_tool_and_timeout_are_not_success(self):
         self.assertEqual(command(["/missing/roam-profiler-tool"])["status"], "unavailable")
         result = command([sys.executable, "-c", "import time; time.sleep(2)"], timeout=0.02)

@@ -10,16 +10,28 @@ import subprocess
 import sys
 import time
 
+if __package__:
+    from .process import stop_process
+else:
+    from process import stop_process
+
 
 def command(arguments, timeout=15, env=None):
     """保留失败与超时，避免把缺失工具或不支持事件写成零成本。"""
     started = time.monotonic()
     result = {"argv": [str(a) for a in arguments]}
     try:
-        process = subprocess.run(result["argv"], capture_output=True, text=True,
-                                 timeout=timeout, env=env)
-        result.update(returncode=process.returncode, stdout=process.stdout,
-                      stderr=process.stderr, status="ok" if process.returncode == 0 else "failed")
+        process = subprocess.Popen(result["argv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   text=True, env=env, start_new_session=True)
+        try:
+            stdout, stderr = process.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            stop_process(process)
+            stdout, stderr = process.communicate(timeout=3)
+            result.update(returncode=None, stdout=stdout, stderr=stderr, status="timeout")
+        else:
+            result.update(returncode=process.returncode, stdout=stdout,
+                          stderr=stderr, status="ok" if process.returncode == 0 else "failed")
     except subprocess.TimeoutExpired as error:
         def decode(value):
             return value.decode(errors="replace") if isinstance(value, bytes) else (value or "")

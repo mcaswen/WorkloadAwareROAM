@@ -1,3 +1,5 @@
+#include "tools/profiling/ProfileSession.h"
+
 #if defined(TRACY_ENABLE)
 #include <tracy/Tracy.hpp>
 #else
@@ -75,10 +77,14 @@ int main(int argc, char** argv)
         if (argc > 2 || iterations == 0 || iterations > 500000000ULL)
             throw std::runtime_error("iterations must be in [1, 500000000]");
         if (!WaitForCapture()) throw std::runtime_error("capture connection unavailable");
+        std::unique_ptr<ParallelRoam::Tools::Profiling::ProfileSession> session;
+        if (const auto* windows = std::getenv("ROAM_PROFILE_WINDOWS"))
+            session = std::make_unique<ParallelRoam::Tools::Profiling::ProfileSession>(windows);
 #if defined(TRACY_ENABLE)
         tracy::SetThreadName("fixture.main");
 #endif
         std::array<std::uint64_t, 3> results{};
+        if (session) session->Begin(0, 0);
         const auto start = std::chrono::steady_clock::now();
         {
             ZoneScopedN("fixture.frame");
@@ -106,6 +112,7 @@ int main(int argc, char** argv)
         }
         const auto elapsed = std::chrono::duration<double, std::milli>(
             std::chrono::steady_clock::now() - start).count();
+        if (session) { session->End(); session->Finish(); }
         {
             // 此区间在全部业务区间结束后产生，导出检查用它识别尾部缺失
             ZoneScopedN("fixture.complete");
