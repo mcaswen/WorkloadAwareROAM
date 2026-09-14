@@ -11,7 +11,11 @@
       "displayName": "CPU perf - Release with symbols",
       "generator": "Ninja",
       "binaryDir": "$env{HOME}/.cache/roam-profiling/build/${presetName}",
-      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "PARALLEL_ROAM_BUILD_APP": "OFF",
@@ -26,7 +30,9 @@
       "displayName": "CPU perf - conditional frame pointer build",
       "inherits": "cpu-profile-perf",
       "binaryDir": "$env{HOME}/.cache/roam-profiling/build/${presetName}",
-      "cacheVariables": { "PARALLEL_ROAM_PROFILE_FRAME_POINTERS": "ON" }
+      "cacheVariables": {
+        "PARALLEL_ROAM_PROFILE_FRAME_POINTERS": "ON"
+      }
     },
     {
       "name": "cpu-profile-tracy",
@@ -178,12 +184,32 @@
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "PARALLEL_ROAM_FETCH_MISSING_DEPS": "ON"
       }
+    },
+    {
+      "name": "transactional-platform",
+      "displayName": "Transactional CPU LOD platform",
+      "inherits": "relwithdebinfo-fetch",
+      "cacheVariables": {
+        "PARALLEL_ROAM_BUILD_TESTS": "OFF",
+        "PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD": "ON",
+        "PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME": "ON",
+        "PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE": "$env{ROAM_BOOST_INCLUDE}"
+      }
     }
   ],
   "buildPresets": [
-    { "name": "cpu-profile-perf", "configurePreset": "cpu-profile-perf" },
-    { "name": "cpu-profile-fp", "configurePreset": "cpu-profile-fp" },
-    { "name": "cpu-profile-tracy", "configurePreset": "cpu-profile-tracy" },
+    {
+      "name": "cpu-profile-perf",
+      "configurePreset": "cpu-profile-perf"
+    },
+    {
+      "name": "cpu-profile-fp",
+      "configurePreset": "cpu-profile-fp"
+    },
+    {
+      "name": "cpu-profile-tracy",
+      "configurePreset": "cpu-profile-tracy"
+    },
     {
       "name": "debug",
       "configurePreset": "debug",

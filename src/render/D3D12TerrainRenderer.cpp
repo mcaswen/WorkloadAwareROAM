@@ -1,8 +1,7 @@
 #include "render/TerrainRenderer.h"
+#include "algorithms/TerrainLodAlgorithmRegistry.h"
 
 #include "algorithms/TerrainLodView.h"
-#include "algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.h"
-#include "algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.h"
 #include "render/D3D12GraphicsBackend.h"
 #include "tools/PerformanceTimer.h"
 
@@ -230,20 +229,7 @@ glm::vec3 NormalizeLightDirection(const glm::vec3& lightDirection)
     return glm::normalize(lightDirection);
 }
 
-std::unique_ptr<Algorithms::ITerrainLodAlgorithm> CreateTerrainLodAlgorithm(
-    Algorithms::TerrainLodAlgorithmId algorithmId)
-{
-    // 两种 CPU 算法与图形 API 无关，D3D12 只消费其共享 mesh 输出。
-    if (algorithmId == Algorithms::TerrainLodAlgorithmId::ClassicCpuRoam)
-    {
-        return std::make_unique<Algorithms::ClassicRoam::ClassicRoamTerrainLodAlgorithm>();
-    }
-    if (algorithmId == Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam)
-    {
-        return std::make_unique<Algorithms::DataOrientedRoam::DataOrientedRoamTerrainLodAlgorithm>();
-    }
-    return nullptr;
-}
+
 
 std::vector<std::uint8_t> ReadBinaryFile(const std::filesystem::path& path, std::string* errorMessage)
 {
@@ -1056,7 +1042,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     {
         // 算法对象拥有跨帧 CPU 拓扑和增量 mesh 状态。
         _borrowedCpuMeshData = nullptr;
-        _terrainLodAlgorithm = CreateTerrainLodAlgorithm(_settings.TerrainLodAlgorithm);
+        _terrainLodAlgorithm = Algorithms::CreateTerrainLodAlgorithm(_settings.TerrainLodAlgorithm);
         _hasRoamBuildView = false;
     }
     if (_terrainLodAlgorithm == nullptr)

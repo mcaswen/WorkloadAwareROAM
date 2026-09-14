@@ -67,6 +67,9 @@ struct TerrainRenderSettings
     // DOD 专属实验开关；其他算法忽略该字段。
     bool RoamEnableParallelSplit{true};
     Algorithms::TerrainLodPassPolicy RoamPassPolicy{};
+    Algorithms::TransactionalLodSettings Transactional{};
+    // 暂停只影响持续批次调度，不进入算法配置身份
+    bool TransactionalPaused{false};
 
     // 局部约束只做 baseNeighbor forced split，不执行全局 repair
     bool RoamEnableLocalConstraints{true};
@@ -252,6 +255,9 @@ public:
 
     // benchmark 可绕过普通相机位移缓存，要求下一帧重新构建 mesh
     void RequestMeshRebuild();
+    void RequestLodStep() { _lodStepRequested = true; }
+    // 资源重建只请求同步现有输出，不重置拓扑
+    void RequestCpuMeshFullUpload() { _cpuUploadRecoveryRequired = true; }
 
     /// <summary>
     /// 对最近一次 CPU 网格数据包交替执行脏区间和完整缓冲区上传
@@ -323,6 +329,9 @@ private:
     std::vector<Algorithms::TerrainLodCpuMeshUpdateRange> _lastCpuMeshUpdateRanges;
     bool _lastCpuMeshRequiresFullUpload{true};
     bool _cpuUploadExperimentCaptureEnabled{false};
+    // 上传消费失败后重传最新完整输出，不依赖已被算法消费的范围
+    bool _cpuUploadRecoveryRequired{true};
+    bool _lodStepRequested{false};
     TerrainRenderSettings _settings;
     std::filesystem::path _heightMapPath;
     std::filesystem::path _texturePath;

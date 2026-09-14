@@ -157,11 +157,27 @@ bool TestValidationErrors()
         Require(!zeroUploadRepeats.Succeeded(), "Zero upload repeats should fail") &&
         Require(!conflictingModes.Succeeded(), "Conflicting run modes should fail");
 }
+bool TestAlgorithmSelection()
+{
+    const auto legacy = Parse({"--runtime-benchmark-algorithms", "dod,classic", "--runtime-benchmark-budget", "50000"});
+    const auto duplicate = Parse({"--runtime-benchmark-algorithms", "dod,dod"});
+    const auto limit = Parse({"--transactional-prefix", "641"});
+    const auto explicitNew = Parse({"--algorithm", "transactional", "--transactional-workers", "8"});
+#if defined(PARALLEL_ROAM_TRANSACTIONAL_LOD_RUNTIME)
+    const bool availability = explicitNew.Succeeded() &&
+        explicitNew.Options.RuntimeBenchmark.Transactional.WorkerCount == 8;
+#else
+    const bool availability = !explicitNew.Succeeded();
+#endif
+    return Require(legacy.Succeeded() && legacy.Options.RuntimeBenchmark.AlgorithmSequence.size() == 2 &&
+        legacy.Options.RuntimeBenchmark.TriangleBudget == 50000, "Explicit algorithm selection failed") &&
+        Require(!duplicate.Succeeded() && !limit.Succeeded() && availability, "Availability or limits invalid");
+}
 } // 匿名命名空间
 
 int main()
 {
-    return TestLaunchModes() &&
+    return TestAlgorithmSelection() && TestLaunchModes() &&
         TestRuntimeBenchmarkOptions() &&
         TestCompatibilityRules() &&
         TestValidationErrors()

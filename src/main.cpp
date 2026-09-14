@@ -5,6 +5,7 @@
 #include "app/ApplicationCommandLine.h"
 #include "benchmark/RoamProbe.h"
 #include "benchmark/TerrainLodBenchmark.h"
+#include "benchmark/TransactionalPlatformProbe.h"
 #endif
 
 #if defined(PARALLEL_ROAM_HAS_SDL2)
@@ -32,6 +33,8 @@ int main(int argc, char** argv)
         return ParallelRoam::Benchmark::RunTerrainLodBenchmarkFromCommandLine(argc, argv);
     case ParallelRoam::App::ApplicationLaunchMode::Application:
         break;
+    case ParallelRoam::App::ApplicationLaunchMode::TransactionalPlatformCheck:
+        return ParallelRoam::Benchmark::RunTransactionalPlatformCheck();
     }
 
     ParallelRoam::App::Application application;

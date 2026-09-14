@@ -1,6 +1,8 @@
 #include "experiment/TerrainLodExperimentCsv.h"
 
 #include <cstddef>
+#include <algorithm>
+#include <sstream>
 #include <ostream>
 #include <string>
 
@@ -254,6 +256,44 @@ void WriteTopologyPairCsvValues(
     X(EmitMilliseconds, emitMilliseconds) \
     X(ValidateMilliseconds, validateMilliseconds) \
     X(MaxActiveDepth, maxActiveDepth)
+#define TRANSACTIONAL_STAT_FIELDS(X) \
+ X(Updated) \
+ X(ColdStart) \
+ X(HasPublishedMesh) \
+ X(ViewPublished) \
+ X(RequestedWorkers) \
+ X(PrefixLimit) \
+ X(DonorLimit) \
+ X(SeedTriangles) \
+ X(Samples) \
+ X(RawCandidates) \
+ X(Examined) \
+ X(Receivers) \
+ X(Need) \
+ X(Feasible) \
+ X(Exchanges) \
+ X(FreeExecuted) \
+ X(PairChecks) \
+ X(Conflicts) \
+ X(DonorReuse) \
+ X(SampleTouches) \
+ X(SampleEvaluations) \
+ X(VertexWrites) \
+ X(IndexWrites) \
+ X(SourceBytes) \
+ X(SeedMilliseconds) \
+ X(InitializeMilliseconds) \
+ X(ViewMilliseconds) \
+ X(ReceiverMilliseconds) \
+ X(DonorMilliseconds) \
+ X(ReservationMilliseconds) \
+ X(TopologyPrepareMilliseconds) \
+ X(TopologyPublishMilliseconds) \
+ X(SampleRepairMilliseconds) \
+ X(MeshPrepareMilliseconds) \
+ X(ContinuationPublishMilliseconds) \
+ X(AdapterMilliseconds) \
+ X(CpuReadyMilliseconds)
 } // 匿名命名空间
 
 void WriteTerrainLodSettingsCsvHeader(std::ostream& output)
@@ -338,6 +378,11 @@ void WriteTerrainLodStatsCsvHeader(std::ostream& output)
     WriteTopologyPairCsvHeader(output, first, "mergeTopologyPair");
     WriteTopologyPairCsvHeader(output, first, "splitTopologyPair");
     WritePassTraceCsvHeader(output, first);
+    WriteCsvField(output, first, "stageModel");
+    WriteCsvField(output, first, "transactionalStatus");
+#define WRITE_TRANSACTIONAL_HEADER(member) WriteCsvField(output, first, "transactional" #member);
+    TRANSACTIONAL_STAT_FIELDS(WRITE_TRANSACTIONAL_HEADER)
+#undef WRITE_TRANSACTIONAL_HEADER
 }
 
 void WriteTerrainLodStatsCsvValues(
@@ -345,13 +390,42 @@ void WriteTerrainLodStatsCsvValues(
     const Algorithms::TerrainLodStats& stats)
 {
     bool first = true;
-#define WRITE_STAT_VALUE(member, name) WriteCsvField(output, first, stats.member);
+    const auto writeStat = [&](std::string_view name, const auto& value) {
+        const bool common = name == "BuildSequence" || name == "ActiveTriangleCount" || name == "TriangleBudget" ||
+            name.starts_with("CpuMesh") || name.starts_with("CpuGpu") ||
+            name == "CpuUpdateMilliseconds" || name == "CpuUploadMilliseconds";
+        if (stats.Transactional && !common) WriteCsvField(output, first, "n/a");
+        else WriteCsvField(output, first, value);
+    };
+#define WRITE_STAT_VALUE(member, name) writeStat(#member, stats.member);
     TERRAIN_LOD_STAT_FIELDS(WRITE_STAT_VALUE)
 #undef WRITE_STAT_VALUE
-    WriteTopologyPairCsvValues(output, first, stats.MergeTopologyPair);
-    WriteTopologyPairCsvValues(output, first, stats.SplitTopologyPair);
-    WritePassTraceCsvValues(output, first, stats.PassTraces);
+    if (stats.Transactional)
+    {
+        // 列宽由同一表头推导；旧五阶段不适用，不把默认零值解释成没有成本
+        std::ostringstream headers;
+        bool headerFirst = true;
+        WriteTopologyPairCsvHeader(headers, headerFirst, "merge");
+        WriteTopologyPairCsvHeader(headers, headerFirst, "split");
+        WritePassTraceCsvHeader(headers, headerFirst);
+        const auto text = headers.str();
+        const auto count = 1 + std::count(text.begin(), text.end(), ',');
+        for (int i = 0; i < count; ++i) WriteCsvField(output, first, "n/a");
+    }
+    else
+    {
+        WriteTopologyPairCsvValues(output, first, stats.MergeTopologyPair);
+        WriteTopologyPairCsvValues(output, first, stats.SplitTopologyPair);
+        WritePassTraceCsvValues(output, first, stats.PassTraces);
+    }
+    WriteCsvField(output, first, stats.Transactional ? "transactional" : "roam");
+    if (stats.Transactional) WriteCsvField(output, first, static_cast<int>(stats.Transactional->Status));
+    else WriteCsvField(output, first, "n/a");
+#define WRITE_TRANSACTIONAL_VALUE(member) if (stats.Transactional) WriteCsvField(output, first, stats.Transactional->member); else WriteCsvField(output, first, "n/a");
+    TRANSACTIONAL_STAT_FIELDS(WRITE_TRANSACTIONAL_VALUE)
+#undef WRITE_TRANSACTIONAL_VALUE
 }
 
+#undef TRANSACTIONAL_STAT_FIELDS
 #undef TERRAIN_LOD_STAT_FIELDS
 } // 命名空间 ParallelRoam::Experiment

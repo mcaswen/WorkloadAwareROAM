@@ -1,12 +1,11 @@
 #include "benchmark/TerrainLodBenchmark.h"
+#include "algorithms/TerrainLodAlgorithmRegistry.h"
 #include "benchmark/TerrainLodBenchmarkCommandLine.h"
 #include "benchmark/formal/FormalExperimentRunner.h"
 
 #include "algorithms/ITerrainLodAlgorithm.h"
 #include "algorithms/TerrainLodResultValidation.h"
 #include "algorithms/TerrainLodView.h"
-#include "algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.h"
-#include "algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamPassExperiment.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamPipeline.h"
 #include "experiment/TerrainLodExperimentCsv.h"
@@ -467,17 +466,12 @@ BenchmarkScenario MakeScenario(BenchmarkProfile profile)
 
 std::unique_ptr<Algorithms::ITerrainLodAlgorithm> CreateAlgorithm(BenchmarkAlgorithmSelection selection)
 {
-    // 将基准选项映射为公共算法接口，渲染模块不依赖这套选择枚举
     if (selection == BenchmarkAlgorithmSelection::Classic)
-    {
-        return std::make_unique<Algorithms::ClassicRoam::ClassicRoamTerrainLodAlgorithm>();
-    }
-
+        return Algorithms::CreateTerrainLodAlgorithm(Algorithms::TerrainLodAlgorithmId::ClassicCpuRoam);
     if (selection == BenchmarkAlgorithmSelection::DataOriented)
-    {
-        return std::make_unique<Algorithms::DataOrientedRoam::DataOrientedRoamTerrainLodAlgorithm>();
-    }
-
+        return Algorithms::CreateTerrainLodAlgorithm(Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam);
+    if (selection == BenchmarkAlgorithmSelection::Transactional)
+        return Algorithms::CreateTerrainLodAlgorithm(Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod);
     return nullptr;
 }
 
@@ -519,6 +513,23 @@ bool ValidateFrame(
     if (!renderPacket.HasConsistentResourceContract())
     {
         return false;
+    }
+
+    if (stats.Transactional)
+    {
+        // 任意三角网格的槽位可以保留空洞，不能套用 ROAM 稠密叶/堆验证器
+        const auto* mesh = renderPacket.ResolveCpuMesh();
+        if (!mesh || stats.BuildSequence == 0 || stats.ActiveTriangleCount == 0 ||
+            stats.ActiveTriangleCount > scenario.Settings.TriangleBudget ||
+            mesh->Indices.size() != stats.ActiveTriangleCount * 3 ||
+            renderPacket.ActiveTriangleCount != stats.ActiveTriangleCount) return false;
+        for (auto index : mesh->Indices)
+        {
+            if (index >= mesh->Vertices.size()) return false;
+            const auto& position = mesh->Vertices[index].Position;
+            if (!std::isfinite(position.x) || !std::isfinite(position.y) || !std::isfinite(position.z)) return false;
+        }
+        return stats.Transactional->Status == Algorithms::TransactionalLodStatus::Ready;
     }
 
     if (!stats.ResultValidationEvaluated || !stats.ResultValidationPassed ||
@@ -1142,7 +1153,9 @@ BenchmarkAlgorithmRun RunAlgorithm(
         run.Frames.push_back(frame);
     }
 
-    run.Passed = ValidateRunShape(scenario, run.Frames);
+    run.Passed = selection == BenchmarkAlgorithmSelection::Transactional
+        ? std::all_of(run.Frames.begin(), run.Frames.end(), [](const auto& frame) { return frame.Passed; })
+        : ValidateRunShape(scenario, run.Frames);
     return run;
 }
 
@@ -1496,6 +1509,14 @@ int RunPassCrossoverReplay(const BenchmarkOptions& options)
 
 int RunTerrainLodBenchmark(const BenchmarkOptions& options)
 {
+    if (options.Algorithm == BenchmarkAlgorithmSelection::Transactional &&
+        (options.Profile != BenchmarkProfile::Smoke ||
+         !Algorithms::IsTerrainLodAlgorithmAvailable(Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod)))
+    {
+        std::cerr << "Transactional LOD currently supports only the ordinary smoke profile; strict ROAM profiles are not applicable.\n";
+        return 2;
+    }
+
     if (options.Profile == BenchmarkProfile::CpuPassPairPilot)
     {
         return Formal::RunCpuPilotPairing(options.FormalInput, options.CpuPair);

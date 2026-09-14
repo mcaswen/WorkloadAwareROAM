@@ -1,4 +1,5 @@
 #include "app/Application.h"
+#include "algorithms/TerrainLodAlgorithmRegistry.h"
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -123,6 +124,7 @@ Algorithms::TerrainLodSettings ToTerrainLodSettings(const Gui::TerrainPanelState
     settings.TriangleBudget = static_cast<std::size_t>(std::max(state.RoamTriangleBudget, 2));
     settings.EnableParallelSplit = state.RoamEnableParallelSplit;
     settings.PassPolicy = state.RoamPassPolicy;
+    settings.Transactional = state.Transactional;
     settings.EnableLocalConstraints = state.RoamEnableLocalConstraints;
     settings.EnableTopologyValidation = state.RoamEnableTopologyValidation;
     settings.EnablePassEvidence = true;
@@ -145,6 +147,8 @@ Render::TerrainRenderSettings ToRenderSettings(const Gui::TerrainPanelState& sta
     settings.RoamTriangleBudget = static_cast<std::size_t>(std::max(state.RoamTriangleBudget, 2));
     settings.RoamEnableParallelSplit = state.RoamEnableParallelSplit;
     settings.RoamPassPolicy = state.RoamPassPolicy;
+    settings.Transactional = state.Transactional;
+    settings.TransactionalPaused = state.TransactionalPaused;
     settings.RoamEnableLocalConstraints = state.RoamEnableLocalConstraints;
     settings.RoamEnableTopologyValidation = state.RoamEnableTopologyValidation;
     settings.LightDirection = state.LightDirection;
@@ -373,6 +377,9 @@ void Application::RenderFrame(const FrameTiming& frameTiming)
     _window.RefreshSize();
     _graphicsBackend->RefreshDrawableSize();
 
+    // 最小化没有有效投影域，暂停算法和图形帧，不创建虚假的 1×1 相机
+    if (_graphicsBackend->DrawableWidth() <= 0 || _graphicsBackend->DrawableHeight() <= 0) return;
+
     // HiDPI 下 drawable 尺寸可能大于窗口逻辑尺寸，viewport 必须使用 drawable
     const int drawableWidth = std::max(_graphicsBackend->DrawableWidth(), 1);
     const int drawableHeight = std::max(_graphicsBackend->DrawableHeight(), 1);
@@ -529,6 +536,7 @@ void Application::RenderFrame(const FrameTiming& frameTiming)
         debugData.LastBenchmarkOutputPath = _runtimeBenchmark.LastMarkdownPath.string();
     }
 
+    debugData.Transactional = terrainStats.RoamLodStats.Transactional;
     RecordRuntimeBenchmarkSample(frameTiming, terrainStats, cameraPosition);
 
     const bool previousVSyncEnabled = _terrainPanelState.VSyncEnabled;
@@ -547,6 +555,17 @@ void Application::RenderFrame(const FrameTiming& frameTiming)
     if (previousHeightMapIndex != _terrainPanelState.HeightMapIndex)
     {
         ApplyHeightMapSelection();
+    }
+
+    if (_terrainPanelState.LodResetRequested)
+    {
+        _terrainRenderer.ResetTerrainLodAlgorithm();
+        _terrainPanelState.LodResetRequested = false;
+    }
+    if (_terrainPanelState.LodStepRequested)
+    {
+        _terrainRenderer.RequestLodStep();
+        _terrainPanelState.LodStepRequested = false;
     }
 
     if (_terrainPanelState.StartBenchmarkRequested)
@@ -590,6 +609,9 @@ void Application::ApplyPendingRuntimeBenchmarkOverrides()
     }
 
     const RuntimeBenchmarkOverrides& overrides = _runtimeBenchmarkOverrides;
+    if (overrides.HasInteractiveAlgorithm) _terrainPanelState.TerrainLodAlgorithm = overrides.InteractiveAlgorithm;
+    if (overrides.HasTransactional) _terrainPanelState.Transactional = overrides.Transactional;
+    if (overrides.HasTriangleBudget) _terrainPanelState.RoamTriangleBudget = static_cast<int>(overrides.TriangleBudget);
     if (overrides.HasPath)
     {
         // 命令行配置不依赖界面类型，在应用层转换为面板实际使用的路径
@@ -760,6 +782,8 @@ void Application::StartRuntimeBenchmark()
         Algorithms::TerrainLodAlgorithmId::ClassicCpuRoam,
         Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam,
     };
+    if (!_runtimeBenchmarkOverrides.AlgorithmSequence.empty())
+        _runtimeBenchmark.AlgorithmSequence = _runtimeBenchmarkOverrides.AlgorithmSequence;
     const std::size_t algorithmCount = _runtimeBenchmark.AlgorithmSequence.size();
     _runtimeBenchmark.AlgorithmOrderRotation = algorithmCount == 0U
         ? 0U
@@ -832,6 +856,8 @@ void Application::StartRuntimeBenchmark()
         "路径采样点数：" + std::to_string(_runtimeBenchmark.PathSampleCount) +
         "；每种算法按相同 sampleIndex 执行完整路径");
 
+    if (_runtimeBenchmarkOverrides.HasTriangleBudget)
+        _terrainPanelState.RoamTriangleBudget = static_cast<int>(_runtimeBenchmarkOverrides.TriangleBudget);
     _terrainPanelState.VSyncEnabled = false;
     ApplyWindowPanelSettings();
     _runtimeBenchmark.Notes.push_back(
@@ -901,6 +927,7 @@ void Application::BeginRuntimeBenchmarkAlgorithm()
 
     _terrainPanelState.UseTerrainLod = true;
     _terrainPanelState.TerrainLodAlgorithm = algorithmId;
+    _terrainPanelState.TransactionalPaused = false;
     _terrainPanelState.StartBenchmarkRequested = false;
     // ApplySettings 先切换算法，再 reset 可保证下一帧从干净拓扑开始
     ApplyTerrainPanelSettings();

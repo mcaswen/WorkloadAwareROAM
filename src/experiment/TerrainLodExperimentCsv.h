@@ -7,7 +7,7 @@
 
 namespace ParallelRoam::Experiment
 {
-inline constexpr std::string_view TerrainLodExperimentCsvSchemaVersion{"4"};
+inline constexpr std::string_view TerrainLodExperimentCsvSchemaVersion{"5"};
 
 // 运行时和无窗口报告共用设置列，调用方应传入已经应用预设与覆盖项的最终配置
 // 写入器只输出本组字段，组间逗号和整行换行由调用方负责

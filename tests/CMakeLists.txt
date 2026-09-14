@@ -566,3 +566,13 @@ if(TARGET parallel_roam)
         PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.."
     )
 endif()
+
+if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
+    add_executable(parallel_roam_transactional_command_line_tests ApplicationCommandLineTests.cpp
+        ../src/app/ApplicationCommandLine.cpp)
+    target_link_libraries(parallel_roam_transactional_command_line_tests PRIVATE
+        parallel_roam_project_options ParallelROAM::GLM)
+    target_include_directories(parallel_roam_transactional_command_line_tests PRIVATE ../src)
+    target_compile_definitions(parallel_roam_transactional_command_line_tests PRIVATE PARALLEL_ROAM_TRANSACTIONAL_LOD_RUNTIME=1)
+    add_test(NAME transactional_command_line COMMAND parallel_roam_transactional_command_line_tests)
+endif()

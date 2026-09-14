@@ -1,4 +1,5 @@
 #include "app/RuntimeBenchmark.h"
+#include "algorithms/TerrainLodAlgorithmRegistry.h"
 
 #include "experiment/TerrainLodExperimentCsv.h"
 
@@ -564,6 +565,27 @@ void WriteSummaryMarkdown(
                  << " |\n";
     }
 
+    for (const auto& result : results)
+    {
+        if (result.AlgorithmId != Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) continue;
+        markdown << "\n## 事务化阶段\n\n旧 ROAM 五阶段及严格等价统计不适用；配置线程不是实际参与数。冷启动与逐帧状态见 CSV。\n\n";
+        markdown << "| 样本 | 状态 | 交换 | 自由细化 | 冷启动 ms | 视图 ms | 认证 ms | 预留 ms | CPU 完整 ms |\n";
+        markdown << "|---|---|---:|---:|---:|---:|---:|---:|---:|\n";
+        for (const auto& sample : result.Samples)
+        {
+            const auto& value = sample.Stats.RoamLodStats.Transactional;
+            if (!value) continue;
+            const auto& t = *value;
+            markdown << "| " << sample.PathSampleIndex << " | " << static_cast<int>(t.Status)
+                << " | " << t.Exchanges << " | " << t.FreeExecuted
+                << " | " << t.SeedMilliseconds + t.InitializeMilliseconds
+                << " | " << t.ViewMilliseconds << " | " << t.ReceiverMilliseconds + t.DonorMilliseconds
+                << " | " << t.ReservationMilliseconds << " | " << t.CpuReadyMilliseconds << " |\n";
+        }
+    }
+    if (std::all_of(results.begin(), results.end(), [](const auto& result) {
+        return result.AlgorithmId == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod;
+    })) return;
     const RuntimeBenchmarkSummary classicSummary =
         SummaryForAlgorithm(results, Algorithms::TerrainLodAlgorithmId::ClassicCpuRoam);
     const RuntimeBenchmarkSummary dodSummary =
@@ -618,6 +640,7 @@ void WriteSummaryMarkdown(
     markdown << "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n";
     for (const RuntimeBenchmarkAlgorithmResult& result : results)
     {
+        if (result.AlgorithmId == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) continue;
         const RuntimeBenchmarkSummary summary = SummarizeRuntimeBenchmark(result);
         markdown << "| " << result.AlgorithmName
                  << " | " << summary.AverageCpuUpdateMilliseconds
@@ -643,6 +666,7 @@ void WriteSummaryMarkdown(
     markdown << "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n";
     for (const RuntimeBenchmarkAlgorithmResult& result : results)
     {
+        if (result.AlgorithmId == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) continue;
         const auto writeDecisionRow = [&](std::string_view queueName,
                                           Algorithms::TerrainLodPassId scorePassId,
                                           Algorithms::TerrainLodPassId topologyPassId) {
@@ -725,6 +749,7 @@ void WriteSummaryMarkdown(
     markdown << "| --- | ---: | ---: | ---: | ---: | ---: |\n";
     for (const RuntimeBenchmarkAlgorithmResult& result : results)
     {
+        if (result.AlgorithmId == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) continue;
         const RuntimeBenchmarkSummary summary = SummarizeRuntimeBenchmark(result);
         markdown << "| " << result.AlgorithmName
                  << " | " << summary.CpuMeshFullRebuildCount
@@ -740,6 +765,7 @@ void WriteSummaryMarkdown(
     markdown << "| --- | ---: | ---: | ---: | ---: |\n";
     for (const RuntimeBenchmarkAlgorithmResult& result : results)
     {
+        if (result.AlgorithmId == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) continue;
         const RuntimeBenchmarkSummary summary = SummarizeRuntimeBenchmark(result);
         markdown << "| " << result.AlgorithmName
                  << " | " << summary.AverageSplitMilliseconds
@@ -754,6 +780,7 @@ void WriteSummaryMarkdown(
     markdown << "| --- | ---: | ---: | ---: | ---: | ---: |\n";
     for (const RuntimeBenchmarkAlgorithmResult& result : results)
     {
+        if (result.AlgorithmId == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) continue;
         const RuntimeBenchmarkSummary summary = SummarizeRuntimeBenchmark(result);
         markdown << "| " << result.AlgorithmName
                  << " | " << summary.AverageFrameFenceWaitMilliseconds
@@ -790,6 +817,7 @@ void WriteCpuUploadCsv(
     csv << std::setprecision(9);
     for (const RuntimeBenchmarkAlgorithmResult& result : results)
     {
+        if (result.AlgorithmId == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) continue;
         for (const RuntimeBenchmarkCpuUploadSample& sample : result.CpuUploadSamples)
         {
             const Render::TerrainCpuUploadExperimentSample& upload = sample.Upload;
@@ -814,17 +842,7 @@ void WriteCpuUploadCsv(
 
 std::string RuntimeBenchmarkAlgorithmDisplayName(Algorithms::TerrainLodAlgorithmId algorithmId)
 {
-    switch (algorithmId)
-    {
-    case Algorithms::TerrainLodAlgorithmId::ClassicCpuRoam:
-        return "Classic CPU ROAM";
-    case Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam:
-        return "Data-Oriented CPU ROAM";
-    case Algorithms::TerrainLodAlgorithmId::Count:
-        break;
-    }
-
-    return "Unknown ROAM";
+    return std::string{Algorithms::TerrainLodAlgorithmDisplayName(algorithmId)};
 }
 
 RuntimeBenchmarkReportPaths WriteRuntimeBenchmarkReport(

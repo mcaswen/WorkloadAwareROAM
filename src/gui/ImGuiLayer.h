@@ -66,6 +66,7 @@ enum class ImGuiRenderBackend
 /// </summary>
 struct DebugOverlayData
 {
+    std::optional<Algorithms::TransactionalLodStats> Transactional;
     float FramesPerSecond{0.0F};
     float FrameTimeMilliseconds{0.0F};
     int WindowWidth{0};
@@ -200,6 +201,10 @@ struct TerrainPanelState
     // 只控制 DOD 的 chunk Split 拓扑提交，不关闭并行误差评分。
     bool RoamEnableParallelSplit{false};
     Algorithms::TerrainLodPassPolicy RoamPassPolicy{};
+    Algorithms::TransactionalLodSettings Transactional{};
+    bool TransactionalPaused{false};
+    bool LodStepRequested{false};
+    bool LodResetRequested{false};
 
     // 局部约束是 ROAM 消除裂缝的默认路径
     bool RoamEnableLocalConstraints{true};

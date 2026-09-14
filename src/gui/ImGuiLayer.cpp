@@ -1,4 +1,5 @@
 #include "gui/ImGuiLayer.h"
+#include "algorithms/TerrainLodAlgorithmRegistry.h"
 
 #include <imgui.h>
 #if defined(PARALLEL_ROAM_GRAPHICS_API_OPENGL)
@@ -165,6 +166,7 @@ int TerrainModeIndex(bool useTerrainLod, Algorithms::TerrainLodAlgorithmId algor
         return 0;
     }
 
+    if (algorithmId == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) return 3;
     if (algorithmId == Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam)
     {
         return 2;
@@ -175,6 +177,7 @@ int TerrainModeIndex(bool useTerrainLod, Algorithms::TerrainLodAlgorithmId algor
 
 Algorithms::TerrainLodAlgorithmId TerrainAlgorithmFromModeIndex(int modeIndex)
 {
+    if (modeIndex == 3) return Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod;
     if (modeIndex == 2)
     {
         // DOD 仍走 CPU mesh 输出路径
@@ -197,7 +200,7 @@ const char* TerrainModeName(bool useTerrainLod, Algorithms::TerrainLodAlgorithmI
         return "Data-Oriented CPU ROAM";
     }
 
-    return "Classic CPU ROAM";
+    return Algorithms::TerrainLodAlgorithmDisplayName(algorithmId).data();
 }
 
 void DrawDebugColorLegend()
@@ -273,10 +276,14 @@ void DrawCompactPerformanceMetrics(const DebugOverlayData& data)
     DrawMetricRow("VSync", data.VSyncEnabled ? "开启" : "关闭");
     DrawMetricRow("模式", TerrainModeName(data.UseTerrainLod, data.TerrainLodAlgorithm));
     DrawMetricSize("三角形数", data.TriangleCount);
-    DrawMetricSize("节点数", data.RoamNodeCount);
+    if (!data.Transactional) DrawMetricSize("节点数", data.RoamNodeCount);
     DrawMetricFloat("LOD total ms", data.RoamTotalMilliseconds, "%.2f");
-    DrawMetricSize("CPU Worker", data.RoamCpuWorkerCount);
-    DrawMetricFloat("CPU 占用", data.RoamCpuUtilizationPercent, "%.1f%%");
+    if (data.Transactional) DrawMetricRow("CPU 实际参与 / 占用", "未测");
+    else
+    {
+        DrawMetricSize("CPU Worker", data.RoamCpuWorkerCount);
+        DrawMetricFloat("CPU 占用", data.RoamCpuUtilizationPercent, "%.1f%%");
+    }
     if (!data.TerrainLodStatusMessage.empty())
     {
         DrawMetricRow("LOD 状态", "不可用");
@@ -417,7 +424,25 @@ void DrawPerformanceOverlay(const DebugOverlayData& data, bool& detailedMode)
     if (detailedMode)
     {
         // 详细模式继续展开 ROAM 拓扑和 pass 级耗时
-        DrawDetailedPerformanceMetrics(data);
+        if (data.Transactional)
+        {
+            const auto& t = *data.Transactional;
+            DrawSectionHeader("事务阶段");
+            DrawMetricSize("配置线程（非实测参与）", t.RequestedWorkers);
+            DrawMetricSize("接收 / 回收交换", t.Exchanges);
+            DrawMetricSize("自由额度细化", t.FreeExecuted);
+            DrawMetricSize("配对检查", t.PairChecks);
+            DrawMetricSize("冲突", t.Conflicts);
+            DrawMetricFloat("相机刷新", static_cast<float>(t.ViewMilliseconds), "%.3f ms");
+            DrawMetricFloat("接收认证", static_cast<float>(t.ReceiverMilliseconds), "%.3f ms");
+            DrawMetricFloat("回收认证", static_cast<float>(t.DonorMilliseconds), "%.3f ms");
+            DrawMetricFloat("预留", static_cast<float>(t.ReservationMilliseconds), "%.3f ms");
+            DrawMetricFloat("样本续接", static_cast<float>(t.SampleRepairMilliseconds), "%.3f ms");
+            DrawMetricFloat("冷启动", static_cast<float>(t.SeedMilliseconds + t.InitializeMilliseconds), "%.3f ms");
+            ImGui::TextUnformatted("旧五阶段与实际线程利用率：不适用 / 未测");
+            if (!data.TerrainLodStatusMessage.empty()) ImGui::TextWrapped("%s", data.TerrainLodStatusMessage.c_str());
+        }
+        else DrawDetailedPerformanceMetrics(data);
         if (!data.LastBenchmarkOutputPath.empty())
         {
             DrawSectionHeader("Benchmark");
@@ -687,12 +712,14 @@ bool ImGuiLayer::DrawDebugOverlay(const DebugOverlayData& data, TerrainPanelStat
     }
     changed |= ImGui::Checkbox("线框模式", &terrainState.Wireframe);
     int terrainModeIndex = TerrainModeIndex(terrainState.UseTerrainLod, terrainState.TerrainLodAlgorithm);
-    const char* terrainModeItems[] = {"规则网格", "Classic CPU ROAM", "Data-Oriented CPU ROAM"};
+    const char* terrainModeItems[] = {"规则网格", "Classic CPU ROAM", "Data-Oriented CPU ROAM", "Transactional CPU LOD（实验）"};
+    const int modeCount = Algorithms::IsTerrainLodAlgorithmAvailable(
+        Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) ? 4 : 3;
     if (ImGui::Combo(
             "LOD 算法",
             &terrainModeIndex,
             terrainModeItems,
-            static_cast<int>(std::size(terrainModeItems))))
+            modeCount))
     {
         changed = true;
         terrainState.UseTerrainLod = terrainModeIndex != 0;
@@ -708,13 +735,35 @@ bool ImGuiLayer::DrawDebugOverlay(const DebugOverlayData& data, TerrainPanelStat
     changed |= ImGui::SliderFloat("地形尺寸", &terrainState.TerrainSize, 6.0F, 80.0F, "%.1f");
     changed |= ImGui::SliderFloat("高度缩放", &terrainState.HeightScale, 0.0F, 12.0F, "%.2f");
 
-    DrawSectionHeader("ROAM");
+    const bool transactional = terrainState.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod;
+    if (transactional)
+    {
+        DrawSectionHeader("事务化 LOD（实验）");
+        int workers = static_cast<int>(terrainState.Transactional.WorkerCount);
+        int prefix = static_cast<int>(terrainState.Transactional.PrefixLimit);
+        int donors = static_cast<int>(terrainState.Transactional.DonorLimit);
+        changed |= ImGui::SliderInt("线程", &workers, 1, 32);
+        changed |= ImGui::SliderInt("需求前缀", &prefix, 1, 640);
+        changed |= ImGui::SliderInt("回收前缀", &donors, 1, 640);
+        terrainState.Transactional.WorkerCount = static_cast<std::size_t>(workers);
+        terrainState.Transactional.PrefixLimit = static_cast<std::size_t>(prefix);
+        terrainState.Transactional.DonorLimit = static_cast<std::size_t>(donors);
+        changed |= ImGui::Checkbox("暂停更新", &terrainState.TransactionalPaused);
+        if (ImGui::Button("执行一批")) terrainState.LodStepRequested = true;
+        ImGui::SameLine();
+        if (ImGui::Button("重新初始化")) terrainState.LodResetRequested = true;
+        changed |= ImGui::SliderInt("三角形预算", &terrainState.RoamTriangleBudget, 2, 200000);
+        ImGui::TextWrapped("预算、线程或前缀修改会重新初始化；当前视图认证不保证连续视图质量。");
+    }
+    DrawSectionHeader(transactional ? "初始种子设置" : "ROAM");
+    ImGui::BeginDisabled(transactional);
     changed |= ImGui::Checkbox("局部约束", &terrainState.RoamEnableLocalConstraints);
     changed |= ImGui::Checkbox("拓扑验证", &terrainState.RoamEnableTopologyValidation);
     if (terrainState.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam)
     {
         changed |= ImGui::Checkbox("并行 Split", &terrainState.RoamEnableParallelSplit);
     }
+    ImGui::EndDisabled();
     changed |= ImGui::SliderInt("最大深度", &terrainState.RoamMaxDepth, 1, 20);
     if (terrainState.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::ClassicCpuRoam ||
         terrainState.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam)

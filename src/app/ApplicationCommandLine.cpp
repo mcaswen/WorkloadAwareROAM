@@ -1,4 +1,5 @@
 #include "app/ApplicationCommandLine.h"
+#include "algorithms/TerrainLodAlgorithmRegistry.h"
 
 #include <algorithm>
 #include <array>
@@ -132,7 +133,8 @@ private:
     [[nodiscard]] static ApplicationLaunchMode FindLaunchMode(std::string_view argument)
     {
         // 探针和无窗口实验都不需要窗口、渲染器或界面资源
-        static constexpr std::array<LaunchModeDescriptor, 2> modes{{
+        static constexpr std::array<LaunchModeDescriptor, 3> modes{{
+            {"--transactional-platform-check", ApplicationLaunchMode::TransactionalPlatformCheck},
             {"--roam-probe", ApplicationLaunchMode::RoamProbe},
             {"--benchmark", ApplicationLaunchMode::TerrainLodBenchmark},
         }};
@@ -149,7 +151,13 @@ private:
     [[nodiscard]] static const OptionDescriptor* FindDescriptor(std::string_view argument)
     {
         // 别名单独登记但共享处理函数，新增名称不需要扩展条件分支
-        static constexpr std::array<OptionDescriptor, 28> descriptors{{
+        static constexpr std::array<OptionDescriptor, 34> descriptors{{
+            {"--algorithm", true, &CommandLineParser::HandleAlgorithm},
+            {"--runtime-benchmark-algorithms", true, &CommandLineParser::HandleAlgorithmSequence},
+            {"--transactional-workers", true, &CommandLineParser::HandleTransactionalLimit},
+            {"--transactional-prefix", true, &CommandLineParser::HandleTransactionalLimit},
+            {"--transactional-donors", true, &CommandLineParser::HandleTransactionalLimit},
+            {"--runtime-benchmark-budget", true, &CommandLineParser::HandleTriangleBudget},
             {"--smoke-test", false, &CommandLineParser::HandleSmokeTest},
             {"--dx12-smoke-test", false, &CommandLineParser::HandleDirect3D12SmokeTest},
             {"--runtime-benchmark", false, &CommandLineParser::HandleRuntimeBenchmark},
@@ -216,6 +224,62 @@ private:
         _result.Error = "--dx12-smoke-test requires PARALLEL_ROAM_GRAPHICS_API=D3D12";
         return false;
 #endif
+    }
+
+    bool HandleAlgorithm(std::string_view, std::string_view value)
+    {
+        const auto id = Algorithms::ParseTerrainLodAlgorithm(value);
+        if (!id) { _result.Error = "Unknown or unavailable algorithm: " + std::string{value}; return false; }
+        auto& overrides = _result.Options.RuntimeBenchmark;
+        overrides.HasInteractiveAlgorithm = true;
+        overrides.InteractiveAlgorithm = *id;
+        MarkRuntimeBenchmarkOverride();
+        return true;
+    }
+
+    bool HandleAlgorithmSequence(std::string_view, std::string_view value)
+    {
+        auto& sequence = _result.Options.RuntimeBenchmark.AlgorithmSequence;
+        sequence.clear();
+        while (true)
+        {
+            const auto comma = value.find(',');
+            const auto id = Algorithms::ParseTerrainLodAlgorithm(value.substr(0, comma));
+            if (!id || std::find(sequence.begin(), sequence.end(), *id) != sequence.end())
+            { _result.Error = "Invalid, duplicate or unavailable runtime algorithm"; return false; }
+            sequence.push_back(*id);
+            if (comma == std::string_view::npos) break;
+            value.remove_prefix(comma + 1);
+        }
+        MarkRuntimeBenchmarkOverride();
+        return true;
+    }
+
+    bool HandleTransactionalLimit(std::string_view option, std::string_view value)
+    {
+        std::size_t number{};
+        if (!ParseNonNegativeSize(option, value, number)) return false;
+        const bool workers = option == "--transactional-workers";
+        if (number == 0 || number > (workers ? 32U : 640U))
+        { _result.Error = "Transactional setting outside supported range"; return false; }
+        auto& overrides = _result.Options.RuntimeBenchmark;
+        if (workers) overrides.Transactional.WorkerCount = number;
+        else if (option == "--transactional-prefix") overrides.Transactional.PrefixLimit = number;
+        else overrides.Transactional.DonorLimit = number;
+        overrides.HasTransactional = true;
+        MarkRuntimeBenchmarkOverride();
+        return true;
+    }
+
+    bool HandleTriangleBudget(std::string_view option, std::string_view value)
+    {
+        std::size_t number{};
+        if (!ParseNonNegativeSize(option, value, number)) return false;
+        if (number < 2 || number > 200000) { _result.Error = "Budget must be in [2, 200000]"; return false; }
+        auto& overrides = _result.Options.RuntimeBenchmark;
+        overrides.HasTriangleBudget = true; overrides.TriangleBudget = number;
+        MarkRuntimeBenchmarkOverride();
+        return true;
     }
 
     bool HandleRuntimeBenchmark(std::string_view, std::string_view)

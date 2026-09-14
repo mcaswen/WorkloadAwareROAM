@@ -1,9 +1,11 @@
 #pragma once
 
 #include "algorithms/TerrainLodPassTrace.h"
+#include "algorithms/ITerrainLodAlgorithm.h"
 
 #include <cstddef>
 #include <string>
+#include <vector>
 
 namespace ParallelRoam::App
 {
@@ -21,6 +23,15 @@ enum class RuntimeBenchmarkPath
 /// </summary>
 struct RuntimeBenchmarkOverrides
 {
+    // 空名单保留旧双算法实验；显式算法同时可用于交互启动
+    std::vector<Algorithms::TerrainLodAlgorithmId> AlgorithmSequence;
+    bool HasInteractiveAlgorithm{false};
+    ParallelRoam::Algorithms::TerrainLodAlgorithmId InteractiveAlgorithm{
+        ParallelRoam::Algorithms::TerrainLodAlgorithmId::ClassicCpuRoam};
+    bool HasTransactional{false};
+    ParallelRoam::Algorithms::TransactionalLodSettings Transactional{};
+    bool HasTriangleBudget{false};
+    std::size_t TriangleBudget{20000};
     // 每个是否覆盖标记用于区分未指定和显式使用默认值
     bool HasPath{false};
     RuntimeBenchmarkPath Path{RuntimeBenchmarkPath::Default};

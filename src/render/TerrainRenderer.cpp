@@ -1,10 +1,9 @@
 #include "render/TerrainRenderer.h"
+#include "algorithms/TerrainLodAlgorithmRegistry.h"
 
 #include "render/GraphicsBackend.h"
 
 #include "algorithms/TerrainLodView.h"
-#include "algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.h"
-#include "algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.h"
 #include "tools/PerformanceTimer.h"
 
 #include <glad/gl.h>
@@ -129,7 +128,8 @@ bool NeedsMeshRebuild(const TerrainRenderSettings& previous, const TerrainRender
            previous.RoamPassPolicy != next.RoamPassPolicy ||
            previous.RoamEnableLocalConstraints != next.RoamEnableLocalConstraints ||
            previous.RoamEnableTopologyValidation != next.RoamEnableTopologyValidation ||
-           previous.RoamEnablePassEvidence != next.RoamEnablePassEvidence;
+           previous.RoamEnablePassEvidence != next.RoamEnablePassEvidence ||
+           previous.Transactional != next.Transactional;
 }
 
 bool RoamViewInputsChanged(const RenderContext& previous, const RenderContext& next)
@@ -177,21 +177,6 @@ glm::vec3 NormalizeLightDirection(const glm::vec3& lightDirection)
     return glm::normalize(lightDirection);
 }
 
-std::unique_ptr<Algorithms::ITerrainLodAlgorithm> CreateTerrainLodAlgorithm(
-    Algorithms::TerrainLodAlgorithmId algorithmId)
-{
-    if (algorithmId == Algorithms::TerrainLodAlgorithmId::ClassicCpuRoam)
-    {
-        return std::make_unique<Algorithms::ClassicRoam::ClassicRoamTerrainLodAlgorithm>();
-    }
-
-    if (algorithmId == Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam)
-    {
-        return std::make_unique<Algorithms::DataOrientedRoam::DataOrientedRoamTerrainLodAlgorithm>();
-    }
-
-    return nullptr;
-}
 } // 匿名命名空间
 
 TerrainRenderer::TerrainRenderer() = default;
@@ -284,6 +269,29 @@ bool TerrainRenderer::LoadHeightMap(const std::filesystem::path& heightMapPath, 
 bool TerrainRenderer::UpdateForView(const RenderContext& context, std::string* errorMessage)
 {
     _lastRenderContext = context;
+    if (context.DrawableWidth <= 0 || context.DrawableHeight <= 0) return true;
+    const bool continuous = _terrainLodAlgorithm &&
+        _terrainLodAlgorithm->Capabilities().RequiresContinuousUpdate;
+    const bool step = _lodStepRequested;
+    _lodStepRequested = false;
+    if (continuous && _settings.TransactionalPaused && !step && !_meshDirty &&
+        !_cpuUploadRecoveryRequired)
+    {
+        _terrainLodTotalMilliseconds = 0.0F;
+        _terrainLodCpuUploadMilliseconds = 0.0F;
+        _terrainLodStats.CpuUpdateMilliseconds = 0.0F;
+        _terrainLodStats.CpuUploadMilliseconds = 0.0F;
+        _terrainLodStats.CpuGpuUploadBytes = 0;
+        if (_terrainLodStats.Transactional)
+        {
+            const auto workers = _terrainLodStats.Transactional->RequestedWorkers;
+            *_terrainLodStats.Transactional = {};
+            _terrainLodStats.Transactional->RequestedWorkers = workers;
+            _terrainLodStats.Transactional->Status = Algorithms::TransactionalLodStatus::Paused;
+            _terrainLodStats.Transactional->HasPublishedMesh = _borrowedCpuMeshData != nullptr;
+        }
+        return true;
+    }
 
     // 规则网格不依赖相机，只有 UI 改变 mesh 参数时才重建
     if (!_settings.UseTerrainLod && !_meshDirty)
@@ -307,7 +315,7 @@ bool TerrainRenderer::UpdateForView(const RenderContext& context, std::string* e
             (!_hasRoamBuildView || RoamViewInputsChanged(_lastRoamBuildContext, context));
 
         // 拓扑维护较重，静止或微小移动时复用上一帧 mesh
-        if (!_meshDirty && !cameraMovedEnough && !roamViewChanged)
+        if (!continuous && !_cpuUploadRecoveryRequired && !_meshDirty && !cameraMovedEnough && !roamViewChanged)
         {
             return true;
         }
@@ -325,8 +333,9 @@ void TerrainRenderer::RequestMeshRebuild()
 
 void TerrainRenderer::ResetTerrainLodAlgorithm()
 {
-    _terrainLodAlgorithm.reset();
     _borrowedCpuMeshData = nullptr;
+    _terrainLodAlgorithm.reset();
+    _cpuUploadRecoveryRequired = true;
     _terrainLodStats = {};
     _terrainLodStatusMessage.clear();
     _terrainLodTotalMilliseconds = 0.0F;
@@ -343,8 +352,9 @@ void TerrainRenderer::ResetTerrainLodAlgorithm()
 
 void TerrainRenderer::Shutdown()
 {
-    _terrainLodAlgorithm.reset();
     _borrowedCpuMeshData = nullptr;
+    _terrainLodAlgorithm.reset();
+    _cpuUploadRecoveryRequired = true;
     _terrainLodStats = {};
     _terrainLodStatusMessage.clear();
 
@@ -567,6 +577,14 @@ bool TerrainRenderer::RebuildMesh(std::string* errorMessage)
     // ROAM 类算法都通过统一接口重建 CPU mesh
     if (_settings.UseTerrainLod)
     {
+        // 新算法只在有效的 UpdateForView 机会执行，设置/初始化不偷跑额外批次
+        if (_settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod)
+        {
+            if (_terrainLodAlgorithm && _terrainLodAlgorithm->Info().Id != _settings.TerrainLodAlgorithm)
+                ResetTerrainLodAlgorithm();
+            _meshDirty = true;
+            return true;
+        }
         return RebuildTerrainLod(_lastRenderContext, errorMessage);
     }
 
@@ -611,7 +629,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
         // 具体算法由 UI 选择的 TerrainLodAlgorithmId 决定
         // 切换算法时必须重建持久拓扑状态
         _borrowedCpuMeshData = nullptr;
-        _terrainLodAlgorithm = CreateTerrainLodAlgorithm(_settings.TerrainLodAlgorithm);
+        _terrainLodAlgorithm = Algorithms::CreateTerrainLodAlgorithm(_settings.TerrainLodAlgorithm);
         _hasRoamBuildView = false;
     }
 
@@ -636,6 +654,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     lodSettings.TriangleBudget = _settings.RoamTriangleBudget;
     lodSettings.EnableParallelSplit = _settings.RoamEnableParallelSplit;
     lodSettings.PassPolicy = _settings.RoamPassPolicy;
+    lodSettings.Transactional = _settings.Transactional;
     lodSettings.EnableLocalConstraints = _settings.RoamEnableLocalConstraints;
     lodSettings.EnableTopologyValidation = _settings.RoamEnableTopologyValidation;
     lodSettings.EnablePassEvidence = _settings.RoamEnablePassEvidence;
@@ -657,9 +676,16 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     std::string localErrorMessage;
     std::string* buildErrorMessage = errorMessage != nullptr ? errorMessage : &localErrorMessage;
     buildErrorMessage->clear();
-    if (!_terrainLodAlgorithm->BuildRenderData(buildInput, renderPacket, buildErrorMessage))
+    // Build/Reset 可使旧借用失效；失败包可能仍给出最后完整输出，先解除旧指针
+    _borrowedCpuMeshData = nullptr;
+    const bool buildSucceeded = _terrainLodAlgorithm->BuildRenderData(buildInput, renderPacket, buildErrorMessage);
+    _terrainLodStats = _terrainLodAlgorithm->Stats();
+    if (!buildSucceeded && renderPacket.BorrowedCpuMesh == nullptr && renderPacket.CpuMesh.Indices.empty())
     {
+        _drawVertexCount = _drawIndexCount = _drawTriangleCount = 0;
         _terrainLodStatusMessage = buildErrorMessage->empty() ? "Terrain LOD build failed" : *buildErrorMessage;
+        _terrainLodTotalMilliseconds = rebuildTimer.Stop();
+        _cpuUploadRecoveryRequired = true;
         return false;
     }
 
@@ -672,7 +698,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
 
     _terrainLodStats = _terrainLodAlgorithm->Stats();
     _terrainLodCpuUploadMilliseconds = _terrainLodStats.CpuUploadMilliseconds;
-    _terrainLodStatusMessage = renderPacket.StatusMessage;
+    _terrainLodStatusMessage = buildSucceeded ? renderPacket.StatusMessage : *buildErrorMessage;
     // camera rebuild 位置只在算法成功后更新
     // 失败时下一帧仍会尝试基于旧 mesh 状态重建
     _lastRoamBuildContext = context;
@@ -711,12 +737,13 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
         Tools::PerformanceTimer uploadTimer;
         if (!UploadMeshData(
                 *cpuMesh,
-                renderPacket.CpuMeshRequiresFullUpload,
+                renderPacket.CpuMeshRequiresFullUpload || _cpuUploadRecoveryRequired,
                 renderPacket.CpuUploadAction,
                 renderPacket.CpuMeshUpdateRanges,
                 errorMessage))
         {
             _meshDirty = true;
+            _cpuUploadRecoveryRequired = true;
             return false;
         }
         _terrainLodCpuUploadMilliseconds = uploadTimer.Stop();
@@ -727,8 +754,9 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
             _terrainLodCpuUploadMilliseconds;
 
         _meshDirty = false;
+        _cpuUploadRecoveryRequired = false;
         _terrainLodTotalMilliseconds = rebuildTimer.Stop();
-        return true;
+        return buildSucceeded;
     }
 
     if (errorMessage != nullptr)
@@ -863,6 +891,16 @@ bool TerrainRenderer::UploadMeshData(
     }
 
     _renderMode = Algorithms::TerrainLodRenderMode::CpuMesh;
+    // 新算法需要显式上传恢复证据；该查询在当前驱动上会引入同步停顿
+    // 保留旧 Classic/DOD 原有上传边界，不让实验错误检查污染参考性能
+    if (_settings.UseTerrainLod &&
+        _settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod &&
+        glGetError() != GL_NO_ERROR)
+    {
+        _vertexBufferCapacityBytes = _indexBufferCapacityBytes = 0;
+        if (errorMessage) *errorMessage = "OpenGL mesh upload failed";
+        return false;
+    }
     _drawVertexCount = meshData.Vertices.size();
     _drawIndexCount = meshData.Indices.size();
     _drawTriangleCount = meshData.Indices.size() / 3U;

@@ -184,6 +184,8 @@ if(PARALLEL_ROAM_BUILD_APP)
     endif()
 
     if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
+        list(APPEND PARALLEL_ROAM_APP_SOURCES src/algorithms/TerrainLodAlgorithmRegistry.cpp)
+        list(APPEND PARALLEL_ROAM_APP_SOURCES src/benchmark/TransactionalPlatformProbe.cpp)
         list(APPEND PARALLEL_ROAM_APP_SOURCES ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
             src/benchmark/formal/FormalWorkloadDiscovery.cpp
             src/benchmark/formal/FormalCpuInput.cpp
@@ -219,6 +221,9 @@ if(PARALLEL_ROAM_BUILD_APP)
 
     if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
         target_compile_definitions(parallel_roam PRIVATE PARALLEL_ROAM_BUILD_FULL_APP=1)
+        if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
+            target_link_libraries(parallel_roam PRIVATE parallel_roam_transactional_lod_adapter)
+        endif()
     endif()
 
     if(PARALLEL_ROAM_FULL_APP_AVAILABLE AND PARALLEL_ROAM_GRAPHICS_API_NORMALIZED STREQUAL "D3D12")

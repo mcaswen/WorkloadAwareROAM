@@ -1,4 +1,5 @@
 #include "benchmark/TerrainLodBenchmarkCommandLine.h"
+#include "algorithms/TerrainLodAlgorithmRegistry.h"
 
 #include <charconv>
 #include <limits>
@@ -44,6 +45,9 @@ bool ParseParallelTopologyPhase(
 
 bool ParseAlgorithm(std::string_view value, BenchmarkAlgorithmSelection& outSelection)
 {
+    if (value == "transactional" && Algorithms::IsTerrainLodAlgorithmAvailable(Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod))
+    { outSelection = BenchmarkAlgorithmSelection::Transactional; return true; }
+
     // 保留脚本常用短名和已有算法名，使旧命令仍能选择同一个实现
     if (value == "classic" || value == "classic_cpu_roam")
     {

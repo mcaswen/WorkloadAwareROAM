@@ -17,6 +17,7 @@ enum class BenchmarkAlgorithmSelection
     Classic,
     DataOriented,
     All,
+    Transactional,
 };
 
 /// <summary>

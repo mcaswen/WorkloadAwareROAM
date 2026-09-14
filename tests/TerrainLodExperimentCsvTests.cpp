@@ -82,7 +82,7 @@ int main()
             SplitCsv(settingsHeader.str()),
             SplitCsv(settingsValues.str()),
             {
-                {"experimentSchemaVersion", "4"},
+                {"experimentSchemaVersion", "5"},
                 {"mergeScoreMinParallelEntryCount", "0"},
                 {"splitScoreMinParallelEntryCount", "255"},
                 {"meshEmitMinParallelTriangleCount", "257"},
@@ -140,6 +140,16 @@ int main()
     {
         return 1;
     }
+
+    stats.Transactional.emplace();
+    stats.Transactional->Exchanges = 7;
+    stats.Transactional->ViewMilliseconds = 2.5;
+    std::ostringstream transactionalValues;
+    ParallelRoam::Experiment::WriteTerrainLodStatsCsvValues(transactionalValues, stats);
+    if (!CheckSerializedFields(SplitCsv(statsHeader.str()), SplitCsv(transactionalValues.str()),
+        {{"stageModel", "transactional"}, {"transactionalExchanges", "7"},
+         {"transactionalViewMilliseconds", "2.5"}, {"cpuWorkerCount", "n/a"},
+         {"pass_mergeScoreCandidateCount", "n/a"}})) return 1;
 
     return 0;
 }

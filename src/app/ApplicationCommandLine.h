@@ -14,6 +14,7 @@ enum class ApplicationLaunchMode
     Application,
     RoamProbe,
     TerrainLodBenchmark,
+    TransactionalPlatformCheck,
 };
 
 /// <summary>
