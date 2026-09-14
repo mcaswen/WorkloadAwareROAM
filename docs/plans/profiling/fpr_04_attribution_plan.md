@@ -24,3 +24,9 @@
 ## 实现情况
 
 已完成一个 DOD 八轮捕获（437 个区间）、Classic 短轨迹入口、关闭/未连接/捕获对照和结果比对。官方 annotate 对 Project 的 554 个样本输出指令，addr2line 与哈希匹配旧源码恢复源位置。最终审计补上实际输入依赖归档，早期补档明确注明为事后工作。见[最终报告](../../research/profiling/cpu_function_profiling_findings.md)、[使用指南](../../research/profiling/cpu_profiling_usage.md)与[审查](../../reviews/profiling/fpr_04_attribution_review.md)。GWR 未实施。
+
+### 报告明细补充
+
+根据用户对函数比例、调用时序和复杂度的要求，扩展同模块研究文档：总报告承担结论和互斥帧账本；两份函数明细承担全部符号、调用边、完整栈和索引；时序明细承担作用域与实际任务；工作明细承担原始计数；成本分析承担源码算法与复杂度。职责分开，未改变 C++、采集器、测量边界或公共接口。
+
+只离线重聚合既有原始数据：test129/Peking 分别覆盖 178/121 个 ROI 符号、631/187 条完整记录路径，276 个 GTP 任务；每个符号 self 与原聚合核对，每帧互斥时间和严格等于 frame，全部作用域 self 与官方导出逐项一致。重新审读 Samples、Certification、Proposals、Reservation、State、Commit、Mesh、Execution、Pipeline、Predicates 和线程池，避免把计数当复杂度或把父子时间重复相加。性能证据复用原阶段结果；文档修改没有新增运行时性能测试的必要。

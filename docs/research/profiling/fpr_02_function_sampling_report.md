@@ -23,7 +23,7 @@
 
 `SetView` 的主线程调用栈不包含派发后在其他线程执行的 CPU 样本。不能用单线程 inclusive 占比代表整个并行阶段的成本。后续 Tracy 必须覆盖 PrepareView、BuildOrders、PublishView、Receivers、Donor、Fit、Measure、派发任务和等待；不逐样本标记 ErrorBounds/Weights。
 
-完整前 50 自身、含调用和路径表见忽略目录内 `artifacts/summary.json` 与 `report.md`；`summary-current.json` 仅补充未知祖先计数，来自相同官方导出，无重新采样。
+原聚合器的前 50 项保留在忽略目录内 `artifacts/summary.json` 与 `report.md`；`summary-current.json` 仅补充未知祖先计数，来自相同官方导出，无重新采样。后续详细审查已直接从完整官方 script 重建[全部 test129 函数/调用边/路径](fpr_test129_function_details.md)与[全部 Peking 明细](fpr_peking_function_details.md)，覆盖所有 ROI 有权重符号，没有受前 50 项截断影响；算法解释见[函数成本分析](fpr_function_cost_analysis.md)。
 
 ## 结果与扰动
 
