@@ -23,6 +23,7 @@ if(NOT TARGET ParallelROAM::GLM)
 endif()
 set(transactional_core_dir "${PROJECT_SOURCE_DIR}/src/algorithms/greedy_transactional_lod")
 add_library(parallel_roam_transactional_lod_core STATIC
+    "${transactional_core_dir}/TransactionalStateInvariant.cpp"
     "${transactional_core_dir}/TransactionalState.cpp" "${transactional_core_dir}/TransactionalSamples.cpp"
     "${transactional_core_dir}/TransactionalViewState.cpp" "${transactional_core_dir}/TransactionalProposalEvidence.cpp"
     "${transactional_core_dir}/TransactionalPredicates.cpp" "${transactional_core_dir}/TransactionalCertification.cpp"
@@ -38,4 +39,20 @@ if(MSVC)
     target_compile_options(parallel_roam_transactional_lod_core PRIVATE /fp:strict)
 else()
     target_compile_options(parallel_roam_transactional_lod_core PRIVATE -fno-fast-math -ffp-contract=off)
+endif()
+
+if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
+    add_library(parallel_roam_transactional_lod_adapter STATIC
+        "${transactional_core_dir}/TransactionalTerrainLodAlgorithm.cpp"
+        "${transactional_core_dir}/TransactionalSeedBuilder.cpp"
+        "${transactional_core_dir}/TransactionalRenderBridge.cpp")
+    target_link_libraries(parallel_roam_transactional_lod_adapter PUBLIC parallel_roam_transactional_lod_core
+        PRIVATE parallel_roam_project_warnings)
+    target_compile_definitions(parallel_roam_transactional_lod_adapter PUBLIC PARALLEL_ROAM_TRANSACTIONAL_LOD_RUNTIME=1)
+    if(MSVC)
+        target_compile_options(parallel_roam_transactional_lod_adapter PRIVATE /fp:strict)
+    else()
+        target_compile_options(parallel_roam_transactional_lod_adapter PRIVATE -fno-fast-math -ffp-contract=off)
+    endif()
+    # 最终平台/测试入口提供现有 DOD、HeightMap、视图与执行工具，不在适配库复制它们
 endif()

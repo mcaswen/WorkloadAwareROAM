@@ -1,6 +1,8 @@
 #pragma once
 
 #include "algorithms/TerrainLodPassTrace.h"
+#include "algorithms/TransactionalLodSettings.h"
+#include "algorithms/TransactionalLodStats.h"
 #include "terrain/HeightMap.h"
 #include "terrain/TerrainMeshBuilder.h"
 
@@ -9,6 +11,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -22,6 +25,7 @@ enum class TerrainLodAlgorithmId
 {
     ClassicCpuRoam,
     DataOrientedCpuRoam,
+    TransactionalCpuLod,
     Count,
 };
 
@@ -46,6 +50,7 @@ struct TerrainLodAlgorithmCapabilities
     bool SupportsMerge{false};
     bool SupportsCrackFix{false};
     bool SupportsTopologyValidation{false};
+    bool RequiresContinuousUpdate{false};
 };
 
 /// <summary>
@@ -70,6 +75,7 @@ struct TerrainLodSettings
     bool EnablePassEvidence{false};
     // 只在拓扑配对回归中复制冻结状态，普通实验不得开启
     bool EnableTopologyPairEvidence{false};
+    TransactionalLodSettings Transactional{};
 };
 
 /// <summary>
@@ -99,6 +105,7 @@ struct TerrainLodViewInput
     std::array<glm::vec4, static_cast<std::size_t>(TerrainLodFrustumPlane::Count)> FrustumPlanes{}; // 法线朝向视锥内部，内部点的平面值非负
     std::uint32_t DrawableWidth{1U};
     std::uint32_t DrawableHeight{1U};
+    bool UsesZeroToOneDepth{false};
 };
 
 /// <summary>
@@ -167,6 +174,18 @@ struct TerrainLodBuildInput
     AppendTerrainLodHash(hash, input.Settings.PassPolicy.MergeScoreMinParallelEntryCount);
     AppendTerrainLodHash(hash, input.Settings.PassPolicy.SplitScoreMinParallelEntryCount);
     AppendTerrainLodHash(hash, input.Settings.PassPolicy.MeshEmitMinParallelTriangleCount);
+    // 旧默认编码保持原样；显式新输入以带名称的扩展记录进入身份
+    if (input.View.UsesZeroToOneDepth)
+        AppendTerrainLodHash(hash, std::string_view{"depth-zero-to-one-v1"});
+    if (input.Settings.Transactional != TransactionalLodSettings{})
+    {
+        AppendTerrainLodHash(hash, std::string_view{"transactional-settings-v1"});
+        AppendTerrainLodHash(hash, input.Settings.Transactional.WorkerCount);
+        AppendTerrainLodHash(hash, input.Settings.Transactional.PrefixLimit);
+        AppendTerrainLodHash(hash, input.Settings.Transactional.DonorLimit);
+        AppendTerrainLodHash(hash, input.Settings.Transactional.SampleVisitLimit);
+        AppendTerrainLodHash(hash, input.Settings.Transactional.HeightGuard);
+    }
     return hash;
 }
 
@@ -270,6 +289,8 @@ struct TerrainLodRenderPacket
 /// </summary>
 struct TerrainLodStats
 {
+    // 有值时使用事务阶段模型，旧五阶段字段不承担该算法的阶段解释
+    std::optional<TransactionalLodStats> Transactional;
     // 阶段记录只描述当前真实实现，不会改变算法选择和执行顺序
     TerrainLodPassTraceArray PassTraces{MakeTerrainLodPassTraces()};
     // 证据字段用于固定轨迹重放，关闭 EnablePassEvidence 时保持为零

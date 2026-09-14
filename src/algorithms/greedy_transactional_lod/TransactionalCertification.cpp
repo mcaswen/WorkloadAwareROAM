@@ -100,7 +100,7 @@ std::optional<R> ExactError(const TransactionalState& state,const TransactionalS
     const R height=Height(ref[0],ref[1],p[0],p[1],p[2]);
     const auto rc=Clip(state.Config(),ref[0],ref[1],ref[2]),mc=Clip(state.Config(),ref[0],ref[1],height);
     // 比较投影平方误差，避免精确认证依赖平方根舍入
-    if (rc[3]<=0 || mc[3]<=0 || mc[2]<-mc[3]) return {};
+    if (rc[3]<=0 || mc[3]<=0 || (state.Config().UsesZeroToOneDepth ? mc[2]<0 : mc[2]<-mc[3])) return {};
     const R dx=(mc[0]/mc[3]-rc[0]/rc[3])*state.Config().Width/2;
     const R dy=(mc[1]/mc[3]-rc[1]/rc[3])*state.Config().Height/2;
     return R(dx*dx+dy*dy);
@@ -114,7 +114,7 @@ std::optional<Interval> ErrorBounds(const TransactionalState& state,const Transa
     const auto p=evidence ? evidence->Face(sid,work) : CoveringFace(state,samples,sid,proposal);
     const auto height=Height(ref[0],ref[1],p[0],p[1],p[2]);
     const auto rc=Clip(state.Config(),ref[0],ref[1],ref[2]),mc=Clip(state.Config(),ref[0],ref[1],height);
-    const auto near=mc[2]+mc[3];
+    const auto near=state.Config().UsesZeroToOneDepth ? mc[2] : mc[2]+mc[3];
     // 只有整个区间都处于投影定义域，才允许快速接受它给出的误差界
     if (rc[3].Low>0 && mc[3].Low>0 && near.Low>=0)
     {
@@ -328,8 +328,11 @@ std::string TransactionalCertification::Fit(const TransactionalState& state,cons
         const double k=(std::ceil(std::hypot(kx,ky)/rc[3]*1e6)+1)/1e6;
         // 线性上界故意向保守方向取值，遗漏可行解只记录拟合失败
         const double difference=value.ReferenceHeight-value.MeshHeight;
-        const std::array<double,4> multiplier{-k-target*cw,k-target*cw,-cw,-(config.Matrix[9]+cw)};
-        const std::array<double,4> rhs{target*mc[3]-k*difference,target*mc[3]+k*difference,mc[3]-1e-9,mc[2]+mc[3]};
+        // 近面关于自由高度的系数和常量必须使用同一深度约定
+        const double nearCoefficient=config.UsesZeroToOneDepth ? config.Matrix[9] : config.Matrix[9]+cw;
+        const double nearValue=config.UsesZeroToOneDepth ? mc[2] : mc[2]+mc[3];
+        const std::array<double,4> multiplier{-k-target*cw,k-target*cw,-cw,-nearCoefficient};
+        const std::array<double,4> rhs{target*mc[3]-k*difference,target*mc[3]+k*difference,mc[3]-1e-9,nearValue};
         for (std::size_t row=0;row<4;++row)
         {
             ++work.Constraints;const Pair coefficients{multiplier[row]*beta[0],multiplier[row]*beta[1]};

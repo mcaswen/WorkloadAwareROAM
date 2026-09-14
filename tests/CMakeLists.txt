@@ -12,6 +12,24 @@ if(PARALLEL_ROAM_BUILD_PROFILING_TESTS)
     add_test(NAME cpu_profiling_fixture COMMAND parallel_roam_cpu_profiling_tests)
 endif()
 
+if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
+    add_library(parallel_roam_transactional_adapter_test_support STATIC
+        ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
+        ../src/terrain/HeightMap.cpp ../src/algorithms/TerrainLodView.cpp ../src/tools/PerformanceTimer.cpp)
+    target_include_directories(parallel_roam_transactional_adapter_test_support PUBLIC ../src)
+    target_link_libraries(parallel_roam_transactional_adapter_test_support PUBLIC
+        parallel_roam_project_options ParallelROAM::GLM ParallelROAM::STB Threads::Threads)
+    add_executable(parallel_roam_transactional_adapter_tests TransactionalTerrainLodAlgorithmTests.cpp)
+    target_link_libraries(parallel_roam_transactional_adapter_tests PRIVATE
+        parallel_roam_transactional_lod_adapter parallel_roam_transactional_adapter_test_support parallel_roam_project_warnings)
+    add_test(NAME transactional_adapter COMMAND parallel_roam_transactional_adapter_tests)
+    set_tests_properties(transactional_adapter PROPERTIES WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" TIMEOUT 180)
+    add_executable(parallel_roam_transactional_render_packet_tests TransactionalRenderPacketTests.cpp)
+    target_link_libraries(parallel_roam_transactional_render_packet_tests PRIVATE
+        parallel_roam_transactional_lod_adapter parallel_roam_project_warnings)
+    add_test(NAME transactional_render_packet COMMAND parallel_roam_transactional_render_packet_tests)
+endif()
+
 if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
     set(transactional_dir "${CMAKE_CURRENT_SOURCE_DIR}/../src/experiment/greedy_transactional_lod")
     # 动态参考只进入研究目标，生产核心不提供 oracle

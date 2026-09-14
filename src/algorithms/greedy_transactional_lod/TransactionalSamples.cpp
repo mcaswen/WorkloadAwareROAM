@@ -169,12 +169,13 @@ SampleValue TransactionalSamples::Project(const Configuration& config,Slot sid,S
     if (!std::all_of(rc.begin(),rc.end(),[](double component) { return std::isfinite(component); }))
         throw std::runtime_error("参考投影数值不可定义");
     value.Visible=rc[3]>0 && rc[0]>=-rc[3] && rc[0]<=rc[3] &&
-        rc[1]>=-rc[3] && rc[1]<=rc[3] && rc[2]>=-rc[3] && rc[2]<=rc[3];
+        rc[1]>=-rc[3] && rc[1]<=rc[3] && rc[2]>=(config.UsesZeroToOneDepth ? 0.0 : -rc[3]) && rc[2]<=rc[3];
     if (value.Visible)
     {
         // 参考可见而被测面跨近面必须拒绝，不能跳过该样本降低统计误差
         const auto mc=Clip(config,uv.U,uv.V,value.MeshHeight);
-        if (!(mc[3]>0) || mc[2]<-mc[3]) throw std::runtime_error("被测样本跨越近面");
+        if (!(mc[3]>0) || mc[2]<(config.UsesZeroToOneDepth ? 0.0 : -mc[3]))
+            throw std::runtime_error("被测样本跨越近面");
         const double dx=(mc[0]/mc[3]-rc[0]/rc[3])*(config.Width*.5);
         const double dy=(mc[1]/mc[3]-rc[1]/rc[3])*(config.Height*.5);
         value.ErrorSquared=dx*dx+dy*dy;

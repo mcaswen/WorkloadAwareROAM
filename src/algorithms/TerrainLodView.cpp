@@ -47,6 +47,7 @@ TerrainLodViewInput BuildTerrainLodViewInput(
         : glm::vec3{0.0F, 0.0F, -1.0F};
     input.DrawableWidth = std::max(drawableWidth, 1U);
     input.DrawableHeight = std::max(drawableHeight, 1U);
+    input.UsesZeroToOneDepth = usesZeroToOneDepth;
 
     // 裁剪空间的六个边界可以直接由视图投影矩阵的行组合得到
     // 在这里统一生成全部平面，避免各算法重复计算或使用不同矩阵约定

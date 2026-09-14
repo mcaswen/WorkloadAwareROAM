@@ -26,6 +26,7 @@ public:
     /// </summary>
     void Dispatch(std::size_t chunks, const std::function<void(std::size_t)>& task);
     [[nodiscard]] std::size_t WorkerCount() const { return _workers; }
+    [[nodiscard]] bool IsStopped() const { return _failed; }
 
 private:
     std::unique_ptr<CpuThreadPool> _pool;

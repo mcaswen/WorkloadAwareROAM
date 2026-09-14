@@ -53,6 +53,7 @@ struct Configuration
     std::size_t PrefixLimit{64}, DonorLimit{64};
     std::size_t SampleVisitLimit{1000000};
     bool HeightGuard{};
+    bool UsesZeroToOneDepth{};
 };
 
 /// <summary>

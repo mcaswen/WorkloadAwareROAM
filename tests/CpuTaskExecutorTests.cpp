@@ -1,4 +1,5 @@
 #include "tools/CpuTaskExecutor.h"
+#include "AllocationFailure.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamThreadPool.h"
 
 #include <atomic>
@@ -10,26 +11,11 @@
 
 namespace
 {
-// 只在派发者线程注入一次分配失败，后台任务不参与故障计数
-thread_local int allocationCountdown = -1;
 void Require(bool value, const char* message)
 {
     if (!value) throw std::runtime_error(message);
 }
 }
-
-void* operator new(std::size_t size)
-{
-    if (allocationCountdown >= 0 && allocationCountdown-- == 0)
-    {
-        allocationCountdown = -1;
-        throw std::bad_alloc();
-    }
-    if (void* memory = std::malloc(size ? size : 1)) return memory;
-    throw std::bad_alloc();
-}
-void operator delete(void* memory) noexcept { std::free(memory); }
-void operator delete(void* memory, std::size_t) noexcept { std::free(memory); }
 
 int main()
 {
@@ -71,10 +57,10 @@ int main()
             std::atomic<std::size_t> completed{};
             const std::function<void(std::size_t)> task = [&](std::size_t) { ++completed; };
             bool failed = false;
-            allocationCountdown = failAt;
+            TestAllocation::Countdown = failAt;
             try { executor.Dispatch(4, task); }
             catch (const std::bad_alloc&) { failed = true; }
-            allocationCountdown = -1;
+            TestAllocation::Countdown = -1;
             if (failed && completed > 0 && completed < 4)
             {
                 observedPartialEnqueue = true;
@@ -90,7 +76,7 @@ int main()
     }
     catch (const std::exception& error)
     {
-        allocationCountdown = -1;
+        TestAllocation::Countdown = -1;
         std::cerr << error.what() << '\n';
         return 1;
     }

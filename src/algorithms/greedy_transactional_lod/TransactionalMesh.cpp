@@ -43,6 +43,11 @@ std::array<Terrain::TerrainMeshVertex,3> TransactionalMesh::Build(const Configur
         result[i].TexCoord={static_cast<float>(p[i].U),static_cast<float>(p[i].V)};
         result[i].Height=static_cast<float>(p[i].Height);
     }
+    // 光栅输入实际使用 float 位置；源状态合法不能掩盖转换后坍塌或翻向
+    const auto publicCross=glm::cross(glm::dvec3(result[2].Position)-glm::dvec3(result[0].Position),
+        glm::dvec3(result[1].Position)-glm::dvec3(result[0].Position));
+    if (!(publicCross.y>0) || !std::isfinite(glm::length(publicCross)))
+        throw std::runtime_error("float 输出面退化或方向不合法");
     return result;
 }
 

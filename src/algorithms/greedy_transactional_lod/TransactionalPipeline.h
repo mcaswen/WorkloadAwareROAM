@@ -13,6 +13,10 @@ class TransactionalPipeline
 {
 public:
     explicit TransactionalPipeline(const InitialMesh& input,TransactionalExecution execution={});
+    /// <summary>
+    /// 初建入口可移交源样本所有权，避免临时种子到持续参考的额外复制
+    /// </summary>
+    explicit TransactionalPipeline(InitialMesh&& input,TransactionalExecution execution={});
     void Initialize(WorkLedger& work);
     void SetView(const Configuration& view,WorkLedger& work);
     CertifiedBatch Update(WorkLedger& work);

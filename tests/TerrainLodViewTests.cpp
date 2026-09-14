@@ -89,6 +89,7 @@ int main()
     passed &= NearlyEqual(zeroToOne.CameraForward.x, 0.0F) &&
               NearlyEqual(zeroToOne.CameraForward.y, 0.0F) &&
               NearlyEqual(zeroToOne.CameraForward.z, -1.0F);
+    passed &= !negativeOneToOne.UsesZeroToOneDepth && zeroToOne.UsesZeroToOneDepth;
 
     return passed ? 0 : 1;
 }

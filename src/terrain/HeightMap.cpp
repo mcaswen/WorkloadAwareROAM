@@ -22,13 +22,14 @@
 #endif
 
 #include <algorithm>
+#include <atomic>
 #include <cstdint>
+#include <memory>
 
 namespace ParallelRoam::Terrain
 {
-// HeightMap 只保存归一化高度
-// 世界尺寸和高度缩放留给 mesh builder 或 ROAM builder
-// 这样同一张图可以在 benchmark 中复用不同 terrain 参数
+// 原始整数用于独立参考，既有归一化值仍供 Classic/DOD 采样
+// 世界尺寸与高度比例由调用方决定，不在源数据中烘焙
 bool HeightMap::LoadFromFile(const std::filesystem::path& filePath, std::string* errorMessage)
 {
     int width = 0;
@@ -46,22 +47,28 @@ bool HeightMap::LoadFromFile(const std::filesystem::path& filePath, std::string*
         return false;
     }
 
-    _heightValues.clear();
-    _heightValues.resize(static_cast<std::size_t>(width) * static_cast<std::size_t>(height));
+    const std::unique_ptr<stbi_us, decltype(&stbi_image_free)> ownedPixels(pixels, stbi_image_free);
+    const auto count = static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
+    std::vector<float> heights(count);
+    std::vector<std::uint16_t> raw(pixels, pixels + count);
+    auto sourcePath = filePath;
 
     // 高度统一归一化到 0..1，terrain size 和 height scale 由 mesh builder 决定
     // 16-bit 输入保留更细的地形起伏
     // 8-bit 输入也会被 stb 扩展到相同归一化路径
-    for (std::size_t index = 0; index < _heightValues.size(); ++index)
+    for (std::size_t index = 0; index < heights.size(); ++index)
     {
-        _heightValues[index] = static_cast<float>(pixels[index]) / 65535.0F;
+        heights[index] = static_cast<float>(pixels[index]) / 65535.0F;
     }
 
-    stbi_image_free(pixels);
-
-    _sourcePath = filePath;
+    // 先完成可能失败的分配；发布不清空上一次成功加载的状态
+    static std::atomic<std::uint64_t> nextRevision{1};
+    _heightValues.swap(heights);
+    _rawSamples.swap(raw);
+    _sourcePath.swap(sourcePath);
     _width = width;
     _height = height;
+    _sourceRevision = nextRevision.fetch_add(1, std::memory_order_relaxed);
     return true;
 }
 
