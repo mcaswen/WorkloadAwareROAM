@@ -7,6 +7,38 @@
   },
   "configurePresets": [
     {
+      "name": "cpu-profile-perf",
+      "displayName": "CPU perf - Release with symbols",
+      "generator": "Ninja",
+      "binaryDir": "$env{HOME}/.cache/roam-profiling/build/${presetName}",
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "PARALLEL_ROAM_BUILD_APP": "OFF",
+        "PARALLEL_ROAM_BUILD_TESTS": "ON",
+        "PARALLEL_ROAM_BUILD_PROFILING_TESTS": "ON",
+        "PARALLEL_ROAM_PROFILE_SYMBOLS": "ON",
+        "PARALLEL_ROAM_ENABLE_TRACY": "OFF"
+      }
+    },
+    {
+      "name": "cpu-profile-fp",
+      "displayName": "CPU perf - conditional frame pointer build",
+      "inherits": "cpu-profile-perf",
+      "binaryDir": "$env{HOME}/.cache/roam-profiling/build/${presetName}",
+      "cacheVariables": { "PARALLEL_ROAM_PROFILE_FRAME_POINTERS": "ON" }
+    },
+    {
+      "name": "cpu-profile-tracy",
+      "displayName": "CPU Tracy - Release zones",
+      "inherits": "cpu-profile-perf",
+      "binaryDir": "$env{HOME}/.cache/roam-profiling/build/${presetName}",
+      "cacheVariables": {
+        "PARALLEL_ROAM_ENABLE_TRACY": "ON",
+        "PARALLEL_ROAM_TRACY_SOURCE_DIR": "$env{ROAM_TRACY_SOURCE_DIR}"
+      }
+    },
+    {
       "name": "base",
       "hidden": true,
       "binaryDir": "${sourceDir}/build/${presetName}",
@@ -149,6 +181,9 @@
     }
   ],
   "buildPresets": [
+    { "name": "cpu-profile-perf", "configurePreset": "cpu-profile-perf" },
+    { "name": "cpu-profile-fp", "configurePreset": "cpu-profile-fp" },
+    { "name": "cpu-profile-tracy", "configurePreset": "cpu-profile-tracy" },
     {
       "name": "debug",
       "configurePreset": "debug",

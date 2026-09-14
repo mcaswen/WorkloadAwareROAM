@@ -14,6 +14,7 @@ include(CompilerWarnings)
 include(Sanitizers)
 include(Dependencies)
 include(PinnedD3D12Runtime)
+include(Profiling)
 
 parallel_roam_apply_global_options()
 find_package(Threads REQUIRED)
@@ -34,6 +35,9 @@ message(STATUS "Parallel ROAM graphics backend: ${PARALLEL_ROAM_GRAPHICS_API}")
 
 add_library(parallel_roam_project_options INTERFACE)
 target_compile_features(parallel_roam_project_options INTERFACE cxx_std_20)
+parallel_roam_prepare_profiling()
+# 用项目目标传播设置，核心源码与入口保持一致；关闭时没有客户端依赖
+target_link_libraries(parallel_roam_project_options INTERFACE parallel_roam_profiling_options)
 
 if(MSVC)
     target_compile_options(parallel_roam_project_options INTERFACE /utf-8)

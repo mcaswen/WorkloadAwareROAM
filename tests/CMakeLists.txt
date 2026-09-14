@@ -1,3 +1,10 @@
+if(PARALLEL_ROAM_BUILD_PROFILING_TESTS)
+    add_executable(parallel_roam_cpu_profiling_tests CpuProfilingTests.cpp)
+    target_link_libraries(parallel_roam_cpu_profiling_tests PRIVATE
+        parallel_roam_project_options parallel_roam_project_warnings Threads::Threads)
+    add_test(NAME cpu_profiling_fixture COMMAND parallel_roam_cpu_profiling_tests)
+endif()
+
 option(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD "Build the isolated transactional CPU LOD experiment" OFF)
 if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
     set(PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE "" CACHE PATH "Pinned Boost 1.90.0 include directory")

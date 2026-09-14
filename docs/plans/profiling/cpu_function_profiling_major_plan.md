@@ -293,6 +293,6 @@ Tracy 默认只需原八轮的一次完整记录；它按事件记录，不为�
 
 ## 13. 当前实现情况
 
-本轮只完成规范/代码边界/环境的只读核查、官方文档核对及此规划；并新增[规划审查](../../reviews/profiling/cpu_function_profiling_plan_review.md)。没有 perf_event 实测、工具安装、依赖下载、C++ 改动、构建、采集或提交。
+规划撰写时只完成只读核查与[规划审查](../../reviews/profiling/cpu_function_profiling_plan_review.md)，随后用户批准实施并先提交文档为 `77ef897`。
 
-规划撰写后的用户指令已批准实施，并要求先提交当前规划。FPR-01～04 将按顺序自主闭环；本次规划提交时均未启动。GWR 继续暂停，先完成能力门禁和真实 profiling，再讨论工作削减。
+FPR-01 已完成[能力闭环](../../research/profiling/fpr_01_capability_report.md)：perf 软件/硬件事件可打开，FP 187 个样本恢复三个线程调用栈，Tracy 完整捕获并读回解析区间。DWARF 子线程展开失败保留限制，依 §5 条件变体改用 FP；原始采集写 ext4 后归档。默认原型二进制未变，业务标记与自然窗口尚未接入。FPR-02～04 按顺序继续；GWR 暂停。

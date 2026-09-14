@@ -1,5 +1,10 @@
 option(PARALLEL_ROAM_BUILD_APP "Build the Parallel ROAM application target." ON)
 option(PARALLEL_ROAM_BUILD_TESTS "Build tests when tests/CMakeLists.txt exists." OFF)
+option(PARALLEL_ROAM_BUILD_PROFILING_TESTS "Build the isolated CPU profiler capability fixture." OFF)
+option(PARALLEL_ROAM_ENABLE_TRACY "Enable explicitly instrumented CPU zones." OFF)
+option(PARALLEL_ROAM_PROFILE_SYMBOLS "Add symbols without changing the chosen optimization level." OFF)
+option(PARALLEL_ROAM_PROFILE_FRAME_POINTERS "Retain frame pointers in a distinct profiling build." OFF)
+set(PARALLEL_ROAM_TRACY_SOURCE_DIR "" CACHE PATH "Verified Tracy 0.14.1 source directory.")
 
 set(PARALLEL_ROAM_GRAPHICS_API "OpenGL" CACHE STRING "Graphics backend selected at configure time.")
 set_property(CACHE PARALLEL_ROAM_GRAPHICS_API PROPERTY STRINGS OpenGL D3D12)
