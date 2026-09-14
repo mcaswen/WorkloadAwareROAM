@@ -1,4 +1,5 @@
 #include "experiment/greedy_transactional_lod/TransactionalReservation.h"
+#include "profiling/CpuProfiling.h"
 #include "experiment/greedy_transactional_lod/TransactionalCertification.h"
 #include "experiment/greedy_transactional_lod/TransactionalProposals.h"
 
@@ -49,6 +50,7 @@ bool TransactionalReservation::Conflict(const TransactionFootprint& a,const Tran
 CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,const TransactionalSamples& samples,WorkLedger& work,
     const TransactionalExecution& execution)
 {
+    ROAM_CPU_ZONE("gtp.plan");
     CertifiedBatch batch;batch.Version=state.Version();batch.Raw=samples.RawCount();
     std::vector<Proposal> receivers;
     const auto prefix=samples.Prefix(state.Config().PrefixLimit);
@@ -87,44 +89,47 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
     });
     std::vector<TransactionFootprint> reserved;std::set<Identity> used;
     start=Clock::now();
-    for (std::size_t i=0;i<receivers.size();++i)
     {
-        const auto& receiver=receivers[i];const auto rf=Footprint(state,receiver);
-        const auto blocked=[&](const TransactionFootprint& footprint) {
-            return std::any_of(reserved.begin(),reserved.end(),[&](const auto& other) { return Conflict(footprint,other); });
-        };
-        if (i<batch.AssignedCredits)
+        ROAM_CPU_ZONE("gtp.reservation");
+        for (std::size_t i=0;i<receivers.size();++i)
         {
-            if (state.Config().HeightGuard && !TransactionalCertification::PreservesHeight(state,samples,receiver,nullptr,work))
+            const auto& receiver=receivers[i];const auto rf=Footprint(state,receiver);
+            const auto blocked=[&](const TransactionFootprint& footprint) {
+                return std::any_of(reserved.begin(),reserved.end(),[&](const auto& other) { return Conflict(footprint,other); });
+            };
+            if (i<batch.AssignedCredits)
+            {
+                if (state.Config().HeightGuard && !TransactionalCertification::PreservesHeight(state,samples,receiver,nullptr,work))
+                    continue;
+                // 本批失败额度保持闲置；下一批仅凭实际 N 重新生成命名
+                if (!blocked(rf)) { batch.Exchanges.push_back({receiver,{},false});reserved.push_back(rf);++batch.FreeExecuted; }
+                else ++work.Conflicts;
                 continue;
-            // 本批失败额度保持闲置；下一批仅凭实际 N 重新生成命名
-            if (!blocked(rf)) { batch.Exchanges.push_back({receiver,{},false});reserved.push_back(rf);++batch.FreeExecuted; }
-            else ++work.Conflicts;
-            continue;
+            }
+            bool feasible=false,accepted=false;
+            // 仍检查共同池，独立记录局部可行分母；命中后的额外审计费用也计入
+            for (std::size_t index=0;index<cache.size();++index)
+            {
+                ++work.PairChecks;const auto center=batch.PoolIds[index];const auto& donor=cache[index];
+                if (donor.Reason!="certified") { ++work.Reasons[donor.Reason];continue; }
+                if (!TransactionalCertification::Accepts(state,samples,donor,receiver.TargetMicropixels,work))
+                { ++work.Reasons["fast_quality_miss"];continue; }
+                const auto df=Footprint(state,donor);
+                // 先判断一个交换内部是否独立，再判断它与高优先级已预留事务是否冲突
+                if (Conflict(rf,df)) { ++work.Reasons["internal_conflict"];continue; }
+                if (state.Config().HeightGuard && !TransactionalCertification::PreservesHeight(state,samples,receiver,&donor,work))
+                    continue;
+                feasible=true;
+                if (accepted) continue;
+                ++work.ReservationChecks;
+                if (used.contains(center)) { ++work.DonorReuse;continue; }
+                const auto combined=Unite(rf,df);
+                if (blocked(combined)) { ++work.Conflicts;continue; }
+                reserved.push_back(combined);used.insert(center);batch.Exchanges.push_back({receiver,donor,true});
+                accepted=true;++batch.Executed;
+            }
+            if (feasible) ++batch.Feasible;
         }
-        bool feasible=false,accepted=false;
-        // 仍检查共同池，独立记录局部可行分母；命中后的额外审计费用也计入
-        for (std::size_t index=0;index<cache.size();++index)
-        {
-            ++work.PairChecks;const auto center=batch.PoolIds[index];const auto& donor=cache[index];
-            if (donor.Reason!="certified") { ++work.Reasons[donor.Reason];continue; }
-            if (!TransactionalCertification::Accepts(state,samples,donor,receiver.TargetMicropixels,work))
-            { ++work.Reasons["fast_quality_miss"];continue; }
-            const auto df=Footprint(state,donor);
-            // 先判断一个交换内部是否独立，再判断它与高优先级已预留事务是否冲突
-            if (Conflict(rf,df)) { ++work.Reasons["internal_conflict"];continue; }
-            if (state.Config().HeightGuard && !TransactionalCertification::PreservesHeight(state,samples,receiver,&donor,work))
-                continue;
-            feasible=true;
-            if (accepted) continue;
-            ++work.ReservationChecks;
-            if (used.contains(center)) { ++work.DonorReuse;continue; }
-            const auto combined=Unite(rf,df);
-            if (blocked(combined)) { ++work.Conflicts;continue; }
-            reserved.push_back(combined);used.insert(center);batch.Exchanges.push_back({receiver,donor,true});
-            accepted=true;++batch.Executed;
-        }
-        if (feasible) ++batch.Feasible;
     }
     batch.UnusedCredits=batch.AssignedCredits-batch.FreeExecuted;
     // 账本随返回结果完成生命周期，存活状态只由发布后的面数量代表预算占用

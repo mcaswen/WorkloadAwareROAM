@@ -1,4 +1,5 @@
 #include "experiment/greedy_transactional_lod/TransactionalProposals.h"
+#include "profiling/CpuProfiling.h"
 #include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
 #include "experiment/greedy_transactional_lod/TransactionalCertification.h"
 
@@ -49,6 +50,7 @@ Proposal Prepare(const TransactionalState& state,const TransactionalSamples& sam
 
 std::vector<Proposal> TransactionalProposals::Receivers(const TransactionalState& state,const TransactionalSamples& samples,Slot root)
 {
+    ROAM_CPU_ZONE("gtp.receivers");
     std::vector<Proposal> result;const auto& face=state.Face(root).Vertices;
     std::array<Edge,3> edges{EdgeKey(face[0],face[1]),EdgeKey(face[1],face[2]),EdgeKey(face[2],face[0])};
     std::sort(edges.begin(),edges.end());
@@ -111,6 +113,7 @@ std::vector<Identity> TransactionalProposals::Ring(const TransactionalState& sta
 Proposal TransactionalProposals::Donor(const TransactionalState& state,const TransactionalSamples& samples,
     Identity center,WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.donor");
     Proposal result;result.Kind='D';result.Center=center;result.Free={center};
     result.Support=state.Vertex(center).Incident;std::sort(result.Support.begin(),result.Support.end());
     auto ring=Ring(state,center);work.RingVisits+=ring.size();

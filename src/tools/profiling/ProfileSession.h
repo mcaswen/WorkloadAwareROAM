@@ -18,7 +18,7 @@ public:
     ProfileSession& operator=(const ProfileSession&) = delete;
 
     /// <summary>
-    /// 应答到达后才开始窗口；缺失控制器或超时会抛出异常
+    /// 采集器就绪后才开始窗口；缺失应答、断连或超时会抛出异常
     /// 调用方应将输入输出和独立诊断放在 Begin/End 之外
     /// </summary>
     void Begin(int replay, int round);

@@ -1,6 +1,7 @@
 #include "experiment/greedy_transactional_lod/TransactionalPipeline.h"
 #include "experiment/greedy_transactional_lod/TransactionalReservation.h"
 #include "experiment/greedy_transactional_lod/TransactionalCommit.h"
+#include "profiling/CpuProfiling.h"
 
 #include <stdexcept>
 #include <cmath>
@@ -16,6 +17,7 @@ TransactionalPipeline::TransactionalPipeline(const InitialMesh& input,Transactio
 
 void TransactionalPipeline::Initialize(WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.initialize");
     if (_initialized) return;
     // 首次全 Q 与完整 mesh 初建另列，后续更新不能重新走这个入口
     const auto start=std::chrono::steady_clock::now();
@@ -28,6 +30,7 @@ void TransactionalPipeline::Initialize(WorkLedger& work)
 
 void TransactionalPipeline::Apply(const CertifiedBatch& batch,WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.apply");
     if (!_initialized) throw std::runtime_error("持续状态尚未初始化");
     if (batch.Version!=_state.Version()) throw std::runtime_error("批次快照已过期");
     if (batch.Exchanges.empty()) return;
@@ -49,6 +52,7 @@ void TransactionalPipeline::Apply(const CertifiedBatch& batch,WorkLedger& work)
 
 void TransactionalPipeline::SetView(const Configuration& view,WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.set_view");
     Initialize(work);const auto& old=_state.Config();
     if (view.Scenario!=old.Scenario || view.PrefixLimit!=old.PrefixLimit || view.DonorLimit!=old.DonorLimit ||
         view.Budget!=old.Budget || view.TerrainSize!=old.TerrainSize || view.HeightScale!=old.HeightScale ||
@@ -67,6 +71,7 @@ void TransactionalPipeline::SetView(const Configuration& view,WorkLedger& work)
 
 CertifiedBatch TransactionalPipeline::Update(WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.update");
     const auto start=std::chrono::steady_clock::now();Initialize(work);
     work.Seconds.try_emplace("update",0);
     auto batch=TransactionalReservation::Plan(_state,_samples,work,_execution);

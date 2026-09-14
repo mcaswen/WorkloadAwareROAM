@@ -1,4 +1,5 @@
 #include "experiment/greedy_transactional_lod/TransactionalSamples.h"
+#include "profiling/CpuProfiling.h"
 #include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
@@ -198,6 +199,7 @@ double TransactionalSamples::Priority(const Configuration& config,const std::arr
 
 void TransactionalSamples::Refresh(const TransactionalState& state,WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.samples.initialize");
     std::fill(_values.begin(),_values.end(),SampleValue{});
     _faceSamples.assign(state.Faces().size(),{});
     _priority.assign(state.Faces().size(),std::numeric_limits<double>::infinity());
@@ -228,6 +230,7 @@ void TransactionalSamples::Refresh(const TransactionalState& state,WorkLedger& w
 
 PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,const PreparedTopology& target,WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.samples.prepare");
     PreparedSamples result;result.FaceSlots=target.FinalFaceSlots;
     std::set<Slot> exterior;
     for (auto slot : target.Removed)
@@ -341,6 +344,7 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
 
 void TransactionalSamples::Publish(PreparedSamples&& prepared) noexcept
 {
+    ROAM_CPU_ZONE("gtp.samples.publish");
     // 容量在 Prepare 中预留，移动局部 vector 不再触发分配
     _faceSamples.resize(prepared.FaceSlots);_priority.resize(prepared.FaceSlots);
     for (const auto& [sid,value] : prepared.Values) _values[sid]=value;
@@ -356,6 +360,7 @@ void TransactionalSamples::Publish(PreparedSamples&& prepared) noexcept
 void TransactionalSamples::BuildOrders(const TransactionalState& state,const std::vector<double>& priority,
     std::set<PriorityKey>& order,std::set<DonorKey>& donors,std::map<Identity,double>& costs)
 {
+    ROAM_CPU_ZONE("gtp.samples.orders");
     // 全量建序只发生在初建或换视图，同视图事务用局部 key 修复
     order.clear();donors.clear();costs.clear();
     for (auto slot : state.ActiveFaces())
@@ -406,6 +411,7 @@ std::vector<Slot> TransactionalSamples::VisibleSupport(const std::vector<Slot>& 
 PreparedView TransactionalSamples::PrepareView(const TransactionalState& state,const Configuration& view,WorkLedger& work,
     const TransactionalExecution& execution) const
 {
+    ROAM_CPU_ZONE("gtp.samples.prepare_view");
     PreparedView result;result.Projection.resize(_values.size());result.Priority.resize(_priority.size());
     // 投影暂存不保存第二份参考高度或 owner，保持视图工作与拓扑状态分离
     execution.Run("view_projection",_values.size(),work,[&](auto first,auto last,WorkLedger& local) {
@@ -440,6 +446,7 @@ PreparedView TransactionalSamples::PrepareView(const TransactionalState& state,c
 
 void TransactionalSamples::PublishView(PreparedView&& prepared) noexcept
 {
+    ROAM_CPU_ZONE("gtp.samples.publish_view");
     // 参数域及高度缓存未变，仅替换每个样本的当前视图评价
     for (Slot sid=0;sid<_values.size();++sid)
     {

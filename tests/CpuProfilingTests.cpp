@@ -1,4 +1,5 @@
 #include "tools/profiling/ProfileSession.h"
+#include "profiling/CpuProfiling.h"
 
 #if defined(TRACY_ENABLE)
 #include <tracy/Tracy.hpp>
@@ -73,6 +74,14 @@ int main(int argc, char** argv)
 {
     try
     {
+#if !defined(TRACY_ENABLE)
+        int evaluated=0;
+        ROAM_CPU_ZONE(++evaluated);
+        ROAM_CPU_TEXT(++evaluated,++evaluated);
+        ROAM_CPU_VALUE(++evaluated);
+        ROAM_CPU_THREAD(++evaluated);
+        if (evaluated) throw std::runtime_error("disabled profiling evaluated its arguments");
+#endif
         const std::uint64_t iterations = argc == 2 ? std::stoull(argv[1]) : 200000;
         if (argc > 2 || iterations == 0 || iterations > 500000000ULL)
             throw std::runtime_error("iterations must be in [1, 500000000]");
@@ -85,6 +94,13 @@ int main(int argc, char** argv)
 #endif
         std::array<std::uint64_t, 3> results{};
         if (session) session->Begin(0, 0);
+        // 故障夹具允许控制端在活动窗口中断开；不进入自然算法路径
+        if (const auto* hold = std::getenv("ROAM_PROFILE_HOLD_MS"))
+        {
+            const auto duration = std::stoul(hold);
+            if (duration > 1000) throw std::runtime_error("fixture hold exceeds 1000ms");
+            std::this_thread::sleep_for(std::chrono::milliseconds(duration));
+        }
         const auto start = std::chrono::steady_clock::now();
         {
             ZoneScopedN("fixture.frame");

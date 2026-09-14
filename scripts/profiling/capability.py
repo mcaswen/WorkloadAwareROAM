@@ -5,16 +5,13 @@ from collections import Counter
 import csv
 import io
 import json
-import os
 from pathlib import Path
 import re
 import shutil
-import subprocess
 import tempfile
-import time
 
 from profiling.environment import command, inspect_environment
-from profiling.process import stop_process
+from profiling.tracy_backend import capture_tracy
 from cpu_pilot_support import file_identity as identity
 
 
@@ -55,32 +52,6 @@ def tracy_fixture_coverage(text):
               len(complete) == 1 and len(frame_end) == 1 and complete[0] >= frame_end[0])
     return {"passed": passed, "zone_counts": dict(counts), "threads": sorted(business_threads),
             "durations_valid": durations_valid}
-
-
-def capture_tracy(capture, executable, arguments, work, timeout=35):
-    trace = work / "capture.tracy"
-    processes = []
-    started = time.monotonic()
-    # 两个进程的输出独立保存，采集器不与目标争用终端或管道缓冲
-    with (work / "capture.log").open("w") as collector_log, (work / "target.log").open("w") as target_log:
-        try:
-            collector = subprocess.Popen([str(capture), "-a", "127.0.0.1", "-o", str(trace)],
-                                         stdout=collector_log, stderr=subprocess.STDOUT, start_new_session=True)
-            processes.append(collector)
-            env = dict(os.environ, ROAM_PROFILE_WAIT="1", TRACY_NO_EXIT="1")
-            target = subprocess.Popen([str(executable), *arguments], env=env, stdout=target_log,
-                                      stderr=subprocess.STDOUT, start_new_session=True)
-            processes.append(target)
-            target.wait(timeout=timeout)
-            collector.wait(timeout=10)
-            return {"target_returncode": target.returncode, "capture_returncode": collector.returncode,
-                    "elapsed_seconds": time.monotonic() - started, "complete_exit": True}
-        except (OSError, subprocess.TimeoutExpired) as error:
-            return {"complete_exit": False, "error": str(error),
-                    "elapsed_seconds": time.monotonic() - started}
-        finally:
-            for process in reversed(processes):
-                stop_process(process)
 
 
 def check_perf(args, work):

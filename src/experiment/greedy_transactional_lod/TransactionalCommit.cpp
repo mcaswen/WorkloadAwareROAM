@@ -1,4 +1,5 @@
 #include "experiment/greedy_transactional_lod/TransactionalCommit.h"
+#include "profiling/CpuProfiling.h"
 #include "experiment/greedy_transactional_lod/TransactionalReservation.h"
 #include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
 
@@ -18,6 +19,7 @@ const Point& PreparedTopology::Geometry(const TransactionalState& old,Identity i
 PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work,
     const TransactionalExecution& execution)
 {
+    ROAM_CPU_ZONE("gtp.commit.prepare");
     const auto started=std::chrono::steady_clock::now();
     if (batch.Version!=state.Version()) throw std::runtime_error("批次快照已过期");
     std::set<Slot> removed;
@@ -202,6 +204,7 @@ PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const Ce
 
 void TransactionalCommit::Publish(TransactionalState& state,PreparedTopology&& prepared,WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.commit.publish");
     if (prepared.Version!=state.Version()) throw std::runtime_error("准备记录的快照已过期");
     if (prepared.Removed.empty()) return;
     // 空批次保持代际；下一次规划仍可以重新分配本批失败的命名额度

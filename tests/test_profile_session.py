@@ -68,6 +68,12 @@ class ProfileSessionTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             read_windows(windows)
 
+    def test_no_ack_is_bounded_failure(self):
+        result, _, windows = self.exchange(b"")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("timed out", result.stderr)
+        self.assertNotIn("# complete", windows)
+
 
 if __name__ == "__main__":
     unittest.main()

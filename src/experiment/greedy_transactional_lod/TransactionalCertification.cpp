@@ -1,4 +1,5 @@
 #include "experiment/greedy_transactional_lod/TransactionalCertification.h"
+#include "profiling/CpuProfiling.h"
 #include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
@@ -235,6 +236,7 @@ double TransactionalCertification::ExactErrorSquared(const TransactionalState& s
 bool TransactionalCertification::Measure(const TransactionalState& state,const TransactionalSamples& samples,
     Proposal& proposal,WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.measure");
     proposal.ErrorLower=proposal.ErrorUpper=0;
     // 缓存整个局部曲面的最大误差区间，供多个接收阈值复用
     for (auto sid : proposal.Samples)
@@ -250,6 +252,7 @@ bool TransactionalCertification::Measure(const TransactionalState& state,const T
 bool TransactionalCertification::Accepts(const TransactionalState& state,const TransactionalSamples& samples,
     const Proposal& proposal,std::int64_t targetMicropixels,WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.accepts");
     if (targetMicropixels<0) return false;
     const Interval target=Interval(static_cast<double>(targetMicropixels))/Interval(1000000);
     const Interval square=target*target;
@@ -269,6 +272,7 @@ bool TransactionalCertification::Accepts(const TransactionalState& state,const T
 std::string TransactionalCertification::Fit(const TransactionalState& state,const TransactionalSamples& samples,
     Proposal& proposal,WorkLedger& work)
 {
+    ROAM_CPU_ZONE("gtp.fit");
     work.CheckLimit();++work.Proposals;
     for (const auto& face : proposal.Faces)
         if (!TransactionalPredicates::Shape(proposal.Points.at(face[0]),proposal.Points.at(face[1]),proposal.Points.at(face[2])))

@@ -1,4 +1,5 @@
 #include "experiment/greedy_transactional_lod/TransactionalMesh.h"
+#include "profiling/CpuProfiling.h"
 
 #include <algorithm>
 #include <cmath>
@@ -65,6 +66,7 @@ void TransactionalMesh::Initialize(const TransactionalState& state,WorkLedger& w
 PreparedMesh TransactionalMesh::Prepare(const TransactionalState& state,const PreparedTopology& target,WorkLedger& work,
     const TransactionalExecution& execution)
 {
+    ROAM_CPU_ZONE("gtp.mesh.prepare");
     PreparedMesh result;
     if (target.FinalFaceSlots>InvalidSlot/3) throw std::runtime_error("输出槽范围溢出");
     result.VertexCount=target.FinalFaceSlots*3;result.IndexCount=target.FinalActiveCount*3;
@@ -98,6 +100,7 @@ PreparedMesh TransactionalMesh::Prepare(const TransactionalState& state,const Pr
 
 void TransactionalMesh::Publish(PreparedMesh&& prepared,std::uint64_t generation) noexcept
 {
+    ROAM_CPU_ZONE("gtp.mesh.publish");
     // 替换 Pending 而非清空，未消费的前几轮写入仍需交给消费者
     _data.Vertices.resize(prepared.VertexCount);_data.Indices.resize(prepared.IndexCount);
     for (const auto& [slot,block] : prepared.Vertices)
@@ -110,6 +113,7 @@ void TransactionalMesh::Publish(PreparedMesh&& prepared,std::uint64_t generation
 
 MeshConsumption TransactionalMesh::Consume()
 {
+    ROAM_CPU_ZONE("gtp.mesh.consume");
     // 先构造独立区间，分配失败时旧 Pending 仍然完整
     MeshConsumption result;result.Data=&_data;result.Generation=_generation;result.Full=_full;
     if (_full)
