@@ -274,8 +274,7 @@ bool TerrainRenderer::UpdateForView(const RenderContext& context, std::string* e
         _terrainLodAlgorithm->Capabilities().RequiresContinuousUpdate;
     const bool step = _lodStepRequested;
     _lodStepRequested = false;
-    if (continuous && _settings.TransactionalPaused && !step && !_meshDirty &&
-        !_cpuUploadRecoveryRequired)
+    if (continuous && _settings.TransactionalPaused && !step && !_meshDirty)
     {
         _terrainLodTotalMilliseconds = 0.0F;
         _terrainLodCpuUploadMilliseconds = 0.0F;
@@ -289,6 +288,18 @@ bool TerrainRenderer::UpdateForView(const RenderContext& context, std::string* e
             _terrainLodStats.Transactional->RequestedWorkers = workers;
             _terrainLodStats.Transactional->Status = Algorithms::TransactionalLodStatus::Paused;
             _terrainLodStats.Transactional->HasPublishedMesh = _borrowedCpuMeshData != nullptr;
+        }
+        if (_cpuUploadRecoveryRequired && _borrowedCpuMeshData)
+        {
+            // 暂停只允许资源同步，不为恢复范围而额外执行一次拓扑批次
+            Tools::PerformanceTimer timer;
+            const std::vector<Algorithms::TerrainLodCpuMeshUpdateRange> ranges;
+            const bool uploaded = UploadMeshData(*_borrowedCpuMeshData, true,
+                Algorithms::TerrainLodCpuUploadAction::Automatic, ranges, errorMessage);
+            _terrainLodCpuUploadMilliseconds = timer.Stop();
+            _terrainLodStats.CpuUploadMilliseconds = _terrainLodCpuUploadMilliseconds;
+            _cpuUploadRecoveryRequired = !uploaded;
+            return uploaded;
         }
         return true;
     }

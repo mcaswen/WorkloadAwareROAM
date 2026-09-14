@@ -95,6 +95,10 @@ int RunTransactionalPlatformCheck()
         Require(tick("paused").RoamBuildSequence == second.RoamBuildSequence, "Paused algorithm executed");
         renderer.RequestLodStep();
         Require(tick("step").RoamBuildSequence == second.RoamBuildSequence + 1, "Step did not execute once");
+        renderer.RequestCpuMeshFullUpload();
+        const auto pausedRecovery = tick("paused-resource-resync");
+        Require(pausedRecovery.RoamBuildSequence == second.RoamBuildSequence + 1 &&
+            pausedRecovery.RoamCpuGpuUploadBytes > 0, "Paused resource recovery ran an extra batch");
         const auto sequence = renderer.Stats().RoamBuildSequence;
         const int width = view.DrawableWidth; view.DrawableWidth = 0;
         Require(renderer.UpdateForView(view, &error) && renderer.Stats().RoamBuildSequence == sequence, "Zero drawable executed");
@@ -108,6 +112,14 @@ int RunTransactionalPlatformCheck()
         glBindBuffer(0xFFFFFFFFU, 0);
         tick("upload-failure", false);
         Require(tick("upload-recovery").RoamCpuGpuUploadBytes > 0, "Upload recovery lost ranges");
+#endif
+#if defined(PARALLEL_ROAM_GRAPHICS_API_D3D12)
+        renderer.FailNextCpuUploadAllocationForDiagnostics();
+        tick("allocation-failure", false);
+        Require(tick("allocation-recovery").RoamCpuGpuUploadBytes > 0, "Allocation recovery reused invalid capacity");
+        // 两个帧槽分别追赶；全部追上后空批不再复制 CPU mesh
+        tick("frame-slot-catchup");
+        Require(tick("frame-slots-current").RoamCpuGpuUploadBytes == 0, "Current frame slot recopied unchanged mesh");
 #endif
         SDL_SetWindowSize(window.NativeWindow(), 960, 540); resize(); tick("resize");
         settings.RoamTriangleBudget = 512;

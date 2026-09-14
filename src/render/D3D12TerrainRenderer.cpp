@@ -184,7 +184,8 @@ bool NeedsMeshRebuild(const TerrainRenderSettings& previous, const TerrainRender
            previous.RoamPassPolicy != next.RoamPassPolicy ||
            previous.RoamEnableLocalConstraints != next.RoamEnableLocalConstraints ||
            previous.RoamEnableTopologyValidation != next.RoamEnableTopologyValidation ||
-           previous.RoamEnablePassEvidence != next.RoamEnablePassEvidence;
+           previous.RoamEnablePassEvidence != next.RoamEnablePassEvidence ||
+           previous.Transactional != next.Transactional;
 }
 
 bool RoamViewInputsChanged(const RenderContext& previous, const RenderContext& next)
@@ -346,6 +347,7 @@ struct D3D12TerrainRendererState
     Microsoft::WRL::ComPtr<ID3D12Resource> Texture;
     D3D12DescriptorAllocation TextureSrv;
     std::uint64_t MeshGeneration{0};
+    bool FailNextMeshAllocationForDiagnostics{false};
 };
 
 namespace
@@ -554,9 +556,17 @@ bool UploadMeshForFrame(
     // 缓冲采用只增长策略，避免相机移动触发 LOD 更新时频繁分配
     bool uploadAllVertices = frame.PendingFullUpload;
     bool uploadAllIndices = frame.PendingFullUpload;
-    if (frame.VertexCapacityBytes < vertexBytes)
+    if (frame.VertexCapacityBytes < vertexBytes || state.FailNextMeshAllocationForDiagnostics)
     {
         ReleaseMappedResource(frame.VertexBuffer, frame.MappedVertices);
+        frame.VertexCapacityBytes = 0;
+        frame.PendingFullUpload = true;
+        if (state.FailNextMeshAllocationForDiagnostics)
+        {
+            state.FailNextMeshAllocationForDiagnostics = false;
+            SetError(errorMessage, "Diagnostic D3D12 mesh allocation failure after release");
+            return false;
+        }
         if (!CreateMappedUploadBuffer(
                 state.Backend->Device(), vertexBytes, frame.VertexBuffer, frame.MappedVertices, errorMessage))
         {
@@ -568,6 +578,8 @@ bool UploadMeshForFrame(
     if (frame.IndexCapacityBytes < indexBytes)
     {
         ReleaseMappedResource(frame.IndexBuffer, frame.MappedIndices);
+        frame.IndexCapacityBytes = 0;
+        frame.PendingFullUpload = true;
         if (!CreateMappedUploadBuffer(
                 state.Backend->Device(), indexBytes, frame.IndexBuffer, frame.MappedIndices, errorMessage))
         {
@@ -732,6 +744,41 @@ bool TerrainRenderer::LoadHeightMap(const std::filesystem::path& heightMapPath, 
 bool TerrainRenderer::UpdateForView(const RenderContext& context, std::string* errorMessage)
 {
     _lastRenderContext = context;
+    if (context.DrawableWidth <= 0 || context.DrawableHeight <= 0) return true;
+    const bool continuous = _terrainLodAlgorithm &&
+        _terrainLodAlgorithm->Capabilities().RequiresContinuousUpdate;
+    const bool step = _lodStepRequested;
+    _lodStepRequested = false;
+    if (continuous && _settings.TransactionalPaused && !step && !_meshDirty)
+    {
+        _terrainLodTotalMilliseconds = 0.0F;
+        _terrainLodCpuUploadMilliseconds = 0.0F;
+        _terrainLodStats.CpuUpdateMilliseconds = 0.0F;
+        _terrainLodStats.CpuUploadMilliseconds = 0.0F;
+        _terrainLodStats.CpuGpuUploadBytes = 0;
+        if (_terrainLodStats.Transactional)
+        {
+            const auto workers = _terrainLodStats.Transactional->RequestedWorkers;
+            *_terrainLodStats.Transactional = {};
+            _terrainLodStats.Transactional->RequestedWorkers = workers;
+            _terrainLodStats.Transactional->Status = Algorithms::TransactionalLodStatus::Paused;
+            _terrainLodStats.Transactional->HasPublishedMesh = _borrowedCpuMeshData != nullptr;
+        }
+        if (_cpuUploadRecoveryRequired && _borrowedCpuMeshData)
+        {
+            // 暂停只允许资源同步，不为恢复范围而额外执行一次拓扑批次
+            Tools::PerformanceTimer timer;
+            const std::vector<Algorithms::TerrainLodCpuMeshUpdateRange> ranges;
+            const bool uploaded = UploadMeshData(*_borrowedCpuMeshData, true,
+                Algorithms::TerrainLodCpuUploadAction::Automatic, ranges, errorMessage);
+            _terrainLodCpuUploadMilliseconds = timer.Stop();
+            _terrainLodStats.CpuUploadMilliseconds = _terrainLodCpuUploadMilliseconds;
+            _cpuUploadRecoveryRequired = !uploaded;
+            return uploaded;
+        }
+        return true;
+    }
+
     if (!_settings.UseTerrainLod && !_meshDirty)
     {
         return true;
@@ -751,13 +798,19 @@ bool TerrainRenderer::UpdateForView(const RenderContext& context, std::string* e
             _settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam;
         const bool roamViewChanged = usesRoamView &&
             (!_hasRoamBuildView || RoamViewInputsChanged(_lastRoamBuildContext, context));
-        if (!_meshDirty && !cameraMovedEnough && !roamViewChanged)
+        if (!continuous && !_cpuUploadRecoveryRequired && !_meshDirty && !cameraMovedEnough && !roamViewChanged)
         {
             return true;
         }
         return RebuildTerrainLod(context, errorMessage);
     }
     return RebuildMesh(errorMessage);
+}
+
+void TerrainRenderer::FailNextCpuUploadAllocationForDiagnostics()
+{
+    if (_d3d12State) _d3d12State->FailNextMeshAllocationForDiagnostics = true;
+    _cpuUploadRecoveryRequired = true;
 }
 
 void TerrainRenderer::RequestMeshRebuild()
@@ -767,8 +820,9 @@ void TerrainRenderer::RequestMeshRebuild()
 
 void TerrainRenderer::ResetTerrainLodAlgorithm()
 {
-    _terrainLodAlgorithm.reset();
     _borrowedCpuMeshData = nullptr;
+    _terrainLodAlgorithm.reset();
+    _cpuUploadRecoveryRequired = true;
     _terrainLodStats = {};
     _terrainLodStatusMessage.clear();
     _terrainLodTotalMilliseconds = 0.0F;
@@ -785,8 +839,9 @@ void TerrainRenderer::ResetTerrainLodAlgorithm()
 
 void TerrainRenderer::Shutdown()
 {
-    _terrainLodAlgorithm.reset();
     _borrowedCpuMeshData = nullptr;
+    _terrainLodAlgorithm.reset();
+    _cpuUploadRecoveryRequired = true;
     _terrainLodStats = {};
     _terrainLodStatusMessage.clear();
     if (_d3d12State != nullptr)
@@ -818,7 +873,7 @@ void TerrainRenderer::Shutdown()
 
 void TerrainRenderer::Render(const RenderContext& context)
 {
-    if (!_initialized || !HasDrawableTerrain() || _d3d12State == nullptr)
+    if (!_initialized || !HasDrawableTerrain() || _d3d12State == nullptr || _cpuUploadRecoveryRequired)
     {
         return;
     }
@@ -835,6 +890,8 @@ void TerrainRenderer::Render(const RenderContext& context)
     {
         // 网格版本按帧懒同步，首次轮转到该帧时才复制数据
         std::string uploadError;
+        std::size_t deferredBytes = 0;
+        Tools::PerformanceTimer deferredTimer;
         const Terrain::TerrainMeshData* cpuMesh = _borrowedCpuMeshData != nullptr
             ? _borrowedCpuMeshData
             : &_meshData;
@@ -843,13 +900,21 @@ void TerrainRenderer::Render(const RenderContext& context)
                 *_d3d12State,
                 *cpuMesh,
                 frameIndex,
-                nullptr,
+                &deferredBytes,
                 nullptr,
                 nullptr,
                 &uploadError))
         {
             std::cerr << uploadError << '\n';
+            _terrainLodStatusMessage = uploadError;
+            _cpuUploadRecoveryRequired = true;
             return;
+        }
+        if (deferredBytes > 0)
+        {
+            _terrainLodStats.CpuGpuUploadBytes += deferredBytes;
+            _terrainLodCpuUploadMilliseconds += deferredTimer.Stop();
+            _terrainLodStats.CpuUploadMilliseconds = _terrainLodCpuUploadMilliseconds;
         }
     }
 
@@ -1007,6 +1072,14 @@ const std::filesystem::path& TerrainRenderer::TexturePath() const
 
 bool TerrainRenderer::RebuildMesh(std::string* errorMessage)
 {
+    // 新算法只在有效相机机会执行，设置变更不提前初始化或增加批次
+    if (_settings.UseTerrainLod && _settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod)
+    {
+        if (_terrainLodAlgorithm && _terrainLodAlgorithm->Info().Id != _settings.TerrainLodAlgorithm)
+            ResetTerrainLodAlgorithm();
+        _meshDirty = true;
+        return true;
+    }
     return _settings.UseTerrainLod
         ? RebuildTerrainLod(_lastRenderContext, errorMessage)
         : RebuildRegularGrid(errorMessage);
@@ -1062,6 +1135,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     lodSettings.TriangleBudget = _settings.RoamTriangleBudget;
     lodSettings.EnableParallelSplit = _settings.RoamEnableParallelSplit;
     lodSettings.PassPolicy = _settings.RoamPassPolicy;
+    lodSettings.Transactional = _settings.Transactional;
     lodSettings.EnableLocalConstraints = _settings.RoamEnableLocalConstraints;
     lodSettings.EnableTopologyValidation = _settings.RoamEnableTopologyValidation;
     lodSettings.EnablePassEvidence = _settings.RoamEnablePassEvidence;
@@ -1080,9 +1154,15 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     std::string localError;
     std::string* buildError = errorMessage != nullptr ? errorMessage : &localError;
     buildError->clear();
-    if (!_terrainLodAlgorithm->BuildRenderData(buildInput, renderPacket, buildError))
+    _borrowedCpuMeshData = nullptr;
+    const bool buildSucceeded = _terrainLodAlgorithm->BuildRenderData(buildInput, renderPacket, buildError);
+    _terrainLodStats = _terrainLodAlgorithm->Stats();
+    if (!buildSucceeded && renderPacket.BorrowedCpuMesh == nullptr && renderPacket.CpuMesh.Indices.empty())
     {
+        _drawVertexCount = _drawIndexCount = _drawTriangleCount = 0;
         _terrainLodStatusMessage = buildError->empty() ? "Terrain LOD build failed" : *buildError;
+        _terrainLodTotalMilliseconds = rebuildTimer.Stop();
+        _cpuUploadRecoveryRequired = true;
         return false;
     }
     // D3D12 renderer 只消费完整或借用的 CPU mesh。
@@ -1094,7 +1174,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     }
 
     _terrainLodStats = _terrainLodAlgorithm->Stats();
-    _terrainLodStatusMessage = renderPacket.StatusMessage;
+    _terrainLodStatusMessage = buildSucceeded ? renderPacket.StatusMessage : *buildError;
     _lastRoamBuildContext = context;
     _hasRoamBuildView = true;
     if (renderPacket.Mode != Algorithms::TerrainLodRenderMode::CpuMesh)
@@ -1132,12 +1212,13 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     Tools::PerformanceTimer uploadTimer;
     if (!UploadMeshData(
             *cpuMesh,
-            renderPacket.CpuMeshRequiresFullUpload,
+            renderPacket.CpuMeshRequiresFullUpload || _cpuUploadRecoveryRequired,
             renderPacket.CpuUploadAction,
             renderPacket.CpuMeshUpdateRanges,
             errorMessage))
     {
         _meshDirty = true;
+        _cpuUploadRecoveryRequired = true;
         return false;
     }
     _terrainLodCpuUploadMilliseconds = uploadTimer.Stop();
@@ -1148,7 +1229,8 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
         _terrainLodCpuUploadMilliseconds;
     _meshDirty = false;
     _terrainLodTotalMilliseconds = rebuildTimer.Stop();
-    return true;
+    _cpuUploadRecoveryRequired = false;
+    return buildSucceeded;
 }
 
 bool TerrainRenderer::UploadMesh(std::string* errorMessage)
@@ -1186,6 +1268,8 @@ bool TerrainRenderer::UploadMeshData(
         (uploadAction == Algorithms::TerrainLodCpuUploadAction::Automatic && meshRequiresFullUpload);
     // 新版本先上传当前帧，其他帧在轮转到来时按版本号补齐
     ++_d3d12State->MeshGeneration;
+    try
+    {
     for (D3D12MeshFrameResources& frame : _d3d12State->MeshFrames)
     {
         if (forceFullUpload)
@@ -1202,6 +1286,17 @@ bool TerrainRenderer::UploadMeshData(
             // 一个 frame slot 可能跨过多个 Build；先取区间并集，避免追赶版本时重复 memcpy。
             CoalescePendingMeshUpdateRanges(frame.PendingUpdateRanges);
         }
+    }
+    }
+    catch (const std::bad_alloc&)
+    {
+        for (auto& frame : _d3d12State->MeshFrames)
+        {
+            frame.PendingFullUpload = true;
+            frame.PendingUpdateRanges.clear();
+        }
+        SetError(errorMessage, "D3D12 range accumulation allocation failed");
+        return false;
     }
     _renderMode = Algorithms::TerrainLodRenderMode::CpuMesh;
     _drawVertexCount = meshData.Vertices.size();
@@ -1258,6 +1353,7 @@ bool TerrainRenderer::UploadMeshData(
             uploadTrace.FallbackReason = Algorithms::TerrainLodPassFallbackReason::NoWork;
         }
     }
+    _cpuUploadRecoveryRequired = !uploaded;
     return uploaded;
 }
 

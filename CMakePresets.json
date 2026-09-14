@@ -195,6 +195,14 @@
         "PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME": "ON",
         "PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE": "$env{ROAM_BOOST_INCLUDE}"
       }
+    },
+    {
+      "name": "transactional-platform-d3d12",
+      "displayName": "Transactional CPU LOD platform - D3D12",
+      "inherits": "transactional-platform",
+      "cacheVariables": {
+        "PARALLEL_ROAM_GRAPHICS_API": "D3D12"
+      }
     }
   ],
   "buildPresets": [

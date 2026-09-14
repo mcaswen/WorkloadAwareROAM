@@ -258,6 +258,10 @@ public:
     void RequestLodStep() { _lodStepRequested = true; }
     // 资源重建只请求同步现有输出，不重置拓扑
     void RequestCpuMeshFullUpload() { _cpuUploadRecoveryRequired = true; }
+#if defined(PARALLEL_ROAM_GRAPHICS_API_D3D12)
+    // 仅有限图形诊断使用，在安全帧槽中覆盖旧资源释放后的分配失败
+    void FailNextCpuUploadAllocationForDiagnostics();
+#endif
 
     /// <summary>
     /// 对最近一次 CPU 网格数据包交替执行脏区间和完整缓冲区上传
