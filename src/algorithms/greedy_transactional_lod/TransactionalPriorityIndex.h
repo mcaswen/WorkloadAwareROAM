@@ -1,11 +1,11 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalTypes.h"
+#include "algorithms/greedy_transactional_lod/TransactionalTypes.h"
 #include <algorithm>
 #include <optional>
 #include <type_traits>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 /// <summary>
 /// 连续槽保存完整候选尾部，有序块只在自身变脏时重建。

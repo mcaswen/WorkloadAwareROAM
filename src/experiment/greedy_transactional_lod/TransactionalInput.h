@@ -2,11 +2,14 @@
 
 #include <string_view>
 
-#include "experiment/greedy_transactional_lod/TransactionalState.h"
+#include "algorithms/greedy_transactional_lod/TransactionalState.h"
 #include <filesystem>
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+using Algorithms::GreedyTransactionalLod::InitialMesh;
+using Algorithms::GreedyTransactionalLod::Configuration;
+using Algorithms::GreedyTransactionalLod::TransactionalState;
 /// <summary>
 /// 中立几何的文件适配，不保存来源引用，不参与正常事务循环
 /// </summary>

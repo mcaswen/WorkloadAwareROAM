@@ -1,6 +1,6 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalTypes.h"
+#include "algorithms/greedy_transactional_lod/TransactionalTypes.h"
 #include "experiment/formal/FormalExperimentTypes.h"
 
 #include <optional>
@@ -8,6 +8,7 @@
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+using Algorithms::GreedyTransactionalLod::Configuration;
 /// <summary>
 /// 固定压力输入、额度映射和相机规则，供实验入口共同使用。
 /// 不持有算法状态，也不参与每轮候选发现。

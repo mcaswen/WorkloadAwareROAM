@@ -1,9 +1,9 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalSamples.h"
-#include "experiment/greedy_transactional_lod/TransactionalMesh.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSamples.h"
+#include "algorithms/greedy_transactional_lod/TransactionalMesh.h"
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 /// <summary>
 /// 自有状态的持续阶段入口，派生修复与拓扑共同准备后发布

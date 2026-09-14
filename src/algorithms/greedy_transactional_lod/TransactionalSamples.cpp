@@ -1,13 +1,13 @@
-#include "experiment/greedy_transactional_lod/TransactionalSamples.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSamples.h"
 #include "profiling/CpuProfiling.h"
-#include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 TransactionalSamples::TransactionalSamples(HeightSource source) : _source(std::move(source))
 {

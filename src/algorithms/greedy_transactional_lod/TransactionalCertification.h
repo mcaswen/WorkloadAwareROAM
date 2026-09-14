@@ -1,8 +1,8 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalSamples.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSamples.h"
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 class TransactionalProposalEvidence;
 

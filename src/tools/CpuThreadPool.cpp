@@ -1,4 +1,4 @@
-#include "algorithms/data_oriented_roam/DataOrientedRoamThreadPool.h"
+#include "tools/CpuThreadPool.h"
 #include "profiling/CpuProfiling.h"
 
 #include <utility>
@@ -8,14 +8,14 @@
 #include <string>
 #endif
 
-namespace ParallelRoam::Algorithms::DataOrientedRoam
+namespace ParallelRoam::Tools
 {
-DataOrientedRoamThreadPool::~DataOrientedRoamThreadPool()
+CpuThreadPool::~CpuThreadPool()
 {
     Shutdown();
 }
 
-void DataOrientedRoamThreadPool::EnsureWorkerCount(std::size_t workerCount)
+void CpuThreadPool::EnsureWorkerCount(std::size_t workerCount)
 {
     if (workerCount <= 1U)
     {
@@ -38,7 +38,7 @@ void DataOrientedRoamThreadPool::EnsureWorkerCount(std::size_t workerCount)
     }
 }
 
-void DataOrientedRoamThreadPool::ParallelFor(
+void CpuThreadPool::ParallelFor(
     std::size_t workerCount,
     const std::function<void(std::size_t workerIndex)>& task)
 {
@@ -79,7 +79,7 @@ void DataOrientedRoamThreadPool::ParallelFor(
     }
 }
 
-void DataOrientedRoamThreadPool::Shutdown()
+void CpuThreadPool::Shutdown()
 {
     {
         std::lock_guard<std::mutex> lock{_mutex};
@@ -104,13 +104,13 @@ void DataOrientedRoamThreadPool::Shutdown()
     _workers.clear();
 }
 
-std::size_t DataOrientedRoamThreadPool::WorkerCount() const
+std::size_t CpuThreadPool::WorkerCount() const
 {
     std::lock_guard<std::mutex> lock{_mutex};
     return _workers.size();
 }
 
-void DataOrientedRoamThreadPool::WorkerLoop()
+void CpuThreadPool::WorkerLoop()
 {
 #if defined(TRACY_ENABLE) && defined(__linux__)
     // 名称使用实际 OS 线程身份，任务分块索引不能冒充线程编号
@@ -161,4 +161,4 @@ void DataOrientedRoamThreadPool::WorkerLoop()
         }
     }
 }
-} // 命名空间 ParallelRoam::Algorithms::DataOrientedRoam
+} // 命名空间 ParallelRoam::Tools

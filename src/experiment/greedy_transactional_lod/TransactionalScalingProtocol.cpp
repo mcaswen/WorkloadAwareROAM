@@ -7,6 +7,7 @@
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+using namespace Algorithms::GreedyTransactionalLod;
 std::optional<std::size_t> TransactionalScalingProtocol::Budget(std::string_view scenario)
 {
     for (auto budget : Budgets)

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalSamples.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSamples.h"
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 /// <summary>
 /// 单个提案调用期间的参数域事实；高度变化不会改变覆盖面与拟合权重。

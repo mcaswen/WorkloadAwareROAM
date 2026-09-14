@@ -1,8 +1,8 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalTypes.h"
+#include "algorithms/greedy_transactional_lod/TransactionalTypes.h"
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 /// <summary>
 /// 二进制几何的过滤谓词，边界不使用 epsilon 吸附或容差焊接

@@ -1,9 +1,16 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalPipeline.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPipeline.h"
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+using Algorithms::GreedyTransactionalLod::CertifiedBatch;
+using Algorithms::GreedyTransactionalLod::Identity;
+using Algorithms::GreedyTransactionalLod::InitialMesh;
+using Algorithms::GreedyTransactionalLod::TransactionalPipeline;
+using Algorithms::GreedyTransactionalLod::WorkLedger;
+using Algorithms::GreedyTransactionalLod::Proposal;
+using Algorithms::GreedyTransactionalLod::Slot;
 /// <summary>
 /// 动态参考的统计按决策观察累计，不解释为单一快照的需求分母
 /// </summary>

@@ -301,7 +301,7 @@ T_{cpu-ready}=T_{view}+T_{discovery/certification}+T_{reservation}+T_{topology}+
 - 先保存 `c7e6cd1` 可执行文件/源码清单；核对移动后的核心只有声明的下层依赖，关闭接入的应用不新增 Boost/原型依赖。
 - 验证：现有核心/索引、线程排空/入队失败相关测试；一份既有自然 B/C 逻辑对照。性能用原 Peking 一条八轮及 DOD 受影响线程路径各一次前后对照，不重跑 SVE 矩阵。
 - 出口：迁移与调度兼容成立，不能以重写选择策略修复迁移差异。
-- 实现情况：未开始。
+- 实现情况：TPI-01 核心迁移、共享执行工具、项目级构建与定向核查完成；见[小规划](tpi_01_runtime_core_plan.md)和[审查](../../reviews/cpu_refinement/tpi_01_runtime_core_review.md)。C4 短测性能归因限制单列，不宣称正式性能等价。
 
 ### TPI-02：公共适配、种子与输入契约
 

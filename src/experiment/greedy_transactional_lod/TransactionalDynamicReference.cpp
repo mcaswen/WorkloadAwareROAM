@@ -1,12 +1,13 @@
 #include "experiment/greedy_transactional_lod/TransactionalDynamicReference.h"
-#include "experiment/greedy_transactional_lod/TransactionalProposals.h"
-#include "experiment/greedy_transactional_lod/TransactionalCertification.h"
-#include "experiment/greedy_transactional_lod/TransactionalReservation.h"
+#include "algorithms/greedy_transactional_lod/TransactionalProposals.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
+#include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
 
 #include <optional>
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+using namespace Algorithms::GreedyTransactionalLod;
 namespace
 {
 using Clock=std::chrono::steady_clock;

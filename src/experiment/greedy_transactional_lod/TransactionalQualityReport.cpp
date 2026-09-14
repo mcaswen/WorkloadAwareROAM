@@ -10,6 +10,7 @@
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+using namespace Algorithms::GreedyTransactionalLod;
 TransactionalQualitySummary TransactionalQualityReport::Summarize(const TransactionalSamples& samples)
 {
     TransactionalQualitySummary result;double sum=0;

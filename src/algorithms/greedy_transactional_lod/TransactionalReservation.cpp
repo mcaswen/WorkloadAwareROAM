@@ -1,12 +1,12 @@
-#include "experiment/greedy_transactional_lod/TransactionalReservation.h"
+#include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
 #include "profiling/CpuProfiling.h"
-#include "experiment/greedy_transactional_lod/TransactionalCertification.h"
-#include "experiment/greedy_transactional_lod/TransactionalProposals.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
+#include "algorithms/greedy_transactional_lod/TransactionalProposals.h"
 
 #include <algorithm>
 #include <optional>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 namespace
 {

@@ -1,3 +1,8 @@
+add_executable(parallel_roam_cpu_task_executor_tests CpuTaskExecutorTests.cpp)
+target_link_libraries(parallel_roam_cpu_task_executor_tests PRIVATE
+    parallel_roam_cpu_execution parallel_roam_project_warnings)
+add_test(NAME cpu_task_executor COMMAND parallel_roam_cpu_task_executor_tests)
+
 if(PARALLEL_ROAM_BUILD_PROFILING_TESTS)
     add_executable(parallel_roam_cpu_profiling_tests CpuProfilingTests.cpp
         ../src/tools/profiling/ProfileSession.cpp)
@@ -7,33 +12,17 @@ if(PARALLEL_ROAM_BUILD_PROFILING_TESTS)
     add_test(NAME cpu_profiling_fixture COMMAND parallel_roam_cpu_profiling_tests)
 endif()
 
-option(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD "Build the isolated transactional CPU LOD experiment" OFF)
 if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
-    set(PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE "" CACHE PATH "Pinned Boost 1.90.0 include directory")
-    if(NOT EXISTS "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}/boost/version.hpp")
-        message(FATAL_ERROR "Transactional LOD requires explicit Boost 1.90.0 headers; see GTP-01 plan.")
-    endif()
-    file(STRINGS "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}/boost/version.hpp" transactional_boost_version
-        REGEX "^#define BOOST_VERSION 109000$")
-    if(NOT transactional_boost_version)
-        message(FATAL_ERROR "Transactional LOD pins BOOST_VERSION=109000.")
-    endif()
     set(transactional_dir "${CMAKE_CURRENT_SOURCE_DIR}/../src/experiment/greedy_transactional_lod")
-    add_library(parallel_roam_transactional_lod_core STATIC
-        "${transactional_dir}/TransactionalState.cpp" "${transactional_dir}/TransactionalSamples.cpp"
-        "${transactional_dir}/TransactionalViewState.cpp" "${transactional_dir}/TransactionalProposalEvidence.cpp"
-        "${transactional_dir}/TransactionalPredicates.cpp" "${transactional_dir}/TransactionalCertification.cpp"
-        "${transactional_dir}/TransactionalProposals.cpp" "${transactional_dir}/TransactionalReservation.cpp"
-        "${transactional_dir}/TransactionalCommit.cpp" "${transactional_dir}/TransactionalPipeline.cpp"
-        "${transactional_dir}/TransactionalMesh.cpp" "${transactional_dir}/TransactionalDynamicReference.cpp"
-        "${transactional_dir}/TransactionalExecution.cpp")
-    target_include_directories(parallel_roam_transactional_lod_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../src")
-    target_include_directories(parallel_roam_transactional_lod_core SYSTEM PRIVATE "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
-    target_link_libraries(parallel_roam_transactional_lod_core PUBLIC parallel_roam_project_options parallel_roam_glm PRIVATE parallel_roam_project_warnings)
+    # 动态参考只进入研究目标，生产核心不提供 oracle
+    add_library(parallel_roam_transactional_dynamic_reference STATIC
+        "${transactional_dir}/TransactionalDynamicReference.cpp")
+    target_link_libraries(parallel_roam_transactional_dynamic_reference PUBLIC parallel_roam_transactional_lod_core
+        PRIVATE parallel_roam_project_warnings)
     if(MSVC)
-        target_compile_options(parallel_roam_transactional_lod_core PRIVATE /fp:strict)
+        target_compile_options(parallel_roam_transactional_dynamic_reference PRIVATE /fp:strict)
     else()
-        target_compile_options(parallel_roam_transactional_lod_core PRIVATE -fno-fast-math -ffp-contract=off)
+        target_compile_options(parallel_roam_transactional_dynamic_reference PRIVATE -fno-fast-math -ffp-contract=off)
     endif()
     add_executable(parallel_roam_transactional_lod_tests GreedyTransactionalLodTests.cpp
         "${transactional_dir}/TransactionalValidation.cpp")
@@ -61,9 +50,9 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
         parallel_roam_project_warnings ParallelROAM::STB Threads::Threads)
     target_include_directories(parallel_roam_transactional_lod_family_probe SYSTEM PRIVATE "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
     foreach(transactional_target parallel_roam_transactional_lod_tests parallel_roam_transactional_lod_probe)
-        target_sources(${transactional_target} PRIVATE ../src/experiment/roam_materialization/MaterializationExecutor.cpp
-            ../src/algorithms/data_oriented_roam/DataOrientedRoamThreadPool.cpp)
-        target_link_libraries(${transactional_target} PRIVATE parallel_roam_transactional_lod_core parallel_roam_project_warnings Threads::Threads)
+        target_sources(${transactional_target} PRIVATE ../src/experiment/roam_materialization/MaterializationExecutor.cpp)
+        target_link_libraries(${transactional_target} PRIVATE parallel_roam_transactional_dynamic_reference
+            parallel_roam_cpu_execution parallel_roam_project_warnings Threads::Threads)
         target_include_directories(${transactional_target} SYSTEM PRIVATE "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
     endforeach()
     add_test(NAME transactional_lod COMMAND parallel_roam_transactional_lod_tests)

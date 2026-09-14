@@ -10,6 +10,7 @@
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+using namespace Algorithms::GreedyTransactionalLod;
 InitialMesh TransactionalInput::Load(const std::filesystem::path& snapshot,std::string_view limitPolicy,const std::filesystem::path& sourceDirectory)
 {
     using boost::property_tree::ptree;

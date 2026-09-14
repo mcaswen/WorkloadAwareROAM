@@ -1,8 +1,7 @@
 #pragma once
 
 #include "experiment/roam_materialization/MaterializationTypes.h"
-
-namespace ParallelRoam::Algorithms::DataOrientedRoam { class DataOrientedRoamThreadPool; }
+#include "tools/CpuTaskExecutor.h"
 
 namespace ParallelRoam::Experiment::RoamMaterialization
 {
@@ -19,9 +18,6 @@ public:
     MaterializationExecutor& operator=(const MaterializationExecutor&) = delete;
     [[nodiscard]] MaterializationExecution Execution();
 private:
-    void Dispatch(std::size_t chunks, const std::function<void(std::size_t)>& task);
-    std::unique_ptr<Algorithms::DataOrientedRoam::DataOrientedRoamThreadPool> _pool;
-    std::size_t _workers;
-    bool _failed{false};
+    Tools::CpuTaskExecutor _executor;
 };
 }

@@ -1,10 +1,12 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalSamples.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSamples.h"
 #include <filesystem>
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+using Algorithms::GreedyTransactionalLod::Slot;
+using Algorithms::GreedyTransactionalLod::TransactionalSamples;
 /// <summary>
 /// 离线质量摘要保留绝对误差与见证，不将局部接受视为全局质量保证。
 /// </summary>

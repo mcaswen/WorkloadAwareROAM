@@ -1,9 +1,9 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalSamples.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSamples.h"
 #include <optional>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 /// <summary>
 /// 冻结快照上的 E/F/H 目录游标，仅在请求下一项时构造几何与样本。

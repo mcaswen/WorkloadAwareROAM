@@ -1,8 +1,8 @@
 #include "experiment/greedy_transactional_lod/TransactionalInput.h"
 #include "experiment/greedy_transactional_lod/TransactionalScalingProtocol.h"
 #include "experiment/greedy_transactional_lod/TransactionalQualityReport.h"
-#include "experiment/greedy_transactional_lod/TransactionalPipeline.h"
-#include "experiment/greedy_transactional_lod/TransactionalCommit.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPipeline.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCommit.h"
 #include "experiment/greedy_transactional_lod/TransactionalValidation.h"
 #include "experiment/greedy_transactional_lod/TransactionalDynamicReference.h"
 #include "experiment/roam_materialization/MaterializationExecutor.h"
@@ -18,6 +18,7 @@
 namespace
 {
 using namespace ParallelRoam::Experiment::GreedyTransactionalLod;
+using namespace ParallelRoam::Algorithms::GreedyTransactionalLod;
 using Clock=std::chrono::steady_clock;
 double Seconds(Clock::time_point start) { return std::chrono::duration<double>(Clock::now()-start).count(); }
 

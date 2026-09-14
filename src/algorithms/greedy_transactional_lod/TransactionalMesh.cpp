@@ -1,11 +1,11 @@
-#include "experiment/greedy_transactional_lod/TransactionalMesh.h"
+#include "algorithms/greedy_transactional_lod/TransactionalMesh.h"
 #include "profiling/CpuProfiling.h"
 
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 namespace
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalTypes.h"
+#include "algorithms/greedy_transactional_lod/TransactionalTypes.h"
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 class TransactionalCommit;
 

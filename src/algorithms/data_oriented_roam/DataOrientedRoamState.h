@@ -1,5 +1,7 @@
 #pragma once
 
+#include "algorithms/data_oriented_roam/DataOrientedRoamThreadPool.h"
+
 #include "algorithms/data_oriented_roam/DataOrientedRoamTypes.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamMeshState.h"
 
@@ -12,7 +14,6 @@
 
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
-class DataOrientedRoamThreadPool;
 
 // 分块编号决定节点能否由某一个线程独立修改而不与其他线程冲突
 using DataOrientedRoamChunkId = std::uint32_t;

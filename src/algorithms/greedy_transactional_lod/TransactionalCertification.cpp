@@ -1,7 +1,7 @@
-#include "experiment/greedy_transactional_lod/TransactionalCertification.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
 #include "profiling/CpuProfiling.h"
-#include "experiment/greedy_transactional_lod/TransactionalProposalEvidence.h"
-#include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalProposalEvidence.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <algorithm>
@@ -9,7 +9,7 @@
 #include <optional>
 #include <stdexcept>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 namespace
 {

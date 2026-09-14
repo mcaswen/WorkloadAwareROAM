@@ -1,7 +1,7 @@
-#include "experiment/greedy_transactional_lod/TransactionalProposalEvidence.h"
+#include "algorithms/greedy_transactional_lod/TransactionalProposalEvidence.h"
 #include <algorithm>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 TransactionalProposalEvidence::TransactionalProposalEvidence(const TransactionalSamples& samples,
     const Proposal& proposal,WorkLedger& work) : _samples(samples),_proposal(proposal),_entries(proposal.Samples.size())

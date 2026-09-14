@@ -1,6 +1,6 @@
-#include "experiment/greedy_transactional_lod/TransactionalViewState.h"
+#include "algorithms/greedy_transactional_lod/TransactionalViewState.h"
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 std::unique_ptr<SampleProjection[]> TransactionalViewState::Allocate(WorkLedger& work) const
 {

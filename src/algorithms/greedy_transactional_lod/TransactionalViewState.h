@@ -1,9 +1,9 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalTypes.h"
+#include "algorithms/greedy_transactional_lod/TransactionalTypes.h"
 #include <span>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 /// <summary>
 /// 与相机代际绑定的样本投影，几何高度和 owner 由 Samples 单独持有

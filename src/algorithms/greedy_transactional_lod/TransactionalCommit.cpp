@@ -1,13 +1,13 @@
-#include "experiment/greedy_transactional_lod/TransactionalCommit.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCommit.h"
 #include "profiling/CpuProfiling.h"
-#include "experiment/greedy_transactional_lod/TransactionalReservation.h"
-#include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 
 #include <algorithm>
 #include <set>
 #include <stdexcept>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 const Point& PreparedTopology::Geometry(const TransactionalState& old,Identity id) const
 {

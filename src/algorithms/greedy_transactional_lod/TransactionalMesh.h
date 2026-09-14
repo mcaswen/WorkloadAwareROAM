@@ -1,9 +1,9 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalCommit.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCommit.h"
 #include "terrain/TerrainMeshBuilder.h"
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 /// <summary>
 /// 独立拥有的脏区间描述，区间单位是输出元素而非字节

@@ -1,11 +1,11 @@
-#include "experiment/greedy_transactional_lod/TransactionalState.h"
-#include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalState.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 void WorkLedger::CheckLimit() const
 {

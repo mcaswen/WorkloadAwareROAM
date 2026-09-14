@@ -1,11 +1,11 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalState.h"
-#include "experiment/greedy_transactional_lod/TransactionalCommit.h"
-#include "experiment/greedy_transactional_lod/TransactionalViewState.h"
-#include "experiment/greedy_transactional_lod/TransactionalPriorityIndex.h"
+#include "algorithms/greedy_transactional_lod/TransactionalState.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCommit.h"
+#include "algorithms/greedy_transactional_lod/TransactionalViewState.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPriorityIndex.h"
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 // 负 priority 使首项就是全局最高紧迫性，稳定身份提供唯一同分顺序
 using PriorityKey=std::tuple<double,Identity,Slot>;

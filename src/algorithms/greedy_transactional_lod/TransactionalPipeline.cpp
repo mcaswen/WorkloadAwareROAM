@@ -1,12 +1,12 @@
-#include "experiment/greedy_transactional_lod/TransactionalPipeline.h"
-#include "experiment/greedy_transactional_lod/TransactionalReservation.h"
-#include "experiment/greedy_transactional_lod/TransactionalCommit.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPipeline.h"
+#include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCommit.h"
 #include "profiling/CpuProfiling.h"
 
 #include <stdexcept>
 #include <cmath>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 TransactionalPipeline::TransactionalPipeline(const InitialMesh& input,TransactionalExecution execution)
     : _execution(std::move(execution)),_state(input),_samples(input.Source)

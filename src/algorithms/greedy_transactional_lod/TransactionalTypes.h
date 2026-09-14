@@ -11,7 +11,7 @@
 #include <tuple>
 #include <vector>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 using Identity = std::int64_t;
 using Slot = std::uint32_t;

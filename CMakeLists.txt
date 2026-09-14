@@ -50,6 +50,14 @@ if(PARALLEL_ROAM_ENABLE_SANITIZERS)
     parallel_roam_enable_sanitizers(parallel_roam_project_options)
 endif()
 
+# DOD 与独立算法共用任务实现；对象库避免每个入口重复编译线程工具
+add_library(parallel_roam_cpu_execution OBJECT
+    src/tools/CpuThreadPool.cpp src/tools/CpuTaskExecutor.cpp)
+target_include_directories(parallel_roam_cpu_execution PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_link_libraries(parallel_roam_cpu_execution PUBLIC parallel_roam_project_options Threads::Threads
+    PRIVATE parallel_roam_project_warnings)
+include(TransactionalLod)
+
 # 应用和 CPU 执行测试共用同一组 DOD 源码，避免新增文件只接入一个后端
 set(PARALLEL_ROAM_DOD_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamPassInput.cpp"
@@ -67,7 +75,7 @@ set(PARALLEL_ROAM_DOD_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamQueues.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamScoring.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamState.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamThreadPool.cpp"
+    $<TARGET_OBJECTS:parallel_roam_cpu_execution>
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamTopology.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/DataOrientedRoamValidation.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/data_oriented_roam/materialization/NativePlanningView.cpp"

@@ -6,8 +6,8 @@
 #include "experiment/greedy_transactional_lod/TransactionalInput.h"
 #include "experiment/greedy_transactional_lod/TransactionalScalingProtocol.h"
 #include "experiment/greedy_transactional_lod/TransactionalQualityReport.h"
-#include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
-#include "experiment/greedy_transactional_lod/TransactionalSamples.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSamples.h"
 #include "experiment/greedy_transactional_lod/TransactionalValidation.h"
 #include "tools/profiling/ProfileSession.h"
 
@@ -20,6 +20,7 @@ namespace
 {
 using namespace ParallelRoam;
 using namespace Experiment::GreedyTransactionalLod;
+using namespace Algorithms::GreedyTransactionalLod;
 using Clock=std::chrono::steady_clock;
 
 /// <summary>

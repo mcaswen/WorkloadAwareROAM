@@ -5,6 +5,7 @@
 namespace
 {
 using namespace ParallelRoam::Experiment::GreedyTransactionalLod;
+using namespace ParallelRoam::Algorithms::GreedyTransactionalLod;
 /// <summary>
 /// 检查冻结协议；失败时直接结束夹具，不依赖构建类型中的断言开关。
 /// </summary>

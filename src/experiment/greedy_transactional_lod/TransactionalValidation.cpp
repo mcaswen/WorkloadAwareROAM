@@ -1,5 +1,5 @@
 #include "experiment/greedy_transactional_lod/TransactionalValidation.h"
-#include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <algorithm>
@@ -9,6 +9,7 @@
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+using namespace Algorithms::GreedyTransactionalLod;
 namespace
 {
 void Require(bool condition,const char* message) { if (!condition) throw std::runtime_error(message); }

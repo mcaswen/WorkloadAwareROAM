@@ -1,10 +1,10 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalState.h"
-#include "experiment/greedy_transactional_lod/TransactionalExecution.h"
+#include "algorithms/greedy_transactional_lod/TransactionalState.h"
+#include "algorithms/greedy_transactional_lod/TransactionalExecution.h"
 #include <set>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 /// <summary>
 /// 同一封闭批次的局部目标记录，供样本和输出在发布前读取

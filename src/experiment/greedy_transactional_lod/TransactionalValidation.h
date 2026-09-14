@@ -1,10 +1,14 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalSamples.h"
-#include "experiment/greedy_transactional_lod/TransactionalMesh.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSamples.h"
+#include "algorithms/greedy_transactional_lod/TransactionalMesh.h"
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+using Algorithms::GreedyTransactionalLod::TransactionalState;
+using Algorithms::GreedyTransactionalLod::TransactionalSamples;
+using Algorithms::GreedyTransactionalLod::WorkLedger;
+using Algorithms::GreedyTransactionalLod::MeshConsumption;
 /// <summary>
 /// 全量独立诊断，不作为正常提交或局部派生修复的实现
 /// </summary>

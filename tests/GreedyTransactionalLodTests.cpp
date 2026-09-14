@@ -1,10 +1,10 @@
-#include "experiment/greedy_transactional_lod/TransactionalCertification.h"
-#include "experiment/greedy_transactional_lod/TransactionalCommit.h"
-#include "experiment/greedy_transactional_lod/TransactionalProposals.h"
-#include "experiment/greedy_transactional_lod/TransactionalReservation.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCommit.h"
+#include "algorithms/greedy_transactional_lod/TransactionalProposals.h"
+#include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
 #include "experiment/greedy_transactional_lod/TransactionalValidation.h"
-#include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
-#include "experiment/greedy_transactional_lod/TransactionalPipeline.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPipeline.h"
 #include "experiment/greedy_transactional_lod/TransactionalDynamicReference.h"
 #include "experiment/roam_materialization/MaterializationExecutor.h"
 
@@ -18,6 +18,7 @@
 namespace
 {
 using namespace ParallelRoam::Experiment::GreedyTransactionalLod;
+using namespace ParallelRoam::Algorithms::GreedyTransactionalLod;
 void Require(bool condition,const char* message) { if (!condition) throw std::runtime_error(message); }
 template<class Action> void Throws(Action&& action)
 {

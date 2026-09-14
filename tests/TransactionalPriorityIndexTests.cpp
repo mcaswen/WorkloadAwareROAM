@@ -1,8 +1,8 @@
-#include "experiment/greedy_transactional_lod/TransactionalPriorityIndex.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPriorityIndex.h"
 #include <iostream>
 #include <random>
 
-using namespace ParallelRoam::Experiment::GreedyTransactionalLod;
+using namespace ParallelRoam::Algorithms::GreedyTransactionalLod;
 
 int main()
 {

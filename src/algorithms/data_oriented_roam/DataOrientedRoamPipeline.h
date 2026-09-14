@@ -1,5 +1,7 @@
 #pragma once
 
+#include "algorithms/data_oriented_roam/DataOrientedRoamThreadPool.h"
+
 #include "algorithms/data_oriented_roam/DataOrientedRoamTypes.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamPassExecution.h"
 
@@ -14,7 +16,6 @@ struct TerrainLodViewInput;
 namespace ParallelRoam::Algorithms::DataOrientedRoam
 {
 struct DataOrientedRoamState;
-class DataOrientedRoamThreadPool;
 
 /// <summary>
 /// 在 SoA 节点池上维护 DOD CPU ROAM 跨帧保留的拓扑，并只更新发生变化的 CPU 网格部分

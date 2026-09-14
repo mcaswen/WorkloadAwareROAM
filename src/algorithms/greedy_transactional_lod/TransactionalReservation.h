@@ -1,10 +1,10 @@
 #pragma once
 
-#include "experiment/greedy_transactional_lod/TransactionalSamples.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSamples.h"
 #include <set>
 #include <tuple>
 
-namespace ParallelRoam::Experiment::GreedyTransactionalLod
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 /// <summary>
 /// 几何读取和写入资源；派生邻接由批准批次统一合成，不允许并发覆盖
