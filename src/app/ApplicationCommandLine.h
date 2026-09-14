@@ -7,7 +7,7 @@
 namespace ParallelRoam::App
 {
 /// <summary>
-/// 区分交互应用和两个不创建窗口的算法入口
+/// 区分交互应用、纯 CPU 算法入口和有限图形回放
 /// </summary>
 enum class ApplicationLaunchMode
 {
@@ -15,6 +15,7 @@ enum class ApplicationLaunchMode
     RoamProbe,
     TerrainLodBenchmark,
     TransactionalPlatformCheck,
+    TransactionalPlatformReplay,
 };
 
 /// <summary>

@@ -43,11 +43,13 @@ bool Require(bool condition, std::string_view message)
 bool TestLaunchModes()
 {
     // 参数值与入口同名时仍应被当作普通值消费
+    const auto replay = Parse({"--transactional-platform-replay", "peking", "transactional", "8", "output", "normal"});
     const auto defaultMode = Parse({});
     const auto probeMode = Parse({"--roam-probe"});
     const auto benchmarkMode = Parse({"--algorithm", "dod", "--benchmark"});
     const auto routeLikeLabel = Parse({"--runtime-benchmark-label", "--benchmark"});
-    return Require(defaultMode.Succeeded(), "Default command line should parse") &&
+    return Require(replay.Options.LaunchMode == ParallelRoam::App::ApplicationLaunchMode::TransactionalPlatformReplay, "Platform replay routing failed") &&
+        Require(defaultMode.Succeeded(), "Default command line should parse") &&
         Require(
             defaultMode.Options.LaunchMode ==
                 ParallelRoam::App::ApplicationLaunchMode::Application,

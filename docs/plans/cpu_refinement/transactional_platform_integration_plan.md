@@ -253,7 +253,7 @@ binary64 状态与 float 输出分开核查：共享点转换一致、索引有�
 
 GUI 至少提供实验算法选择、线程与 r/m、重置、暂停/单步；展示活动三角形/预算、实际事务、失败原因摘要、视图/认证/预留/续接时间和初始化状态。研究计数放在诊断面板，不要求普通用户理解内部文件/模块。
 
-CLI 沿用既有入口，建议新增 `--algorithm transactional` 与 `--runtime-benchmark-algorithms` 显式名单，并提供 `--transactional-workers`、`--transactional-prefix`、`--transactional-donors`；具体拼写由 TPI-02/03 固定后写入实际命令。当前这些参数尚未实现。
+CLI 沿用既有入口，建议新增 `--algorithm transactional` 与 `--runtime-benchmark-algorithms` 显式名单，并提供 `--transactional-workers`、`--transactional-prefix`、`--transactional-donors`；具体拼写由 TPI-02/03 固定后写入实际命令。TPI-03已实现上述参数，实际用法见TPI-05事实。
 
 公共 Stats 保留总 CPU、网格、上传、资源计数；新增可选 `TransactionalLodStats` 和阶段模型标识。事务字段至少包含：r/m、实际需求/接收/交换、配对/冲突、视图刷新、认证、预留、拓扑准备/发布、样本续接、网格准备/发布、冷启动、状态码和实际是否更新。旧五阶段不适用字段在报告中显示“不适用”，不得用零值解释成没有成本。
 
@@ -340,7 +340,7 @@ T_{cpu-ready}=T_{view}+T_{discovery/certification}+T_{reservation}+T_{topology}+
 - 正常计时与独立质量/诊断分开；Q 密集评价在选定关键帧的独立回放中进行，逐帧几何身份核对后复用。质量取参考可见集合下的 sampled maximum、当前真实 RMS 口径、Hmax、逐点 Dmax 和返回恢复；记录是否未在冻结轮数内恢复。
 - 若普通阶段账本已足够解释，不追加 profiler。只对一个决定性输入采一份 Tracy；存在未定位大头时再一份适用环境 perf。Windows 程序不能直接用 Linux perf 归因；必要 WSL 核心采样单列，不拼成原生帧的函数百分比。
 - 交付接入结果、复杂度/空间、剩余性能空间、相对 Legacy 的条件分析及适用范围；按类型关闭接入阶段，不自动开启性能优化阶段。
-- 实现情况：未开始。
+- 实现情况：冻结持续回放、独立float输出评价、同任务多核对照及性能空间分析完成；见[小规划](tpi_05_platform_evidence_plan.md)与[最终结果](../../research/cpu_refinement/tpi_platform_results_and_headroom.md)。本规划接入任务闭环，持续质量与同质量性能竞争力未据此通过。
 
 ## 11. 验证与资源停止契约
 
@@ -382,4 +382,11 @@ T_{cpu-ready}=T_{view}+T_{discovery/certification}+T_{reservation}+T_{topology}+
 
 完成后逐项对比：目录与依赖是否符合 §4；核心是否仍独立；控制/种子/输出有没有堆入 renderer；是否意外链接研究设施；是否加入无登记全域复制；Settings/Stats/范围是否跨两后端一致；是否把诊断或 CPU/GPU 重叠时间混入统计。审查结论写入规定目录，不以构建成功代替架构核查。
 
-本轮方案自查见[规划审查](../../reviews/cpu_refinement/transactional_platform_integration_plan_review.md)。用户已确认本规划；当前尚未新增运行代码，接下来从 TPI-01 开始实施，历史实验结果保持原记录。
+本轮方案自查见[规划审查](../../reviews/cpu_refinement/transactional_platform_integration_plan_review.md)。用户已确认并授权逐阶段自主闭环；TPI-01～05实现和审查完成，历史实验结果保持原记录。最终出口按类型解释，不用接入完成替代持续质量或性能竞争力结论。
+
+
+## 14. 最终闭环索引（2026-09-15）
+
+TPI-01 b7b4a52，TPI-02 2341710，TPI-03 a4f4fd9，TPI-04 4b66cb6；TPI-05随本次结果提交。每阶段先冻结小规划，实施后归档事实/审查，再提交进入下一阶段。原生工具链、NO/ZO输入、一次公共种子、float输出、两后端和有限恢复均获实际证据；任意近面/设备移除仍未保证。
+
+最后的[结果、复杂度和性能空间](../../research/cpu_refinement/tpi_platform_results_and_headroom.md)包含负结果：test129仍明显慢，Peking时间虽接近DOD却存在约66px跨视图误差，返回窗口未恢复。已知优化空间尚在，未证明优化耗尽。本规划不继续新增质量或预留优化实现。

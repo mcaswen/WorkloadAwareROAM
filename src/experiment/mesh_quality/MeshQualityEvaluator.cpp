@@ -271,10 +271,10 @@ std::vector<BarycentricPoint> AdditionalSamples(unsigned level)
     return points;
 }
 
-bool InReferenceFrustum(const glm::dvec4& p)
+bool InReferenceFrustum(const glm::dvec4& p, bool zeroToOne)
 {
     return p.w > 0.0 && p.x >= -p.w && p.x <= p.w && p.y >= -p.w && p.y <= p.w &&
-        p.z >= -p.w && p.z <= p.w;
+        p.z >= (zeroToOne ? 0.0 : -p.w) && p.z <= p.w;
 }
 
 bool ValidSource(const BilinearHeightfieldReference& source, const Mesh& domain)
@@ -314,12 +314,13 @@ glm::dvec3 SourcePosition(const BilinearHeightfieldReference& source, const glm:
 }
 
 void AccumulateSample(QualityResult& result, const SurfaceQuery& query, const QualityView& view,
-    const glm::dvec2& uv, const glm::dvec3& referencePosition)
+    const glm::dvec2& uv, const glm::dvec3& referencePosition, std::vector<double>* errors)
 {
     ++result.SampleCount;
     const glm::dmat4 matrix(view.ViewProjection);
     const glm::dvec4 referenceClip = matrix * glm::dvec4(referencePosition, 1.0);
-    const bool referenceVisible = Finite(referenceClip) && InReferenceFrustum(referenceClip);
+    const bool referenceVisible = Finite(referenceClip) && InReferenceFrustum(referenceClip, view.UsesZeroToOneDepth);
+    if (errors) errors->push_back(std::numeric_limits<double>::quiet_NaN());
     // 参考域分母先于被测查询确定，缺失覆盖不能缩小参考屏幕样本数量
     if (referenceVisible) ++result.ScreenSampleCount;
     const auto hit = query.Find(uv);
@@ -333,10 +334,10 @@ void AccumulateSample(QualityResult& result, const SurfaceQuery& query, const Qu
         result.HeightMaximum = location;
     }
     if (!Finite(referenceClip)) { ++result.InvalidProjectionCount; return; }
-    if (!referenceVisible) return;
+    if (!referenceVisible) { if (errors) errors->back() = -1; return; }
     const glm::dvec4 measuredClip = matrix * glm::dvec4(hit.Position, 1.0);
     if (!Finite(measuredClip)) { ++result.InvalidProjectionCount; return; }
-    if (measuredClip.w <= 0.0 || measuredClip.z < -measuredClip.w)
+    if (measuredClip.w <= 0.0 || measuredClip.z < (view.UsesZeroToOneDepth ? 0.0 : -measuredClip.w))
     {
         ++result.NearPlaneCrossingCount;
         return;
@@ -346,6 +347,9 @@ void AccumulateSample(QualityResult& result, const SurfaceQuery& query, const Qu
         glm::dvec2(referenceClip) / referenceClip.w) * glm::dvec2(view.Width, view.Height) * 0.5;
     const double error = glm::length(difference);
     if (!std::isfinite(error)) { ++result.InvalidProjectionCount; return; }
+    if (errors) errors->back() = error;
+    result.ScreenSquaredSum += error * error;
+    ++result.EvaluatedScreenCount;
     if (!result.SampledScreenMaxPx || error > *result.SampledScreenMaxPx)
     {
         result.SampledScreenMaxPx = error;
@@ -361,6 +365,7 @@ QualityResult EvaluateSamples(const Mesh& reference, const Mesh& measured,
 {
     const auto begin = Clock::now();
     QualityResult result;
+    if (options.PointErrors) options.PointErrors->clear();
     result.SamplingLevel = options.SamplingLevel;
     const auto finish = [&]() { result.TotalMilliseconds = Milliseconds(begin); return result; };
     bool finiteView = true;
@@ -420,7 +425,7 @@ QualityResult EvaluateSamples(const Mesh& reference, const Mesh& measured,
         HashValue(result.SampleHash, kind);
         HashValue(result.SampleHash, id);
         if (kind >= 3U) HashValue(result.SampleHash, detail);
-        AccumulateSample(result, query, view, uv, source ? SourcePosition(*source, uv) : p);
+        AccumulateSample(result, query, view, uv, source ? SourcePosition(*source, uv) : p, options.PointErrors);
     };
     // 每个原参考单元都发出固定样本，共享顶点/边只发一次；被测网格不参与选点
     for (std::size_t t = 0U; t < triangles && !exhausted; ++t)
@@ -476,6 +481,8 @@ QualityResult EvaluateSamples(const Mesh& reference, const Mesh& measured,
         }
     }
     result.SampleMilliseconds = Milliseconds(samplingBegin);
+    if (result.EvaluatedScreenCount != 0U)
+        result.TerrainSampleScreenRms = std::sqrt(result.ScreenSquaredSum / static_cast<double>(result.EvaluatedScreenCount));
     result.Status = exhausted ? EvaluationStatus::ResourceLimit :
         (result.MissingCoverageCount + result.AmbiguousCoverageCount + result.InvalidProjectionCount +
             result.NearPlaneCrossingCount != 0U ? EvaluationStatus::Incomplete : EvaluationStatus::Sampled);

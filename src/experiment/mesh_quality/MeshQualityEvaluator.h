@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <optional>
 #include <span>
+#include <vector>
 
 namespace ParallelRoam::Terrain
 {
@@ -40,13 +41,14 @@ enum class EvaluationStatus
 };
 
 /// <summary>
-/// 由调用方冻结的右手 NO 投影和像素尺寸，不携带调度分数或算法内部状态
+/// 由调用方冻结的右手投影、深度约定和像素尺寸，默认 NO，不携带调度分数
 /// </summary>
 struct QualityView
 {
     glm::mat4 ViewProjection{1.0F};
     std::uint32_t Width{1U};
     std::uint32_t Height{1U};
+    bool UsesZeroToOneDepth{false};
 };
 
 /// <summary>
@@ -58,6 +60,8 @@ struct QualityOptions
     std::size_t MaximumSamples{40000000U};
     double MaximumSeconds{600.0};
     unsigned SamplingLevel{0U};
+    // 可选逐点输出；NaN 保留异常，-1 仅表示参考不可见，调用者同步持有
+    std::vector<double>* PointErrors{nullptr};
 };
 
 /// <summary>
@@ -89,6 +93,10 @@ struct QualityResult
     std::uint64_t SampleHash{14695981039346656037ULL};
     std::optional<double> SampledScreenMaxPx;
     std::optional<double> SampledHeightMax;
+    // 可见参数域样本等权 RMS，不是屏幕面积权重；异常状态下只代表已求值部分
+    std::optional<double> TerrainSampleScreenRms;
+    double ScreenSquaredSum{0.0};
+    std::size_t EvaluatedScreenCount{0U};
     QualityLocation ScreenMaximum;
     QualityLocation HeightMaximum;
     double IndexMilliseconds{0.0};
@@ -98,14 +106,14 @@ struct QualityResult
 
 /// <summary>
 /// 同步评价参考三角形的顶点、边中点与重心，样本及其归属只由参考确定
-/// 两个网格在调用期间保持不变；只输出指定层最大值，不计算 RMS 或自动判定收敛
+/// 两个网格在调用期间保持不变；输出指定层最大值和样本 RMS，不自动判定收敛
 /// </summary>
 [[nodiscard]] QualityResult EvaluateMeshQuality(const Terrain::TerrainMeshData& reference,
     const Terrain::TerrainMeshData& measured, const QualityView& view, const QualityOptions& options = {});
 
 /// <summary>
 /// 采样模板仅提供 UV 和索引，参考位置与视锥域由原始双线性高度场独立确定
-/// 输入在同步调用期间保持不变；只输出指定层最大值，不提供配对退化指标
+/// 输入在同步调用期间保持不变；可选逐点输出用于离线配对，不自动裁决退化是否可接受
 /// </summary>
 [[nodiscard]] QualityResult EvaluateMeshQuality(const BilinearHeightfieldReference& reference,
     const Terrain::TerrainMeshData& samplingDomain, const Terrain::TerrainMeshData& measured,

@@ -6,6 +6,7 @@
 #include "benchmark/RoamProbe.h"
 #include "benchmark/TerrainLodBenchmark.h"
 #include "benchmark/TransactionalPlatformProbe.h"
+#include "benchmark/TransactionalPlatformReplay.h"
 #endif
 
 #if defined(PARALLEL_ROAM_HAS_SDL2)
@@ -24,7 +25,7 @@ int main(int argc, char** argv)
         return 2;
     }
 
-    // 探针和无窗口实验直接使用各自入口，不需要初始化图形应用
+    // 有限探针直接使用各自入口，不初始化普通交互应用
     switch (commandLine.Options.LaunchMode)
     {
     case ParallelRoam::App::ApplicationLaunchMode::RoamProbe:
@@ -35,6 +36,8 @@ int main(int argc, char** argv)
         break;
     case ParallelRoam::App::ApplicationLaunchMode::TransactionalPlatformCheck:
         return ParallelRoam::Benchmark::RunTransactionalPlatformCheck();
+    case ParallelRoam::App::ApplicationLaunchMode::TransactionalPlatformReplay:
+        return ParallelRoam::Benchmark::RunTransactionalPlatformReplay(argc, argv);
     }
 
     ParallelRoam::App::Application application;

@@ -132,8 +132,9 @@ private:
 
     [[nodiscard]] static ApplicationLaunchMode FindLaunchMode(std::string_view argument)
     {
-        // 探针和无窗口实验都不需要窗口、渲染器或界面资源
-        static constexpr std::array<LaunchModeDescriptor, 3> modes{{
+        // 独立入口直接分流，是否创建窗口由各自有限入口决定
+        static constexpr std::array<LaunchModeDescriptor, 4> modes{{
+            {"--transactional-platform-replay", ApplicationLaunchMode::TransactionalPlatformReplay},
             {"--transactional-platform-check", ApplicationLaunchMode::TransactionalPlatformCheck},
             {"--roam-probe", ApplicationLaunchMode::RoamProbe},
             {"--benchmark", ApplicationLaunchMode::TerrainLodBenchmark},

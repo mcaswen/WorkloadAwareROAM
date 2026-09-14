@@ -186,6 +186,30 @@ void CheckAnalyticGeometry()
     Near(outside.SampledScreenMaxPx.value(), 150.0, "viewport coordinates were clamped");
 }
 
+void CheckPlatformOutputs()
+{
+    std::vector<double> points;
+    QualityOptions options;options.PointErrors=&points;
+    QualityView view{glm::mat4{1.0F},100U,100U};
+    const auto source=Quad();
+    const auto result=EvaluateMeshQuality(source,Quad({.25F,.25F,.25F,.25F}),view,options);
+    Require(points.size()==11 && result.EvaluatedScreenCount==11,"point output incomplete");
+    Near(result.TerrainSampleScreenRms.value(),12.5,"analytic RMS");
+    for (double point : points) Near(point,12.5,"pointwise error");
+    // NO 转 ZO 后保持同一几何视锥，不能只改变可见判断
+    view.ViewProjection[2][2]=.5F;view.ViewProjection[3][2]=.5F;view.UsesZeroToOneDepth=true;
+    const auto zo=EvaluateMeshQuality(source,Quad({.25F,.25F,.25F,.25F}),view,options);
+    Require(zo.ScreenSampleCount==result.ScreenSampleCount,"ZO visibility differs");
+    Near(zo.SampledScreenMaxPx.value(),12.5,"ZO geometric error");
+    const auto missing=EvaluateMeshQuality(source,{},view,options);
+    Require(missing.Status==EvaluationStatus::Incomplete &&
+        std::all_of(points.begin(),points.end(),[](double e){return std::isnan(e);}),"missing points disguised as invisible");
+    view.ViewProjection[3].x=10;
+    const auto invisible=EvaluateMeshQuality(source,source,view,options);
+    Require(invisible.Status==EvaluationStatus::Sampled && !invisible.TerrainSampleScreenRms &&
+        std::all_of(points.begin(),points.end(),[](double e){return e==-1;}),"invisible point semantics changed");
+}
+
 void CheckFailures()
 {
     const QualityView view{glm::mat4{1.0F}, 100U, 100U};
@@ -577,6 +601,7 @@ int main(int argc, char** argv)
         if (argc == 1)
         {
             CheckAnalyticGeometry();
+        CheckPlatformOutputs();
             CheckFailures();
             CheckBilinearReference();
             CheckRefinedSampling();
@@ -586,6 +611,7 @@ int main(int argc, char** argv)
         else if (argc == 2 && std::string(argv[1]) == "--check-bilinear")
         {
             CheckAnalyticGeometry();
+        CheckPlatformOutputs();
             CheckFailures();
             CheckBilinearReference();
             std::cout << "Bilinear source and shared analytic checks completed\n";

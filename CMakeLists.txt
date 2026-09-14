@@ -186,6 +186,7 @@ if(PARALLEL_ROAM_BUILD_APP)
     if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
         list(APPEND PARALLEL_ROAM_APP_SOURCES src/algorithms/TerrainLodAlgorithmRegistry.cpp)
         list(APPEND PARALLEL_ROAM_APP_SOURCES src/benchmark/TransactionalPlatformProbe.cpp)
+        list(APPEND PARALLEL_ROAM_APP_SOURCES src/benchmark/TransactionalPlatformReplay.cpp)
         list(APPEND PARALLEL_ROAM_APP_SOURCES ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
             src/benchmark/formal/FormalWorkloadDiscovery.cpp
             src/benchmark/formal/FormalCpuInput.cpp

@@ -287,6 +287,12 @@ public:
     void Render(const RenderContext& context);
 
     [[nodiscard]] TerrainRenderStats Stats() const;
+    /// <summary>
+    /// 诊断只读借用当前实际 CPU 输出，有效期至下一次更新、重置或销毁
+    /// 不授予修改权，也不触发任何网格重建或复制
+    /// </summary>
+    [[nodiscard]] const Terrain::TerrainMeshData* CurrentCpuMeshForDiagnostics() const
+    { return _borrowedCpuMeshData ? _borrowedCpuMeshData : &_meshData; }
     [[nodiscard]] const std::filesystem::path& HeightMapPath() const;
     [[nodiscard]] const std::filesystem::path& TexturePath() const;
 

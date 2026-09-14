@@ -305,6 +305,14 @@ if(TARGET ParallelROAM::STB)
     target_link_libraries(parallel_roam_materialization_probe PRIVATE parallel_roam_materialization_core
         parallel_roam_project_warnings ParallelROAM::STB Threads::Threads)
 
+    # 平台实际 float 输出的离线评价，不链接进正常图形应用
+    add_executable(parallel_roam_transactional_platform_quality_probe TransactionalPlatformQualityProbe.cpp
+        ../src/experiment/mesh_quality/MeshQualityEvaluator.cpp
+        ../src/terrain/HeightMap.cpp ../src/terrain/TerrainMeshBuilder.cpp)
+    target_include_directories(parallel_roam_transactional_platform_quality_probe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
+    target_link_libraries(parallel_roam_transactional_platform_quality_probe PRIVATE
+        parallel_roam_project_options parallel_roam_project_warnings ParallelROAM::GLM ParallelROAM::STB)
+
     add_executable(parallel_roam_MeshQualityEvaluator_tests MeshQualityEvaluatorTests.cpp
         ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
         ../src/experiment/mesh_quality/MeshQualityEvaluator.cpp
