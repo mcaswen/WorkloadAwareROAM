@@ -15,6 +15,8 @@ struct VertexRecord
     Point Geometry;
     std::vector<Slot> Incident;
     bool Active{true};
+    // 由边关联初建，固定外接口的事务保留；新增点只来自内部细分
+    bool Boundary{};
 };
 
 /// <summary>
@@ -49,6 +51,7 @@ public:
     const std::vector<Slot>& ActiveFaces() const { return _activeFaces; }
     const std::map<Edge, EdgeRecord>& Edges() const { return _edges; }
     const VertexRecord& Vertex(Identity id) const;
+    Slot VertexSlot(Identity id) const { return _vertexIndex.at(id); }
     const Triangle& Face(Slot slot) const;
     bool IsBoundary(Identity id) const;
     std::uint64_t Version() const { return _version; }

@@ -20,6 +20,11 @@ void Merge(WorkLedger& target,const WorkLedger& source)
         &WorkLedger::RepairSamples,&WorkLedger::RepairFaces,&WorkLedger::OrderVisits,&WorkLedger::MeshVertices,&WorkLedger::MeshIndices,&WorkLedger::PendingBlocks,
         &WorkLedger::HeightSamples,&WorkLedger::HeightExactSamples,&WorkLedger::HeightGuardChecks,&WorkLedger::HeightGuardRejected,
         &WorkLedger::CapacityGrowths,&WorkLedger::CapacityBytesReserved,&WorkLedger::CapacityBytesRelocated,
+        &WorkLedger::ViewBufferAllocations,&WorkLedger::ViewBufferBytes,
+        &WorkLedger::ReceiverConstructed,&WorkLedger::EvidenceLookups,&WorkLedger::EvidenceHits,&WorkLedger::EvidenceBuilds,
+        &WorkLedger::EvidenceBytes,&WorkLedger::EvidenceFaceTests,&WorkLedger::FootprintBuilds,
+        &WorkLedger::DonorTouched,&WorkLedger::DonorCertified,
+        &WorkLedger::IndexBlocks,&WorkLedger::IndexSlots,&WorkLedger::IndexComparisons,&WorkLedger::IndexQueryBlocks,
         &WorkLedger::CandidateUpdates,&WorkLedger::DonorIndexUpdates,&WorkLedger::ReceiverCacheHits,&WorkLedger::DonorCacheHits,
         &WorkLedger::CacheInvalidations,&WorkLedger::RootObservations});
     for (auto field : counters) target.*field+=source.*field;

@@ -38,11 +38,11 @@ void SamplesAndCertification()
 {
     const auto input=Square();TransactionalState state(input);TransactionalValidation::Validate(state);
     TransactionalSamples samples(input.Source);WorkLedger work;samples.Refresh(state,work);
-    Require(samples.Values().size()==33 && work.SampleContributions==38,"公共采样或闭面贡献不符");
+    Require(samples.SampleCount()==33 && work.SampleContributions==38,"公共采样或闭面贡献不符");
     for (Slot sid=0;sid<33;++sid)
     {
         const auto xy=samples.Decode(sid);
-        Require(samples.Values()[sid].Owner==(xy[1]<=xy[0] ? 0U : 1U),"共享边唯一 owner 错误");
+        Require(samples.Value(sid).Owner==(xy[1]<=xy[0] ? 0U : 1U),"共享边唯一 owner 错误");
         Require((std::find(samples.FaceSamples(0).begin(),samples.FaceSamples(0).end(),sid)!=samples.FaceSamples(0).end())==(xy[1]<=xy[0]),"闭边样本遗漏");
     }
     Require(TransactionalCertification::ExactErrorSquared(state,samples,4)==2500,"正交误差解析值不符");
@@ -50,6 +50,15 @@ void SamplesAndCertification()
     Require(TransactionalCertification::ExactErrorSquared(projected,samples,4)==1600,"透视误差解析值不符");
     auto candidates=TransactionalProposals::Receivers(state,samples,0);
     Require(candidates.front().Kind=='E' && candidates.front().Faces.size()==4,"边中点原语未保持两个面到四个面");
+    ReceiverCursor cursor(state,samples,0);WorkLedger constructed;
+    for (const auto& expected : candidates)
+    {
+        auto next=cursor.Next(&constructed);Require(next.has_value(),"惰性目录提前结束");
+        Require(next->NewVertex==expected.NewVertex && next->Kind==expected.Kind &&
+            next->Support==expected.Support && next->Faces==expected.Faces && next->Samples==expected.Samples,
+            "目录命名、连接或样本顺序变化");
+    }
+    Require(!cursor.Next() && constructed.ReceiverConstructed==candidates.size(),"目录尾部重复构造");
     const auto reason=TransactionalCertification::Fit(state,samples,candidates.front(),work);
     Require(reason=="certified","解析接收提案无法认证");
     auto proposal=candidates.front();proposal.Reason=reason;
@@ -90,7 +99,7 @@ void ReclamationAndPredicates()
     Require(!TransactionalPredicates::Shape(a,b,{.5,std::nextafter(0.0,1.0),0}),"极薄面误认证");
     Require(TransactionalPredicates::Contains({1.0/3,1.0/3,0},a,b,c),"非 dyadic 内点遗漏");
     TransactionalSamples sixths({2,2,{0,0,0,0}});
-    for (Slot sid=0;sid<sixths.Values().size();++sid)
+    for (Slot sid=0;sid<sixths.SampleCount();++sid)
     {
         const auto xy=sixths.Decode(sid);
         if (xy[0]==4 && xy[1]==2)
@@ -106,6 +115,13 @@ void PersistentStateAndConsumption()
     ParallelRoam::Terrain::TerrainMeshData mirror;TransactionalValidation::Consume(pipeline.ConsumeMesh(),mirror);
     auto batch=TransactionalReservation::Plan(pipeline.State(),pipeline.Samples(),initialize);
     Require(!batch.Exchanges.empty(),"持续夹具没有事务");
+    TransactionalExecution audit;audit.Diagnostics=true;WorkLedger auditWork;
+    const auto audited=TransactionalReservation::Plan(pipeline.State(),pipeline.Samples(),auditWork,audit);
+    Require(audited.PairAuditComplete && !batch.PairAuditComplete && audited.Feasible==batch.Feasible &&
+        audited.Exchanges.size()==batch.Exchanges.size(),"诊断改变了可行分母或事务数量");
+    TransactionalState auditState(input);TransactionalCommit::Apply(auditState,audited,auditWork);
+    TransactionalState normalState(input);TransactionalCommit::Apply(normalState,batch,auditWork);
+    Require(TransactionalValidation::Equivalent(auditState,normalState),"诊断改变了下一状态");
     const auto originalVersion=pipeline.State().Version();
     WorkLedger expired;expired.Deadline=std::chrono::steady_clock::time_point::min();
     Throws([&] { pipeline.Apply(batch,expired); });
@@ -136,8 +152,8 @@ void PersistentStateAndConsumption()
     // 构造屏幕证据域外的高度改动，保护仍须覆盖整个闭补丁
     auto hidden=input;hidden.Config.Matrix[15]=-1;
     TransactionalState source(hidden);TransactionalSamples samples(hidden.Source);samples.Refresh(source,initialize);
-    Require(std::none_of(samples.Values().begin(),samples.Values().end(),[](const auto& value) { return value.Visible; }),
-        "高度保护夹具未覆盖视域外样本");
+    for (Slot sid=0;sid<samples.SampleCount();++sid)
+        Require(!samples.Projection(sid).Visible,"高度保护夹具未覆盖视域外样本");
     auto receiver=TransactionalProposals::Receivers(source,samples,0).front();
     receiver.Points.at(receiver.NewVertex).Height=100;
     Require(!TransactionalCertification::PreservesHeight(source,samples,receiver,nullptr,initialize),"全 Q 高度保护漏掉退化");
@@ -169,11 +185,13 @@ void DynamicEvidenceAndView()
     TransactionalValidation::Samples(cached.Pipeline().State(),cached.Pipeline().Samples(),check);
     auto oldBatch=TransactionalReservation::Plan(cached.Pipeline().State(),cached.Pipeline().Samples(),check);
     const auto version=cached.Pipeline().State().Version();auto view=input.Config;view.Matrix[0]=.9;view.SampleIndex=15;
-    std::vector<Slot> owners;for (const auto& value : cached.Pipeline().Samples().Values()) owners.push_back(value.Owner);
+    std::vector<Slot> owners;
+    for (Slot sid=0;sid<cached.Pipeline().Samples().SampleCount();++sid)
+        owners.push_back(cached.Pipeline().Samples().Geometry(sid).Owner);
     cached.Pipeline().SetView(view,check);
     Require(cached.Pipeline().State().Version()==version+1,"视图刷新没有失效旧批次");
     Throws([&] { cached.Pipeline().Apply(oldBatch,check); });
-    for (Slot sid=0;sid<owners.size();++sid) Require(cached.Pipeline().Samples().Values()[sid].Owner==owners[sid],"换相机重新分配了 owner");
+    for (Slot sid=0;sid<owners.size();++sid) Require(cached.Pipeline().Samples().Value(sid).Owner==owners[sid],"换相机重新分配了 owner");
     TransactionalValidation::Samples(cached.Pipeline().State(),cached.Pipeline().Samples(),check);
     TransactionalValidation::Mesh(cached.Pipeline().State(),cached.Pipeline().Mesh());
 }
@@ -229,6 +247,29 @@ void ParallelExecutionAndFailure()
     TransactionalValidation::Mesh(unchanged.State(),unchanged.Mesh());
     const auto empty=unchanged.ConsumeMesh();
     Require(empty.Vertices.empty() && empty.Indices.empty(),"并行失败污染 Pending");
+
+    // 投影任务已经写满备用数组后失败，当前视图必须仍可读且能继续更新
+    bool failView=true;auto recoverable=execution;
+    recoverable.Dispatch=[&](auto count,const auto& task) {
+        adapter.Dispatch(count,task);
+        if (failView) { failView=false;throw std::runtime_error("投影准备后拒绝"); }
+    };
+    TransactionalPipeline views(input,recoverable);views.Initialize(check);
+    const auto initialView=views.State().Version();
+    const auto* initialBuffer=&views.Samples().Projection(0);
+    WorkLedger viewWork;auto camera=input.Config;camera.Matrix[0]=.8;
+    Throws([&] { views.SetView(camera,viewWork); });
+    Require(views.State().Version()==initialView && &views.Samples().Projection(0)==initialBuffer,
+        "失败发布了备用投影或视图代际");
+    TransactionalValidation::Samples(views.State(),views.Samples(),check);
+    views.SetView(camera,viewWork);
+    Require(&views.Samples().Projection(0)!=initialBuffer,"成功视图仍在逐样本复制发布");
+    views.Update(check);TransactionalValidation::Validate(views.State());
+    camera.Matrix[0]=.7;views.SetView(camera,viewWork);
+    Require(&views.Samples().Projection(0)==initialBuffer && viewWork.ViewBufferAllocations==1,
+        "视图数组未复用或再次分配");
+    TransactionalValidation::Samples(views.State(),views.Samples(),check);
+    TransactionalValidation::Mesh(views.State(),views.Mesh());
 }
 }
 

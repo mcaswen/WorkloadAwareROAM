@@ -31,9 +31,9 @@ struct Quality
 Quality Summarize(const TransactionalSamples& samples)
 {
     Quality result;double sum=0;std::size_t visible=0;
-    for (Slot sid=0;sid<samples.Values().size();++sid)
+    for (Slot sid=0;sid<samples.SampleCount();++sid)
     {
-        const auto& v=samples.Values()[sid];
+        const auto& v=samples.Value(sid);
         if (v.ErrorSquared>result.Screen) { result.Screen=v.ErrorSquared;result.ScreenSample=sid; }
         if (v.HeightError>result.Height) { result.Height=v.HeightError;result.HeightSample=sid; }
         if (v.Visible) { sum+=v.ErrorSquared;++visible; }
@@ -49,6 +49,7 @@ void WriteReport(const std::filesystem::path& path,const Configuration& config,c
     out<<"{\"numericContract\":\"gmp-v1-binary64\",\"scenario\":"<<std::quoted(config.Scenario)
         <<",\"heightPolicy\":\"LocalCenterRefit\",\"heightGuard\":"<<(config.HeightGuard ? "true" : "false")
         <<",\"sampleIndex\":"<<config.SampleIndex<<",\"diagnostic\":"<<(diagnostic ? "true" : "false")
+        <<",\"pairAuditComplete\":"<<(batch.PairAuditComplete ? "true" : "false")
         <<",\"D_raw\":"<<batch.Raw<<",\"examined\":"<<batch.Examined<<",\"receivers\":"<<batch.Receivers
         <<",\"D_need\":"<<batch.Need<<",\"D_feasible\":"<<batch.Feasible<<",\"D_executed\":"<<batch.Executed
         <<",\"freeExecuted\":"<<batch.FreeExecuted<<",\"batchWidth\":"<<batch.Exchanges.size()
@@ -77,7 +78,15 @@ void WriteReport(const std::filesystem::path& path,const Configuration& config,c
         <<",\"capacityBytesRelocated\":"<<work.CapacityBytesRelocated<<",\"candidateUpdates\":"<<work.CandidateUpdates
         <<",\"donorIndexUpdates\":"<<work.DonorIndexUpdates<<",\"receiverCacheHits\":"<<work.ReceiverCacheHits
         <<",\"donorCacheHits\":"<<work.DonorCacheHits<<",\"cacheInvalidations\":"<<work.CacheInvalidations
-        <<",\"rootObservations\":"<<work.RootObservations<<'}';
+        <<",\"rootObservations\":"<<work.RootObservations
+        <<",\"viewBufferAllocations\":"<<work.ViewBufferAllocations<<",\"viewBufferBytes\":"<<work.ViewBufferBytes
+        <<",\"indexBlocks\":"<<work.IndexBlocks<<",\"indexSlots\":"<<work.IndexSlots
+        <<",\"indexComparisons\":"<<work.IndexComparisons<<",\"indexQueryBlocks\":"<<work.IndexQueryBlocks
+        <<",\"receiverConstructed\":"<<work.ReceiverConstructed<<",\"evidenceLookups\":"<<work.EvidenceLookups
+        <<",\"evidenceHits\":"<<work.EvidenceHits<<",\"evidenceBuilds\":"<<work.EvidenceBuilds
+        <<",\"evidenceBytes\":"<<work.EvidenceBytes<<",\"evidenceFaceTests\":"<<work.EvidenceFaceTests
+        <<",\"footprintBuilds\":"<<work.FootprintBuilds<<",\"donorTouched\":"<<work.DonorTouched
+        <<",\"donorCertified\":"<<work.DonorCertified<<'}';
     out<<",\"intents\":[";
     for (std::size_t i=0;i<batch.IntentIds.size();++i)
         out<<(i ? "," : "")<<'['<<batch.IntentIds[i]<<','<<std::quoted(batch.IntentResults[i])<<']';
@@ -200,7 +209,9 @@ int main(int argc,char** argv)
                 WorkLedger work;work.Deadline=Clock::now()+std::chrono::seconds(120);
                 if (diagnostic && trajectory)
                 {
-                    lastVisible.clear();for (const auto& value : pipeline.Samples().Values()) lastVisible.push_back(value.Visible);
+                    lastVisible.clear();
+                    for (Slot sid=0;sid<pipeline.Samples().SampleCount();++sid)
+                        lastVisible.push_back(pipeline.Samples().Projection(sid).Visible);
                 }
                 if (profile) profile->Begin(replay,round);
                 const auto frameStart=Clock::now();
@@ -209,8 +220,8 @@ int main(int argc,char** argv)
                 const auto excess=[&]() {
                     double maximum=-std::numeric_limits<double>::infinity();
                     for (Slot sid=0;sid<leavingErrors.size();++sid)
-                        if (pipeline.Samples().Values()[sid].Visible)
-                            maximum=std::max(maximum,std::sqrt(pipeline.Samples().Values()[sid].ErrorSquared)-leavingErrors[sid]);
+                        if (pipeline.Samples().Value(sid).Visible)
+                            maximum=std::max(maximum,std::sqrt(pipeline.Samples().Value(sid).ErrorSquared)-leavingErrors[sid]);
                     return std::isfinite(maximum) ? maximum : 0;
                 };
                 // 逐点质量诊断单列，计时遍不遍历 Q 做额外归因
@@ -219,10 +230,10 @@ int main(int argc,char** argv)
                 {
                     if (round==7) returnBefore=excess();
                     for (Slot sid=0;sid<lastVisible.size();++sid)
-                        if (pipeline.Samples().Values()[sid].Visible && !lastVisible[sid])
+                        if (pipeline.Samples().Value(sid).Visible && !lastVisible[sid])
                         {
                             newlyVisible.push_back(sid);
-                            newVisibleBefore=std::max(newVisibleBefore,std::sqrt(pipeline.Samples().Values()[sid].ErrorSquared));
+                            newVisibleBefore=std::max(newVisibleBefore,std::sqrt(pipeline.Samples().Value(sid).ErrorSquared));
                         }
                 }
                 const auto before=diagnostic ? Summarize(pipeline.Samples()) : Quality{};
@@ -264,11 +275,13 @@ int main(int argc,char** argv)
                     if (diagnostic)
                     {
                         for (auto sid : newlyVisible)
-                            newVisibleAfter=std::max(newVisibleAfter,std::sqrt(pipeline.Samples().Values()[sid].ErrorSquared));
+                            newVisibleAfter=std::max(newVisibleAfter,std::sqrt(pipeline.Samples().Value(sid).ErrorSquared));
                         if (round==7) returnAfter=excess();
                         if (round==2)
                         {
-                            leavingErrors.clear();for (const auto& value : pipeline.Samples().Values()) leavingErrors.push_back(std::sqrt(value.ErrorSquared));
+                            leavingErrors.clear();
+                            for (Slot sid=0;sid<pipeline.Samples().SampleCount();++sid)
+                                leavingErrors.push_back(std::sqrt(pipeline.Samples().Projection(sid).ErrorSquared));
                         }
                     }
                     trajectoryLog<<std::setprecision(17)<<"{\"round\":"<<round<<",\"view\":"<<pipeline.State().Config().SampleIndex

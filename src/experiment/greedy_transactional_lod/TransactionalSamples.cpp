@@ -28,6 +28,12 @@ TransactionalSamples::TransactionalSamples(HeightSource source) : _source(std::m
     _values.resize(count);
 }
 
+void TransactionalSamples::Store(Slot sample,const SampleValue& value) noexcept
+{
+    _values[sample]={value.ReferenceHeight,value.MeshHeight,value.HeightError,value.Owner};
+    _view.Write(sample,{value.ErrorSquared,value.Visible});
+}
+
 std::array<std::uint32_t,2> TransactionalSamples::Decode(Slot sample) const
 {
     for (std::size_t i=_groups.size(); i>0; --i)
@@ -200,7 +206,8 @@ double TransactionalSamples::Priority(const Configuration& config,const std::arr
 void TransactionalSamples::Refresh(const TransactionalState& state,WorkLedger& work)
 {
     ROAM_CPU_ZONE("gtp.samples.initialize");
-    std::fill(_values.begin(),_values.end(),SampleValue{});
+    _view.Initialize(_values.size(),work);
+    std::fill(_values.begin(),_values.end(),SampleGeometry{});
     _faceSamples.assign(state.Faces().size(),{});
     _priority.assign(state.Faces().size(),std::numeric_limits<double>::infinity());
     auto order=state.ActiveFaces();
@@ -216,14 +223,15 @@ void TransactionalSamples::Refresh(const TransactionalState& state,WorkLedger& w
             const auto weights=StoredWeights(sid,p[0],p[1],p[2]);
             const double height=(weights[0]*p[0].Height+weights[1]*p[1].Height)+weights[2]*p[2].Height;
             auto& value=_values[sid];
-            if (value.Owner==InvalidSlot) value=Evaluate(state.Config(),sid,slot,height,work);
+            if (value.Owner==InvalidSlot) Store(sid,Evaluate(state.Config(),sid,slot,height,work));
             else if (std::abs(height-value.MeshHeight)>1e-10*std::max(1.0,std::abs(height)))
                 throw std::runtime_error("共享面样本高度不一致");
-            if (value.Visible) maximum=std::max(maximum,value.ErrorSquared);
+            const auto& projection=Projection(sid);
+            if (projection.Visible) maximum=std::max(maximum,projection.ErrorSquared);
         }
         _priority[slot]=Priority(state.Config(),p,maximum);
     }
-    BuildOrders(state,_priority,_order,_donors,_donorCosts);
+    BuildOrders(state,_priority,_order,_donors,work);
     if (std::any_of(_values.begin(),_values.end(),[](const auto& v) { return v.Owner==InvalidSlot; }))
         throw std::runtime_error("公共样本存在覆盖缺失");
 }
@@ -240,7 +248,7 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
         result.Priorities.emplace(slot,std::numeric_limits<double>::infinity());
         for (auto sid : _faceSamples.at(slot))
         {
-            auto value=_values[sid];
+            auto value=Value(sid);
             if (target.Removed.contains(value.Owner)) value.Owner=InvalidSlot;
             result.Values.emplace(sid,value);
         }
@@ -263,7 +271,7 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
         for (auto sid : ids)
         {
             // 边界样本可能仍由外部保留面拥有，只有更小的最终身份才能取代
-            auto [it,inserted]=result.Values.try_emplace(sid,_values[sid]);
+            auto [it,inserted]=result.Values.try_emplace(sid,Value(sid));
             static_cast<void>(inserted);auto& value=it->second;
             if (value.Owner!=InvalidSlot && faceAt(value.Owner).Id<record.Geometry.Id) continue;
             const auto weights=StoredWeights(sid,p[0],p[1],p[2]);
@@ -288,7 +296,7 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
         double maximum=0;
         for (auto sid : ids)
         {
-            const auto it=result.Values.find(sid);const auto& value=it==result.Values.end() ? _values[sid] : it->second;
+                const auto it=result.Values.find(sid);const auto value=it==result.Values.end() ? Value(sid) : it->second;
             if (value.Visible) maximum=std::max(maximum,value.ErrorSquared);
         }
         result.Priorities[slot]=Priority(state.Config(),p,maximum);
@@ -299,6 +307,7 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
         const auto it=result.Priorities.find(slot);return it==result.Priorities.end() ? _priority[slot] : it->second;
     };
     const double threshold=state.Config().SplitPixels*state.Config().SplitPixels;
+    ReceiverIndex::Writes orderWrites;DonorIndex::Writes donorWrites;
     std::set<Identity> donorIds=target.DeletedVertices;
     // 新点、保留点邻接和改高都会影响 donor 代理，删除点也必须退出索引
     for (const auto& [id,record] : target.Vertices) { static_cast<void>(record);donorIds.insert(id); }
@@ -310,32 +319,34 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
         {
             // 删除旧 key 使用旧逻辑身份，不能拿复用槽中的新面身份去移除
             result.InvalidatedRoots.insert(state.Face(slot).Id);
-            if (std::isfinite(_priority[slot]) && _priority[slot]>threshold)
-                result.RemovedOrder.emplace_back(-_priority[slot],state.Face(slot).Id,slot);
+
         }
+        orderWrites[slot]=std::nullopt;
         const bool active=newFaces.contains(slot) || !target.Removed.contains(slot);
         if (!active) continue;
         for (auto id : faceAt(slot).Vertices) donorIds.insert(id);
-        if (std::isfinite(value) && value>threshold) result.AddedOrder.emplace(-value,faceAt(slot).Id,slot);
+        if (std::isfinite(value) && value>threshold) orderWrites[slot]=PriorityKey{-value,faceAt(slot).Id,slot};
     }
+    for (auto id : target.DeletedVertices) donorWrites[state.VertexSlot(id)]=std::nullopt;
     for (auto id : donorIds)
     {
         // root 目录可读取其顶点完整邻域，因此证据失效须扩至这些 incident faces
         result.InvalidatedDonors.insert(id);
-        if (const auto old=_donorCosts.find(id);old!=_donorCosts.end()) result.RemovedDonors.emplace_back(old->second,id);
         if (target.DeletedVertices.contains(id)) continue;
+        const auto added=target.AddedIndex.find(id);
+        const auto vertexSlot=added==target.AddedIndex.end() ? state.VertexSlot(id) : added->second;
+        donorWrites[vertexSlot]=std::nullopt;
         const auto changed=target.Vertices.find(id);
         const auto& vertex=changed==target.Vertices.end() ? state.Vertex(id) : changed->second;
         // 一般网格的边界固定为单位方形，内部资格不依赖执行次序
-        const auto& p=vertex.Geometry;
         for (auto face : vertex.Incident) result.InvalidatedRoots.insert(faceAt(face).Id);
-        if (p.U==0 || p.U==1 || p.V==0 || p.V==1) continue;
+        if (vertex.Boundary) continue;
         double value=0;for (auto face : vertex.Incident) value=std::max(value,priority(face));
-        // 先预分配目标有序节点，发布阶段只转移，避免 core 已改后才分配队列
-        result.AddedDonors.emplace(value,id);result.DonorCosts.emplace(id,value);
+        donorWrites[vertexSlot]=DonorKey{value,id};
     }
-    work.CandidateUpdates+=result.RemovedOrder.size()+result.AddedOrder.size();
-    work.DonorIndexUpdates+=result.RemovedDonors.size()+result.AddedDonors.size();
+    work.CandidateUpdates+=orderWrites.size();work.DonorIndexUpdates+=donorWrites.size();
+    result.Order=_order.PrepareRepair(std::move(orderWrites),result.FaceSlots,work);
+    result.Donors=_donors.PrepareRepair(std::move(donorWrites),state.Vertices().size()+target.AppendVertices,work);
     work.Seconds["next_order"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-ordered).count();
     // 只预留容量而不扩大 live 数组，其他组件准备失败时旧缓存仍完整
     work.Reserve(_faceSamples,result.FaceSlots);work.Reserve(_priority,result.FaceSlots);
@@ -347,55 +358,42 @@ void TransactionalSamples::Publish(PreparedSamples&& prepared) noexcept
     ROAM_CPU_ZONE("gtp.samples.publish");
     // 容量在 Prepare 中预留，移动局部 vector 不再触发分配
     _faceSamples.resize(prepared.FaceSlots);_priority.resize(prepared.FaceSlots);
-    for (const auto& [sid,value] : prepared.Values) _values[sid]=value;
+    for (const auto& [sid,value] : prepared.Values) Store(sid,value);
     for (auto& [slot,ids] : prepared.Faces) _faceSamples[slot]=std::move(ids);
     for (const auto& [slot,value] : prepared.Priorities) _priority[slot]=value;
-    for (const auto& key : prepared.RemovedOrder) _order.erase(key);
-    while (!prepared.AddedOrder.empty()) _order.insert(prepared.AddedOrder.extract(prepared.AddedOrder.begin()));
-    for (const auto& key : prepared.RemovedDonors) { _donors.erase(key);_donorCosts.erase(key.second); }
-    while (!prepared.AddedDonors.empty()) _donors.insert(prepared.AddedDonors.extract(prepared.AddedDonors.begin()));
-    while (!prepared.DonorCosts.empty()) _donorCosts.insert(prepared.DonorCosts.extract(prepared.DonorCosts.begin()));
+    _order.Publish(std::move(prepared.Order));_donors.Publish(std::move(prepared.Donors));
 }
 
 void TransactionalSamples::BuildOrders(const TransactionalState& state,const std::vector<double>& priority,
-    std::set<PriorityKey>& order,std::set<DonorKey>& donors,std::map<Identity,double>& costs)
+    ReceiverIndex& order,DonorIndex& donors,WorkLedger& work)
 {
     ROAM_CPU_ZONE("gtp.samples.orders");
-    // 全量建序只发生在初建或换视图，同视图事务用局部 key 修复
-    order.clear();donors.clear();costs.clear();
+    std::vector<std::optional<PriorityKey>> faces(state.Faces().size());
+    std::vector<std::optional<DonorKey>> vertices(state.Vertices().size());
     for (auto slot : state.ActiveFaces())
         if (std::isfinite(priority[slot]) && priority[slot]>state.Config().SplitPixels*state.Config().SplitPixels)
-            order.emplace(-priority[slot],state.Face(slot).Id,slot);
-    for (const auto& vertex : state.Vertices())
+            faces[slot]=PriorityKey{-priority[slot],state.Face(slot).Id,slot};
+    for (std::size_t slot=0;slot<state.Vertices().size();++slot)
     {
-        if (!vertex.Active || state.IsBoundary(vertex.Id)) continue;
+        const auto& vertex=state.Vertices()[slot];
+        if (!vertex.Active || vertex.Boundary) continue;
         double value=0;for (auto face : vertex.Incident) value=std::max(value,priority[face]);
-        donors.emplace(value,vertex.Id);costs.emplace(vertex.Id,value);
+        vertices[slot]=DonorKey{value,vertex.Id};
     }
+    order.Rebuild(std::move(faces),work);donors.Rebuild(std::move(vertices),work);
 }
 
-std::vector<Slot> TransactionalSamples::Prefix(std::size_t limit) const
+std::vector<Slot> TransactionalSamples::Prefix(std::size_t limit,WorkLedger* work) const
 {
-    // 顺序读取前缀不复制尾部；完整展开仅供诊断比较
-    std::vector<Slot> result;result.reserve(std::min(limit,_order.size()));
-    for (const auto& [priority,id,slot] : _order)
-    {
-        static_cast<void>(priority);static_cast<void>(id);
-        if (result.size()==limit) break;
-        result.push_back(slot);
-    }
+    std::vector<Slot> result;
+    for (const auto& key : _order.Prefix(limit,work)) result.push_back(std::get<2>(key));
     return result;
 }
 
-std::vector<Identity> TransactionalSamples::DonorPool(std::size_t limit) const
+std::vector<Identity> TransactionalSamples::DonorPool(std::size_t limit,WorkLedger* work) const
 {
-    // 顺序索引只读取请求的前缀，动态参考不为一个事务重新扫描所有点
-    std::vector<Identity> result;result.reserve(std::min(limit,_donors.size()));
-    for (const auto& [priority,id] : _donors)
-    {
-        static_cast<void>(priority);if (result.size()==limit) break;
-        result.push_back(id);
-    }
+    std::vector<Identity> result;
+    for (const auto& key : _donors.Prefix(limit,work)) result.push_back(key.second);
     return result;
 }
 
@@ -403,24 +401,25 @@ std::vector<Slot> TransactionalSamples::VisibleSupport(const std::vector<Slot>& 
 {
     // 相邻面共享样本只认证一次，但成员取完整闭补丁并集
     std::vector<Slot> result;
-    for (auto face : support) for (auto sid : FaceSamples(face)) if (_values[sid].Visible) result.push_back(sid);
+    for (auto face : support) for (auto sid : FaceSamples(face)) if (Projection(sid).Visible) result.push_back(sid);
     std::sort(result.begin(),result.end()); result.erase(std::unique(result.begin(),result.end()),result.end());
     return result;
 }
 
 PreparedView TransactionalSamples::PrepareView(const TransactionalState& state,const Configuration& view,WorkLedger& work,
-    const TransactionalExecution& execution) const
+    const TransactionalExecution& execution)
 {
     ROAM_CPU_ZONE("gtp.samples.prepare_view");
-    PreparedView result;result.Projection.resize(_values.size());result.Priority.resize(_priority.size());
+    PreparedView result;const auto projection=_view.Prepare(work);result.Priority.resize(_priority.size());
     // 投影暂存不保存第二份参考高度或 owner，保持视图工作与拓扑状态分离
     execution.Run("view_projection",_values.size(),work,[&](auto first,auto last,WorkLedger& local) {
         for (auto index=first;index<last;++index)
         {
             const auto sid=static_cast<Slot>(index);
             if ((sid&4095U)==0) local.CheckLimit();
-            const auto value=Project(view,sid,_values[sid],local);
-            result.Projection[sid]={value.ErrorSquared,value.Visible};
+            const auto& g=_values[sid];
+            const auto value=Project(view,sid,{g.ReferenceHeight,g.MeshHeight,0,g.HeightError,g.Owner,false},local);
+            projection[sid]={value.ErrorSquared,value.Visible};
         }
     });
     execution.Run("view_scores",state.FaceCount(),work,[&](auto first,auto last,WorkLedger& local) {
@@ -431,14 +430,14 @@ PreparedView TransactionalSamples::PrepareView(const TransactionalState& state,c
             for (auto sid : _faceSamples[slot])
             {
                 ++local.SampleContributions;
-                if (result.Projection[sid].second) maximum=std::max(maximum,result.Projection[sid].first);
+                if (projection[sid].Visible) maximum=std::max(maximum,projection[sid].ErrorSquared);
             }
             const auto& f=state.Face(slot).Vertices;
             result.Priority[slot]=Priority(view,{state.Vertex(f[0]).Geometry,state.Vertex(f[1]).Geometry,state.Vertex(f[2]).Geometry},maximum);
         }
     });
     const auto started=std::chrono::steady_clock::now();
-    BuildOrders(state,result.Priority,result.Order,result.Donors,result.DonorCosts);
+    BuildOrders(state,result.Priority,result.Order,result.Donors,work);
     work.OrderVisits+=state.FaceCount();
     work.Seconds["view_order"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
     return result;
@@ -447,13 +446,9 @@ PreparedView TransactionalSamples::PrepareView(const TransactionalState& state,c
 void TransactionalSamples::PublishView(PreparedView&& prepared) noexcept
 {
     ROAM_CPU_ZONE("gtp.samples.publish_view");
-    // 参数域及高度缓存未变，仅替换每个样本的当前视图评价
-    for (Slot sid=0;sid<_values.size();++sid)
-    {
-        _values[sid].ErrorSquared=prepared.Projection[sid].first;
-        _values[sid].Visible=prepared.Projection[sid].second;
-    }
+    // 参数域及高度缓存未变，直接发布已完整填写的备用投影数组
+    _view.Publish();
     _priority=std::move(prepared.Priority);_order=std::move(prepared.Order);
-    _donors=std::move(prepared.Donors);_donorCosts=std::move(prepared.DonorCosts);
+    _donors=std::move(prepared.Donors);
 }
 }

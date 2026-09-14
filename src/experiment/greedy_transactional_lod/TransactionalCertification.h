@@ -4,6 +4,8 @@
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
+class TransactionalProposalEvidence;
+
 /// <summary>
 /// 拟合只生成高度候选，接受证据来自实际发布几何的区间或有理复核
 /// 同一能力也负责回收方的误差上界，避免两套质量定义
@@ -21,5 +23,8 @@ public:
         Slot sample, const Proposal* proposal = nullptr);
     static bool PreservesHeight(const TransactionalState& state,const TransactionalSamples& samples,
         const Proposal& receiver,const Proposal* donor,WorkLedger& work);
+private:
+    static bool Measure(const TransactionalState& state,const TransactionalSamples& samples,
+        Proposal& proposal,WorkLedger& work,TransactionalProposalEvidence* evidence);
 };
 }

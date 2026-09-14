@@ -61,6 +61,7 @@ void TransactionalValidation::Validate(const TransactionalState& state)
     for (const auto& vertex : state.Vertices())
     {
         if (!vertex.Active) continue;
+        Require(vertex.Boundary==boundary.contains(vertex.Id),"边界缓存与实际单面边不一致");
         ++vertices;const auto& p=vertex.Geometry;
         Require(std::isfinite(p.U) && std::isfinite(p.V) && std::isfinite(p.Height) && p.U>=0 && p.U<=1 && p.V>=0 && p.V<=1 &&
             p.Height>=-state.Config().HeightScale && p.Height<=2*state.Config().HeightScale,"存活顶点超出声明域");
@@ -114,9 +115,9 @@ void TransactionalValidation::Samples(const TransactionalState& state,const Tran
         Require(actual.FaceSamples(slot)==oracle.FaceSamples(slot),"局部闭面贡献与全量 oracle 不同");
         Require(actual.PrioritySquared(slot)==oracle.PrioritySquared(slot),"局部 priority 值与全量 oracle 不同");
     }
-    for (Slot sid=0;sid<actual.Values().size();++sid)
+    for (Slot sid=0;sid<actual.SampleCount();++sid)
     {
-        const auto& a=actual.Values()[sid];const auto& b=oracle.Values()[sid];
+        const auto& a=actual.Value(sid);const auto& b=oracle.Value(sid);
         Require(a.Owner==b.Owner && a.Visible==b.Visible && a.ReferenceHeight==b.ReferenceHeight &&
             a.MeshHeight==b.MeshHeight && a.ErrorSquared==b.ErrorSquared && a.HeightError==b.HeightError,
             "局部样本评价与全量 oracle 不同");

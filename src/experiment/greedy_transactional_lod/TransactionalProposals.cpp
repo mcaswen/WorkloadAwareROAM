@@ -48,42 +48,67 @@ Proposal Prepare(const TransactionalState& state,const TransactionalSamples& sam
 }
 }
 
-std::vector<Proposal> TransactionalProposals::Receivers(const TransactionalState& state,const TransactionalSamples& samples,Slot root)
+ReceiverCursor::ReceiverCursor(const TransactionalState& state,const TransactionalSamples& samples,Slot root)
+    : _state(state),_samples(samples),_root(root)
+{
+    const auto& face=state.Face(root).Vertices;
+    _edges={EdgeKey(face[0],face[1]),EdgeKey(face[1],face[2]),EdgeKey(face[2],face[0])};
+    std::sort(_edges.begin(),_edges.end());_vertices=face;std::sort(_vertices.begin(),_vertices.end());
+    const auto a=state.Vertex(face[0]).Geometry,b=state.Vertex(face[1]).Geometry,c=state.Vertex(face[2]).Geometry;
+    _center={((a.U+b.U)+c.U)/3,((a.V+b.V)+c.V)/3,0};
+}
+
+std::optional<Proposal> ReceiverCursor::Next(WorkLedger* work)
 {
     ROAM_CPU_ZONE("gtp.receivers");
-    std::vector<Proposal> result;const auto& face=state.Face(root).Vertices;
-    std::array<Edge,3> edges{EdgeKey(face[0],face[1]),EdgeKey(face[1],face[2]),EdgeKey(face[2],face[0])};
-    std::sort(edges.begin(),edges.end());
-    // 目录顺序固定在快照几何上，不受 donor 可用性或运行线程影响
-    for (const auto& edge : edges)
+    const auto prepare=[&](char kind,std::vector<Slot> support,const Point& location,Identity oldCenter) {
+        if (_ordinal>=8) throw std::runtime_error("接收目录超过冻结上限");
+        if (work) ++work->ReceiverConstructed;
+        return Prepare(_state,_samples,_root,kind,std::move(support),location,oldCenter,_ordinal++);
+    };
+    while (_phase==0)
     {
-        const auto& uses=state.Edges().at(edge);
+        if (_position==_edges.size()) { _phase=1;_position=0;break; }
+        const auto& edge=_edges[_position++];const auto& uses=_state.Edges().at(edge);
         if (uses.Count!=2) continue;
-        const auto a=state.Vertex(edge[0]).Geometry,b=state.Vertex(edge[1]).Geometry;
-        const Point midpoint{(a.U+b.U)*.5,(a.V+b.V)*.5,0};
-        result.push_back(Prepare(state,samples,root,'E',{uses.Faces[0],uses.Faces[1]},midpoint,0,result.size()));
+        const auto a=_state.Vertex(edge[0]).Geometry,b=_state.Vertex(edge[1]).Geometry;
+        return prepare('E',{uses.Faces[0],uses.Faces[1]},{(a.U+b.U)*.5,(a.V+b.V)*.5,0},0);
     }
-    const auto a=state.Vertex(face[0]).Geometry,b=state.Vertex(face[1]).Geometry,c=state.Vertex(face[2]).Geometry;
-    const Point center{((a.U+b.U)+c.U)/3,((a.V+b.V)+c.V)/3,0};
-    Slot witness=InvalidSlot;
-    for (auto sid : samples.FaceSamples(root))
-        if (samples.Values()[sid].Visible && (witness==InvalidSlot || samples.Values()[sid].ErrorSquared>samples.Values()[witness].ErrorSquared ||
-            (samples.Values()[sid].ErrorSquared==samples.Values()[witness].ErrorSquared && sid<witness))) witness=sid;
-    std::vector<Point> locations;
-    if (witness!=InvalidSlot)
+    if (_phase==1)
     {
-        const auto point=samples.Parameter(witness);
-        // 舍入后的样本位置必须严格在面内；边界不能误走面内插点原语
-        if (samples.StrictlyInside(witness,a,b,c) && Predicates::Orientation(a,b,point)>0 &&
-            Predicates::Orientation(b,c,point)>0 && Predicates::Orientation(c,a,point)>0)
-            locations.push_back(point);
+        if (!_locationsReady)
+        {
+            const auto& face=_state.Face(_root).Vertices;
+            const auto a=_state.Vertex(face[0]).Geometry,b=_state.Vertex(face[1]).Geometry,c=_state.Vertex(face[2]).Geometry;
+            Slot witness=InvalidSlot;
+            for (auto sid : _samples.FaceSamples(_root))
+                if (_samples.Projection(sid).Visible && (witness==InvalidSlot ||
+                    _samples.Projection(sid).ErrorSquared>_samples.Projection(witness).ErrorSquared ||
+                    (_samples.Projection(sid).ErrorSquared==_samples.Projection(witness).ErrorSquared && sid<witness))) witness=sid;
+            if (witness!=InvalidSlot)
+            {
+                const auto point=_samples.Parameter(witness);
+                if (_samples.StrictlyInside(witness,a,b,c) && Predicates::Orientation(a,b,point)>0 &&
+                    Predicates::Orientation(b,c,point)>0 && Predicates::Orientation(c,a,point)>0) _locations.push_back(point);
+            }
+            if (_locations.empty() || _locations[0].U!=_center.U || _locations[0].V!=_center.V) _locations.push_back(_center);
+            _locationsReady=true;
+        }
+        if (_position<_locations.size()) return prepare('F',{_root},_locations[_position++],0);
+        _phase=2;_position=0;
     }
-    if (locations.empty() || locations[0].U!=center.U || locations[0].V!=center.V) locations.push_back(center);
-    for (const auto& point : locations) result.push_back(Prepare(state,samples,root,'F',{root},point,0,result.size()));
-    auto vertices=face;std::sort(vertices.begin(),vertices.end());
-    for (auto id : vertices)
-        if (!state.IsBoundary(id)) result.push_back(Prepare(state,samples,root,'H',state.Vertex(id).Incident,center,id,result.size()));
-    if (result.size()>8) throw std::runtime_error("接收目录超过冻结上限");
+    while (_phase==2 && _position<_vertices.size())
+    {
+        const auto id=_vertices[_position++];
+        if (!_state.IsBoundary(id)) return prepare('H',_state.Vertex(id).Incident,_center,id);
+    }
+    return {};
+}
+
+std::vector<Proposal> TransactionalProposals::Receivers(const TransactionalState& state,const TransactionalSamples& samples,Slot root)
+{
+    std::vector<Proposal> result;ReceiverCursor cursor(state,samples,root);
+    while (auto proposal=cursor.Next()) result.push_back(std::move(*proposal));
     return result;
 }
 

@@ -116,9 +116,9 @@ int main(int argc,char** argv)
         TransactionalState state(imported);TransactionalValidation::Validate(state);
         TransactionalSamples samples(imported.Source);WorkLedger work;samples.Refresh(state,work);
         double maximum=0,height=0,sum=0;std::size_t visible=0;Slot screenSample=0,heightSample=0;
-        for (Slot sid=0;sid<samples.Values().size();++sid)
+        for (Slot sid=0;sid<samples.SampleCount();++sid)
         {
-            const auto& value=samples.Values()[sid];
+            const auto& value=samples.Value(sid);
             if (value.ErrorSquared>maximum) { maximum=value.ErrorSquared;screenSample=sid; }
             if (value.HeightError>height) { height=value.HeightError;heightSample=sid; }
             if (value.Visible) { ++visible;sum+=value.ErrorSquared; }

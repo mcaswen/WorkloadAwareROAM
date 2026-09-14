@@ -21,6 +21,7 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
     set(transactional_dir "${CMAKE_CURRENT_SOURCE_DIR}/../src/experiment/greedy_transactional_lod")
     add_library(parallel_roam_transactional_lod_core STATIC
         "${transactional_dir}/TransactionalState.cpp" "${transactional_dir}/TransactionalSamples.cpp"
+        "${transactional_dir}/TransactionalViewState.cpp" "${transactional_dir}/TransactionalProposalEvidence.cpp"
         "${transactional_dir}/TransactionalPredicates.cpp" "${transactional_dir}/TransactionalCertification.cpp"
         "${transactional_dir}/TransactionalProposals.cpp" "${transactional_dir}/TransactionalReservation.cpp"
         "${transactional_dir}/TransactionalCommit.cpp" "${transactional_dir}/TransactionalPipeline.cpp"
@@ -64,6 +65,10 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
         target_include_directories(${transactional_target} SYSTEM PRIVATE "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
     endforeach()
     add_test(NAME transactional_lod COMMAND parallel_roam_transactional_lod_tests)
+    add_executable(parallel_roam_transactional_priority_index_tests TransactionalPriorityIndexTests.cpp)
+    target_link_libraries(parallel_roam_transactional_priority_index_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_project_warnings)
+    add_test(NAME transactional_priority_index COMMAND parallel_roam_transactional_priority_index_tests)
 endif()
 
 if(WIN32)

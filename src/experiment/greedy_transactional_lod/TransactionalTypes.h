@@ -87,6 +87,10 @@ struct WorkLedger
     std::uint64_t RepairSamples{}, RepairFaces{}, OrderVisits{}, MeshVertices{}, MeshIndices{}, PendingBlocks{};
     std::uint64_t HeightSamples{}, HeightExactSamples{}, HeightGuardChecks{}, HeightGuardRejected{};
     std::uint64_t CapacityGrowths{}, CapacityBytesReserved{}, CapacityBytesRelocated{};
+    std::uint64_t ViewBufferAllocations{}, ViewBufferBytes{};
+    std::uint64_t IndexBlocks{},IndexSlots{},IndexComparisons{},IndexQueryBlocks{};
+    std::uint64_t ReceiverConstructed{},EvidenceLookups{},EvidenceHits{},EvidenceBuilds{},EvidenceBytes{},EvidenceFaceTests{};
+    std::uint64_t FootprintBuilds{},DonorTouched{},DonorCertified{};
     std::uint64_t CandidateUpdates{}, DonorIndexUpdates{}, ReceiverCacheHits{}, DonorCacheHits{}, CacheInvalidations{}, RootObservations{};
     std::map<std::string, std::uint64_t> Reasons;
     std::map<std::string, double> Seconds;
@@ -149,6 +153,7 @@ struct CertifiedBatch
 {
     std::uint64_t Version{};
     std::vector<Exchange> Exchanges;
+    bool PairAuditComplete{true};
     std::size_t Raw{}, Examined{}, Receivers{}, Need{}, Feasible{}, Executed{}, FreeExecuted{};
     std::size_t AssignedCredits{}, UnusedCredits{};
     std::vector<Identity> IntentIds, PoolIds;

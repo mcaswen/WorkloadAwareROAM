@@ -1,5 +1,6 @@
 #include "experiment/greedy_transactional_lod/TransactionalCertification.h"
 #include "profiling/CpuProfiling.h"
+#include "experiment/greedy_transactional_lod/TransactionalProposalEvidence.h"
 #include "experiment/greedy_transactional_lod/TransactionalPredicates.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
@@ -79,7 +80,7 @@ std::array<Point,3> CoveringFace(const TransactionalState& state,const Transacti
     if (!proposal)
     {
         // 旧状态的唯一 owner 足以定义共享曲面上的见证高度
-        const auto& f=state.Face(samples.Values()[sid].Owner).Vertices;
+        const auto& f=state.Face(samples.Geometry(sid).Owner).Vertices;
         return {state.Vertex(f[0]).Geometry,state.Vertex(f[1]).Geometry,state.Vertex(f[2]).Geometry};
     }
     for (const auto& f : proposal->Faces)
@@ -92,9 +93,10 @@ std::array<Point,3> CoveringFace(const TransactionalState& state,const Transacti
     throw std::runtime_error("局部提案缺失闭面样本覆盖");
 }
 
-std::optional<R> ExactError(const TransactionalState& state,const TransactionalSamples& samples,Slot sid,const Proposal* proposal)
+std::optional<R> ExactError(const TransactionalState& state,const TransactionalSamples& samples,Slot sid,const Proposal* proposal,
+    TransactionalProposalEvidence* evidence=nullptr,WorkLedger* work=nullptr)
 {
-    const auto ref=Reference<R>(state,samples,sid); const auto p=CoveringFace(state,samples,sid,proposal);
+    const auto ref=Reference<R>(state,samples,sid); const auto p=evidence ? evidence->Face(sid,*work) : CoveringFace(state,samples,sid,proposal);
     const R height=Height(ref[0],ref[1],p[0],p[1],p[2]);
     const auto rc=Clip(state.Config(),ref[0],ref[1],ref[2]),mc=Clip(state.Config(),ref[0],ref[1],height);
     // 比较投影平方误差，避免精确认证依赖平方根舍入
@@ -105,10 +107,11 @@ std::optional<R> ExactError(const TransactionalState& state,const TransactionalS
 }
 
 std::optional<Interval> ErrorBounds(const TransactionalState& state,const TransactionalSamples& samples,Slot sid,
-    const Proposal* proposal,WorkLedger& work)
+    const Proposal* proposal,WorkLedger& work,TransactionalProposalEvidence* evidence=nullptr)
 {
     ++work.FilterChecks;
-    const auto ref=Reference<Interval>(state,samples,sid);const auto p=CoveringFace(state,samples,sid,proposal);
+    const auto ref=Reference<Interval>(state,samples,sid);
+    const auto p=evidence ? evidence->Face(sid,work) : CoveringFace(state,samples,sid,proposal);
     const auto height=Height(ref[0],ref[1],p[0],p[1],p[2]);
     const auto rc=Clip(state.Config(),ref[0],ref[1],ref[2]),mc=Clip(state.Config(),ref[0],ref[1],height);
     const auto near=mc[2]+mc[3];
@@ -123,7 +126,7 @@ std::optional<Interval> ErrorBounds(const TransactionalState& state,const Transa
     }
     // 过滤不能判定投影域时，不将整个补丁判坏；先复核精确二进制几何
     ++work.ExactChecks;
-    const auto exact=ExactError(state,samples,sid,proposal);
+    const auto exact=ExactError(state,samples,sid,proposal,evidence,&work);
     if (!exact) return {};
     const double value=exact->convert_to<double>();
     return Interval{std::max(0.0,Down(value)),Up(value)};
@@ -236,12 +239,19 @@ double TransactionalCertification::ExactErrorSquared(const TransactionalState& s
 bool TransactionalCertification::Measure(const TransactionalState& state,const TransactionalSamples& samples,
     Proposal& proposal,WorkLedger& work)
 {
+    // 单次回收测量没有前序拟合可复用，不为它分配整份证据缓存。
+    return Measure(state,samples,proposal,work,nullptr);
+}
+
+bool TransactionalCertification::Measure(const TransactionalState& state,const TransactionalSamples& samples,
+    Proposal& proposal,WorkLedger& work,TransactionalProposalEvidence* evidence)
+{
     ROAM_CPU_ZONE("gtp.measure");
     proposal.ErrorLower=proposal.ErrorUpper=0;
     // 缓存整个局部曲面的最大误差区间，供多个接收阈值复用
     for (auto sid : proposal.Samples)
     {
-        work.Touch();const auto error=ErrorBounds(state,samples,sid,&proposal,work);
+        work.Touch();const auto error=ErrorBounds(state,samples,sid,&proposal,work,evidence);
         if (!error) return false;
         proposal.ErrorLower=std::max(proposal.ErrorLower,error->Low);
         proposal.ErrorUpper=std::max(proposal.ErrorUpper,error->High);
@@ -281,7 +291,7 @@ std::string TransactionalCertification::Fit(const TransactionalState& state,cons
     auto witness=proposal.Samples.front();
     // 浮点评价只选择见证，实际阈值由该见证的精确旧误差向下取整
     for (auto sid : proposal.Samples)
-        if (samples.Values()[sid].ErrorSquared>samples.Values()[witness].ErrorSquared) witness=sid;
+        if (samples.Projection(sid).ErrorSquared>samples.Projection(witness).ErrorSquared) witness=sid;
     const auto oldError=ExactError(state,samples,witness,nullptr);++work.ExactChecks;
     if (!oldError) return "projection_unknown";
     const Integer scaled=numerator(*oldError)*Integer(1000000000000LL)/denominator(*oldError);
@@ -301,22 +311,15 @@ std::string TransactionalCertification::Fit(const TransactionalState& state,cons
         polygon={{low,-config.HeightScale-other},{high,-config.HeightScale-other},
             {high,2*config.HeightScale-other},{low,2*config.HeightScale-other}};
     }
+    TransactionalProposalEvidence evidence(samples,proposal,work);
     for (auto sid : proposal.Samples)
     {
         work.Touch();
-        const auto p=CoveringFace(state,samples,sid,&proposal);
-        std::array<double,3> weights{};
-        samples.Weights(sid,p[0],p[1],p[2],weights);
-        Pair beta{};
-        // 支持点坐标可相同但身份不能混淆；取真正覆盖面的连接求自由高度系数
-        for (const auto& f : proposal.Faces)
-        {
-            if (!samples.Weights(sid,proposal.Points.at(f[0]),proposal.Points.at(f[1]),proposal.Points.at(f[2]),weights)) continue;
-            for (std::size_t i=0;i<proposal.Free.size();++i)
-                for (std::size_t j=0;j<3;++j) if (proposal.Free[i]==f[j]) beta[i]+=weights[j];
-            break;
-        }
-        const auto uv=samples.Parameter(sid);const auto& value=samples.Values()[sid];
+        const auto& entry=evidence.Get(sid,work);
+        const auto& f=proposal.Faces[entry.Face];Pair beta{};
+        for (std::size_t i=0;i<proposal.Free.size();++i)
+            for (std::size_t j=0;j<3;++j) if (proposal.Free[i]==f[j]) beta[i]+=entry.Weights[j];
+        const auto uv=samples.Parameter(sid);const auto& value=samples.Geometry(sid);
         const auto rc=TransactionalSamples::Clip(config,uv.U,uv.V,value.ReferenceHeight);
         const auto mc=TransactionalSamples::Clip(config,uv.U,uv.V,value.MeshHeight);
         const double cw=config.Matrix[13];
@@ -359,7 +362,7 @@ std::string TransactionalCertification::Fit(const TransactionalState& state,cons
             return "numeric_unknown";
     }
     // 上面的加法已经舍入到真正发布值；证书不为拟合器提供容差通道
-    if (!Measure(state,samples,proposal,work) || !Accepts(state,samples,proposal,proposal.TargetMicropixels,work))
+    if (!Measure(state,samples,proposal,work,&evidence) || !Accepts(state,samples,proposal,proposal.TargetMicropixels,work))
         return "numeric_unknown";
     return "certified";
 }

@@ -32,11 +32,13 @@ TransactionalDynamicReference::ReceiverEntry TransactionalDynamicReference::Rece
     else
     {
         // 首个可认证提案决定本次接收模板，不借 donor 条件改变目录选择
-        auto start=Clock::now();auto proposals=TransactionalProposals::Receivers(state,_pipeline.Samples(),root);
+        auto start=Clock::now();ReceiverCursor cursor(state,_pipeline.Samples(),root);
         work.Seconds["proposal"]+=Seconds(start);result.Value.Reason="no_proposal";
-        for (std::size_t i=0;i<proposals.size();++i)
+        for (std::size_t i=0;;++i)
         {
-            auto& p=proposals[i];start=Clock::now();
+            start=Clock::now();auto next=cursor.Next(&work);work.Seconds["proposal"]+=Seconds(start);
+            if (!next) break;
+            auto& p=*next;start=Clock::now();
             p.Reason=TransactionalCertification::Fit(state,_pipeline.Samples(),p,work);
             work.Seconds["receiver_certification"]+=Seconds(start);++work.Reasons[p.Reason];
             result.Attempts.emplace_back(p.Kind,p.Reason);result.Value.Reason=p.Reason;
@@ -56,7 +58,7 @@ Proposal TransactionalDynamicReference::Donor(Identity center,WorkLedger& work,b
     // 缓存 donor 几何及误差，接收阈值和资源关系由控制器另外检查
     if (cache && found!=_donors.end()) { ++work.DonorCacheHits;return found->second; }
     const auto start=Clock::now();
-    auto result=TransactionalProposals::Donor(_pipeline.State(),_pipeline.Samples(),center,work);
+    ++work.DonorCertified;auto result=TransactionalProposals::Donor(_pipeline.State(),_pipeline.Samples(),center,work);
     work.Seconds["donor_certification"]+=Seconds(start);
     if (cache) _donors[center]=result;
     return result;
@@ -75,13 +77,13 @@ DynamicResult TransactionalDynamicReference::Update(WorkLedger& work,bool cacheE
     // 外部新轮清除证据，避免相机或批次资源变化依赖隐含的旧失败记录
     work.Seconds.try_emplace("update",0);
     DynamicResult result;auto& summary=result.Summary;summary.Version=_pipeline.State().Version();
-    summary.Raw=_pipeline.Samples().RawCount();
+    summary.Raw=_pipeline.Samples().RawCount();summary.PairAuditComplete=false;
     const auto initialObservations=work.RootObservations;
     for (std::size_t step=0;step<64;++step)
     {
         std::optional<Exchange> selected;
         const auto& state=_pipeline.State();const auto& samples=_pipeline.Samples();
-        const auto prefix=samples.Prefix(state.Config().PrefixLimit);
+        const auto prefix=samples.Prefix(state.Config().PrefixLimit,&work);
         // 每次成功后的观察从新全序开头开始，不能继续使用上一次的尾部游标
         for (auto root : prefix)
         {
@@ -103,7 +105,7 @@ DynamicResult TransactionalDynamicReference::Update(WorkLedger& work,bool cacheE
             }
             ++summary.Need;
             const auto rf=TransactionalReservation::Footprint(state,receiver);
-            const auto ordered=Clock::now();const auto pool=samples.DonorPool(state.Config().DonorLimit);
+            const auto ordered=Clock::now();const auto pool=samples.DonorPool(state.Config().DonorLimit,&work);
             work.Seconds["donor_order"]+=Seconds(ordered);
             for (auto center : pool)
             {

@@ -59,6 +59,10 @@ TransactionalState::TransactionalState(const InitialMesh& input) : _config(input
             edge.Faces[edge.Count++] = slot;
         }
     }
+    // 边界是拓扑事实，后续相机变化只读取；合法事务不会改变外边界
+    for (const auto& [key,edge] : _edges)
+        if (edge.Count==1)
+            for (auto id : key) _vertices[_vertexIndex.at(id)].Boundary=true;
 }
 
 const VertexRecord& TransactionalState::Vertex(Identity id) const { return _vertices.at(_vertexIndex.at(id)); }
@@ -71,12 +75,6 @@ const Triangle& TransactionalState::Face(Slot slot) const
 
 bool TransactionalState::IsBoundary(Identity id) const
 {
-    for (auto slot : Vertex(id).Incident)
-    {
-        const auto& face = Face(slot).Vertices;
-        for (auto other : face)
-            if (other != id && _edges.at(EdgeKey(id, other)).Count == 1) return true;
-    }
-    return false;
+    return Vertex(id).Boundary;
 }
 }
