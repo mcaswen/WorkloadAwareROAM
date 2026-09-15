@@ -1,5 +1,7 @@
 #include "experiment/mesh_quality/PlatformMeshArtifact.h"
 #include "experiment/mesh_quality/MeshQualityEvaluator.h"
+#include "experiment/infrastructure/QualityPointRecorder.h"
+#include <memory>
 #include <iomanip>
 #include <iostream>
 
@@ -9,7 +11,8 @@ int main(int argc,char** argv)
     using namespace Experiment::MeshQuality;
     try
     {
-        if (argc!=4) throw std::runtime_error("Usage: quality-probe MESH HEIGHTMAP OUTPUT_DIRECTORY");
+        if (argc!=4 && !(argc==5 && std::string_view(argv[4])=="--locations"))
+            throw std::runtime_error("Usage: quality-probe MESH HEIGHTMAP OUTPUT_DIRECTORY [--locations]");
         auto artifact=ReadPlatformMesh(argv[1]);Terrain::HeightMap height;std::string error;
         if (!height.LoadFromFile(argv[2],&error)) throw std::runtime_error(error);
         const std::filesystem::path output(argv[3]);
@@ -21,7 +24,16 @@ int main(int argc,char** argv)
         const BilinearHeightfieldReference source{height.RawSamples(),height.Width(),height.Height(),mesh.TerrainSize,mesh.HeightScale};
         std::vector<double> errors;QualityOptions options;options.MaximumSeconds=120;options.PointErrors=&errors;
         const QualityView view{artifact.Matrix,artifact.Width,artifact.Height,artifact.ZeroToOne!=0};
+        std::unique_ptr<Experiment::Infrastructure::QualityPointRecorder> locations;
+        if(argc==5)
+        {
+            const auto n=static_cast<std::size_t>(height.Width()-1);
+            locations=std::make_unique<Experiment::Infrastructure::QualityPointRecorder>(
+                output/"locations.csv",6*n*n+4*n+1,artifact.Width,artifact.Height);
+            options.PointObserver=[&](const auto& point){ locations->Observe(point); };
+        }
         const auto result=EvaluateMeshQuality(source,domain,mesh,view,options);
+        if(locations) locations->Finish();
         std::ofstream json(output/"quality.json");json.exceptions(std::ios::badbit|std::ios::failbit);json<<std::setprecision(17);
         const auto optional=[&](std::optional<double> value) { if (value) json<<*value;else json<<"null"; };
         json<<"{\"status\":\""<<ToString(result.Status)<<"\",\"meshHash\":\""<<PlatformMeshHash(mesh)

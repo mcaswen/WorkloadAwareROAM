@@ -21,8 +21,36 @@ def main():
     replay.add_argument("--mode",choices=["timing","visual","quality"])
     replay.add_argument("--backend",choices=["opengl","d3d12"])
     replay.add_argument("--cpu",action="store_true")
+    analysis = sub.add_parser("analyze",help="校验证据并归约到唯一analysis")
+    analysis.add_argument("--runs",nargs="+",type=Path,required=True)
+    analysis.add_argument("--quality",nargs="*",type=Path,default=[])
+    analysis.add_argument("--history",type=Path)
+    analysis.add_argument("--pairs",type=Path,nargs="*",default=[])
+    analysis.add_argument("--output",type=Path,required=True)
+    quality = sub.add_parser("quality",help="离线评价实际输出")
+    quality.add_argument("--run",type=Path,required=True)
+    quality.add_argument("--output",type=Path,required=True)
+    quality.add_argument("--probe",type=Path,required=True)
+    quality.add_argument("--frames",type=int,nargs="+",default=[2,15,16,23])
+    profile = sub.add_parser("profile",help="复用FPR采集新CPU ROI")
+    profile.add_argument("collector",choices=["perf","tracy"])
+    profile.add_argument("--case",type=Path,required=True)
+    profile.add_argument("--output",type=Path,required=True)
+    profile.add_argument("--executable",type=Path,required=True)
+    profile.add_argument("--perf",default="perf")
+    profile.add_argument("--capture",type=Path)
+    profile.add_argument("--csvexport",type=Path)
     args = parser.parse_args()
-    if args.command == "run":
+    if args.command == "analyze":
+        from experiment_infrastructure.analysis import build
+        print(build(args.runs,args.output,args.quality,json.loads(args.history.read_text()) if args.history else [],args.pairs))
+    elif args.command == "quality":
+        from experiment_infrastructure.quality import evaluate
+        print(evaluate(args.run,args.output,args.probe,args.frames))
+    elif args.command == "profile":
+        from experiment_infrastructure.profile_adapter import collect
+        print(collect(args.case,args.output,args.executable,args.collector,args.perf,args.capture,args.csvexport))
+    elif args.command == "run":
         from experiment_infrastructure.runner import run
         print(run(args.case,args.output,args.executable,args.mode,args.backend,args.cpu))
     elif args.command == "catalog":

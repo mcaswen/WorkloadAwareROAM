@@ -314,12 +314,17 @@ glm::dvec3 SourcePosition(const BilinearHeightfieldReference& source, const glm:
 }
 
 void AccumulateSample(QualityResult& result, const SurfaceQuery& query, const QualityView& view,
-    const glm::dvec2& uv, const glm::dvec3& referencePosition, std::vector<double>* errors)
+    const glm::dvec2& uv, const glm::dvec3& referencePosition, std::vector<double>* errors, QualityPoint* point)
 {
     ++result.SampleCount;
     const glm::dmat4 matrix(view.ViewProjection);
     const glm::dvec4 referenceClip = matrix * glm::dvec4(referencePosition, 1.0);
     const bool referenceVisible = Finite(referenceClip) && InReferenceFrustum(referenceClip, view.UsesZeroToOneDepth);
+    if (point)
+    {
+        point->Ordinal=result.SampleCount-1;point->Uv=uv;point->ReferenceClip=referenceClip;
+        point->ReferenceHeight=referencePosition.y;point->ReferenceVisible=referenceVisible;
+    }
     if (errors) errors->push_back(std::numeric_limits<double>::quiet_NaN());
     // 参考域分母先于被测查询确定，缺失覆盖不能缩小参考屏幕样本数量
     if (referenceVisible) ++result.ScreenSampleCount;
@@ -328,13 +333,14 @@ void AccumulateSample(QualityResult& result, const SurfaceQuery& query, const Qu
     if (hit.Ambiguous) { ++result.AmbiguousCoverageCount; return; }
     const QualityLocation location{result.SampleCount - 1U, uv, referencePosition, hit.Position};
     const double heightError = std::abs(hit.Position.y - referencePosition.y);
+    if (point) { point->MeasuredHeight=hit.Position.y;point->HeightError=heightError; }
     if (!result.SampledHeightMax || heightError > *result.SampledHeightMax)
     {
         result.SampledHeightMax = heightError;
         result.HeightMaximum = location;
     }
     if (!Finite(referenceClip)) { ++result.InvalidProjectionCount; return; }
-    if (!referenceVisible) { if (errors) errors->back() = -1; return; }
+    if (!referenceVisible) { if (errors) errors->back() = -1; if (point) point->ScreenError=-1; return; }
     const glm::dvec4 measuredClip = matrix * glm::dvec4(hit.Position, 1.0);
     if (!Finite(measuredClip)) { ++result.InvalidProjectionCount; return; }
     if (measuredClip.w <= 0.0 || measuredClip.z < (view.UsesZeroToOneDepth ? 0.0 : -measuredClip.w))
@@ -348,6 +354,7 @@ void AccumulateSample(QualityResult& result, const SurfaceQuery& query, const Qu
     const double error = glm::length(difference);
     if (!std::isfinite(error)) { ++result.InvalidProjectionCount; return; }
     if (errors) errors->back() = error;
+    if (point) point->ScreenError=error;
     result.ScreenSquaredSum += error * error;
     ++result.EvaluatedScreenCount;
     if (!result.SampledScreenMaxPx || error > *result.SampledScreenMaxPx)
@@ -425,7 +432,10 @@ QualityResult EvaluateSamples(const Mesh& reference, const Mesh& measured,
         HashValue(result.SampleHash, kind);
         HashValue(result.SampleHash, id);
         if (kind >= 3U) HashValue(result.SampleHash, detail);
-        AccumulateSample(result, query, view, uv, source ? SourcePosition(*source, uv) : p, options.PointErrors);
+        QualityPoint point;
+        AccumulateSample(result, query, view, uv, source ? SourcePosition(*source, uv) : p,
+            options.PointErrors, options.PointObserver ? &point : nullptr);
+        if (options.PointObserver) options.PointObserver(point);
     };
     // 每个原参考单元都发出固定样本，共享顶点/边只发一次；被测网格不参与选点
     for (std::size_t t = 0U; t < triangles && !exhausted; ++t)

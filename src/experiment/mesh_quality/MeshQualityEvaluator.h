@@ -7,6 +7,8 @@
 #include <optional>
 #include <span>
 #include <vector>
+#include <functional>
+#include <limits>
 
 namespace ParallelRoam::Terrain
 {
@@ -52,6 +54,22 @@ struct QualityView
 };
 
 /// <summary>
+/// 公开同一评价点的真实坐标与有效域，供离线定位和图像关联
+/// NaN保留未求值或异常，负屏幕误差只表示参考不可见
+/// </summary>
+struct QualityPoint
+{
+    std::size_t Ordinal{};
+    glm::dvec2 Uv{};
+    glm::dvec4 ReferenceClip{};
+    double ReferenceHeight{};
+    double MeasuredHeight{std::numeric_limits<double>::quiet_NaN()};
+    double HeightError{std::numeric_limits<double>::quiet_NaN()};
+    double ScreenError{std::numeric_limits<double>::quiet_NaN()};
+    bool ReferenceVisible{};
+};
+
+/// <summary>
 /// 限制单次离线查询的样本数和秒数，超限时保留部分结果而不声称完整覆盖
 /// SamplingLevel 指定全域四分次数，当前只支持 0、1、2 层
 /// </summary>
@@ -62,6 +80,7 @@ struct QualityOptions
     unsigned SamplingLevel{0U};
     // 可选逐点输出；NaN 保留异常，-1 仅表示参考不可见，调用者同步持有
     std::vector<double>* PointErrors{nullptr};
+    std::function<void(const QualityPoint&)> PointObserver;
 };
 
 /// <summary>

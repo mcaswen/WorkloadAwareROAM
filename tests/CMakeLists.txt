@@ -315,6 +315,7 @@ if(TARGET ParallelROAM::STB)
 
     # 平台实际 float 输出的离线评价，不链接进正常图形应用
     add_executable(parallel_roam_transactional_platform_quality_probe TransactionalPlatformQualityProbe.cpp
+        ../src/experiment/infrastructure/QualityPointRecorder.cpp
         ../src/experiment/mesh_quality/MeshQualityEvaluator.cpp
         ../src/terrain/HeightMap.cpp ../src/terrain/TerrainMeshBuilder.cpp)
     target_include_directories(parallel_roam_transactional_platform_quality_probe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")

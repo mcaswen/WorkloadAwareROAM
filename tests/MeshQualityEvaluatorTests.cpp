@@ -84,6 +84,29 @@ std::vector<std::uint16_t> LoadReferenceSamples(const std::filesystem::path& pat
     return {pixels.get(), pixels.get() + static_cast<std::size_t>(width) * static_cast<std::size_t>(height)};
 }
 
+void CheckPointObserver()
+{
+    const QualityView view{glm::mat4{1.0F},100U,100U};
+    const auto reference=Quad(), measured=Quad({1,1,1,1});
+    std::vector<double> errors;
+    std::vector<QualityPoint> points;
+    QualityOptions options;
+    options.PointErrors=&errors;
+    options.PointObserver=[&](const QualityPoint& point){ points.push_back(point); };
+    const auto observed=EvaluateMeshQuality(reference,measured,view,options);
+    const auto plain=EvaluateMeshQuality(reference,measured,view);
+    Require(observed.SampleHash==plain.SampleHash && observed.SampledScreenMaxPx==plain.SampledScreenMaxPx &&
+        observed.SampledHeightMax==plain.SampledHeightMax && observed.TerrainSampleScreenRms==plain.TerrainSampleScreenRms,
+        "observer changed evaluator semantics");
+    Require(points.size()==plain.SampleCount && errors.size()==points.size(),"observer point count mismatch");
+    for(std::size_t i=0;i<points.size();++i)
+    {
+        Require(points[i].Ordinal==i && points[i].ScreenError==errors[i],"observer ordering mismatch");
+        Near(points[i].HeightError,1.0,"observer height witness mismatch");
+        Require(points[i].ReferenceVisible,"observer lost reference domain");
+    }
+}
+
 void CheckBilinearReference()
 {
     const QualityView view{glm::mat4{1.0F}, 100U, 100U};
@@ -600,6 +623,7 @@ int main(int argc, char** argv)
     {
         if (argc == 1)
         {
+            CheckPointObserver();
             CheckAnalyticGeometry();
         CheckPlatformOutputs();
             CheckFailures();
@@ -610,6 +634,7 @@ int main(int argc, char** argv)
         }
         else if (argc == 2 && std::string(argv[1]) == "--check-bilinear")
         {
+            CheckPointObserver();
             CheckAnalyticGeometry();
         CheckPlatformOutputs();
             CheckFailures();
