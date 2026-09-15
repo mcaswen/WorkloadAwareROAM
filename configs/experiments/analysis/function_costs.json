@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "basis": "source audit, not fitted CPU time or formal span theorem",
+  "entries": [
+    {
+      "match": "TransactionalSamples::PrepareView",
+      "stage": "视图刷新",
+      "cost": "外层 O(q+a+n log v+W_order)，单个lambda只承担其中一段",
+      "source": "src/algorithms/greedy_transactional_lod/TransactionalSamples.cpp",
+      "sourceSha256": "f94f69d855c6a7cd9e8bcc6dc1f9fcf45f8b0f8852c2fb5ac97062330b8628cd"
+    },
+    {
+      "match": "TransactionalSamples::Project",
+      "stage": "单样本投影",
+      "cost": "每样本固定算术 O(1)，换视图合计 Θ(q)",
+      "source": "src/algorithms/greedy_transactional_lod/TransactionalSamples.cpp",
+      "sourceSha256": "f94f69d855c6a7cd9e8bcc6dc1f9fcf45f8b0f8852c2fb5ac97062330b8628cd"
+    },
+    {
+      "match": "TransactionalSamples::Decode",
+      "stage": "样本身份",
+      "cost": "固定六组整数定位 O(1)",
+      "source": "src/algorithms/greedy_transactional_lod/TransactionalSamples.cpp",
+      "sourceSha256": "f94f69d855c6a7cd9e8bcc6dc1f9fcf45f8b0f8852c2fb5ac97062330b8628cd"
+    },
+    {
+      "match": "TransactionalSamples::VisibleSupport",
+      "stage": "提案证据",
+      "cost": "O(a_i+s_i′ log s_i′)，包括不可见关联访问",
+      "source": "src/algorithms/greedy_transactional_lod/TransactionalSamples.cpp",
+      "sourceSha256": "f94f69d855c6a7cd9e8bcc6dc1f9fcf45f8b0f8852c2fb5ac97062330b8628cd"
+    },
+    {
+      "match": "TransactionalState::Vertex",
+      "stage": "状态寻址",
+      "cost": "有序身份map查询 O(log v)，再访问槽数组",
+      "source": "src/algorithms/greedy_transactional_lod/TransactionalState.cpp",
+      "sourceSha256": "3cacf4cc0ed8e16f9b50e1c72a2eafd56daf0aefef93d1eb2f8c2090836ef347"
+    },
+    {
+      "match": "TransactionalReservation::Conflict",
+      "stage": "读写冲突",
+      "cost": "O(f_a log f_b+f_b log f_a)；外层还遍历已预留批次",
+      "source": "src/algorithms/greedy_transactional_lod/TransactionalReservation.cpp",
+      "sourceSha256": "fe17bc5fecf6e67c9d91ce009b2088dfae16c35df7b61e3a0e46d40f7cbba41c"
+    },
+    {
+      "match": "TransactionalReservation::Plan",
+      "stage": "全局预留",
+      "cost": "receiver/donor准备 + pair checks × footprint/已预留批检查；不能只按最终批宽计费",
+      "source": "src/algorithms/greedy_transactional_lod/TransactionalReservation.cpp",
+      "sourceSha256": "fe17bc5fecf6e67c9d91ce009b2088dfae16c35df7b61e3a0e46d40f7cbba41c"
+    },
+    {
+      "match": "TransactionalCertification::Measure",
+      "stage": "动态认证",
+      "cost": "枚举局部样本，定位/区间/精确后备另计；与 s_i 和数值位数相关",
+      "source": "src/algorithms/greedy_transactional_lod/TransactionalCertification.cpp",
+      "sourceSha256": "c72cbfe755dbdd23249b83c9dcd92434e527ddd27b61aa38ca73ebbeebbc55cd"
+    },
+    {
+      "match": "TransactionalCertification::Fit",
+      "stage": "接收拟合",
+      "cost": "取决于自由度、局部样本、浮点过滤/精确后备；当前capture为immutable策略",
+      "source": "src/algorithms/greedy_transactional_lod/TransactionalCertification.cpp",
+      "sourceSha256": "c72cbfe755dbdd23249b83c9dcd92434e527ddd27b61aa38ca73ebbeebbc55cd"
+    }
+  ]
+}

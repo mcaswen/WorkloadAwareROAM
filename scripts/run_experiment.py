@@ -40,8 +40,14 @@ def main():
     profile.add_argument("--perf",default="perf")
     profile.add_argument("--capture",type=Path)
     profile.add_argument("--csvexport",type=Path)
+    report = sub.add_parser("report",help="由analysis制作图表/HTML/Markdown")
+    report.add_argument("--analysis",type=Path,required=True)
+    report.add_argument("--output",type=Path,required=True)
     args = parser.parse_args()
-    if args.command == "analyze":
+    if args.command == "report":
+        from experiment_infrastructure.report import build
+        print(build(args.analysis,args.output))
+    elif args.command == "analyze":
         from experiment_infrastructure.analysis import build
         print(build(args.runs,args.output,args.quality,json.loads(args.history.read_text()) if args.history else [],args.pairs))
     elif args.command == "quality":
