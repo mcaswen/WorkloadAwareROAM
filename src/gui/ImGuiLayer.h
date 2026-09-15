@@ -67,6 +67,7 @@ enum class ImGuiRenderBackend
 struct DebugOverlayData
 {
     std::optional<Algorithms::TransactionalLodStats> Transactional;
+    std::optional<Algorithms::TerrainLodCbtStats> Cbt;
     float FramesPerSecond{0.0F};
     float FrameTimeMilliseconds{0.0F};
     int WindowWidth{0};
@@ -203,6 +204,9 @@ struct TerrainPanelState
     Algorithms::TerrainLodPassPolicy RoamPassPolicy{};
     Algorithms::TransactionalLodSettings Transactional{};
     bool TransactionalPaused{false};
+    Algorithms::TerrainLodCbtSettings Cbt{};
+    bool CbtPaused{false};
+    std::string CbtUnavailableReason;
     bool LodStepRequested{false};
     bool LodResetRequested{false};
 

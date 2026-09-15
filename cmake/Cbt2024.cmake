@@ -107,3 +107,25 @@ function(parallel_roam_prepare_cbt_shaders target)
     add_custom_target(parallel_roam_cbt_shaders DEPENDS ${PARALLEL_ROAM_CBT_SHADER_OUTPUTS})
     add_dependencies(${target} parallel_roam_cbt_shaders)
 endfunction()
+
+function(parallel_roam_attach_cbt_runtime target)
+    if(NOT PARALLEL_ROAM_ENABLE_CBT_2024)
+        return()
+    endif()
+
+    parallel_roam_prepare_cbt_core()
+    set(cbt_dir "${PROJECT_SOURCE_DIR}/src/algorithms/cbt_2024")
+    target_sources(${target} PRIVATE
+        "${cbt_dir}/Cbt2024Support.cpp"
+        "${cbt_dir}/d3d12/D3D12CbtTerrainLodAlgorithm.cpp"
+        "${cbt_dir}/d3d12/D3D12CbtGpuState.cpp"
+        "${cbt_dir}/d3d12/D3D12CbtOccupancyTree.cpp"
+        "${cbt_dir}/d3d12/D3D12CbtFramePipeline.cpp"
+        "${cbt_dir}/d3d12/D3D12CbtGeometryPipeline.cpp"
+        "${cbt_dir}/d3d12/D3D12CbtDiagnostics.cpp"
+        "${PROJECT_SOURCE_DIR}/src/render/D3D12CbtRenderPass.cpp")
+    target_sources(${target} PRIVATE "${PROJECT_SOURCE_DIR}/src/benchmark/cbt_2024/CbtPlatformCheck.cpp")
+    target_link_libraries(${target} PRIVATE parallel_roam_cbt_core)
+    # 同一构建内的 CLI/GUI 库必须看到与工厂一致的可用性
+    target_compile_definitions(parallel_roam_project_options INTERFACE PARALLEL_ROAM_CBT_2024_RUNTIME=1)
+endfunction()

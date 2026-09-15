@@ -47,6 +47,11 @@ public:
     void Shutdown();
 
 private:
+    // GUI 在帧记录期间只登记变更，资源替换在 Present 后兑现
+    bool _terrainPanelSettingsPending{false};
+    bool _heightMapSelectionPending{false};
+    void ApplyPendingTerrainCommands();
+
     /// <summary>
     /// 单帧时间数据，同时保留真实帧耗时和模拟用钳制时间
     /// </summary>

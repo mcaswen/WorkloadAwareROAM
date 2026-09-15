@@ -9,322 +9,428 @@
       "target": "src/algorithms/cbt_2024/Cbt2024Baseline.h",
       "sourceSha256": "f91f3a4ba50749e07fa2aad6bb6f999251cc825375536568e1a959a6d33166f7",
       "cbi01TargetSha256": "30eda6bb4e2f99b1d9f3c112316c9e7ff9a4c5a7da67719052713e2664426f25",
-      "cbi01Adaptation": "documentation comments"
+      "cbi01Adaptation": "documentation comments",
+      "cbi02TargetSha256": "30eda6bb4e2f99b1d9f3c112316c9e7ff9a4c5a7da67719052713e2664426f25",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/Cbt2024Support.cpp",
       "target": "src/algorithms/cbt_2024/Cbt2024Support.cpp",
       "sourceSha256": "292377fd3948bd2ac95bde6f597b0a91cb72dfab63d8213508a3fef077273c88",
       "cbi01TargetSha256": "292377fd3948bd2ac95bde6f597b0a91cb72dfab63d8213508a3fef077273c88",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "292377fd3948bd2ac95bde6f597b0a91cb72dfab63d8213508a3fef077273c88",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/Cbt2024Support.h",
       "target": "src/algorithms/cbt_2024/Cbt2024Support.h",
       "sourceSha256": "94d61b329bdcea4e58867c35da51a994c5be837fc238e3e299fdb92c555ade9d",
       "cbi01TargetSha256": "94d61b329bdcea4e58867c35da51a994c5be837fc238e3e299fdb92c555ade9d",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "94d61b329bdcea4e58867c35da51a994c5be837fc238e3e299fdb92c555ade9d",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtBisectCommit.cpp",
       "target": "src/algorithms/cbt_2024/CbtBisectCommit.cpp",
       "sourceSha256": "3eed11e2c7d7d2862537a2afe601e7450f3230b900c0ffc408dc3e030064f8c1",
       "cbi01TargetSha256": "3eed11e2c7d7d2862537a2afe601e7450f3230b900c0ffc408dc3e030064f8c1",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "3eed11e2c7d7d2862537a2afe601e7450f3230b900c0ffc408dc3e030064f8c1",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtBisectCommit.h",
       "target": "src/algorithms/cbt_2024/CbtBisectCommit.h",
       "sourceSha256": "ab7d62c516d402d4ba2ccc6c91aefea10bba224b22b707e16ed2b767d459c7e5",
       "cbi01TargetSha256": "cac21a1881d14dc9278e7d77b9a6c0e6e518b7c8e781ac704ea074fce0fc6231",
-      "cbi01Adaptation": "documentation comments"
+      "cbi01Adaptation": "documentation comments",
+      "cbi02TargetSha256": "cac21a1881d14dc9278e7d77b9a6c0e6e518b7c8e781ac704ea074fce0fc6231",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtBisectorTopology.cpp",
       "target": "src/algorithms/cbt_2024/CbtBisectorTopology.cpp",
       "sourceSha256": "79f0a5bb99ab86caefdbdbefe34f538d555126aa8ef0015d34159f594a0320ee",
       "cbi01TargetSha256": "79f0a5bb99ab86caefdbdbefe34f538d555126aa8ef0015d34159f594a0320ee",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "79f0a5bb99ab86caefdbdbefe34f538d555126aa8ef0015d34159f594a0320ee",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtBisectorTopology.h",
       "target": "src/algorithms/cbt_2024/CbtBisectorTopology.h",
       "sourceSha256": "91b03daefe4b0e79563749b17b20ad956186365301dfe9ea2185142279faf286",
       "cbi01TargetSha256": "5d491424e118feefe901da520e4058a7b89673cf7ba3903e55ef2a582874c6c9",
-      "cbi01Adaptation": "documentation comments"
+      "cbi01Adaptation": "documentation comments",
+      "cbi02TargetSha256": "5d491424e118feefe901da520e4058a7b89673cf7ba3903e55ef2a582874c6c9",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtClassification.cpp",
       "target": "src/algorithms/cbt_2024/CbtClassification.cpp",
       "sourceSha256": "e0c95375269dbc23bc4b0fda651046091cb2ff06ec4506259155c7d2908b0330",
       "cbi01TargetSha256": "e0c95375269dbc23bc4b0fda651046091cb2ff06ec4506259155c7d2908b0330",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "e0c95375269dbc23bc4b0fda651046091cb2ff06ec4506259155c7d2908b0330",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtClassification.h",
       "target": "src/algorithms/cbt_2024/CbtClassification.h",
       "sourceSha256": "c8276c0bfe7c789d72c123b9966f919c496f2dbe5060a80feab8a78852ebfdc3",
       "cbi01TargetSha256": "dc0c2c7dd07c5444ed9801a9077431660286d4ede2d095a835a94f4c4c209185",
-      "cbi01Adaptation": "documentation comments"
+      "cbi01Adaptation": "documentation comments",
+      "cbi02TargetSha256": "dc0c2c7dd07c5444ed9801a9077431660286d4ede2d095a835a94f4c4c209185",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtGpuAbi.h",
       "target": "src/algorithms/cbt_2024/CbtGpuAbi.h",
       "sourceSha256": "54ea804b583239f23f2f33f5fe8a9facfc354b01ea14e0430a142f79f3a2aeda",
       "cbi01TargetSha256": "54ea804b583239f23f2f33f5fe8a9facfc354b01ea14e0430a142f79f3a2aeda",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "54ea804b583239f23f2f33f5fe8a9facfc354b01ea14e0430a142f79f3a2aeda",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtGpuAbi.shared.h",
       "target": "src/algorithms/cbt_2024/CbtGpuAbi.shared.h",
       "sourceSha256": "ca67717016475dae8281cdce99838492021f0ebb4e51a361fdacf61831990c80",
       "cbi01TargetSha256": "ca67717016475dae8281cdce99838492021f0ebb4e51a361fdacf61831990c80",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "ca67717016475dae8281cdce99838492021f0ebb4e51a361fdacf61831990c80",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtOccupancyTree.cpp",
       "target": "src/algorithms/cbt_2024/CbtOccupancyTree.cpp",
       "sourceSha256": "9a1fcdec03df2f97ce4a8c609ff8abc375bdad66d61a3797715595beed869c3f",
       "cbi01TargetSha256": "9a1fcdec03df2f97ce4a8c609ff8abc375bdad66d61a3797715595beed869c3f",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "9a1fcdec03df2f97ce4a8c609ff8abc375bdad66d61a3797715595beed869c3f",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtOccupancyTree.h",
       "target": "src/algorithms/cbt_2024/CbtOccupancyTree.h",
       "sourceSha256": "c00d7c0f59a19c627130ef2680f23da658bf730105dc0d19f726a9d69bea0e9d",
       "cbi01TargetSha256": "c00d7c0f59a19c627130ef2680f23da658bf730105dc0d19f726a9d69bea0e9d",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "c00d7c0f59a19c627130ef2680f23da658bf730105dc0d19f726a9d69bea0e9d",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtSimplifyCommit.cpp",
       "target": "src/algorithms/cbt_2024/CbtSimplifyCommit.cpp",
       "sourceSha256": "32940ce48b6191898a2d5aee77b860a18e080455cff6227557675e5a35b93a59",
       "cbi01TargetSha256": "32940ce48b6191898a2d5aee77b860a18e080455cff6227557675e5a35b93a59",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "32940ce48b6191898a2d5aee77b860a18e080455cff6227557675e5a35b93a59",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtSimplifyCommit.h",
       "target": "src/algorithms/cbt_2024/CbtSimplifyCommit.h",
       "sourceSha256": "9588be8e2d1706124cc274963f5223c709f175a29ee25cbc4495ca48064b29b7",
       "cbi01TargetSha256": "8a09c8145444278d75f74ceb69de83d5538c4e4bba3a7091f82d3680e18f575c",
-      "cbi01Adaptation": "documentation comments"
+      "cbi01Adaptation": "documentation comments",
+      "cbi02TargetSha256": "8a09c8145444278d75f74ceb69de83d5538c4e4bba3a7091f82d3680e18f575c",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtSplitPlanner.cpp",
       "target": "src/algorithms/cbt_2024/CbtSplitPlanner.cpp",
       "sourceSha256": "e3f0266678b0edac6586b4654eb6934e07f74721ec1d36aa5c22bf03b4f557c1",
       "cbi01TargetSha256": "e3f0266678b0edac6586b4654eb6934e07f74721ec1d36aa5c22bf03b4f557c1",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "e3f0266678b0edac6586b4654eb6934e07f74721ec1d36aa5c22bf03b4f557c1",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtSplitPlanner.h",
       "target": "src/algorithms/cbt_2024/CbtSplitPlanner.h",
       "sourceSha256": "6243f714fb6e2ec8dd2d0eb72759c04e7fab721802d909c79ca014e5ecae604c",
       "cbi01TargetSha256": "6243f714fb6e2ec8dd2d0eb72759c04e7fab721802d909c79ca014e5ecae604c",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "6243f714fb6e2ec8dd2d0eb72759c04e7fab721802d909c79ca014e5ecae604c",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtTerrainGeometry.cpp",
       "target": "src/algorithms/cbt_2024/CbtTerrainGeometry.cpp",
       "sourceSha256": "330b93b6f0c661c1d7dd0d1ac71a2f773adf58cc711ab04158364f60dbe7d8b6",
       "cbi01TargetSha256": "330b93b6f0c661c1d7dd0d1ac71a2f773adf58cc711ab04158364f60dbe7d8b6",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "330b93b6f0c661c1d7dd0d1ac71a2f773adf58cc711ab04158364f60dbe7d8b6",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/CbtTerrainGeometry.h",
       "target": "src/algorithms/cbt_2024/CbtTerrainGeometry.h",
       "sourceSha256": "8d4b6935894cfd4931e4afc29bd23578a424d5e70b9a19dde97644f6a2dde840",
       "cbi01TargetSha256": "c09cc6a242666c001b7aa25a4c80e75b123d5ecdae209d5534939dda1337d065",
-      "cbi01Adaptation": "documentation comments"
+      "cbi01Adaptation": "documentation comments",
+      "cbi02TargetSha256": "c09cc6a242666c001b7aa25a4c80e75b123d5ecdae209d5534939dda1337d065",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtDiagnostics.cpp",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtDiagnostics.cpp",
       "sourceSha256": "058446b60afc7f02f89f48a26de9a663dbe18e270e6dccbe13ac88969e876684",
       "cbi01TargetSha256": "058446b60afc7f02f89f48a26de9a663dbe18e270e6dccbe13ac88969e876684",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "1664ca591b09fcefe4515b9e5b953b977e3bcce43126f365fc72ee3ba5b770f6",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtDiagnostics.h",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtDiagnostics.h",
       "sourceSha256": "c0a60fc149949a093aef95a6c8a254d289cc629afc718e91e54651bca0706f17",
       "cbi01TargetSha256": "c0a60fc149949a093aef95a6c8a254d289cc629afc718e91e54651bca0706f17",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "c0a60fc149949a093aef95a6c8a254d289cc629afc718e91e54651bca0706f17",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtFramePipeline.cpp",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtFramePipeline.cpp",
       "sourceSha256": "180c4877f41be056c1b05935e32f4a40d25b3adb125835cb48a80f6e512b9dd9",
       "cbi01TargetSha256": "180c4877f41be056c1b05935e32f4a40d25b3adb125835cb48a80f6e512b9dd9",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "9050b85c0343c7b16b98f05c22c6be2b14768726ef96229d21372a2a7392aabb",
+      "cbi02Adaptation": "grouped settings mapping only"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtFramePipeline.h",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtFramePipeline.h",
       "sourceSha256": "7b373571eb52d7438e5d838c9998b7fca4efccd210cdb792f7ca95bfe74c13ce",
       "cbi01TargetSha256": "7b373571eb52d7438e5d838c9998b7fca4efccd210cdb792f7ca95bfe74c13ce",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "7b373571eb52d7438e5d838c9998b7fca4efccd210cdb792f7ca95bfe74c13ce",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtGeometryPipeline.cpp",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtGeometryPipeline.cpp",
       "sourceSha256": "a9ed778de9198ea798e2d4cba7e70e2c40070230050a82c098f95ff15acc560c",
       "cbi01TargetSha256": "a9ed778de9198ea798e2d4cba7e70e2c40070230050a82c098f95ff15acc560c",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "1736fda71e8bfd347d325f8cb2308a8d9fce798d5aa9349141684d22b5dfc5ce",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtGeometryPipeline.h",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtGeometryPipeline.h",
       "sourceSha256": "3200b75d4fbd13b17cdbfd52357d255329653af6fa655fa44c03057b99766b86",
       "cbi01TargetSha256": "3200b75d4fbd13b17cdbfd52357d255329653af6fa655fa44c03057b99766b86",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "3200b75d4fbd13b17cdbfd52357d255329653af6fa655fa44c03057b99766b86",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtGpuState.cpp",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtGpuState.cpp",
       "sourceSha256": "41fb91cbc37e9fbeb76fc7ef9ebd40b277f074dc302dff762de182ea7c62ac2e",
       "cbi01TargetSha256": "41fb91cbc37e9fbeb76fc7ef9ebd40b277f074dc302dff762de182ea7c62ac2e",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "576ed769fce1cb80461de0469af2a48b857b343cfd5a6abdf33e86ecb0667b63",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtGpuState.h",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtGpuState.h",
       "sourceSha256": "4bf0e94d967cc565f5f34dbee30943de121eeb05df1077a771825ebf1fcc8ac9",
       "cbi01TargetSha256": "8cb399fca7562dbe459a21d4a4a02476a95738d0a6ba6eb5b52cd13e9b20c13a",
-      "cbi01Adaptation": "documentation comments"
+      "cbi01Adaptation": "documentation comments",
+      "cbi02TargetSha256": "8cb399fca7562dbe459a21d4a4a02476a95738d0a6ba6eb5b52cd13e9b20c13a",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtOccupancyTree.cpp",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtOccupancyTree.cpp",
       "sourceSha256": "d1205fd207c3c591729a9a4545abc56c33da2e90e32ac72faec35eeb6e2c194a",
       "cbi01TargetSha256": "d1205fd207c3c591729a9a4545abc56c33da2e90e32ac72faec35eeb6e2c194a",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "9ab86a406db1f52f4ccd47ee2596a3ade003974dce40ead98f391ee7131eac85",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtOccupancyTree.h",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtOccupancyTree.h",
       "sourceSha256": "a124d85db78cf831200028b2e233500a5959f18936de59a61ab1c3245400e310",
       "cbi01TargetSha256": "a124d85db78cf831200028b2e233500a5959f18936de59a61ab1c3245400e310",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "a124d85db78cf831200028b2e233500a5959f18936de59a61ab1c3245400e310",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtTerrainLodAlgorithm.cpp",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtTerrainLodAlgorithm.cpp",
       "sourceSha256": "40c9201b45784af9da6a29f6bb166aff0713a928a5d7bc668185c4a2a3e2a684",
       "cbi01TargetSha256": "40c9201b45784af9da6a29f6bb166aff0713a928a5d7bc668185c4a2a3e2a684",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "1e20f8e1f2b43e2856d271c224d1829fd3526bdddc566f45af00d6ae28f308d0",
+      "cbi02Adaptation": "grouped settings/stats and public GPU packet mapping; cross-instance resource identity; finite area validation"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/cbt_2024/d3d12/D3D12CbtTerrainLodAlgorithm.h",
       "target": "src/algorithms/cbt_2024/d3d12/D3D12CbtTerrainLodAlgorithm.h",
       "sourceSha256": "3e9105265591a04b1bac4c6c7d14344e9b42e1670a02df5aa6ccc75ca3771c99",
       "cbi01TargetSha256": "3e9105265591a04b1bac4c6c7d14344e9b42e1670a02df5aa6ccc75ca3771c99",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "3e9105265591a04b1bac4c6c7d14344e9b42e1670a02df5aa6ccc75ca3771c99",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/assets/shaders/dx12/cbt/CbtBootstrap.hlsl",
       "target": "assets/shaders/dx12/cbt/CbtBootstrap.hlsl",
       "sourceSha256": "fd125669e762eee7cb8cbfc43fe691c8f9a4316b964dccfa4d276d4b15ee06b8",
       "cbi01TargetSha256": "fd125669e762eee7cb8cbfc43fe691c8f9a4316b964dccfa4d276d4b15ee06b8",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "fd125669e762eee7cb8cbfc43fe691c8f9a4316b964dccfa4d276d4b15ee06b8",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/assets/shaders/dx12/cbt/CbtGpuAbi.hlsli",
       "target": "assets/shaders/dx12/cbt/CbtGpuAbi.hlsli",
       "sourceSha256": "9f66cf876852470da7020bd94b8594d71ef7173500feb2cd756e7ca9ac7aa795",
       "cbi01TargetSha256": "9f66cf876852470da7020bd94b8594d71ef7173500feb2cd756e7ca9ac7aa795",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "9f66cf876852470da7020bd94b8594d71ef7173500feb2cd756e7ca9ac7aa795",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/assets/shaders/dx12/cbt/CbtOccupancyTree.hlsli",
       "target": "assets/shaders/dx12/cbt/CbtOccupancyTree.hlsli",
       "sourceSha256": "7f4faec667ca78f7766901bf87be8649c8a818d758d689516d68ddd1c65c4eb4",
       "cbi01TargetSha256": "7f4faec667ca78f7766901bf87be8649c8a818d758d689516d68ddd1c65c4eb4",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "7f4faec667ca78f7766901bf87be8649c8a818d758d689516d68ddd1c65c4eb4",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/assets/shaders/dx12/cbt/CbtOccupancyTreeTests.hlsl",
       "target": "assets/shaders/dx12/cbt/CbtOccupancyTreeTests.hlsl",
       "sourceSha256": "57142c71c62883027eb08d9cc1849702df1eaecb41e94f0a38f860a72e4e5c9f",
       "cbi01TargetSha256": "57142c71c62883027eb08d9cc1849702df1eaecb41e94f0a38f860a72e4e5c9f",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "57142c71c62883027eb08d9cc1849702df1eaecb41e94f0a38f860a72e4e5c9f",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/assets/shaders/dx12/cbt/CbtTopologyE0.hlsl",
       "target": "assets/shaders/dx12/cbt/CbtTopologyE0.hlsl",
       "sourceSha256": "529e053ab68efd7858d026d810baddbeaa1f1564be7ad998542e835691364654",
       "cbi01TargetSha256": "529e053ab68efd7858d026d810baddbeaa1f1564be7ad998542e835691364654",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "529e053ab68efd7858d026d810baddbeaa1f1564be7ad998542e835691364654",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/assets/shaders/dx12/CbtProceduralTerrain.hlsl",
       "target": "assets/shaders/dx12/CbtProceduralTerrain.hlsl",
       "sourceSha256": "b6c022fadac8eebb40a6bcf3fce286d11966fe109f222417f43981fb0d01be01",
       "cbi01TargetSha256": "179cb1556e08b2d64c0ed0b71800b73c317553bfbc277f9e48abd3d95f7dd23a",
-      "cbi01Adaptation": "module-local palette include"
+      "cbi01Adaptation": "module-local palette include",
+      "cbi02TargetSha256": "7d3cfb1dde2aafd5e8f1d6f79111f72ad920dec80465e06d197e74aa7eb317bc",
+      "cbi02Adaptation": "current material cbuffer and VS/PS interpolation linkage; classification/geometry unchanged"
     },
     {
       "source": "third_party/RoamTesting/tests/CbtBisectCommitTests.cpp",
       "target": "tests/CbtBisectCommitTests.cpp",
       "sourceSha256": "ba8961223a29776a472a1bc0b3d904bbdb15f1e4f038f746bae3679fdd259c6f",
       "cbi01TargetSha256": "ba8961223a29776a472a1bc0b3d904bbdb15f1e4f038f746bae3679fdd259c6f",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "ba8961223a29776a472a1bc0b3d904bbdb15f1e4f038f746bae3679fdd259c6f",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/tests/CbtBisectorTopologyTests.cpp",
       "target": "tests/CbtBisectorTopologyTests.cpp",
       "sourceSha256": "1e7c0d8ec442fd248f3d10d2e144b05f060101fa92d7b10565c848912fb65a0d",
       "cbi01TargetSha256": "1e7c0d8ec442fd248f3d10d2e144b05f060101fa92d7b10565c848912fb65a0d",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "1e7c0d8ec442fd248f3d10d2e144b05f060101fa92d7b10565c848912fb65a0d",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/tests/CbtClassificationTests.cpp",
       "target": "tests/CbtClassificationTests.cpp",
       "sourceSha256": "2aada9bb5b8e6b89881bf26b4b725d5b9e41ec80a0f98879fd5542108a9e35da",
       "cbi01TargetSha256": "2aada9bb5b8e6b89881bf26b4b725d5b9e41ec80a0f98879fd5542108a9e35da",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "2aada9bb5b8e6b89881bf26b4b725d5b9e41ec80a0f98879fd5542108a9e35da",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/tests/CbtOccupancyTreeTests.cpp",
       "target": "tests/CbtOccupancyTreeTests.cpp",
       "sourceSha256": "7adccf7d91723924076f3eea16d1c26d1156cc0547ab4615d347612ff2859377",
       "cbi01TargetSha256": "7adccf7d91723924076f3eea16d1c26d1156cc0547ab4615d347612ff2859377",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "7adccf7d91723924076f3eea16d1c26d1156cc0547ab4615d347612ff2859377",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/tests/CbtSimplifyCommitTests.cpp",
       "target": "tests/CbtSimplifyCommitTests.cpp",
       "sourceSha256": "bcb99eb47fb67ee2e3241dfa4c13196cfb7ee4f6d34d8e461d5c3bd711266718",
       "cbi01TargetSha256": "bcb99eb47fb67ee2e3241dfa4c13196cfb7ee4f6d34d8e461d5c3bd711266718",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "bcb99eb47fb67ee2e3241dfa4c13196cfb7ee4f6d34d8e461d5c3bd711266718",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/tests/CbtSplitPlannerTests.cpp",
       "target": "tests/CbtSplitPlannerTests.cpp",
       "sourceSha256": "fcc8cc3a6286c3e62f3f46a89ee7b128216843a57fc32d40a2755069cb0a051c",
       "cbi01TargetSha256": "fcc8cc3a6286c3e62f3f46a89ee7b128216843a57fc32d40a2755069cb0a051c",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "fcc8cc3a6286c3e62f3f46a89ee7b128216843a57fc32d40a2755069cb0a051c",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/tests/CbtTerrainGeometryTests.cpp",
       "target": "tests/CbtTerrainGeometryTests.cpp",
       "sourceSha256": "ea13fa5ae704ac0c5b4ae738a85832c56b62c003c92b56e5af540c06f48f27ac",
       "cbi01TargetSha256": "ea13fa5ae704ac0c5b4ae738a85832c56b62c003c92b56e5af540c06f48f27ac",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "ea13fa5ae704ac0c5b4ae738a85832c56b62c003c92b56e5af540c06f48f27ac",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/src/algorithms/RoamDebugVisualization.shared.h",
       "target": "src/algorithms/cbt_2024/CbtDebugVisualization.shared.h",
       "sourceSha256": "973ce5b951c758fa037da89767037b2000077e286088e8251071a4cacd1704fa",
       "cbi01TargetSha256": "71222004aae5b128dcc2ef4b88defa408897fb5de33f49090d4c90e9929320c0",
-      "cbi01Adaptation": "module-local include guard and comment"
+      "cbi01Adaptation": "module-local include guard and comment",
+      "cbi02TargetSha256": "71222004aae5b128dcc2ef4b88defa408897fb5de33f49090d4c90e9929320c0",
+      "cbi02Adaptation": "unchanged from CBI-01"
     },
     {
       "source": "third_party/RoamTesting/THIRD_PARTY_NOTICES.md",
       "target": "src/algorithms/cbt_2024/THIRD_PARTY_NOTICES.md",
       "sourceSha256": "131e2751ac015eeb643721a7bfea3dd1000ba1af442db76a7ef3897891084a4c",
       "cbi01TargetSha256": "131e2751ac015eeb643721a7bfea3dd1000ba1af442db76a7ef3897891084a4c",
-      "cbi01Adaptation": "unchanged"
+      "cbi01Adaptation": "unchanged",
+      "cbi02TargetSha256": "131e2751ac015eeb643721a7bfea3dd1000ba1af442db76a7ef3897891084a4c",
+      "cbi02Adaptation": "unchanged from CBI-01"
+    },
+    {
+      "source": "third_party/RoamTesting/src/render/D3D12ProceduralTerrainPipeline.h",
+      "target": "src/render/D3D12CbtRenderPass.h",
+      "sourceSha256": "fc055cb68f5cd7e5e7c0f8c050199840b9fb0cacc2a5b110cd4a24b88a815d4a",
+      "cbi02Adaptation": "source procedural consumer renamed D3D12CbtRenderPass; PSO HRESULT diagnostics",
+      "cbi02TargetSha256": "aebb1db5e4e1d78d51760a83c4f476e90d5faaf4d380c4705065d9e400d4d1d8"
+    },
+    {
+      "source": "third_party/RoamTesting/src/render/D3D12ProceduralTerrainPipeline.cpp",
+      "target": "src/render/D3D12CbtRenderPass.cpp",
+      "sourceSha256": "2bde7911fb81a9deaca05f394974995052dc7e07cca66c79324c10a33b0d2662",
+      "cbi02Adaptation": "source procedural consumer renamed D3D12CbtRenderPass; PSO HRESULT diagnostics",
+      "cbi02TargetSha256": "3c5deaba25d5fc4f7167f7e5d9244eb97908579d8ee720a0e245fb7a9f0a3bcc"
     }
   ]
 }

@@ -75,6 +75,8 @@ struct TerrainLodCbtSettings
     TerrainLodCbtCapacity Capacity{TerrainLodCbtCapacity::Capacity128K};
     TerrainLodCbtValidationMode ValidationMode{TerrainLodCbtValidationMode::Off};
     TerrainLodCbtGeometryMode GeometryMode{TerrainLodCbtGeometryMode::ModifiedOnly};
+
+    bool operator==(const TerrainLodCbtSettings&) const = default;
 };
 
 /// <summary>
@@ -108,6 +110,6 @@ struct TerrainLodCbtStats
     std::size_t PairMergeCount{0U};
     std::size_t QuadMergeCount{0U};
     // 故障恢复会替换持续状态，实验必须能够识别这种运行
-    std::uint32_t FaultRecoveryCount{0U};
+    std::uint64_t FaultRecoveryCount{0U};
 };
 } // 命名空间 ParallelRoam::Algorithms

@@ -11,6 +11,7 @@ cbuffer TerrainConstants : register(b0)
     float4 LightColor;
     float4 LightingParameters;
     int4 DebugParameters;
+    float4 MaterialParameters;
 };
 
 struct TerrainVertexData
@@ -32,8 +33,9 @@ struct VertexOutput
     float3 Normal : NORMAL;
     float2 TexCoord : TEXCOORD1;
     float Height : TEXCOORD2;
-    nointerpolation float3 DebugColor : COLOR0;
-    nointerpolation float DebugHighlight : TEXCOORD3;
+    // 与当前 TerrainPS 的寄存器打包一致；同一物理槽的三个顶点具有相同调试值
+    float3 DebugColor : COLOR0;
+    float DebugHighlight : TEXCOORD3;
 };
 
 // 活动序号通过该列表映射到稳定的物理二分器槽位

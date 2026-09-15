@@ -175,11 +175,32 @@ bool TestAlgorithmSelection()
         legacy.Options.RuntimeBenchmark.TriangleBudget == 50000, "Explicit algorithm selection failed") &&
         Require(!duplicate.Succeeded() && !limit.Succeeded() && availability, "Availability or limits invalid");
 }
+bool TestCbtOptions()
+{
+    const auto settings = Parse({"--cbt-area", "2.05", "--cbt-capacity", "256K",
+        "--cbt-validation", "delayed", "--cbt-geometry", "modified"});
+    const auto check = Parse({"--cbt-platform-check", "output"});
+    const auto selected = Parse({"--algorithm", "cbt"});
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+    const bool available = selected.Succeeded();
+#else
+    const bool available = !selected.Succeeded();
+#endif
+    return Require(settings.Succeeded() && settings.Options.RuntimeBenchmark.HasCbt &&
+        settings.Options.RuntimeBenchmark.Cbt.Capacity ==
+            ParallelRoam::Algorithms::TerrainLodCbtCapacity::Capacity256K,
+        "CBT independent settings were not parsed") &&
+        Require(check.Options.LaunchMode == ParallelRoam::App::ApplicationLaunchMode::CbtPlatformCheck,
+            "CBT check routing failed") &&
+        Require(available && !Parse({"--cbt-area", "nan"}).Succeeded() &&
+            !Parse({"--cbt-area", "2garbage"}).Succeeded() &&
+            !Parse({"--cbt-capacity", "200000"}).Succeeded(), "CBT availability or input validation failed");
+}
 } // 匿名命名空间
 
 int main()
 {
-    return TestAlgorithmSelection() && TestLaunchModes() &&
+    return TestCbtOptions() && TestAlgorithmSelection() && TestLaunchModes() &&
         TestRuntimeBenchmarkOptions() &&
         TestCompatibilityRules() &&
         TestValidationErrors()

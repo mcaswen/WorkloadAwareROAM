@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <charconv>
 #include <exception>
 #include <limits>
 #include <string>
@@ -133,7 +134,8 @@ private:
     [[nodiscard]] static ApplicationLaunchMode FindLaunchMode(std::string_view argument)
     {
         // 独立入口直接分流，是否创建窗口由各自有限入口决定
-        static constexpr std::array<LaunchModeDescriptor, 7> modes{{
+        static constexpr std::array<LaunchModeDescriptor, 8> modes{{
+            {"--cbt-platform-check", ApplicationLaunchMode::CbtPlatformCheck},
             {"--experiment-run", ApplicationLaunchMode::ExperimentReplay},
             {"--experiment-camera", ApplicationLaunchMode::ExperimentCameraTools},
             {"--experiment-preview", ApplicationLaunchMode::ExperimentAssetPreview},
@@ -155,7 +157,11 @@ private:
     [[nodiscard]] static const OptionDescriptor* FindDescriptor(std::string_view argument)
     {
         // 别名单独登记但共享处理函数，新增名称不需要扩展条件分支
-        static constexpr std::array<OptionDescriptor, 35> descriptors{{
+        static constexpr std::array<OptionDescriptor, 39> descriptors{{
+            {"--cbt-area", true, &CommandLineParser::HandleCbtSetting},
+            {"--cbt-capacity", true, &CommandLineParser::HandleCbtSetting},
+            {"--cbt-validation", true, &CommandLineParser::HandleCbtSetting},
+            {"--cbt-geometry", true, &CommandLineParser::HandleCbtSetting},
             {"--experiment-asset", true, &CommandLineParser::HandleExperimentAsset},
             {"--algorithm", true, &CommandLineParser::HandleAlgorithm},
             {"--runtime-benchmark-algorithms", true, &CommandLineParser::HandleAlgorithmSequence},
@@ -272,6 +278,88 @@ private:
         else if (option == "--transactional-prefix") overrides.Transactional.PrefixLimit = number;
         else overrides.Transactional.DonorLimit = number;
         overrides.HasTransactional = true;
+        MarkRuntimeBenchmarkOverride();
+        return true;
+    }
+
+    bool HandleCbtSetting(std::string_view option, std::string_view value)
+    {
+        auto& overrides = _result.Options.RuntimeBenchmark;
+        auto& cbt = overrides.Cbt;
+        if (option == "--cbt-area")
+        {
+            const auto parsed = std::from_chars(value.data(), value.data() + value.size(), cbt.TriangleAreaPixels);
+            if (parsed.ec != std::errc{} || parsed.ptr != value.data() + value.size() ||
+                !std::isfinite(cbt.TriangleAreaPixels) || cbt.TriangleAreaPixels <= 0.0F)
+            {
+                _result.Error = "CBT area must be finite and positive";
+                return false;
+            }
+        }
+        else if (option == "--cbt-capacity")
+        {
+            using Capacity = Algorithms::TerrainLodCbtCapacity;
+            if (value == "128K")
+            {
+                cbt.Capacity = Capacity::Capacity128K;
+            }
+            else if (value == "256K")
+            {
+                cbt.Capacity = Capacity::Capacity256K;
+            }
+            else if (value == "512K")
+            {
+                cbt.Capacity = Capacity::Capacity512K;
+            }
+            else if (value == "1M")
+            {
+                cbt.Capacity = Capacity::Capacity1M;
+            }
+            else
+            {
+                _result.Error = "CBT capacity must be 128K, 256K, 512K or 1M";
+                return false;
+            }
+        }
+        else if (option == "--cbt-validation")
+        {
+            using Mode = Algorithms::TerrainLodCbtValidationMode;
+            if (value == "off")
+            {
+                cbt.ValidationMode = Mode::Off;
+            }
+            else if (value == "delayed")
+            {
+                cbt.ValidationMode = Mode::Delayed;
+            }
+            else if (value == "blocking")
+            {
+                cbt.ValidationMode = Mode::BlockingSmoke;
+            }
+            else
+            {
+                _result.Error = "CBT validation must be off, delayed or blocking";
+                return false;
+            }
+        }
+        else
+        {
+            using Mode = Algorithms::TerrainLodCbtGeometryMode;
+            if (value == "modified")
+            {
+                cbt.GeometryMode = Mode::ModifiedOnly;
+            }
+            else if (value == "full")
+            {
+                cbt.GeometryMode = Mode::FullDebug;
+            }
+            else
+            {
+                _result.Error = "CBT geometry must be modified or full";
+                return false;
+            }
+        }
+        overrides.HasCbt = true;
         MarkRuntimeBenchmarkOverride();
         return true;
     }

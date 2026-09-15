@@ -252,6 +252,14 @@ bool TerrainRenderer::ApplyMaterial(const std::filesystem::path& path, float til
 
 bool TerrainRenderer::ApplySettings(const TerrainRenderSettings& settings, std::string* errorMessage)
 {
+    if (settings.UseTerrainLod && settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024)
+    {
+        if (errorMessage != nullptr)
+        {
+            *errorMessage = "CBT 2024 requires the D3D12 build and a supported device";
+        }
+        return false;
+    }
     // ApplySettings 允许 UI 每帧调用
     // 只有真正影响 mesh 的字段变化才设置 dirty flag
     const bool rebuildMesh = NeedsMeshRebuild(_settings, settings);

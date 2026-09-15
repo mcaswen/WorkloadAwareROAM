@@ -32,6 +32,7 @@ struct D3D12DescriptorAllocation
 {
     // 三个字段必须来自同一堆槽位，Index 是释放时使用的稳定身份
     std::uint32_t Index{std::numeric_limits<std::uint32_t>::max()};
+    std::uint32_t Count{0U};
     D3D12_CPU_DESCRIPTOR_HANDLE Cpu{};
     D3D12_GPU_DESCRIPTOR_HANDLE Gpu{};
 
@@ -49,6 +50,7 @@ class D3D12GraphicsBackend final : public IGraphicsBackend
 public:
     // 每个交换链缓冲拥有独立命令分配器和围栏值
     static constexpr std::uint32_t FrameCount = 2;
+    static constexpr std::uint32_t ShaderVisibleDescriptorCount = 256;
 
     D3D12GraphicsBackend() = default;
     ~D3D12GraphicsBackend() override;
@@ -80,6 +82,7 @@ public:
     [[nodiscard]] bool UsesZeroToOneDepth() const override;
     [[nodiscard]] const std::string& AdapterName() const override;
     [[nodiscard]] const std::string& VersionString() const override;
+    [[nodiscard]] const GraphicsDeviceCapabilities& GraphicsCapabilities() const override;
     [[nodiscard]] float LastGpuFrameMilliseconds() const override;
     [[nodiscard]] float LastGpuWaitMilliseconds() const override;
     [[nodiscard]] bool IsValid() const override;
@@ -94,6 +97,7 @@ public:
     [[nodiscard]] bool FrameOpen() const;
 
     [[nodiscard]] D3D12DescriptorAllocation AllocateSrvDescriptor();
+    [[nodiscard]] D3D12DescriptorAllocation AllocateSrvDescriptorRange(std::uint32_t count);
     void ReleaseSrvDescriptor(D3D12DescriptorAllocation& allocation);
     [[nodiscard]] bool ExecuteImmediate(
         const std::function<bool(ID3D12GraphicsCommandList*, std::string*)>& recorder,
@@ -114,6 +118,7 @@ private:
     };
 
     [[nodiscard]] bool CreateDeviceAndQueue(std::string* errorMessage);
+    void QueryDeviceCapabilities();
     [[nodiscard]] bool CreateSwapChain(std::string* errorMessage);
     [[nodiscard]] bool CreateDescriptorHeaps(std::string* errorMessage);
     [[nodiscard]] bool CreateFrameResources(std::string* errorMessage);
@@ -162,9 +167,9 @@ private:
     float _lastGpuFrameMilliseconds{0.0F};
     float _lastGpuWaitMilliseconds{0.0F};
 
-    // 字体槽位在初始化周期内稳定，其他 SRV 使用固定堆的 LIFO 空闲表
+    // 固定堆按连续区间分配；单槽纹理和字体使用相同的释放协议
     D3D12DescriptorAllocation _imguiFontDescriptor;
-    std::vector<std::uint32_t> _freeSrvIndices;
+    std::array<bool, ShaderVisibleDescriptorCount> _srvDescriptorAllocated{};
     std::uint32_t _rtvDescriptorSize{0};
     std::uint32_t _srvDescriptorSize{0};
 
@@ -181,6 +186,7 @@ private:
     bool _frameOpen{false};
     bool _initialized{false};
     std::string _adapterName;
+    GraphicsDeviceCapabilities _deviceCapabilities{};
     std::string _versionString{"Direct3D 12 (feature level 12_0)"};
 };
 } // namespace ParallelRoam::Render

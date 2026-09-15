@@ -18,8 +18,6 @@ namespace
 // 后端内部格式固定，renderer 和 ImGui 从公开访问器取得同一约定
 constexpr DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 constexpr DXGI_FORMAT DepthBufferFormat = DXGI_FORMAT_D32_FLOAT;
-// 当前固定堆覆盖地形纹理、GPU 算法和 ImGui 的描述符需求
-constexpr std::uint32_t SrvDescriptorCount = 256;
 
 D3D12_HEAP_PROPERTIES HeapProperties(D3D12_HEAP_TYPE type)
 {
@@ -299,7 +297,8 @@ void D3D12GraphicsBackend::Shutdown()
     _device.Reset();
     _adapter.Reset();
     _factory.Reset();
-    _freeSrvIndices.clear();
+    _srvDescriptorAllocated = {};
+    _deviceCapabilities = {};
     _window = nullptr;
     _windowHandle = nullptr;
     _drawableWidth = 0;
@@ -569,6 +568,11 @@ const std::string& D3D12GraphicsBackend::VersionString() const
     return _versionString;
 }
 
+const GraphicsDeviceCapabilities& D3D12GraphicsBackend::GraphicsCapabilities() const
+{
+    return _deviceCapabilities;
+}
+
 float D3D12GraphicsBackend::LastGpuFrameMilliseconds() const
 {
     return _lastGpuFrameMilliseconds;
@@ -627,17 +631,50 @@ bool D3D12GraphicsBackend::FrameOpen() const
 
 D3D12DescriptorAllocation D3D12GraphicsBackend::AllocateSrvDescriptor()
 {
-    // 固定堆耗尽时由调用方决定降级或报告错误
-    if (_srvHeap == nullptr || _freeSrvIndices.empty())
+    return AllocateSrvDescriptorRange(1U);
+}
+
+D3D12DescriptorAllocation D3D12GraphicsBackend::AllocateSrvDescriptorRange(std::uint32_t count)
+{
+    // 根描述符表要求物理连续；从低索引开始寻找首个完整空闲区间
+    if (_srvHeap == nullptr || count == 0U || count > ShaderVisibleDescriptorCount)
     {
         return {};
     }
 
-    // 槽位一经分配在显式归还前不会移动
+    std::uint32_t first = ShaderVisibleDescriptorCount;
+    for (std::uint32_t candidate = 0U; candidate + count <= ShaderVisibleDescriptorCount; ++candidate)
+    {
+        bool available = true;
+        for (std::uint32_t offset = 0U; offset < count; ++offset)
+        {
+            if (_srvDescriptorAllocated[candidate + offset])
+            {
+                available = false;
+                candidate += offset;
+                break;
+            }
+        }
+        if (available)
+        {
+            first = candidate;
+            break;
+        }
+    }
+    if (first == ShaderVisibleDescriptorCount)
+    {
+        return {};
+    }
+
+    for (std::uint32_t offset = 0U; offset < count; ++offset)
+    {
+        _srvDescriptorAllocated[first + offset] = true;
+    }
+
     D3D12DescriptorAllocation allocation{};
     // CPU/GPU 句柄必须由同一索引和各自堆起点计算
-    allocation.Index = _freeSrvIndices.back();
-    _freeSrvIndices.pop_back();
+    allocation.Index = first;
+    allocation.Count = count;
     allocation.Cpu = _srvHeap->GetCPUDescriptorHandleForHeapStart();
     allocation.Gpu = _srvHeap->GetGPUDescriptorHandleForHeapStart();
     allocation.Cpu.ptr += static_cast<SIZE_T>(allocation.Index) * _srvDescriptorSize;
@@ -651,8 +688,15 @@ void D3D12GraphicsBackend::ReleaseSrvDescriptor(D3D12DescriptorAllocation& alloc
     {
         return;
     }
-    // 调用方句柄清空可阻止重复释放同一槽位
-    _freeSrvIndices.push_back(allocation.Index);
+    // 调用方句柄清空可阻止重复释放同一区间
+    for (std::uint32_t offset = 0U; offset < allocation.Count; ++offset)
+    {
+        const std::uint32_t index = allocation.Index + offset;
+        if (index < ShaderVisibleDescriptorCount)
+        {
+            _srvDescriptorAllocated[index] = false;
+        }
+    }
     allocation = {};
 }
 
@@ -807,6 +851,8 @@ bool D3D12GraphicsBackend::CreateDeviceAndQueue(std::string* errorMessage)
         return false;
     }
 
+    QueryDeviceCapabilities();
+
 #if !defined(NDEBUG)
     // 严重验证错误在开发构建中立即中断
     Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue;
@@ -829,6 +875,42 @@ bool D3D12GraphicsBackend::CreateDeviceAndQueue(std::string* errorMessage)
         return false;
     }
     return true;
+}
+
+void D3D12GraphicsBackend::QueryDeviceCapabilities()
+{
+    _deviceCapabilities = {};
+    D3D12_FEATURE_DATA_SHADER_MODEL shaderModel{};
+    // 查询上限与项目固定的 DXC shader model 目标一致
+    shaderModel.HighestShaderModel = D3D_SHADER_MODEL_6_6;
+    if (SUCCEEDED(_device->CheckFeatureSupport(
+            D3D12_FEATURE_SHADER_MODEL,
+            &shaderModel,
+            sizeof(shaderModel))))
+    {
+        const std::uint32_t encodedShaderModel = static_cast<std::uint32_t>(shaderModel.HighestShaderModel);
+        _deviceCapabilities.ShaderModelMajor = (encodedShaderModel >> 4U) & 0xFU;
+        _deviceCapabilities.ShaderModelMinor = encodedShaderModel & 0xFU;
+    }
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS1 options1{};
+    if (SUCCEEDED(_device->CheckFeatureSupport(
+            D3D12_FEATURE_D3D12_OPTIONS1,
+            &options1,
+            sizeof(options1))))
+    {
+        _deviceCapabilities.SupportsShaderInt64 = options1.Int64ShaderOps != FALSE;
+    }
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS9 options9{};
+    if (SUCCEEDED(_device->CheckFeatureSupport(
+            D3D12_FEATURE_D3D12_OPTIONS9,
+            &options9,
+            sizeof(options9))))
+    {
+        _deviceCapabilities.SupportsTypedResourceInt64Atomics =
+            options9.AtomicInt64OnTypedResourceSupported != FALSE;
+    }
 }
 
 bool D3D12GraphicsBackend::CreateSwapChain(std::string* errorMessage)
@@ -896,7 +978,7 @@ bool D3D12GraphicsBackend::CreateDescriptorHeaps(std::string* errorMessage)
     D3D12_DESCRIPTOR_HEAP_DESC srvDescription{};
     // renderer 和算法从同一可见堆分配稳定资源视图
     srvDescription.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    srvDescription.NumDescriptors = SrvDescriptorCount;
+    srvDescription.NumDescriptors = ShaderVisibleDescriptorCount;
     srvDescription.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     result = _device->CreateDescriptorHeap(&srvDescription, IID_PPV_ARGS(&_srvHeap));
     if (FAILED(result))
@@ -907,12 +989,7 @@ bool D3D12GraphicsBackend::CreateDescriptorHeaps(std::string* errorMessage)
 
     _rtvDescriptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     _srvDescriptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    _freeSrvIndices.reserve(SrvDescriptorCount);
-    // 逆序填充使首次分配从索引零开始
-    for (std::uint32_t index = SrvDescriptorCount; index > 0; --index)
-    {
-        _freeSrvIndices.push_back(index - 1U);
-    }
+    _srvDescriptorAllocated = {};
     return true;
 }
 

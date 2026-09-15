@@ -246,6 +246,7 @@ if(PARALLEL_ROAM_BUILD_APP)
 
         set(PARALLEL_ROAM_DX12_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/shaders")
         parallel_roam_prepare_cbt_shaders(parallel_roam)
+        parallel_roam_attach_cbt_runtime(parallel_roam)
         set(PARALLEL_ROAM_DX12_VERTEX_SHADER "${PARALLEL_ROAM_DX12_SHADER_DIR}/TerrainVS.cso")
         set(PARALLEL_ROAM_DX12_PIXEL_SHADER "${PARALLEL_ROAM_DX12_SHADER_DIR}/TerrainPS.cso")
         target_compile_definitions(

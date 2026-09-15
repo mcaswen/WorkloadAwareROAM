@@ -1,5 +1,8 @@
 #include "app/Application.h"
 #include "algorithms/TerrainLodAlgorithmRegistry.h"
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+#include "algorithms/cbt_2024/Cbt2024Support.h"
+#endif
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -125,6 +128,7 @@ Algorithms::TerrainLodSettings ToTerrainLodSettings(const Gui::TerrainPanelState
     settings.EnableParallelSplit = state.RoamEnableParallelSplit;
     settings.PassPolicy = state.RoamPassPolicy;
     settings.Transactional = state.Transactional;
+    settings.Cbt = state.Cbt;
     settings.EnableLocalConstraints = state.RoamEnableLocalConstraints;
     settings.EnableTopologyValidation = state.RoamEnableTopologyValidation;
     settings.EnablePassEvidence = true;
@@ -149,6 +153,8 @@ Render::TerrainRenderSettings ToRenderSettings(const Gui::TerrainPanelState& sta
     settings.RoamPassPolicy = state.RoamPassPolicy;
     settings.Transactional = state.Transactional;
     settings.TransactionalPaused = state.TransactionalPaused;
+    settings.Cbt = state.Cbt;
+    settings.CbtPaused = state.CbtPaused;
     settings.RoamEnableLocalConstraints = state.RoamEnableLocalConstraints;
     settings.RoamEnableTopologyValidation = state.RoamEnableTopologyValidation;
     settings.LightDirection = state.LightDirection;
@@ -223,6 +229,12 @@ bool Application::Initialize()
     }
 
     // 输入使用逻辑窗口尺寸，渲染尺寸由后端单独维护
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+    _terrainPanelState.CbtUnavailableReason =
+        Algorithms::Cbt2024::QueryCbt2024Availability(*_graphicsBackend).UnavailableReason;
+#else
+    _terrainPanelState.CbtUnavailableReason = "当前构建不提供 CBT D3D12 参考";
+#endif
     _input.SetWindowSize(_window.Width(), _window.Height());
     _terrainPanelState.VSyncEnabled = _graphicsBackend->VSyncEnabled();
     _terrainPanelState.HeightMapIndex = 0;
@@ -325,6 +337,7 @@ int Application::Run(int maxFrameCount)
         // RenderFrame 记录场景和 GUI，Present 统一关闭并提交后端帧
         RenderFrame(frameTiming);
         _graphicsBackend->Present();
+        ApplyPendingTerrainCommands();
         CompleteRuntimeBenchmarkFrame();
         if (_automaticRuntimeBenchmarkEnabled && _automaticRuntimeBenchmarkCompleted)
         {
@@ -596,6 +609,10 @@ void Application::RenderFrame(const FrameTiming& frameTiming)
     }
 
     debugData.Transactional = terrainStats.RoamLodStats.Transactional;
+    if (terrainStats.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024)
+    {
+        debugData.Cbt = terrainStats.RoamLodStats.Cbt;
+    }
     RecordRuntimeBenchmarkSample(frameTiming, terrainStats, cameraPosition);
 
 #if defined(PARALLEL_ROAM_EXPERIMENT_INFRASTRUCTURE)
@@ -628,7 +645,7 @@ void Application::RenderFrame(const FrameTiming& frameTiming)
     const int previousHeightMapIndex = _terrainPanelState.HeightMapIndex;
     if (_guiLayer.DrawDebugOverlay(debugData, _terrainPanelState))
     {
-        ApplyTerrainPanelSettings();
+        _terrainPanelSettingsPending = true;
     }
 
     if (previousVSyncEnabled != _terrainPanelState.VSyncEnabled)
@@ -639,18 +656,7 @@ void Application::RenderFrame(const FrameTiming& frameTiming)
 
     if (previousHeightMapIndex != _terrainPanelState.HeightMapIndex)
     {
-        ApplyHeightMapSelection();
-    }
-
-    if (_terrainPanelState.LodResetRequested)
-    {
-        _terrainRenderer.ResetTerrainLodAlgorithm();
-        _terrainPanelState.LodResetRequested = false;
-    }
-    if (_terrainPanelState.LodStepRequested)
-    {
-        _terrainRenderer.RequestLodStep();
-        _terrainPanelState.LodStepRequested = false;
+        _heightMapSelectionPending = true;
     }
 
     if (_terrainPanelState.StartBenchmarkRequested)
@@ -678,6 +684,30 @@ void Application::ApplyTerrainPanelSettings()
     }
 }
 
+void Application::ApplyPendingTerrainCommands()
+{
+    if (_terrainPanelSettingsPending)
+    {
+        ApplyTerrainPanelSettings();
+        _terrainPanelSettingsPending = false;
+    }
+    if (_heightMapSelectionPending)
+    {
+        ApplyHeightMapSelection();
+        _heightMapSelectionPending = false;
+    }
+    if (_terrainPanelState.LodResetRequested)
+    {
+        _terrainRenderer.ResetTerrainLodAlgorithm();
+        _terrainPanelState.LodResetRequested = false;
+    }
+    if (_terrainPanelState.LodStepRequested)
+    {
+        _terrainRenderer.RequestLodStep();
+        _terrainPanelState.LodStepRequested = false;
+    }
+}
+
 void Application::ApplyWindowPanelSettings()
 {
     if (!_graphicsBackend->SetVSyncEnabled(_terrainPanelState.VSyncEnabled))
@@ -696,6 +726,10 @@ void Application::ApplyPendingRuntimeBenchmarkOverrides()
     const RuntimeBenchmarkOverrides& overrides = _runtimeBenchmarkOverrides;
     if (overrides.HasInteractiveAlgorithm) _terrainPanelState.TerrainLodAlgorithm = overrides.InteractiveAlgorithm;
     if (overrides.HasTransactional) _terrainPanelState.Transactional = overrides.Transactional;
+    if (overrides.HasCbt)
+    {
+        _terrainPanelState.Cbt = overrides.Cbt;
+    }
     if (overrides.HasTriangleBudget) _terrainPanelState.RoamTriangleBudget = static_cast<int>(overrides.TriangleBudget);
     if (overrides.HasPath)
     {

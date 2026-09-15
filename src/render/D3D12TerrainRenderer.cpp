@@ -1,4 +1,8 @@
 #include "render/TerrainRenderer.h"
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+#include "render/D3D12CbtRenderPass.h"
+#include "algorithms/cbt_2024/Cbt2024Support.h"
+#endif
 #include "algorithms/TerrainLodAlgorithmRegistry.h"
 
 #include "algorithms/TerrainLodView.h"
@@ -186,7 +190,8 @@ bool NeedsMeshRebuild(const TerrainRenderSettings& previous, const TerrainRender
            previous.RoamEnableLocalConstraints != next.RoamEnableLocalConstraints ||
            previous.RoamEnableTopologyValidation != next.RoamEnableTopologyValidation ||
            previous.RoamEnablePassEvidence != next.RoamEnablePassEvidence ||
-           previous.Transactional != next.Transactional;
+           previous.Transactional != next.Transactional ||
+           previous.Cbt != next.Cbt;
 }
 
 bool RoamViewInputsChanged(const RenderContext& previous, const RenderContext& next)
@@ -335,6 +340,9 @@ D3D12_DEPTH_STENCIL_DESC DepthStencilDescription()
 /// </summary>
 struct D3D12TerrainRendererState
 {
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+    D3D12CbtRenderPass CbtRenderPass;
+#endif
     // Backend 由 Application 持有，本状态只借用
     D3D12GraphicsBackend* Backend{nullptr};
     Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignature;
@@ -697,6 +705,22 @@ bool TerrainRenderer::Initialize(
     _settings = settings;
     _heightMapPath = heightMapPath;
     _texturePath = texturePath;
+    if (_settings.UseTerrainLod && _settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024)
+    {
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+        const auto availability = Algorithms::Cbt2024::QueryCbt2024Availability(graphicsBackend);
+        if (!availability.Available)
+        {
+            SetError(errorMessage, availability.UnavailableReason);
+            Shutdown();
+            return false;
+        }
+#else
+        SetError(errorMessage, "CBT is not enabled in this build");
+        Shutdown();
+        return false;
+#endif
+    }
     // 先建立管线和高度数据，再生成几何并上传纹理
     if (!InitializeState(*_d3d12State, errorMessage) ||
         !_heightMap.LoadFromFile(heightMapPath, errorMessage))
@@ -735,8 +759,33 @@ bool TerrainRenderer::ApplyMaterial(const std::filesystem::path& path, float til
 
 bool TerrainRenderer::ApplySettings(const TerrainRenderSettings& settings, std::string* errorMessage)
 {
+    if (settings.UseTerrainLod && settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024)
+    {
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+        const auto availability = Algorithms::Cbt2024::QueryCbt2024Availability(*_graphicsBackend);
+        if (!availability.Available)
+        {
+            SetError(errorMessage, availability.UnavailableReason);
+            return false;
+        }
+#else
+        SetError(errorMessage, "CBT is not enabled in this build");
+        return false;
+#endif
+    }
     // 光照和线框设置立即生效，只有几何相关设置会标记网格过期
     const bool rebuildMesh = NeedsMeshRebuild(_settings, settings);
+    const bool touchesGpu = _settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024 ||
+        settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024;
+    if (rebuildMesh && touchesGpu && _d3d12State && _d3d12State->Backend->FrameOpen())
+    {
+        SetError(errorMessage, "CBT resource settings require a frame boundary");
+        return false;
+    }
+    if (rebuildMesh && touchesGpu)
+    {
+        ResetTerrainLodAlgorithm();
+    }
     _settings = settings;
     _meshDirty = _meshDirty || rebuildMesh;
     return !_meshDirty || RebuildMesh(errorMessage);
@@ -744,6 +793,12 @@ bool TerrainRenderer::ApplySettings(const TerrainRenderSettings& settings, std::
 
 bool TerrainRenderer::LoadHeightMap(const std::filesystem::path& heightMapPath, std::string* errorMessage)
 {
+    if (_renderMode == Algorithms::TerrainLodRenderMode::GpuProceduralIndirect &&
+        _d3d12State->Backend->FrameOpen())
+    {
+        SetError(errorMessage, "CBT height-map changes require a frame boundary");
+        return false;
+    }
     Terrain::HeightMap nextHeightMap;
     if (!nextHeightMap.LoadFromFile(heightMapPath, errorMessage))
     {
@@ -765,7 +820,9 @@ bool TerrainRenderer::UpdateForView(const RenderContext& context, std::string* e
         _terrainLodAlgorithm->Capabilities().RequiresContinuousUpdate;
     const bool step = _lodStepRequested;
     _lodStepRequested = false;
-    if (continuous && _settings.TransactionalPaused && !step && !_meshDirty)
+    const bool paused = _settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024
+        ? _settings.CbtPaused : _settings.TransactionalPaused;
+    if (continuous && paused && !step && !_meshDirty)
     {
         _terrainLodTotalMilliseconds = 0.0F;
         _terrainLodCpuUploadMilliseconds = 0.0F;
@@ -836,6 +893,23 @@ void TerrainRenderer::RequestMeshRebuild()
 
 void TerrainRenderer::ResetTerrainLodAlgorithm()
 {
+    if (_terrainLodAlgorithm && _terrainLodAlgorithm->Info().Id == Algorithms::TerrainLodAlgorithmId::Cbt2024 &&
+        _d3d12State)
+    {
+        if (_d3d12State->Backend->FrameOpen())
+        {
+            _terrainLodStatusMessage = "CBT reset requires a frame boundary";
+            return;
+        }
+        _d3d12State->Backend->WaitForGpuIdle();
+    }
+    _gpuOutput = {};
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+    if (_d3d12State)
+    {
+        _d3d12State->CbtRenderPass.InvalidateResourceDescriptors();
+    }
+#endif
     _borrowedCpuMeshData = nullptr;
     _terrainLodAlgorithm.reset();
     _cpuUploadRecoveryRequired = true;
@@ -855,6 +929,12 @@ void TerrainRenderer::ResetTerrainLodAlgorithm()
 
 void TerrainRenderer::Shutdown()
 {
+    // 后端先完成在途引用，再允许算法与绘制消费者释放资源
+    if (_d3d12State && _d3d12State->Backend)
+    {
+        _d3d12State->Backend->WaitForGpuIdle();
+    }
+    _gpuOutput = {};
     _borrowedCpuMeshData = nullptr;
     _terrainLodAlgorithm.reset();
     _cpuUploadRecoveryRequired = true;
@@ -948,11 +1028,39 @@ void TerrainRenderer::Render(const RenderContext& context)
         _settings.DebugOverlayStrength};
     constants.MaterialParameters = glm::vec4(_materialTiling, _materialHeightTint, 0, 0);
     constants.DebugParameters.x = static_cast<int>(_settings.DebugColorMode);
+    constants.DebugParameters.z = std::max(_settings.RoamMaxDepth, 1);
     std::memcpy(_d3d12State->MappedConstants[frameIndex], &constants, sizeof(constants));
 
     // 根描述符表中的 GPU 句柄只对当前绑定的共享堆有效
     ID3D12DescriptorHeap* graphicsHeaps[] = {backend.ShaderVisibleSrvHeap()};
     commandList->SetDescriptorHeaps(1, graphicsHeaps);
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+    if (_renderMode == Algorithms::TerrainLodRenderMode::GpuProceduralIndirect)
+    {
+        auto& pass = _d3d12State->CbtRenderPass;
+        std::string error;
+        const auto resource = [](std::uintptr_t handle) {
+            return reinterpret_cast<ID3D12Resource*>(handle);
+        };
+        if (!pass.ConfigureResourceDescriptors(frameIndex,
+                resource(_gpuOutput.NativeVertexBuffer), _gpuOutput.GpuVertexBufferCapacityBytes,
+                _gpuOutput.GpuVertexStrideBytes, resource(_gpuOutput.NativeActiveLeafBuffer),
+                _gpuOutput.GpuActiveLeafBufferCapacityBytes, _gpuOutput.GpuActiveLeafStrideBytes,
+                resource(_gpuOutput.NativeLodStateBuffer), _gpuOutput.GpuLodStateBufferCapacityBytes,
+                _gpuOutput.GpuLodStateStrideBytes, _gpuOutput.GpuResourceGeneration, &error))
+        {
+            _terrainLodStatusMessage = error;
+            std::cerr << error << '\n';
+            return;
+        }
+        pass.RecordDraw(commandList, frameIndex,
+            _d3d12State->ConstantBuffers[frameIndex]->GetGPUVirtualAddress(),
+            _d3d12State->TextureSrv.Gpu, resource(_gpuOutput.NativeIndirectDrawBuffer),
+            _gpuOutput.GpuIndirectDrawArgumentOffsetBytes, _settings.Wireframe,
+            _gpuOutput.TopologyGeneration);
+        return;
+    }
+#endif
     commandList->SetPipelineState(
         _settings.Wireframe ? _d3d12State->WireframePipelineState.Get() : _d3d12State->FillPipelineState.Get());
     commandList->SetGraphicsRootSignature(_d3d12State->RootSignature.Get());
@@ -972,6 +1080,17 @@ TerrainRenderStats TerrainRenderer::Stats() const
 {
     TerrainRenderStats stats{};
     stats.RoamLodStats = _terrainLodStats;
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+    if (_renderMode == Algorithms::TerrainLodRenderMode::GpuProceduralIndirect && _d3d12State)
+    {
+        auto& cbt = stats.RoamLodStats.Cbt;
+        const auto& pass = _d3d12State->CbtRenderPass;
+        cbt.TerrainRenderSampleGeneration = pass.LastGpuDrawSampleGeneration();
+        cbt.GpuStageMilliseconds[static_cast<std::size_t>(Algorithms::TerrainLodCbtGpuStage::TerrainRender)] =
+            pass.LastGpuDrawMilliseconds();
+        // Compute sum 不加入可能来自不同代的 draw query
+    }
+#endif
     stats.HeightMapPath = _heightMapPath;
     stats.HeightMapWidth = _heightMap.Width();
     stats.HeightMapHeight = _heightMap.Height();
@@ -1090,7 +1209,9 @@ const std::filesystem::path& TerrainRenderer::TexturePath() const
 bool TerrainRenderer::RebuildMesh(std::string* errorMessage)
 {
     // 新算法只在有效相机机会执行，设置变更不提前初始化或增加批次
-    if (_settings.UseTerrainLod && _settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod)
+    if (_settings.UseTerrainLod &&
+        (_settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod ||
+         _settings.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024))
     {
         if (_terrainLodAlgorithm && _terrainLodAlgorithm->Info().Id != _settings.TerrainLodAlgorithm)
             ResetTerrainLodAlgorithm();
@@ -1104,6 +1225,10 @@ bool TerrainRenderer::RebuildMesh(std::string* errorMessage)
 
 bool TerrainRenderer::RebuildRegularGrid(std::string* errorMessage)
 {
+    if (_terrainLodAlgorithm && _terrainLodAlgorithm->Info().Id == Algorithms::TerrainLodAlgorithmId::Cbt2024)
+    {
+        ResetTerrainLodAlgorithm();
+    }
     // 规则网格不保留任何 ROAM 算法状态或相机重建历史
     _meshData = Terrain::TerrainMeshBuilder::Build(_heightMap, _settings.TerrainSize, _settings.HeightScale);
     _borrowedCpuMeshData = nullptr;
@@ -1132,7 +1257,8 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     {
         // 算法对象拥有跨帧 CPU 拓扑和增量 mesh 状态。
         _borrowedCpuMeshData = nullptr;
-        _terrainLodAlgorithm = Algorithms::CreateTerrainLodAlgorithm(_settings.TerrainLodAlgorithm);
+        _terrainLodAlgorithm = Algorithms::CreateTerrainLodAlgorithm(
+            _settings.TerrainLodAlgorithm, {_graphicsBackend});
         _hasRoamBuildView = false;
     }
     if (_terrainLodAlgorithm == nullptr)
@@ -1153,6 +1279,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     lodSettings.EnableParallelSplit = _settings.RoamEnableParallelSplit;
     lodSettings.PassPolicy = _settings.RoamPassPolicy;
     lodSettings.Transactional = _settings.Transactional;
+    lodSettings.Cbt = _settings.Cbt;
     lodSettings.EnableLocalConstraints = _settings.RoamEnableLocalConstraints;
     lodSettings.EnableTopologyValidation = _settings.RoamEnableTopologyValidation;
     lodSettings.EnablePassEvidence = _settings.RoamEnablePassEvidence;
@@ -1194,6 +1321,26 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     _terrainLodStatusMessage = buildSucceeded ? renderPacket.StatusMessage : *buildError;
     _lastRoamBuildContext = context;
     _hasRoamBuildView = true;
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+    if (renderPacket.Mode == Algorithms::TerrainLodRenderMode::GpuProceduralIndirect)
+    {
+        if (!_d3d12State->CbtRenderPass.IsReady() &&
+            !_d3d12State->CbtRenderPass.Initialize(*_d3d12State->Backend, errorMessage))
+        {
+            return false;
+        }
+        _gpuOutput = renderPacket.Gpu;
+        _renderMode = renderPacket.Mode;
+        _meshData = {};
+        _drawTriangleCount = renderPacket.ActiveTriangleCount;
+        _drawVertexCount = _drawTriangleCount * 3U;
+        _drawIndexCount = 0U;
+        _meshDirty = false;
+        _cpuUploadRecoveryRequired = false;
+        _terrainLodTotalMilliseconds = rebuildTimer.Stop();
+        return buildSucceeded;
+    }
+#endif
     if (renderPacket.Mode != Algorithms::TerrainLodRenderMode::CpuMesh)
     {
         _terrainLodStatusMessage = "D3D12 terrain LOD returned an unsupported render mode";
@@ -1202,6 +1349,7 @@ bool TerrainRenderer::RebuildTerrainLod(const RenderContext& context, std::strin
     }
 
     const Terrain::TerrainMeshData* cpuMesh = renderPacket.ResolveCpuMesh();
+    _gpuOutput = {};
     if (renderPacket.BorrowedCpuMesh != nullptr)
     {
         _meshData = {};
@@ -1618,6 +1766,10 @@ bool TerrainRenderer::HasDrawableTerrain() const
     if (_d3d12State == nullptr)
     {
         return false;
+    }
+    if (_renderMode == Algorithms::TerrainLodRenderMode::GpuProceduralIndirect)
+    {
+        return _gpuOutput.HasConsistentResourceContract();
     }
     return _renderMode == Algorithms::TerrainLodRenderMode::CpuMesh && _drawIndexCount > 0U;
 }

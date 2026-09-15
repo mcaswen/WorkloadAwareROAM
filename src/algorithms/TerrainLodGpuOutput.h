@@ -46,5 +46,39 @@ struct TerrainLodGpuOutput
     // 资源替换和算法更新是不同生命周期，不能共用一个版本号
     std::uint64_t GpuResourceGeneration{0U};
     std::uint64_t TopologyGeneration{0U};
+
+    [[nodiscard]] bool IsEmpty() const
+    {
+        return *this == TerrainLodGpuOutput{};
+    }
+
+    /// <summary>
+    /// 只检查借用描述的布局，资源存活与实际 GPU 数量由所有者和同步保证
+    /// </summary>
+    [[nodiscard]] bool HasConsistentResourceContract() const
+    {
+        if (NativeResourceApi != TerrainLodNativeResourceApi::Direct3D12 ||
+            GpuResourceLifetime != TerrainLodGpuResourceLifetime::UntilNextBuildOrReset ||
+            GpuResourceGeneration == 0U || TopologyGeneration == 0U ||
+            NativeVertexBuffer == 0U || NativeActiveLeafBuffer == 0U ||
+            NativeLodStateBuffer == 0U || NativeIndirectDrawBuffer == 0U)
+        {
+            return false;
+        }
+
+        // 结构化视图不能包含半个元素；间接 DRAW 固定为四个 uint32
+        const auto validBuffer = [](std::size_t bytes, std::size_t stride) {
+            return stride > 0U && bytes >= stride && bytes % stride == 0U;
+        };
+        constexpr std::size_t drawBytes = 4U * sizeof(std::uint32_t);
+        return validBuffer(GpuVertexBufferCapacityBytes, GpuVertexStrideBytes) &&
+            validBuffer(GpuActiveLeafBufferCapacityBytes, GpuActiveLeafStrideBytes) &&
+            validBuffer(GpuLodStateBufferCapacityBytes, GpuLodStateStrideBytes) &&
+            GpuIndirectDrawArgumentOffsetBytes % sizeof(std::uint32_t) == 0U &&
+            GpuIndirectDrawArgumentOffsetBytes <= GpuIndirectDrawBufferCapacityBytes &&
+            drawBytes <= GpuIndirectDrawBufferCapacityBytes - GpuIndirectDrawArgumentOffsetBytes;
+    }
+
+    bool operator==(const TerrainLodGpuOutput&) const = default;
 };
 } // 命名空间 ParallelRoam::Algorithms

@@ -15,6 +15,7 @@ enum class ApplicationLaunchMode
     RoamProbe,
     TerrainLodBenchmark,
     TransactionalPlatformCheck,
+    CbtPlatformCheck,
     TransactionalPlatformReplay,
     ExperimentAssetPreview,
     ExperimentCameraTools,

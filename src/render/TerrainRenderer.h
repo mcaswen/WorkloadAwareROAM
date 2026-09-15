@@ -70,6 +70,8 @@ struct TerrainRenderSettings
     Algorithms::TransactionalLodSettings Transactional{};
     // 暂停只影响持续批次调度，不进入算法配置身份
     bool TransactionalPaused{false};
+    Algorithms::TerrainLodCbtSettings Cbt{};
+    bool CbtPaused{false};
 
     // 局部约束只做 baseNeighbor forced split，不执行全局 repair
     bool RoamEnableLocalConstraints{true};
@@ -294,7 +296,18 @@ public:
     /// 不授予修改权，也不触发任何网格重建或复制
     /// </summary>
     [[nodiscard]] const Terrain::TerrainMeshData* CurrentCpuMeshForDiagnostics() const
-    { return _borrowedCpuMeshData ? _borrowedCpuMeshData : &_meshData; }
+    {
+        if (_renderMode == Algorithms::TerrainLodRenderMode::GpuProceduralIndirect)
+        {
+            return nullptr;
+        }
+        return _borrowedCpuMeshData ? _borrowedCpuMeshData : &_meshData;
+    }
+    [[nodiscard]] const Algorithms::TerrainLodGpuOutput* CurrentGpuOutputForDiagnostics() const
+    {
+        return _renderMode == Algorithms::TerrainLodRenderMode::GpuProceduralIndirect
+            ? &_gpuOutput : nullptr;
+    }
     [[nodiscard]] const std::filesystem::path& HeightMapPath() const;
     [[nodiscard]] const std::filesystem::path& TexturePath() const;
 
@@ -333,6 +346,7 @@ private:
     Terrain::TerrainMeshData _meshData;
     // Classic/DOD incremental emit 的 mesh 由算法持有，生命周期到下一次 Build/Reset。
     const Terrain::TerrainMeshData* _borrowedCpuMeshData{nullptr};
+    Algorithms::TerrainLodGpuOutput _gpuOutput{};
     std::unique_ptr<Algorithms::ITerrainLodAlgorithm> _terrainLodAlgorithm;
     Algorithms::TerrainLodStats _terrainLodStats;
     std::string _terrainLodStatusMessage;

@@ -47,5 +47,41 @@ int main()
         "an empty GPU output claims live resources");
     passed &= Expect(OfficialBaselineV1::BaselineId == "cbt-2024-official-baseline-v1",
         "imported reference identity changed");
+    TerrainLodRenderPacket packet{};
+    packet.Mode = TerrainLodRenderMode::GpuProceduralIndirect;
+    passed &= Expect(!packet.HasConsistentResourceContract(), "Empty indirect output accepted");
+    packet.Gpu = {
+        .NativeResourceApi = TerrainLodNativeResourceApi::Direct3D12,
+        .NativeVertexBuffer = 1U,
+        .NativeActiveLeafBuffer = 2U,
+        .NativeLodStateBuffer = 3U,
+        .NativeIndirectDrawBuffer = 4U,
+        .GpuVertexBufferCapacityBytes = 936U,
+        .GpuVertexStrideBytes = 52U,
+        .GpuActiveLeafBufferCapacityBytes = 24U,
+        .GpuActiveLeafStrideBytes = 4U,
+        .GpuLodStateBufferCapacityBytes = 192U,
+        .GpuLodStateStrideBytes = 32U,
+        .GpuIndirectDrawBufferCapacityBytes = 40U,
+        .GpuIndirectDrawArgumentOffsetBytes = 4U,
+        .GpuResourceLifetime = TerrainLodGpuResourceLifetime::UntilNextBuildOrReset,
+        .GpuResourceGeneration = 1U,
+        .TopologyGeneration = 1U,
+    };
+    // 延迟诊断尚未提供活动数时，GPU 的间接 DRAW 仍然有效
+    passed &= Expect(packet.HasConsistentResourceContract() && packet.ResolveCpuMesh() == nullptr,
+        "A valid indirect packet required immediate CPU counts");
+    const auto valid = packet.Gpu;
+    packet.Gpu.GpuIndirectDrawArgumentOffsetBytes = 36U;
+    passed &= Expect(!packet.HasConsistentResourceContract(), "Out-of-range DRAW accepted");
+    packet.Gpu = valid;
+    packet.Gpu.GpuVertexStrideBytes = 53U;
+    passed &= Expect(!packet.HasConsistentResourceContract(), "Fractional structured element accepted");
+    packet.Gpu = valid;
+    packet.CpuMesh.Indices.push_back(0U);
+    passed &= Expect(!packet.HasConsistentResourceContract(), "Mixed CPU/GPU output accepted");
+    packet.CpuMesh.Indices.clear();
+    packet.Mode = TerrainLodRenderMode::DebugOnly;
+    passed &= Expect(!packet.HasConsistentResourceContract(), "Debug output retained native handles");
     return passed ? 0 : 1;
 }

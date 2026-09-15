@@ -29,6 +29,8 @@ struct RuntimeBenchmarkOverrides
     ParallelRoam::Algorithms::TerrainLodAlgorithmId InteractiveAlgorithm{
         ParallelRoam::Algorithms::TerrainLodAlgorithmId::ClassicCpuRoam};
     bool HasTransactional{false};
+    bool HasCbt{false};
+    Algorithms::TerrainLodCbtSettings Cbt{};
     ParallelRoam::Algorithms::TransactionalLodSettings Transactional{};
     bool HasTriangleBudget{false};
     std::size_t TriangleBudget{20000};

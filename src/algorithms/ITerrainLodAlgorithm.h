@@ -2,6 +2,7 @@
 
 #include "algorithms/TerrainLodPassTrace.h"
 #include "algorithms/TerrainLodCbtTypes.h"
+#include "algorithms/TerrainLodGpuOutput.h"
 #include "algorithms/TransactionalLodSettings.h"
 #include "algorithms/TransactionalLodStats.h"
 #include "terrain/HeightMap.h"
@@ -27,6 +28,7 @@ enum class TerrainLodAlgorithmId
     ClassicCpuRoam,
     DataOrientedCpuRoam,
     TransactionalCpuLod,
+    Cbt2024,
     Count,
 };
 
@@ -47,11 +49,16 @@ struct TerrainLodAlgorithmInfo
 struct TerrainLodAlgorithmCapabilities
 {
     bool SupportsCpuMeshOutput{false};
+    bool SupportsGpuDrivenRendering{false};
+    bool SupportsProceduralIndirectRendering{false};
     bool SupportsSplit{false};
     bool SupportsMerge{false};
     bool SupportsCrackFix{false};
     bool SupportsTopologyValidation{false};
     bool RequiresContinuousUpdate{false};
+    bool RequiresShaderModel66{false};
+    bool RequiresInt64ShaderOps{false};
+    bool RequiresInt64Atomics{false};
 };
 
 /// <summary>
@@ -198,6 +205,7 @@ enum class TerrainLodRenderMode
 {
     CpuMesh,
     DebugOnly,
+    GpuProceduralIndirect,
 };
 
 /// <summary>
@@ -223,6 +231,7 @@ enum class TerrainLodCpuMeshLifetime
 struct TerrainLodRenderPacket
 {
     TerrainLodRenderMode Mode{TerrainLodRenderMode::CpuMesh};
+    TerrainLodGpuOutput Gpu{};
     Terrain::TerrainMeshData CpuMesh;
     // 增量算法可以直接返回内部长期保留的网格引用，避免每帧复制全部顶点和索引
     const Terrain::TerrainMeshData* BorrowedCpuMesh{nullptr};
@@ -238,6 +247,10 @@ struct TerrainLodRenderPacket
 
     [[nodiscard]] const Terrain::TerrainMeshData* ResolveCpuMesh() const
     {
+        if (Mode == TerrainLodRenderMode::GpuProceduralIndirect)
+        {
+            return nullptr;
+        }
         return BorrowedCpuMesh != nullptr ? BorrowedCpuMesh : &CpuMesh;
     }
 
@@ -247,8 +260,18 @@ struct TerrainLodRenderPacket
     /// </summary>
     [[nodiscard]] bool HasConsistentResourceContract() const
     {
+        if (Mode == TerrainLodRenderMode::GpuProceduralIndirect)
+        {
+            return Gpu.HasConsistentResourceContract() && BorrowedCpuMesh == nullptr &&
+                CpuMesh.Vertices.empty() && CpuMesh.Indices.empty() &&
+                CpuMeshUpdateRanges.empty() && CpuMeshGeneration == 0U && IndexCount == 0U;
+        }
         if (Mode == TerrainLodRenderMode::CpuMesh || Mode == TerrainLodRenderMode::DebugOnly)
         {
+            if (!Gpu.IsEmpty())
+            {
+                return false;
+            }
             const bool hasBorrowedCpuMesh = BorrowedCpuMesh != nullptr;
             const Terrain::TerrainMeshData* cpuMesh = ResolveCpuMesh();
             bool hasValidCpuMeshContract = true;

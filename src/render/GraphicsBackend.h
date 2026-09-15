@@ -25,6 +25,17 @@ enum class GraphicsApi
 };
 
 /// <summary>
+/// 设备原生计算能力；未查询的后端保留零值，算法自行解释运行要求
+/// </summary>
+struct GraphicsDeviceCapabilities
+{
+    std::uint32_t ShaderModelMajor{0U};
+    std::uint32_t ShaderModelMinor{0U};
+    bool SupportsShaderInt64{false};
+    bool SupportsTypedResourceInt64Atomics{false};
+};
+
+/// <summary>
 /// 应用主循环与具体图形 API 之间的生命周期边界
 /// </summary>
 class IGraphicsBackend
@@ -59,6 +70,11 @@ public:
     [[nodiscard]] virtual bool UsesZeroToOneDepth() const = 0;
     [[nodiscard]] virtual const std::string& AdapterName() const = 0;
     [[nodiscard]] virtual const std::string& VersionString() const = 0;
+    [[nodiscard]] virtual const GraphicsDeviceCapabilities& GraphicsCapabilities() const
+    {
+        static const GraphicsDeviceCapabilities unavailable{};
+        return unavailable;
+    }
     [[nodiscard]] virtual float LastGpuFrameMilliseconds() const = 0;
     [[nodiscard]] virtual float LastGpuWaitMilliseconds() const = 0;
     [[nodiscard]] virtual bool IsValid() const = 0;

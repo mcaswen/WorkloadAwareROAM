@@ -167,6 +167,10 @@ int TerrainModeIndex(bool useTerrainLod, Algorithms::TerrainLodAlgorithmId algor
     }
 
     if (algorithmId == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) return 3;
+    if (algorithmId == Algorithms::TerrainLodAlgorithmId::Cbt2024)
+    {
+        return 4;
+    }
     if (algorithmId == Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam)
     {
         return 2;
@@ -178,6 +182,10 @@ int TerrainModeIndex(bool useTerrainLod, Algorithms::TerrainLodAlgorithmId algor
 Algorithms::TerrainLodAlgorithmId TerrainAlgorithmFromModeIndex(int modeIndex)
 {
     if (modeIndex == 3) return Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod;
+    if (modeIndex == 4)
+    {
+        return Algorithms::TerrainLodAlgorithmId::Cbt2024;
+    }
     if (modeIndex == 2)
     {
         // DOD 仍走 CPU mesh 输出路径
@@ -442,7 +450,26 @@ void DrawPerformanceOverlay(const DebugOverlayData& data, bool& detailedMode)
             ImGui::TextUnformatted("旧五阶段与实际线程利用率：不适用 / 未测");
             if (!data.TerrainLodStatusMessage.empty()) ImGui::TextWrapped("%s", data.TerrainLodStatusMessage.c_str());
         }
-        else DrawDetailedPerformanceMetrics(data);
+        else if (data.Cbt)
+        {
+            const auto& cbt = *data.Cbt;
+            DrawSectionHeader("CBT GPU（延迟样本）");
+            DrawMetricSize("拓扑代", cbt.TopologyGeneration);
+            DrawMetricSize("计数样本代", cbt.ClassificationSampleGeneration);
+            DrawMetricSize("GPU 计时样本代", cbt.GpuTimingSampleGeneration);
+            DrawMetricSize("资源代", cbt.ResourceGeneration);
+            DrawMetricSize("动态槽占用", cbt.ActiveDynamicSlotCount);
+            DrawMetricSize("动态槽剩余", cbt.RemainingDynamicSlotCount);
+            DrawMetricSize("故障重建", cbt.FaultRecoveryCount);
+            DrawMetricFloat("GPU compute", cbt.GpuStageSumMilliseconds, "%.3f ms");
+            DrawMetricFloat("GPU draw", cbt.GpuStageMilliseconds[
+                static_cast<std::size_t>(Algorithms::TerrainLodCbtGpuStage::TerrainRender)], "%.3f ms");
+            ImGui::TextUnformatted("CPU 提交、GPU compute 与 draw 独立计量；池容量不是三角形硬预算");
+        }
+        else
+        {
+            DrawDetailedPerformanceMetrics(data);
+        }
         if (!data.LastBenchmarkOutputPath.empty())
         {
             DrawSectionHeader("Benchmark");
@@ -712,18 +739,29 @@ bool ImGuiLayer::DrawDebugOverlay(const DebugOverlayData& data, TerrainPanelStat
     }
     changed |= ImGui::Checkbox("线框模式", &terrainState.Wireframe);
     int terrainModeIndex = TerrainModeIndex(terrainState.UseTerrainLod, terrainState.TerrainLodAlgorithm);
-    const char* terrainModeItems[] = {"规则网格", "Classic CPU ROAM", "Data-Oriented CPU ROAM", "Transactional CPU LOD（实验）"};
-    const int modeCount = Algorithms::IsTerrainLodAlgorithmAvailable(
-        Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod) ? 4 : 3;
-    if (ImGui::Combo(
-            "LOD 算法",
-            &terrainModeIndex,
-            terrainModeItems,
-            modeCount))
+    const char* terrainModeItems[] = {"规则网格", "Classic CPU ROAM", "Data-Oriented CPU ROAM",
+        "Transactional CPU LOD（实验）", "CBT 2024（GPU 参考）"};
+    if (ImGui::BeginCombo("LOD 算法", terrainModeItems[terrainModeIndex]))
     {
-        changed = true;
-        terrainState.UseTerrainLod = terrainModeIndex != 0;
-        terrainState.TerrainLodAlgorithm = TerrainAlgorithmFromModeIndex(terrainModeIndex);
+        for (int index = 0; index < 5; ++index)
+        {
+            const auto id = TerrainAlgorithmFromModeIndex(index);
+            const bool available = index == 0 || Algorithms::IsTerrainLodAlgorithmAvailable(id);
+            const bool deviceSupported = index != 4 || terrainState.CbtUnavailableReason.empty();
+            ImGui::BeginDisabled(!available || !deviceSupported);
+            if (ImGui::Selectable(terrainModeItems[index], index == terrainModeIndex))
+            {
+                changed = true;
+                terrainState.UseTerrainLod = index != 0;
+                terrainState.TerrainLodAlgorithm = id;
+            }
+            ImGui::EndDisabled();
+        }
+        ImGui::EndCombo();
+    }
+    if (!terrainState.CbtUnavailableReason.empty())
+    {
+        ImGui::TextWrapped("%s", terrainState.CbtUnavailableReason.c_str());
     }
     const char* debugColorModes[] = {"关闭", "LOD 状态"};
     changed |= ImGui::Combo("调试着色", &terrainState.DebugColorMode, debugColorModes, 2);
@@ -736,6 +774,57 @@ bool ImGuiLayer::DrawDebugOverlay(const DebugOverlayData& data, TerrainPanelStat
     changed |= ImGui::SliderFloat("高度缩放", &terrainState.HeightScale, 0.0F, 12.0F, "%.2f");
 
     const bool transactional = terrainState.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod;
+    const bool cbt = terrainState.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024;
+    if (cbt)
+    {
+        DrawSectionHeader("CBT GPU 参考");
+        changed |= ImGui::SliderFloat("目标面积 (px²)", &terrainState.Cbt.TriangleAreaPixels,
+            0.1F, 128.0F, "%.3f", ImGuiSliderFlags_Logarithmic);
+        constexpr std::array capacities{
+            Algorithms::TerrainLodCbtCapacity::Capacity128K,
+            Algorithms::TerrainLodCbtCapacity::Capacity256K,
+            Algorithms::TerrainLodCbtCapacity::Capacity512K,
+            Algorithms::TerrainLodCbtCapacity::Capacity1M};
+        const char* capacityNames[] = {"128K", "256K", "512K", "1M"};
+        int capacityIndex = 0;
+        for (int index = 0; index < 4; ++index)
+        {
+            if (capacities[static_cast<std::size_t>(index)] == terrainState.Cbt.Capacity)
+            {
+                capacityIndex = index;
+            }
+        }
+        if (ImGui::Combo("动态槽容量", &capacityIndex, capacityNames, 4))
+        {
+            terrainState.Cbt.Capacity = capacities[static_cast<std::size_t>(capacityIndex)];
+            changed = true;
+        }
+        int validation = static_cast<int>(terrainState.Cbt.ValidationMode);
+        const char* validationModes[] = {"关闭", "延迟验证", "阻塞诊断"};
+        if (ImGui::Combo("CBT 验证", &validation, validationModes, 3))
+        {
+            terrainState.Cbt.ValidationMode = static_cast<Algorithms::TerrainLodCbtValidationMode>(validation);
+            changed = true;
+        }
+        int geometry = static_cast<int>(terrainState.Cbt.GeometryMode);
+        const char* geometryModes[] = {"增量几何", "全量诊断"};
+        if (ImGui::Combo("几何更新", &geometry, geometryModes, 2))
+        {
+            terrainState.Cbt.GeometryMode = static_cast<Algorithms::TerrainLodCbtGeometryMode>(geometry);
+            changed = true;
+        }
+        changed |= ImGui::Checkbox("暂停更新", &terrainState.CbtPaused);
+        if (ImGui::Button("执行一轮"))
+        {
+            terrainState.LodStepRequested = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("重新初始化"))
+        {
+            terrainState.LodResetRequested = true;
+        }
+        ImGui::TextWrapped("容量限制动态槽池，不代表 ROAM 三角形预算；面积驱动独立细分。");
+    }
     if (transactional)
     {
         DrawSectionHeader("事务化 LOD（实验）");
@@ -755,8 +844,8 @@ bool ImGuiLayer::DrawDebugOverlay(const DebugOverlayData& data, TerrainPanelStat
         changed |= ImGui::SliderInt("三角形预算", &terrainState.RoamTriangleBudget, 2, 200000);
         ImGui::TextWrapped("预算、线程或前缀修改会重新初始化；当前视图认证不保证连续视图质量。");
     }
-    DrawSectionHeader(transactional ? "初始种子设置" : "ROAM");
-    ImGui::BeginDisabled(transactional);
+    DrawSectionHeader(cbt ? "层次深度" : (transactional ? "初始种子设置" : "ROAM"));
+    ImGui::BeginDisabled(transactional || cbt);
     changed |= ImGui::Checkbox("局部约束", &terrainState.RoamEnableLocalConstraints);
     changed |= ImGui::Checkbox("拓扑验证", &terrainState.RoamEnableTopologyValidation);
     if (terrainState.TerrainLodAlgorithm == Algorithms::TerrainLodAlgorithmId::DataOrientedCpuRoam)

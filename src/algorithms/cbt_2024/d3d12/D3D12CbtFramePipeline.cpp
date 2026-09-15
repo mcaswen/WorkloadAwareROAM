@@ -641,14 +641,14 @@ bool D3D12CbtFramePipeline::RecordFrame(
     ID3D12GraphicsCommandList* commandList = _backend->CommandList();
     const std::uint32_t frameIndex = _backend->CurrentFrameIndex();
     const bool fullValidation =
-        input.Settings.CbtValidationMode != TerrainLodCbtValidationMode::Off;
+        input.Settings.Cbt.ValidationMode != TerrainLodCbtValidationMode::Off;
     _lastBlockingValidationWaitMilliseconds = 0.0F;
     if (_diagnostics.IsFaulted())
     {
         SetError(errorMessage, _diagnostics.FaultMessage());
         return false;
     }
-    if (input.Settings.CbtValidationMode == TerrainLodCbtValidationMode::BlockingSmoke &&
+    if (input.Settings.Cbt.ValidationMode == TerrainLodCbtValidationMode::BlockingSmoke &&
         _topologyFrameGeneration != 0U)
     {
         // 阻塞模式只用于验证与故障定位，等待时间不混入任何 GPU pass
@@ -693,7 +693,7 @@ bool D3D12CbtFramePipeline::RecordFrame(
             const CbtClassificationResult result = EvaluateCbtClassification(
                 triangles[node],
                 input.View,
-                input.Settings.CbtTriangleAreaPixels,
+                input.Settings.Cbt.TriangleAreaPixels,
                 topology.BaseDepth,
                 maxDepth).Result;
             classificationResults[node] = result;
@@ -801,7 +801,7 @@ bool D3D12CbtFramePipeline::RecordFrame(
 
     TopologyUpdateConstants updateConstants{};
     updateConstants.AreaAndScreen = {
-        input.Settings.CbtTriangleAreaPixels,
+        input.Settings.Cbt.TriangleAreaPixels,
         static_cast<float>(input.View.DrawableWidth),
         static_cast<float>(input.View.DrawableHeight),
         0.0F,
@@ -1234,7 +1234,7 @@ bool D3D12CbtFramePipeline::RecordFrame(
     // ModifiedOnly 消费本帧 compact modified list，FullDebug 重算 compact active list
     // 两种模式写相同 vertex ABI，区别只在调度规模和调试覆盖范围
     const bool fullGeometry =
-        input.Settings.CbtGeometryMode == TerrainLodCbtGeometryMode::FullDebug;
+        input.Settings.Cbt.GeometryMode == TerrainLodCbtGeometryMode::FullDebug;
     commandList->SetPipelineState(fullGeometry ? _geometry.ActivePipeline() : _geometry.ModifiedPipeline());
     commandList->ExecuteIndirect(
         _dispatchCommandSignature.Get(),

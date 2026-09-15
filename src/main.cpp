@@ -7,6 +7,9 @@
 #include "benchmark/TerrainLodBenchmark.h"
 #include "benchmark/TransactionalPlatformProbe.h"
 #include "benchmark/TransactionalPlatformReplay.h"
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+#include "benchmark/cbt_2024/CbtPlatformCheck.h"
+#endif
 #if defined(PARALLEL_ROAM_EXPERIMENT_INFRASTRUCTURE)
 #include "benchmark/experiment/ExperimentPlatformReplay.h"
 #include "benchmark/experiment/ExperimentCameraTools.h"
@@ -62,6 +65,13 @@ int main(int argc, char** argv)
         break;
     case ParallelRoam::App::ApplicationLaunchMode::TransactionalPlatformCheck:
         return ParallelRoam::Benchmark::RunTransactionalPlatformCheck();
+    case ParallelRoam::App::ApplicationLaunchMode::CbtPlatformCheck:
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+        return ParallelRoam::Benchmark::RunCbtPlatformCheck(argc, argv);
+#else
+        std::cerr << "CBT platform check requires the enabled D3D12 reference\n";
+        return 2;
+#endif
     case ParallelRoam::App::ApplicationLaunchMode::TransactionalPlatformReplay:
         return ParallelRoam::Benchmark::RunTransactionalPlatformReplay(argc, argv);
     }
