@@ -23,6 +23,12 @@ struct SingleHeightFitInterval
 class TransactionalCertification
 {
 public:
+    /// <summary>
+    /// 由旧支持见证生成原微像素进展目标；空字符串表示目标可用
+    /// 不拟合高度，净零连接修复也使用相同的见证与舍入规则
+    /// </summary>
+    static std::string SetProgressTarget(const TransactionalState& state,const TransactionalSamples& samples,
+        Proposal& proposal,WorkLedger& work);
     static std::string Fit(const TransactionalState& state, const TransactionalSamples& samples,
         Proposal& proposal, WorkLedger& work, SingleHeightFitInterval* interval = nullptr);
     static bool Measure(const TransactionalState& state, const TransactionalSamples& samples,

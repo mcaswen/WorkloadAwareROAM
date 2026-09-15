@@ -17,6 +17,8 @@ struct TransactionalLodSettings
     bool HeightGuard{};
     // 保留旧点高度只限制拟合自由度，不保证重连后的内部曲面误差
     bool PreserveSurvivingHeights{};
+    // 原目录全形状失败时尝试净零翻边，仍采用当前视图的进展认证
+    bool EnableFlipRecovery{};
     bool operator==(const TransactionalLodSettings&) const = default;
 };
 }

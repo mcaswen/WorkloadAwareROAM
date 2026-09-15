@@ -2,6 +2,7 @@
 #include "profiling/CpuProfiling.h"
 #include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
 #include "algorithms/greedy_transactional_lod/TransactionalProposals.h"
+#include "algorithms/greedy_transactional_lod/TransactionalFlipRecovery.h"
 
 #include <algorithm>
 #include <optional>
@@ -73,14 +74,23 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
                 batch.Attempts[index].emplace_back(proposal.Kind,reason);
                 if (reason=="certified") { proposal.Reason=reason;certified[index]=std::move(proposal);break; }
             }
+            // 只处理目录能力的形状死端；认证、预算或冲突失败不能借此换策略
+            const auto& attempts=batch.Attempts[index];
+            if (!certified[index] && state.Config().EnableFlipRecovery && !attempts.empty() &&
+                std::all_of(attempts.begin(),attempts.end(),[](const auto& item) { return item.second=="shape_infeasible"; }))
+            {
+                certified[index]=TransactionalFlipRecovery::FirstCertified(state,samples,root,local,batch.Attempts[index]);
+                reason=certified[index] ? "flip_certified" : "flip_exhausted";
+            }
         }
     });
     // 完成顺序不参与优先预留，仍按同一全局前缀收集成功项
     for (auto& proposal : certified) if (proposal) receivers.push_back(std::move(*proposal));
-    batch.Examined=prefix.size();batch.Receivers=receivers.size();
+    batch.Examined=prefix.size();
+    batch.Receivers=static_cast<std::size_t>(std::count_if(receivers.begin(),receivers.end(),[](const auto& p) { return p.Kind!='R'; }));
     // 共同接收集合先完成，预算与 donor 不能改变前端需求的人口
     const auto credits=(state.Config().Budget-state.FaceCount())/2;
-    batch.AssignedCredits=std::min(credits,receivers.size());batch.Need=receivers.size()-batch.AssignedCredits;
+    batch.AssignedCredits=std::min(credits,batch.Receivers);batch.Need=batch.Receivers-batch.AssignedCredits;
     auto start=Clock::now();batch.PoolIds=samples.DonorPool(state.Config().DonorLimit,&work);
     work.Seconds["donor_order"]+=Seconds(start);
     std::vector<Proposal> cache(batch.Need ? batch.PoolIds.size() : 0);
@@ -95,13 +105,25 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
     start=Clock::now();
     {
         ROAM_CPU_ZONE("gtp.reservation");
+        std::size_t refinementOrdinal=0;
         for (std::size_t i=0;i<receivers.size();++i)
         {
             const auto& receiver=receivers[i];const auto rf=Footprint(state,receiver);++work.FootprintBuilds;
             const auto blocked=[&](const TransactionFootprint& footprint) {
                 return std::any_of(reserved.begin(),reserved.end(),[&](const auto& other) { return Conflict(footprint,other); });
             };
-            if (i<batch.AssignedCredits)
+            if (receiver.Kind=='R')
+            {
+                // 沿混合全局顺序占资源；净零修复不命名、不消费也不回流额度
+                if (!blocked(rf))
+                {
+                    batch.Exchanges.push_back({receiver,{},false,ExchangeKind::ConnectivityRepair});
+                    reserved.push_back(rf);++batch.FlipExecuted;
+                }
+                else ++work.FlipConflicts;
+                continue;
+            }
+            if (refinementOrdinal++<batch.AssignedCredits)
             {
                 if (state.Config().HeightGuard && !TransactionalCertification::PreservesHeight(state,samples,receiver,nullptr,work))
                     continue;

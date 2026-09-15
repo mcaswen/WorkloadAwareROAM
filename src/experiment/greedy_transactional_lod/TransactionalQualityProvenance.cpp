@@ -140,7 +140,7 @@ void WritePatch(std::ostream& out,const TransactionalState& state,const Transact
     else out<<"null";
     out<<",\"newPoint\":";
     auto unfitted=proposal;
-    if (proposal.Kind!='D')
+    if (proposal.Kind!='D' && proposal.Kind!='R')
     {
         const auto& p=proposal.Points.at(proposal.NewVertex);
         const double initial=CurrentHeight(state,p,proposal.Root);
@@ -192,6 +192,8 @@ void Recovery(std::ostream& out,std::size_t frame,std::size_t witness,const Tran
     out<<']';
     const auto chosen=std::find_if(batch.Exchanges.begin(),batch.Exchanges.end(),[&](const auto& e) { return e.Receiver.Root==root; });
     if (chosen!=batch.Exchanges.end()) { out<<",\"selected\":true}\n";return; }
+    if (batch.IntentResults[index]=="flip_certified")
+    { out<<",\"selected\":false,\"flipConflict\":true}\n";return; }
     if (batch.IntentResults[index]!="certified") { out<<",\"selected\":false}\n";return; }
 
     WorkLedger work;work.VisitLimit=100000000;
@@ -316,7 +318,7 @@ void TransactionalQualityProvenance::Before(std::size_t frame,const State& state
             {
                 if (!first) _transactions<<',';first=false;
                 _transactions<<"["<<id<<','<<point.U<<','<<point.V<<',';
-                if (id==p->NewVertex && p->Kind!='D') _transactions<<"null";else _transactions<<state.Vertex(id).Geometry.Height;
+                if (id==p->NewVertex && p->Kind!='D' && p->Kind!='R') _transactions<<"null";else _transactions<<state.Vertex(id).Geometry.Height;
                 _transactions<<','<<point.Height<<']';
             }
             _transactions<<"],\"support\":[";
@@ -335,8 +337,15 @@ void TransactionalQualityProvenance::Before(std::size_t frame,const State& state
                 Number(_transactions,Error(state.Config(),q,ref,*next));_transactions<<'}';
             }
             _transactions<<']';
-            if (_points.size()>Witnesses.size() && ReplacementHeight(*p,_points.back()))
+            if (p->Kind=='R' || (_points.size()>Witnesses.size() && ReplacementHeight(*p,_points.back())))
                 WritePatch(_transactions,state,samples,*p,_points.back());
+            if (p->Kind=='R')
+            {
+                // 翻回按四点和边连接识别，动态分配的面身份只作为追溯附注
+                _transactions<<",\"matrix\":[";
+                for (std::size_t j=0;j<16;++j) { if (j) _transactions<<',';_transactions<<state.Config().Matrix[j]; }
+                _transactions<<']';
+            }
             _transactions<<"}\n";
         }
     }

@@ -2,6 +2,7 @@
 #include "profiling/CpuProfiling.h"
 #include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalFlipRecovery.h"
 
 #include <algorithm>
 #include <set>
@@ -57,7 +58,14 @@ PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const Ce
     };
     for (const auto& exchange : batch.Exchanges)
     {
-        if (exchange.Receiver.Faces.size()!=exchange.Receiver.Support.size()+2)
+        if (exchange.Kind==ExchangeKind::ConnectivityRepair)
+        {
+            if (exchange.HasDonor || !state.Config().EnableFlipRecovery ||
+                !TransactionalFlipRecovery::IsUnchangedGeometryFlip(state,exchange.Receiver))
+                throw std::runtime_error("净零翻边的类型或固定几何证书不一致");
+        }
+        else if (exchange.Kind!=ExchangeKind::Refinement || exchange.Receiver.Kind=='R' ||
+            exchange.Receiver.Faces.size()!=exchange.Receiver.Support.size()+2)
             throw std::runtime_error("接收方预算证书不一致");
         collect(exchange.Receiver,false);
         if (exchange.HasDonor)

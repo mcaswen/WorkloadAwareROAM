@@ -1,5 +1,6 @@
 #include "benchmark/TransactionalPlatformReplay.h"
 #include "benchmark/TransactionalPlatformProtocol.h"
+#include "benchmark/experiment/ExperimentVisualArtifacts.h"
 #include "algorithms/TerrainLodAlgorithmRegistry.h"
 #include "experiment/formal/FormalExperimentCamera.h"
 #include "experiment/mesh_quality/PlatformMeshArtifact.h"
@@ -30,7 +31,7 @@ int RunTransactionalPlatformReplay(int argc,char** argv)
         renderer.Shutdown();if (graphics) graphics->Shutdown();window.Destroy(); };
     try
     {
-        Require(argc==7 && std::string_view(argv[1])=="--transactional-platform-replay",
+        Require((argc==7 || argc==8) && std::string_view(argv[1])=="--transactional-platform-replay",
             "Usage: --transactional-platform-replay test129|peking classic|dod|transactional 1|8 OUTPUT normal|export|normal-immutable|export-immutable");
         const bool peking=std::string_view(argv[2])=="peking";
         Require(peking || std::string_view(argv[2])=="test129","Unknown frozen input");
@@ -38,8 +39,11 @@ int RunTransactionalPlatformReplay(int argc,char** argv)
         const std::string_view threads(argv[4]);Require(threads=="1" || threads=="8","Workers must be 1 or 8");
         const std::size_t workers=threads=="1" ? 1 : 8;
         const std::filesystem::path output(argv[5]);const std::string_view mode(argv[6]);
-        const bool immutable=mode=="normal-immutable" || mode=="export-immutable";
-        const bool exporting=mode=="export" || mode=="export-immutable";
+        const bool visual=mode=="visual-immutable";
+        const bool immutable=mode=="normal-immutable" || mode=="export-immutable" || visual;
+        const bool exporting=mode=="export" || mode=="export-immutable" || visual;
+        const bool flipRecovery=argc==8;
+        Require(!flipRecovery || (std::string_view(argv[7])=="--flip-recovery" && immutable),"Flip recovery requires immutable replay");
         Require(exporting || mode=="normal" || mode=="normal-immutable","Unknown replay mode");
         Require(!immutable || *id==Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod,"Height policy requires transactional algorithm");
         Require(!std::filesystem::exists(output),"Refusing to overwrite replay output");
@@ -57,6 +61,7 @@ int RunTransactionalPlatformReplay(int argc,char** argv)
         settings.RoamScreenSpaceMergeThresholdPixels=peking ? .10F : 2.0F;
         settings.Transactional.WorkerCount=workers;
         settings.Transactional.PreserveSurvivingHeights=immutable;
+        settings.Transactional.EnableFlipRecovery=flipRecovery;
         settings.Transactional.PrefixLimit=settings.Transactional.DonorLimit=peking ? 160 : 64;
         auto& policy=settings.RoamPassPolicy;
         policy.SplitScoreWorkerCount=policy.MergeScoreWorkerCount=policy.SplitTopologyWorkerCount=
@@ -68,14 +73,16 @@ int RunTransactionalPlatformReplay(int argc,char** argv)
         std::ofstream meta(output/"environment.txt");meta<<std::setprecision(17)
             <<"backend="<<graphics->Name()<<"\nadapter="<<graphics->AdapterName()<<"\nversion="<<graphics->VersionString()
             <<"\nsetupMs="<<Ms(setup)<<"\nasset="<<asset<<"\nworkers="<<workers<<"\nmode="<<argv[6]
-            <<"\npreserveSurvivingHeights="<<immutable<<'\n';
+            <<"\npreserveSurvivingHeights="<<immutable<<"\nenableFlipRecovery="<<flipRecovery<<'\n';
         std::ofstream csv(output/"frames.csv");csv.exceptions(std::ios::badbit|std::ios::failbit);csv<<std::setprecision(17);
-        csv<<"frame,sample,ok,faces,sequence,hash,cpuMs,uploadMs,uploadBytes,beginMs,waitMs,renderMs,presentMs,frameMs,gpuDelayedMs,split,merge,status,updated,cold,seedFaces,samples,raw,examined,receivers,need,feasible,exchanges,free,pairs,conflicts,donorReuse,touches,evaluations,vertexWrites,indexWrites,seedMs,initializeMs,viewMs,receiverMs,donorMs,reservationMs,topologyPrepareMs,topologyPublishMs,sampleRepairMs,meshPrepareMs,continuationMs,adapterMs\n";
+        csv<<"frame,sample,ok,faces,sequence,hash,cpuMs,uploadMs,uploadBytes,beginMs,waitMs,renderMs,presentMs,frameMs,gpuDelayedMs,split,merge,status,updated,cold,seedFaces,samples,raw,examined,receivers,need,feasible,exchanges,free,pairs,conflicts,donorReuse,touches,evaluations,vertexWrites,indexWrites,seedMs,initializeMs,viewMs,receiverMs,donorMs,reservationMs,topologyPrepareMs,topologyPublishMs,sampleRepairMs,meshPrepareMs,continuationMs,adapterMs,flipTriggered,flipAttempts,flipCertified,flipConflicts,flips\n";
         const std::size_t count=graphics->UsesZeroToOneDepth() ? 8 : PlatformReplayViews.size();
         for (std::size_t i=0;i<count;++i)
         {
             SDL_Event event;while (SDL_PollEvent(&event)) Require(event.type!=SDL_QUIT,"Replay window closed");
             const auto view=PlatformReplayCamera(peking,PlatformReplayViews[i],graphics->UsesZeroToOneDepth());
+            const bool capture=visual && (i==0 || i==7 || i==8 || i==15 || i==16 || i==23);
+            if (capture) Require(graphics->RequestFrameCapture(i),"Frame capture refused");
             renderer.RequestMeshRebuild();const auto frame=Clock::now();auto part=Clock::now();graphics->BeginFrame();
             const double beginMs=Ms(part),waitMs=graphics->LastGpuWaitMilliseconds();
             const bool ok=renderer.UpdateForView(view,&error);part=Clock::now();renderer.Render(view);
@@ -98,7 +105,7 @@ int RunTransactionalPlatformReplay(int argc,char** argv)
                 const bool transactional=*id==Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod;
                 Require(transactional ? orientation<0 : orientation>0,"Float face inverted or collapsed");
             }
-            const auto hash=Experiment::MeshQuality::PlatformMeshHash(*mesh);
+            const auto hash=::ParallelRoam::Experiment::MeshQuality::PlatformMeshHash(*mesh);
             const auto t=stats.RoamLodStats.Transactional.value_or(Algorithms::TransactionalLodStats{});
             csv<<i<<','<<PlatformReplayViews[i]<<','<<ok<<','<<stats.TriangleCount<<','<<stats.RoamBuildSequence<<','<<hash
                 <<','<<stats.RoamUpdateMilliseconds<<','<<stats.RoamCpuUploadMilliseconds<<','<<stats.RoamCpuGpuUploadBytes
@@ -109,11 +116,17 @@ int RunTransactionalPlatformReplay(int argc,char** argv)
                 <<','<<t.Conflicts<<','<<t.DonorReuse<<','<<t.SampleTouches<<','<<t.SampleEvaluations<<','<<t.VertexWrites<<','<<t.IndexWrites
                 <<','<<t.SeedMilliseconds<<','<<t.InitializeMilliseconds<<','<<t.ViewMilliseconds<<','<<t.ReceiverMilliseconds
                 <<','<<t.DonorMilliseconds<<','<<t.ReservationMilliseconds<<','<<t.TopologyPrepareMilliseconds<<','<<t.TopologyPublishMilliseconds
-                <<','<<t.SampleRepairMilliseconds<<','<<t.MeshPrepareMilliseconds<<','<<t.ContinuationPublishMilliseconds<<','<<t.AdapterMilliseconds<<'\n';
+                <<','<<t.SampleRepairMilliseconds<<','<<t.MeshPrepareMilliseconds<<','<<t.ContinuationPublishMilliseconds<<','<<t.AdapterMilliseconds
+                <<','<<t.FlipTriggered<<','<<t.FlipAttempts<<','<<t.FlipCertified<<','<<t.FlipConflicts<<','<<t.FlipExecuted<<'\n';
             csv.flush();
             if (exporting && (i==0 || i==2 || i==15 || i==16 || i==23))
-                Experiment::MeshQuality::WritePlatformMesh(output/("mesh-"+std::to_string(i)+".bin"),*mesh,
+                ::ParallelRoam::Experiment::MeshQuality::WritePlatformMesh(output/("mesh-"+std::to_string(i)+".bin"),*mesh,
                     view.Projection*view.View,1280,720,view.UsesZeroToOneDepth);
+            if (capture)
+            {
+                const auto pixels=graphics->TakeFrameCapture();Require(pixels.has_value(),"Frame capture missing");
+                Benchmark::Experiment::WriteCapturedFrame(output/("frame-"+std::to_string(i)+".ppm"),*pixels);
+            }
             Require(ok,"Update failed: "+error);
         }
         cleanup();return 0;

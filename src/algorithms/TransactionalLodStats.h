@@ -26,6 +26,8 @@ struct TransactionalLodStats
     std::size_t RawCandidates{}, Examined{}, Receivers{}, Need{}, Feasible{}, Exchanges{}, FreeExecuted{};
     std::uint64_t PairChecks{}, Conflicts{}, DonorReuse{}, SampleTouches{}, SampleEvaluations{};
     std::uint64_t VertexWrites{}, IndexWrites{}, SourceBytes{};
+    std::size_t FlipExecuted{};
+    std::uint64_t FlipTriggered{}, FlipAttempts{}, FlipCertified{}, FlipConflicts{};
     double SeedMilliseconds{}, InitializeMilliseconds{}, ViewMilliseconds{};
     double ReceiverMilliseconds{}, DonorMilliseconds{}, ReservationMilliseconds{};
     double TopologyPrepareMilliseconds{}, TopologyPublishMilliseconds{}, SampleRepairMilliseconds{};

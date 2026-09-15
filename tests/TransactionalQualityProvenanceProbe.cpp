@@ -5,6 +5,8 @@
 #include "experiment/mesh_quality/PlatformMeshArtifact.h"
 #include "algorithms/greedy_transactional_lod/TransactionalSeedBuilder.h"
 #include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
+#include "algorithms/greedy_transactional_lod/TransactionalFlipRecovery.h"
+#include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
 #include "algorithms/greedy_transactional_lod/TransactionalStateInvariant.h"
 #include "algorithms/TerrainLodView.h"
 #include "tools/CpuTaskExecutor.h"
@@ -49,7 +51,10 @@ int main(int argc,char** argv)
         const bool fitAudit=argc>next && std::string_view(argv[next])=="--fit-audit";
         const bool recoveryAudit=argc>next && std::string_view(argv[next])=="--recovery-audit";
         if (fitAudit || recoveryAudit) ++next;
-        if (argc!=next) throw std::runtime_error("Unknown provenance arguments");
+        const bool flipRecovery=argc>next && std::string_view(argv[next])=="--flip-recovery";
+        if (flipRecovery) ++next;
+        if (argc!=next || (flipRecovery && (!immutable || fitAudit || recoveryAudit)))
+            throw std::runtime_error("Unknown or incompatible provenance arguments");
         if ((fitAudit || recoveryAudit) && (!immutable || !additionalWitness || additionalWitness->U!=.97985345125198364 ||
             additionalWitness->V!=.94871795177459717)) throw std::runtime_error("Local audit requires immutable and the frozen residual witness");
         const std::filesystem::path output(argv[1]);
@@ -62,6 +67,7 @@ int main(int argc,char** argv)
         s.ScreenSpaceSplitThresholdPixels=.25F;s.ScreenSpaceMergeThresholdPixels=.10F;
         s.Transactional.WorkerCount=8;s.Transactional.PrefixLimit=s.Transactional.DonorLimit=160;
         s.Transactional.PreserveSurvivingHeights=immutable;
+        s.Transactional.EnableFlipRecovery=flipRecovery;
         // 与平台共用公共种子，不通过旧轨迹重放获得后续目标
         auto seed=TransactionalSeedBuilder::Build(input);
         Tools::CpuTaskExecutor executor(8);
@@ -69,11 +75,17 @@ int main(int argc,char** argv)
         TransactionalPipeline pipeline(std::move(seed),execution);
         TransactionalStateInvariant::Validate(pipeline.State());
         WorkLedger initialize;pipeline.Initialize(initialize);
+        std::ofstream seedIdentity(output/"seed.json");seedIdentity<<"{\"hash\":"
+            <<Experiment::MeshQuality::PlatformMeshHash(pipeline.Mesh())<<",\"faces\":"<<pipeline.State().FaceCount()<<"}\n";
         input.View=View(15);const auto future=TransactionalSeedBuilder::ConfigurationFor(input);
         input.View=View(16);const auto returned=TransactionalSeedBuilder::ConfigurationFor(input);
         Experiment::GreedyTransactionalLod::TransactionalQualityProvenance audit(output,future,returned,additionalWitness);
         std::ofstream frames(output/"frames.csv");frames.exceptions(std::ios::badbit|std::ios::failbit);
-        frames<<std::setprecision(17)<<"frame,sample,hash,faces,raw,examined,receivers,need,feasible,exchanges,free,pairs,conflicts,donorReuse\n";
+        frames<<std::setprecision(17)<<"frame,sample,hash,faces,raw,examined,receivers,need,feasible,exchanges,free,pairs,conflicts,donorReuse";
+        if (flipRecovery) frames<<",flipTriggered,flipAttempts,flipCertified,flipConflicts,flips,touches,receiverMs,flipTaskWallMs";
+        frames<<'\n';
+        std::ofstream flipReasons;
+        if (flipRecovery) { flipReasons.open(output/"flip-reasons.csv");flipReasons<<"frame,reason,count\n"; }
         for (std::size_t frame=0;frame<Benchmark::PlatformReplayViews.size();++frame)
         {
             WorkLedger work;work.Deadline=std::chrono::steady_clock::now()+std::chrono::seconds(180);
@@ -88,14 +100,46 @@ int main(int argc,char** argv)
             }
             if (recoveryAudit && frame==8)
                 Experiment::GreedyTransactionalLod::TransactionalRecoveryAudit::Run(pipeline.State(),pipeline.Samples(),future,*additionalWitness,output);
+            if (!flipRecovery && !fitAudit && !recoveryAudit && immutable && additionalWitness && frame==8)
+            {
+                // 冻结局部案例只核对生产目标和既有离线证据，不修改真实 B 批次
+                const auto& state=pipeline.State();Slot root=InvalidSlot;
+                for (auto slot : state.ActiveFaces()) if (state.Face(slot).Id==-111) root=slot;
+                if (root==InvalidSlot) throw std::runtime_error("Frozen flip root missing");
+                auto p=TransactionalFlipRecovery::Construct(state,root,EdgeKey(-583186,3));WorkLedger local;
+                if (!p.Reason.empty()) throw std::runtime_error("Frozen flip construction differs");
+                p.Samples=pipeline.Samples().VisibleSupport(p.Support);
+                const auto target=TransactionalCertification::SetProgressTarget(state,pipeline.Samples(),p,local);
+                const bool measured=TransactionalCertification::Measure(state,pipeline.Samples(),p,local);
+                const bool accepted=target.empty() && measured && TransactionalCertification::Accepts(state,pipeline.Samples(),p,p.TargetMicropixels,local);
+                std::ofstream check(output/"flip-correspondence.json");check<<std::setprecision(17)
+                    <<"{\"targetMicropixels\":"<<p.TargetMicropixels<<",\"samples\":"<<p.Samples.size()
+                    <<",\"accepted\":"<<(accepted ? "true" : "false")<<",\"errorUpperSquared\":"<<p.ErrorUpper<<"}\n";
+                if (!accepted || p.TargetMicropixels!=1338413) throw std::runtime_error("Frozen flip target differs from audited evidence");
+            }
             // 批次已冻结后再观测，额外诊断不能影响本批成员
             audit.Before(frame,pipeline.State(),pipeline.Samples(),batch);
+            const auto oldCount=pipeline.State().FaceCount();
             pipeline.Apply(batch,work);static_cast<void>(pipeline.ConsumeMesh());
+            if (pipeline.State().FaceCount()!=oldCount+2*batch.FreeExecuted ||
+                batch.AssignedCredits!=std::min((s.TriangleBudget-oldCount)/2,batch.Receivers))
+                throw std::runtime_error("Mixed reservation changed named budget semantics");
             audit.After(frame,pipeline.State(),pipeline.Samples());
             const auto hash=Experiment::MeshQuality::PlatformMeshHash(pipeline.Mesh());
             frames<<frame<<','<<Benchmark::PlatformReplayViews[frame]<<','<<hash<<','<<pipeline.State().FaceCount()
                 <<','<<batch.Raw<<','<<batch.Examined<<','<<batch.Receivers<<','<<batch.Need<<','<<batch.Feasible
-                <<','<<batch.Executed<<','<<batch.FreeExecuted<<','<<work.PairChecks<<','<<work.Conflicts<<','<<work.DonorReuse<<'\n';
+                <<','<<batch.Executed<<','<<batch.FreeExecuted<<','<<work.PairChecks<<','<<work.Conflicts<<','<<work.DonorReuse;
+            if (flipRecovery)
+            {
+                frames<<','<<work.FlipTriggered<<','<<work.FlipAttempts<<','<<work.FlipCertified<<','<<work.FlipConflicts
+                    <<','<<batch.FlipExecuted<<','<<work.SampleTouches<<','<<work.Seconds["receiver_stage"]*1000
+                    <<','<<work.Seconds["task_wall_sum_flip_recovery"]*1000;
+                for (const auto& [reason,count] : work.Reasons)
+                    if (reason.starts_with("flip_")) flipReasons<<frame<<','<<reason<<','<<count<<'\n';
+                if (batch.Exchanges.size()!=batch.Executed+batch.FreeExecuted+batch.FlipExecuted)
+                    throw std::runtime_error("Mixed transaction counters differ");
+            }
+            frames<<'\n';
             frames.flush();
             std::cout<<"frame="<<frame<<" exchanges="<<batch.Executed<<" hash="<<hash<<'\n';
             if (frame==0 || frame==2 || frame==15 || frame==16 || frame==23)

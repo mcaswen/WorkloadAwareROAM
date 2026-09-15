@@ -32,6 +32,8 @@ void TransactionalRenderBridge::Account(const WorkLedger& work,const CertifiedBa
     stats.PairChecks=work.PairChecks;stats.Conflicts=work.Conflicts;stats.DonorReuse=work.DonorReuse;
     stats.SampleTouches=work.SampleTouches;stats.SampleEvaluations=work.SampleEvaluations;
     stats.VertexWrites=work.MeshVertices;stats.IndexWrites=work.MeshIndices;
+    stats.FlipExecuted=batch.FlipExecuted;stats.FlipTriggered=work.FlipTriggered;stats.FlipAttempts=work.FlipAttempts;
+    stats.FlipCertified=work.FlipCertified;stats.FlipConflicts=work.FlipConflicts;
     const auto ms=[&](const char* key) { const auto it=work.Seconds.find(key);return it==work.Seconds.end() ? 0.0 : it->second*1000; };
     stats.ViewMilliseconds=ms("view_refresh");stats.ReceiverMilliseconds=ms("receiver_stage");
     stats.DonorMilliseconds=ms("donor_stage");stats.ReservationMilliseconds=ms("reservation");

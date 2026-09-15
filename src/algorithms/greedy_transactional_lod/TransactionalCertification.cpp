@@ -279,15 +279,9 @@ bool TransactionalCertification::Accepts(const TransactionalState& state,const T
     return true;
 }
 
-std::string TransactionalCertification::Fit(const TransactionalState& state,const TransactionalSamples& samples,
-    Proposal& proposal,WorkLedger& work,SingleHeightFitInterval* interval)
+std::string TransactionalCertification::SetProgressTarget(const TransactionalState& state,const TransactionalSamples& samples,
+    Proposal& proposal,WorkLedger& work)
 {
-    ROAM_CPU_ZONE("gtp.fit");
-    if (interval) *interval={};
-    work.CheckLimit();++work.Proposals;
-    for (const auto& face : proposal.Faces)
-        if (!TransactionalPredicates::Shape(proposal.Points.at(face[0]),proposal.Points.at(face[1]),proposal.Points.at(face[2])))
-            return "shape_infeasible";
     if (proposal.Samples.empty()) return "no_screen_samples";
     auto witness=proposal.Samples.front();
     // 浮点评价只选择见证，实际阈值由该见证的精确旧误差向下取整
@@ -300,6 +294,20 @@ std::string TransactionalCertification::Fit(const TransactionalState& state,cons
     if (root>std::numeric_limits<std::int64_t>::max()) return "numeric_unknown";
     proposal.TargetMicropixels=root.convert_to<std::int64_t>()-10000;
     if (proposal.TargetMicropixels<0) return "below_progress_margin";
+    return {};
+}
+
+std::string TransactionalCertification::Fit(const TransactionalState& state,const TransactionalSamples& samples,
+    Proposal& proposal,WorkLedger& work,SingleHeightFitInterval* interval)
+{
+    ROAM_CPU_ZONE("gtp.fit");
+    if (interval) *interval={};
+    work.CheckLimit();++work.Proposals;
+    for (const auto& face : proposal.Faces)
+        if (!TransactionalPredicates::Shape(proposal.Points.at(face[0]),proposal.Points.at(face[1]),proposal.Points.at(face[2])))
+            return "shape_infeasible";
+    const auto reason=SetProgressTarget(state,samples,proposal,work);
+    if (!reason.empty()) return reason;
     const double target=static_cast<double>(proposal.TargetMicropixels)/1000000;
     const auto& config=state.Config();
     const auto first=proposal.Points.at(proposal.Free[0]).Height;

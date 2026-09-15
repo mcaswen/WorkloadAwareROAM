@@ -55,6 +55,8 @@ struct Configuration
     bool HeightGuard{};
     // 新点仍按原规则拟合；旧点的高度在整个存活期保持不变
     bool PreserveSurvivingHeights{};
+    // 净零恢复只在固定旧点政策下开放，切换需要重新建立种子
+    bool EnableFlipRecovery{};
     bool UsesZeroToOneDepth{};
 };
 
@@ -94,6 +96,7 @@ struct WorkLedger
     std::uint64_t IndexBlocks{},IndexSlots{},IndexComparisons{},IndexQueryBlocks{};
     std::uint64_t ReceiverConstructed{},EvidenceLookups{},EvidenceHits{},EvidenceBuilds{},EvidenceBytes{},EvidenceFaceTests{};
     std::uint64_t FootprintBuilds{},DonorTouched{},DonorCertified{};
+    std::uint64_t FlipTriggered{}, FlipAttempts{}, FlipCertified{}, FlipConflicts{};
     std::uint64_t CandidateUpdates{}, DonorIndexUpdates{}, ReceiverCacheHits{}, DonorCacheHits{}, CacheInvalidations{}, RootObservations{};
     std::map<std::string, std::uint64_t> Reasons;
     std::map<std::string, double> Seconds;
@@ -140,13 +143,19 @@ struct Proposal
 };
 
 /// <summary>
-/// 认证后的接收方与可选回收方组成不可拆分的预算事务
+/// 净零连接修复不占细分额度，不能用是否携带 donor 推断事务种类
+/// </summary>
+enum class ExchangeKind { Refinement, ConnectivityRepair };
+
+/// <summary>
+/// 认证后的接收方与可选回收方组成不可拆分事务
 /// </summary>
 struct Exchange
 {
     Proposal Receiver;
     Proposal Donor;
     bool HasDonor{};
+    ExchangeKind Kind{ExchangeKind::Refinement};
 };
 
 /// <summary>
@@ -159,6 +168,7 @@ struct CertifiedBatch
     bool PairAuditComplete{true};
     std::size_t Raw{}, Examined{}, Receivers{}, Need{}, Feasible{}, Executed{}, FreeExecuted{};
     std::size_t AssignedCredits{}, UnusedCredits{};
+    std::size_t FlipExecuted{};
     std::vector<Identity> IntentIds, PoolIds;
     std::vector<std::string> IntentResults;
     std::vector<std::vector<std::pair<char,std::string>>> Attempts;

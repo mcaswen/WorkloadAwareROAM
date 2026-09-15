@@ -25,6 +25,8 @@ void TransactionalSeedBuilder::ValidateInput(const TerrainLodBuildInput& input)
         throw std::invalid_argument("事务化线程、前缀或配额不在支持范围");
     if (!input.View.DrawableWidth || !input.View.DrawableHeight)
         throw std::invalid_argument("零尺寸视图应暂停更新");
+    if (t.EnableFlipRecovery && (!t.PreserveSurvivingHeights || t.HeightGuard))
+        throw std::invalid_argument("翻边恢复需要固定旧点且关闭 HeightGuard");
     for (int col=0;col<4;++col) for (int row=0;row<4;++row)
         if (!std::isfinite(input.View.ViewProjection[col][row]))
             throw std::invalid_argument("视图矩阵包含非有限值");
@@ -38,6 +40,7 @@ Configuration TransactionalSeedBuilder::ConfigurationFor(const TerrainLodBuildIn
     c.PrefixLimit=s.Transactional.PrefixLimit;c.DonorLimit=s.Transactional.DonorLimit;
     c.HeightGuard=s.Transactional.HeightGuard;c.SampleVisitLimit=s.Transactional.SampleVisitLimit;
     c.PreserveSurvivingHeights=s.Transactional.PreserveSurvivingHeights;
+    c.EnableFlipRecovery=s.Transactional.EnableFlipRecovery;
     c.Width=v.DrawableWidth;c.Height=v.DrawableHeight;c.UsesZeroToOneDepth=v.UsesZeroToOneDepth;
     for (int row=0;row<4;++row) for (int col=0;col<4;++col)
         c.Matrix[static_cast<std::size_t>(row*4+col)]=v.ViewProjection[col][row];

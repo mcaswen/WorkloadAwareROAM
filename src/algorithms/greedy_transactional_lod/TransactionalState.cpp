@@ -17,6 +17,8 @@ void WorkLedger::Touch() { ++SampleTouches; CheckLimit(); }
 
 TransactionalState::TransactionalState(const InitialMesh& input) : _config(input.Config)
 {
+    if (_config.EnableFlipRecovery && (!_config.PreserveSurvivingHeights || _config.HeightGuard))
+        throw std::runtime_error("翻边恢复需要固定旧点且关闭 HeightGuard");
     if (_config.Budget < input.Faces.size() || input.Faces.empty() ||
         !std::isfinite(_config.TerrainSize) || !std::isfinite(_config.HeightScale) ||
         !(_config.TerrainSize > 0) || !(_config.HeightScale > 0) ||
