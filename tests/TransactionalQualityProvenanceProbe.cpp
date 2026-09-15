@@ -1,6 +1,7 @@
 #include "benchmark/TransactionalPlatformProtocol.h"
 #include "experiment/greedy_transactional_lod/TransactionalQualityProvenance.h"
 #include "experiment/greedy_transactional_lod/TransactionalFitCounterfactual.h"
+#include "experiment/greedy_transactional_lod/TransactionalRecoveryAudit.h"
 #include "experiment/mesh_quality/PlatformMeshArtifact.h"
 #include "algorithms/greedy_transactional_lod/TransactionalSeedBuilder.h"
 #include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
@@ -34,7 +35,7 @@ int main(int argc,char** argv)
 {
     try
     {
-        if (argc<2) throw std::runtime_error("Usage: quality-provenance-probe OUTPUT [immutable] [--witness U V] [--fit-audit]");
+        if (argc<2) throw std::runtime_error("Usage: quality-provenance-probe OUTPUT [immutable] [--witness U V] [--fit-audit|--recovery-audit]");
         int next=2;const bool immutable=argc>next && std::string_view(argv[next])=="immutable";
         if (immutable) ++next;
         std::optional<Point> additionalWitness;
@@ -46,10 +47,11 @@ int main(int argc,char** argv)
             next+=3;
         }
         const bool fitAudit=argc>next && std::string_view(argv[next])=="--fit-audit";
-        if (fitAudit) ++next;
+        const bool recoveryAudit=argc>next && std::string_view(argv[next])=="--recovery-audit";
+        if (fitAudit || recoveryAudit) ++next;
         if (argc!=next) throw std::runtime_error("Unknown provenance arguments");
-        if (fitAudit && (!immutable || !additionalWitness || additionalWitness->U!=.97985345125198364 ||
-            additionalWitness->V!=.94871795177459717)) throw std::runtime_error("Fit audit requires immutable and the frozen residual witness");
+        if ((fitAudit || recoveryAudit) && (!immutable || !additionalWitness || additionalWitness->U!=.97985345125198364 ||
+            additionalWitness->V!=.94871795177459717)) throw std::runtime_error("Local audit requires immutable and the frozen residual witness");
         const std::filesystem::path output(argv[1]);
         if (std::filesystem::exists(output)) throw std::runtime_error("Refusing provenance overwrite");
         std::filesystem::create_directories(output);
@@ -84,6 +86,8 @@ int main(int argc,char** argv)
                 Experiment::GreedyTransactionalLod::TransactionalFitCounterfactual::Run(pipeline.State(),pipeline.Samples(),
                     batch.Exchanges.front().Receiver,future,returned,*additionalWitness,output);
             }
+            if (recoveryAudit && frame==8)
+                Experiment::GreedyTransactionalLod::TransactionalRecoveryAudit::Run(pipeline.State(),pipeline.Samples(),future,*additionalWitness,output);
             // 批次已冻结后再观测，额外诊断不能影响本批成员
             audit.Before(frame,pipeline.State(),pipeline.Samples(),batch);
             pipeline.Apply(batch,work);static_cast<void>(pipeline.ConsumeMesh());

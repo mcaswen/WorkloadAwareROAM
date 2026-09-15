@@ -21,21 +21,30 @@ if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
         parallel_roam_project_options ParallelROAM::GLM ParallelROAM::STB Threads::Threads)
     add_executable(parallel_roam_transactional_quality_provenance_probe TransactionalQualityProvenanceProbe.cpp
         ../src/experiment/greedy_transactional_lod/TransactionalQualityProvenance.cpp
-        ../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp)
+        ../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalRecoveryAudit.cpp)
     target_link_libraries(parallel_roam_transactional_quality_provenance_probe PRIVATE
         parallel_roam_transactional_lod_adapter parallel_roam_transactional_adapter_test_support parallel_roam_project_warnings)
     add_executable(parallel_roam_transactional_fit_counterfactual_tests TransactionalFitCounterfactualTests.cpp
         ../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp)
     target_link_libraries(parallel_roam_transactional_fit_counterfactual_tests PRIVATE
         parallel_roam_transactional_lod_core parallel_roam_project_warnings)
+    add_executable(parallel_roam_transactional_recovery_audit_tests TransactionalRecoveryAuditTests.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalRecoveryAudit.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp)
+    target_link_libraries(parallel_roam_transactional_recovery_audit_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_project_warnings)
     if(MSVC)
         set_source_files_properties(../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp
+            ../src/experiment/greedy_transactional_lod/TransactionalRecoveryAudit.cpp
             PROPERTIES COMPILE_OPTIONS /fp:strict)
     else()
         set_source_files_properties(../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp
+            ../src/experiment/greedy_transactional_lod/TransactionalRecoveryAudit.cpp
             PROPERTIES COMPILE_OPTIONS "-fno-fast-math;-ffp-contract=off")
     endif()
     add_test(NAME transactional_fit_counterfactual COMMAND parallel_roam_transactional_fit_counterfactual_tests)
+    add_test(NAME transactional_recovery_audit COMMAND parallel_roam_transactional_recovery_audit_tests)
     add_executable(parallel_roam_transactional_height_policy_tests TransactionalHeightPolicyTests.cpp)
     target_link_libraries(parallel_roam_transactional_height_policy_tests PRIVATE
         parallel_roam_transactional_lod_adapter parallel_roam_transactional_adapter_test_support parallel_roam_project_warnings)
