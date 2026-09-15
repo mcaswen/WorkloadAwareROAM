@@ -3,3 +3,6 @@ benchmark-output/** linguist-generated=true
 
 # 冻结相机按原始字节计算内容身份，不转换换行
 configs/experiments/cameras/frozen/*.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# 旧PPM材质也按原始文件哈希归档，禁止Git文本转换
+assets/textures/Tex_Terrain_Debug_Diffuse.ppm binary

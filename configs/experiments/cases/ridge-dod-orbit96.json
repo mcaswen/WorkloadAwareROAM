@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "ridge-dod-orbit96",
+  "terrain": "generated-ridge",
+  "algorithm": "dod",
+  "heightPolicy": "fit",
+  "camera": "overview-orbit",
+  "material": "neutral",
+  "mode": "timing",
+  "prefix": "scaled",
+  "budget": 50000,
+  "workers": 8,
+  "maxDepth": 20,
+  "viewWidth": 1280,
+  "viewHeight": 720,
+  "splitPixels": 4,
+  "mergePixels": 2,
+  "backend": "opengl",
+  "warmup": 3,
+  "captureStride": 8,
+  "maxFrames": 96
+}

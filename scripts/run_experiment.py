@@ -43,8 +43,18 @@ def main():
     report = sub.add_parser("report",help="由analysis制作图表/HTML/Markdown")
     report.add_argument("--analysis",type=Path,required=True)
     report.add_argument("--output",type=Path,required=True)
+    suite = sub.add_parser("suite",help="展开有限矩阵清单，不执行")
+    suite.add_argument("--case",type=Path,required=True)
+    suite.add_argument("--output",type=Path,required=True)
+    suite.add_argument("--budgets",type=int,nargs="+",default=[50000])
+    suite.add_argument("--workers",type=int,nargs="+",default=[8])
+    suite.add_argument("--algorithms",choices=["classic","dod","transactional"],nargs="+",default=["transactional"])
+    suite.add_argument("--prefixes",choices=["fixed64","scaled"],nargs="+",default=["scaled"])
     args = parser.parse_args()
-    if args.command == "report":
+    if args.command == "suite":
+        from experiment_infrastructure.suite import expand
+        print(expand(args.case,args.output,args.budgets,args.workers,args.algorithms,args.prefixes))
+    elif args.command == "report":
         from experiment_infrastructure.report import build
         print(build(args.analysis,args.output))
     elif args.command == "analyze":
