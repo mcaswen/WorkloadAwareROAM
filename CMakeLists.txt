@@ -203,7 +203,8 @@ if(PARALLEL_ROAM_BUILD_APP)
             src/benchmark/experiment/ExperimentPlatformReplay.cpp src/benchmark/experiment/ExperimentVisualArtifacts.cpp
             src/benchmark/experiment/ExperimentCameraTools.cpp src/benchmark/experiment/ExperimentLegacyCameraExport.cpp
             src/benchmark/experiment/ExperimentCameraVisualReplay.cpp
-            src/benchmark/experiment/ExperimentReplay.cpp src/benchmark/experiment/ExperimentPlatformRun.cpp)
+            src/benchmark/experiment/ExperimentReplay.cpp src/benchmark/experiment/ExperimentPlatformRun.cpp
+            src/benchmark/experiment/CbtExperimentRecords.cpp)
     endif()
     add_executable(parallel_roam src/main.cpp ${PARALLEL_ROAM_APP_SOURCES})
     add_executable(ParallelROAM::app ALIAS parallel_roam)

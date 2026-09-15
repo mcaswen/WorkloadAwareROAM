@@ -125,6 +125,13 @@ def resolve_case(path: Path, root: Path = ROOT) -> dict:
         maxFrames=case.get("maxFrames",10000))
     if result["mergePixels"] > result["splitPixels"]:
         raise ValueError("merge阈值不能大于split阈值")
+    if case["algorithm"] == "cbt":
+        if case.get("backend") != "d3d12" or case["mode"] == "profile":
+            raise ValueError("CBT只接受D3D12平台实验")
+        if not math.isfinite(case["cbtArea"]) or case["cbtArea"] <= 0:
+            raise ValueError("CBT面积必须有限且为正")
+    elif any(key.startswith("cbt") for key in case):
+        raise ValueError("CPU实验不能携带CBT参数")
     return result
 
 

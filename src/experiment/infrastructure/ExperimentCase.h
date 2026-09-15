@@ -41,6 +41,12 @@ struct ExperimentCase
     float MaterialTiling{12}, MaterialTint{.35F};
     std::uint32_t CaptureStride{4}, Warmup{3}, MaxFrames{10000};
 
+    // CBT 使用面积与动态槽池，Budget 只保留 CPU 对照的分组标签
+    std::uint32_t CbtCapacity{131072U};
+    float CbtArea{50.0F};
+    std::string CbtValidation{"off"};
+    std::string CbtGeometry{"modified"};
+
     static ExperimentCase LoadResolved(const std::filesystem::path& path);
 };
 }

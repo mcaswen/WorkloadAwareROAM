@@ -1,5 +1,10 @@
 #include "benchmark/experiment/ExperimentReplay.h"
 #include "benchmark/experiment/ExperimentVisualArtifacts.h"
+#include "benchmark/experiment/CbtExperimentRecords.h"
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+#include "benchmark/experiment/d3d12/D3D12CbtMeshCapture.h"
+#include "render/D3D12GraphicsBackend.h"
+#endif
 #include "experiment/mesh_quality/PlatformMeshArtifact.h"
 #include "render/TerrainRenderer.h"
 #include "render/GraphicsBackend.h"
@@ -24,6 +29,7 @@ int RunExperimentPlatform(int argc,char** argv)
         if (argc!=4) throw std::runtime_error("用法: --experiment-run RESOLVED OUTPUT");
         const auto input=LoadReplayInput(argv[2]);
         const auto& c=input.Case;
+        const bool cbt = input.Algorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024;
         if (c.Mode=="profile") throw std::runtime_error("函数采集请使用Linux CPU入口和既有FPR采集器");
         const std::filesystem::path output(argv[3]);
         if (std::filesystem::exists(output)) throw std::runtime_error("拒绝覆盖回放目录");
@@ -49,14 +55,21 @@ int RunExperimentPlatform(int argc,char** argv)
         settings.RoamScreenSpaceMergeThresholdPixels=c.MergePixels;
         settings.RoamPassPolicy=input.Settings.PassPolicy;settings.Transactional=input.Settings.Transactional;
         settings.RoamEnablePassEvidence=input.Settings.EnablePassEvidence;
+        settings.Cbt = input.Settings.Cbt;
         if (!renderer.Initialize(*graphics,c.HeightMapPath,c.MaterialFile,settings,&error) ||
             !renderer.ApplyMaterial(c.MaterialFile,c.MaterialTiling,c.MaterialTint,&error)) throw std::runtime_error(error);
         renderer.ResetTerrainLodAlgorithm();
         std::ofstream meta(output/"environment.txt");
         meta << std::setprecision(17) << "backend=" << graphics->Name() << "\nadapter=" << graphics->AdapterName()
              << "\nversion=" << graphics->VersionString() << "\nsetupMs=" << ms(setup)
-             << "\ndecisionEvidence=public-counters\nmeshEvidence=actual-renderer-cpu-mesh\n";
+             << "\ndecisionEvidence=public-counters\nmeshEvidence="
+             << (cbt ? "same-generation-gpu-readback-on-evidence-frames" : "actual-renderer-cpu-mesh") << '\n';
         ReplayFrameWriter writer(output/"frames.csv");
+        std::unique_ptr<CbtExperimentRecords> cbtWriter;
+        if (cbt)
+        {
+            cbtWriter = std::make_unique<CbtExperimentRecords>(output / "cbt.csv");
+        }
         for(std::size_t i=0;i<input.Cameras.size();++i)
         {
             SDL_Event event;
@@ -79,8 +92,40 @@ int RunExperimentPlatform(int argc,char** argv)
             // 真实GPU读回在visual的Present中；该模式墙钟不得冒充正常计时
             part=Clock::now();
             const auto* mesh=renderer.CurrentCpuMeshForDiagnostics();
-            if(!mesh) throw std::runtime_error("未发布CPU网格");
-            const auto hash=ValidateReplayMesh(*mesh,input);
+            Terrain::TerrainMeshData capturedMesh;
+            std::optional<CbtCaptureRecord> captureRecord;
+            std::uint64_t hash = 0U;
+            if (cbt)
+            {
+#if defined(PARALLEL_ROAM_CBT_2024_RUNTIME)
+                const auto* gpu = renderer.CurrentGpuOutputForDiagnostics();
+                auto* backend = dynamic_cast<Render::D3D12GraphicsBackend*>(graphics.get());
+                if (!gpu || !backend || renderer.Stats().RoamLodStats.Cbt.FaultRecoveryCount != 0U)
+                {
+                    throw std::runtime_error("CBT资源缺失或发生故障恢复");
+                }
+                if (evidence && (c.Mode == "quality" || c.Mode == "visual"))
+                {
+                    auto result = CaptureCbtMesh(*backend, *gpu, c.TerrainSize, c.HeightScale);
+                    captureRecord = CbtCaptureRecord{result.ResourceGeneration, result.TopologyGeneration,
+                        result.Mesh.Indices.size() / 3U, result.ReadbackBytes, result.CaptureMilliseconds};
+                    capturedMesh = std::move(result.Mesh);
+                    hash = ValidateReplayMesh(capturedMesh, input);
+                }
+                // 未捕获的机会显式为空，不能用延迟统计填充当前网格身份
+                mesh = &capturedMesh;
+#else
+                throw std::runtime_error("当前构建没有CBT捕获器");
+#endif
+            }
+            else
+            {
+                if (!mesh)
+                {
+                    throw std::runtime_error("未发布CPU网格");
+                }
+                hash = ValidateReplayMesh(*mesh, input);
+            }
             std::string image,artifact;
             if(capture)
             {
@@ -101,6 +146,10 @@ int RunExperimentPlatform(int argc,char** argv)
             stats.CpuUploadMilliseconds=rendered.RoamCpuUploadMilliseconds;
             stats.CpuGpuUploadBytes=rendered.RoamCpuGpuUploadBytes;
             writer.Append(input,i,zero,stats,*mesh,hash,timing,image,artifact);
+            if (cbtWriter)
+            {
+                cbtWriter->Append(i, stats.Cbt, rendered.TriangleCount, captureRecord);
+            }
         }
         cleanup();return 0;
     }

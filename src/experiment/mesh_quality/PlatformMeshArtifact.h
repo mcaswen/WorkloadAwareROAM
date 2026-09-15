@@ -71,7 +71,9 @@ inline PlatformMeshArtifact ReadPlatformMesh(const std::filesystem::path& path)
     std::array<char,8> magic{};in.read(magic.data(),8);
     if (std::string_view(magic.data(),8)!="TPIMSH01") throw std::runtime_error("Invalid mesh artifact");
     std::uint64_t nv{},ni{};read(nv);read(ni);
-    if (nv>2000000 || ni>600000 || ni%3) throw std::runtime_error("Mesh artifact quota exceeded");
+    // 覆盖 CBT 最大动态槽池加六基础槽，仍拒绝无界分配
+    constexpr std::uint64_t maximumVertices = 3ULL * (1048576ULL + 6ULL);
+    if (nv>maximumVertices || ni>maximumVertices || ni%3) throw std::runtime_error("Mesh artifact quota exceeded");
     PlatformMeshArtifact result;auto& mesh=result.Mesh;
     read(mesh.TerrainSize);read(mesh.HeightScale);read(result.Width);read(result.Height);read(result.ZeroToOne);
     for (glm::length_t r=0;r<4;++r) for (glm::length_t c=0;c<4;++c) read(result.Matrix[c][r]);

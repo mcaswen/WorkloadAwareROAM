@@ -46,6 +46,29 @@ int main(int argc, char** argv)
         // 直接构造损坏配置，检查解析器确实拒绝而不是静默修正
         boost::property_tree::ptree tree;
         boost::property_tree::read_json(input.string(), tree);
+        auto cbt = tree;
+        cbt.put("algorithm", "cbt");
+        cbt.put("heightPolicy", "fit");
+        cbt.put("flipRecovery", false);
+        cbt.put("backend", "d3d12");
+        cbt.put("cbtCapacity", 262144U);
+        cbt.put("cbtArea", 20.0F);
+        cbt.put("cbtValidation", "off");
+        cbt.put("cbtGeometry", "modified");
+        const auto cbtPath = output / "cbt.json";
+        boost::property_tree::write_json(cbtPath.string(), cbt);
+        Require(ExperimentCase::LoadResolved(cbtPath).CbtCapacity == 262144U,
+            "CBT容量不能按CPU预算截断");
+        for (const auto& field : {"cbtCapacity", "cbtArea", "cbtValidation", "backend"})
+        {
+            auto invalid = cbt;
+            invalid.put(field, "invalid");
+            boost::property_tree::write_json(cbtPath.string(), invalid);
+            rejected = false;
+            try { (void)ExperimentCase::LoadResolved(cbtPath); }
+            catch (const std::exception&) { rejected = true; }
+            Require(rejected, "CBT独立参数无效时必须拒绝");
+        }
         auto flip = tree;
         flip.put("algorithm", "transactional");
         flip.put("heightPolicy", "immutable");

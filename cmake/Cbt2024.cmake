@@ -125,6 +125,10 @@ function(parallel_roam_attach_cbt_runtime target)
         "${cbt_dir}/d3d12/D3D12CbtDiagnostics.cpp"
         "${PROJECT_SOURCE_DIR}/src/render/D3D12CbtRenderPass.cpp")
     target_sources(${target} PRIVATE "${PROJECT_SOURCE_DIR}/src/benchmark/cbt_2024/CbtPlatformCheck.cpp")
+    if(TARGET parallel_roam_experiment_infrastructure)
+        target_sources(${target} PRIVATE
+            "${PROJECT_SOURCE_DIR}/src/benchmark/experiment/d3d12/D3D12CbtMeshCapture.cpp")
+    endif()
     target_link_libraries(${target} PRIVATE parallel_roam_cbt_core)
     # 同一构建内的 CLI/GUI 库必须看到与工厂一致的可用性
     target_compile_definitions(parallel_roam_project_options INTERFACE PARALLEL_ROAM_CBT_2024_RUNTIME=1)

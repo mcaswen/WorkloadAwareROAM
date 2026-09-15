@@ -45,9 +45,32 @@ def load_run(run):
     if manifest["status"]!="ok": return result
     raw=rows(run/"run/frames.csv",FIELDS,True)
     if len(raw)!=manifest["frameCount"]: raise ValueError("记录机会数不符")
+    cbt = manifest["case"]["algorithm"] == "cbt"
+    cbt_rows = None
+    if cbt:
+        cbt_rows = rows(run/"run/cbt.csv", ["frame", "resourceGeneration", "topologyGeneration",
+            "captureResource", "captureGeneration", "actualFaces", "faults"])
+        if len(cbt_rows) != len(raw):
+            raise ValueError("CBT记录与机会数不符")
+        result["cbt"] = cbt_rows
     for i,row in enumerate(raw):
         parsed={k:v if k in TEXT else number(v) for k,v in row.items()}
-        if parsed["frame"]!=i or parsed["faces"]>parsed["budget"]: raise ValueError("序号/硬预算不符")
+        if parsed["frame"] != i:
+            raise ValueError("机会序号不符")
+        if cbt:
+            record = cbt_rows[i]
+            if int(record["frame"]) != i or int(record["faults"]) != 0:
+                raise ValueError("CBT机会/故障恢复无效")
+            if parsed["faces"] is not None:
+                if (record["captureResource"] != record["resourceGeneration"] or
+                    record["captureGeneration"] != record["topologyGeneration"] or
+                    int(record["actualFaces"]) != parsed["faces"] or
+                    parsed["faces"] > manifest["case"]["cbtCapacity"] + 6):
+                    raise ValueError("CBT实际捕获代/数量无效")
+            elif parsed["hash"] or parsed["artifact"] or record["actualFaces"]:
+                raise ValueError("CBT缺网格却存在虚假证据")
+        elif parsed["faces"] is None or parsed["faces"] > parsed["budget"]:
+            raise ValueError("CPU硬预算不符")
         # OpenGL现有后端未测GPU wait，零占位不能当成测量
         if manifest["case"]["backend"]=="opengl": parsed["waitMs"]=None
         result["frames"].append(parsed)

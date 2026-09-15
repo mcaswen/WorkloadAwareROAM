@@ -74,7 +74,20 @@ ExperimentCase ExperimentCase::LoadResolved(const std::filesystem::path& path)
 
     // 入口拒绝未知策略；拼写错误不能静默变成默认算法或放宽质量规则
     Require(!value.Id.empty() && !value.TerrainId.empty(), "实验身份为空");
-    Require(OneOf(value.Algorithm, {"classic", "dod", "transactional"}), "未知算法");
+    Require(OneOf(value.Algorithm, {"classic", "dod", "transactional", "cbt"}), "未知算法");
+    if (value.Algorithm == "cbt")
+    {
+        Require(value.Backend == "d3d12" && value.Mode != "profile", "CBT要求D3D12平台入口");
+        value.CbtCapacity = data.get<std::uint32_t>("cbtCapacity");
+        value.CbtArea = data.get<float>("cbtArea");
+        value.CbtValidation = data.get<std::string>("cbtValidation");
+        value.CbtGeometry = data.get<std::string>("cbtGeometry");
+        Require(value.CbtCapacity == 131072U || value.CbtCapacity == 262144U ||
+            value.CbtCapacity == 524288U || value.CbtCapacity == 1048576U, "未知CBT动态容量");
+        Require(std::isfinite(value.CbtArea) && value.CbtArea > 0.0F, "无效CBT投影面积");
+        Require(OneOf(value.CbtValidation, {"off", "delayed", "blocking"}), "未知CBT验证模式");
+        Require(OneOf(value.CbtGeometry, {"modified", "full"}), "未知CBT几何模式");
+    }
     Require(OneOf(value.HeightPolicy, {"fit", "immutable"}), "未知高度策略");
     Require(!value.FlipRecovery || (value.Algorithm=="transactional" && value.HeightPolicy=="immutable"),
         "翻边恢复要求Transactional固定旧点策略");

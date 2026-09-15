@@ -44,6 +44,8 @@ def prepare(case, output, executable, mode=None, backend=None, cpu=False):
     resolved=resolve_case(case)
     resolved["backend"]=backend or resolved.get("backend","opengl")
     if mode: resolved["mode"]=mode
+    if resolved["algorithm"] == "cbt" and (cpu or resolved["backend"] != "d3d12" or resolved["mode"] == "profile"):
+        raise ValueError("CBT实验要求D3D12平台入口")
     for field,stem in (("heightMap","height"),("cameraFile","camera"),("materialFile","material")):
         original=Path(resolved[field]);target=inputs/(stem+original.suffix)
         shutil.copy2(original,target);resolved[field]=str(target)
@@ -65,6 +67,9 @@ def prepare(case, output, executable, mode=None, backend=None, cpu=False):
           "prefix":resolved["prefix"],"backend":resolved["backend"]}
     # 未启用时保留已有任务身份；启用属于明确不同的决策策略
     if resolved.get("flipRecovery",False): task["flipRecovery"]=True
+    if resolved["algorithm"] == "cbt":
+        task["cbt"] = {key: resolved[key] for key in
+            ("cbtCapacity", "cbtArea", "cbtValidation", "cbtGeometry")}
     manifest={
         "schemaVersion":"eip-run-v1","id":output.name,"status":"prepared",
         "workloadId":digest(workload),"taskId":digest(task),"sourceId":source_id,
@@ -84,6 +89,14 @@ def prepare(case, output, executable, mode=None, backend=None, cpu=False):
                     "hashCacheEffect":"all modes hash after every opportunity; inter-frame cache may be affected",
                     "capture":"only visual mode; readback included in visual presentMs",
                     "quality":"offline from actual exported float mesh; no evaluator in timing mode"}}
+    if resolved["algorithm"] == "cbt":
+        manifest["cbtSourceManifest"] = content_hash(ROOT / "docs/codebase/cbt_2024/source_manifest.json")
+        manifest["evidence"].update(
+            mesh="same-generation actual GPU draw/active indices/render vertices; evidence frames only",
+            hashCacheEffect="no full mesh hash/readback in timing mode",
+            capacity="dynamic slot pool plus six base slots; budget is CPU comparison label only",
+            counters="delayed, attributed by resource/classification generation in cbt.csv",
+            gpuTiming="compute and draw timestamps have independent sample generations; never sum across generations")
     if not cpu:
         result=subprocess.run(["/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe","-NoProfile","-Command",
             "Get-CimInstance Win32_Processor | Select-Object Name,NumberOfCores,NumberOfLogicalProcessors | ConvertTo-Json -Compress"],

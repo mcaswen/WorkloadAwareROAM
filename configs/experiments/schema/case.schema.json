@@ -38,7 +38,8 @@
       "enum": [
         "classic",
         "dod",
-        "transactional"
+        "transactional",
+        "cbt"
       ]
     },
     "heightPolicy": {
@@ -122,6 +123,63 @@
         "opengl",
         "d3d12"
       ]
+    },
+    "cbtCapacity": {
+      "enum": [
+        131072,
+        262144,
+        524288,
+        1048576
+      ]
+    },
+    "cbtArea": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "cbtValidation": {
+      "enum": [
+        "off",
+        "delayed",
+        "blocking"
+      ]
+    },
+    "cbtGeometry": {
+      "enum": [
+        "modified",
+        "full"
+      ]
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "algorithm": {
+            "const": "cbt"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "cbtCapacity",
+          "cbtArea",
+          "cbtValidation",
+          "cbtGeometry",
+          "backend"
+        ],
+        "properties": {
+          "backend": {
+            "const": "d3d12"
+          },
+          "mode": {
+            "enum": [
+              "timing",
+              "visual",
+              "quality"
+            ]
+          }
+        }
+      }
+    }
+  ]
 }

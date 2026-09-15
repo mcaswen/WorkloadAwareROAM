@@ -2,12 +2,35 @@
 import tempfile
 import unittest
 from pathlib import Path
-from experiment_infrastructure.result_adapters import rows,number,verify
+from experiment_infrastructure.result_adapters import rows,number,verify,load_run,FIELDS
 from experiment_infrastructure.analysis import phase
 from experiment_infrastructure.catalog import content_hash
 from experiment_infrastructure.runner import save
 
 class EvidenceTests(unittest.TestCase):
+    def test_cbt_missing_mesh_is_not_delayed_count(self):
+        import csv
+        with tempfile.TemporaryDirectory() as t:
+            root = Path(t)
+            (root / "run").mkdir()
+            save(root / "manifest.json", {"schemaVersion": "eip-run-v1", "status": "ok",
+                "frameCount": 1, "artifacts": {},
+                "case": {"algorithm": "cbt", "backend": "d3d12", "cbtCapacity": 131072}})
+            record = {key: "" for key in FIELDS}
+            record.update(frame="0", budget="50000")
+            with (root / "run/frames.csv").open("w", newline="") as stream:
+                writer = csv.DictWriter(stream, fieldnames=FIELDS)
+                writer.writeheader()
+                writer.writerow(record)
+            path = root / "run/cbt.csv"
+            path.write_text("frame,resourceGeneration,topologyGeneration,captureResource,captureGeneration,actualFaces,faults\n"
+                "0,1,3,,,,0\n")
+            self.assertIsNone(load_run(root)["frames"][0]["faces"])
+            path.write_text("frame,resourceGeneration,topologyGeneration,captureResource,captureGeneration,actualFaces,faults\n"
+                "0,1,3,1,2,100,0\n")
+            with self.assertRaises(ValueError):
+                load_run(root)
+
     def test_truncated_csv(self):
         with tempfile.TemporaryDirectory() as t:
             p=Path(t)/"data.csv";p.write_text("a,b\n1\n")

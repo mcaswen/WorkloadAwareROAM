@@ -46,6 +46,21 @@ ReplayInput LoadReplayInput(const std::filesystem::path& path)
     s.TerrainSize=c.TerrainSize;s.HeightScale=c.HeightScale;s.MaxDepth=static_cast<int>(c.MaxDepth);
     s.TriangleBudget=c.Budget;s.ScreenSpaceSplitThresholdPixels=c.SplitPixels;
     s.ScreenSpaceMergeThresholdPixels=c.MergePixels;
+    if (input.Algorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024)
+    {
+        s.Cbt.Capacity = static_cast<Algorithms::TerrainLodCbtCapacity>(c.CbtCapacity);
+        s.Cbt.TriangleAreaPixels = c.CbtArea;
+        if (c.CbtValidation == "delayed")
+        {
+            s.Cbt.ValidationMode = Algorithms::TerrainLodCbtValidationMode::Delayed;
+        }
+        else if (c.CbtValidation == "blocking")
+        {
+            s.Cbt.ValidationMode = Algorithms::TerrainLodCbtValidationMode::BlockingSmoke;
+        }
+        s.Cbt.GeometryMode = c.CbtGeometry == "full" ?
+            Algorithms::TerrainLodCbtGeometryMode::FullDebug : Algorithms::TerrainLodCbtGeometryMode::ModifiedOnly;
+    }
     s.Transactional.WorkerCount=c.Workers;
     s.Transactional.PreserveSurvivingHeights=c.HeightPolicy=="immutable";
     s.Transactional.EnableFlipRecovery=c.FlipRecovery;
@@ -63,7 +78,9 @@ bool IsEvidenceFrame(const ReplayInput& input,std::size_t frame)
 }
 std::uint64_t ValidateReplayMesh(const Terrain::TerrainMeshData& mesh,const ReplayInput& input)
 {
-    if (mesh.Indices.empty() || mesh.Indices.size()%3 || mesh.Indices.size()/3>input.Case.Budget)
+    const bool cbt = input.Algorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024;
+    const std::size_t limit = cbt ? input.Case.CbtCapacity + 6U : input.Case.Budget;
+    if (mesh.Indices.empty() || mesh.Indices.size()%3 || mesh.Indices.size()/3>limit)
         throw std::runtime_error("实际网格为空或越预算");
     const bool transactional=input.Algorithm==Algorithms::TerrainLodAlgorithmId::TransactionalCpuLod;
     for (std::size_t i=0;i<mesh.Indices.size();i+=3)
@@ -77,6 +94,25 @@ std::uint64_t ValidateReplayMesh(const Terrain::TerrainMeshData& mesh,const Repl
         }
         const double orientation=glm::cross(triangle[1]-triangle[0],triangle[2]-triangle[0]).y;
         if (!(transactional ? orientation<0 : orientation>0)) throw std::runtime_error("网格倒置或退化");
+    }
+    if (cbt)
+    {
+        // 源高度核对只作诊断；独立质量仍对完整捕获网格评价
+        const float tolerance = 2.0e-5F * std::max(input.Case.HeightScale, 1.0F);
+        for (const auto& vertex : mesh.Vertices)
+        {
+            const auto uv = vertex.TexCoord;
+            if (!std::isfinite(uv.x) || !std::isfinite(uv.y) ||
+                uv.x < -1.0e-6F || uv.y < -1.0e-6F || uv.x > 1.000001F || uv.y > 1.000001F)
+            {
+                throw std::runtime_error("CBT实际顶点UV超出源域");
+            }
+            const float height = input.Source.SampleBilinear(uv.x, uv.y) * input.Case.HeightScale;
+            if (std::abs(vertex.Position.y - height) > tolerance)
+            {
+                throw std::runtime_error("CBT实际顶点与CPU源高度诊断不符");
+            }
+        }
     }
     return ParallelRoam::Experiment::MeshQuality::PlatformMeshHash(mesh);
 }
@@ -96,13 +132,37 @@ void ReplayFrameWriter::Append(const ReplayInput& input,std::size_t frame,bool z
     const auto& f=input.Cameras.at(frame);
     auto& out=_stream;
     out << frame << ',' << f.SourceIndex << ',' << f.Event << ',' << (frame<input.Case.Warmup) << ','
-        << f.PoseHash << ',' << (zeroToOne ? f.ZoHash:f.NoHash) << ',' << mesh.Indices.size()/3 << ','
-        << input.Case.Budget << ',' << input.Case.Workers << ',' << s.BuildSequence << ',' << hash << ',' << s.CpuUpdateMilliseconds;
+        << f.PoseHash << ',' << (zeroToOne ? f.ZoHash:f.NoHash) << ',';
+    const bool cbt = input.Algorithm == Algorithms::TerrainLodAlgorithmId::Cbt2024;
+    if (!mesh.Indices.empty())
+    {
+        out << mesh.Indices.size()/3;
+    }
+    out << ',' << input.Case.Budget << ',';
+    if (!cbt)
+    {
+        out << input.Case.Workers;
+    }
+    out << ',' << s.BuildSequence << ',';
+    if (!mesh.Indices.empty())
+    {
+        out << hash;
+    }
+    out << ',' << s.CpuUpdateMilliseconds;
     if (t.Platform) out << ',' << s.CpuUploadMilliseconds << ',' << s.CpuGpuUploadBytes << ',' << t.Begin << ','
         << t.Wait << ',' << t.Render << ',' << t.Present << ',' << t.Frame;
     else out << ",,,,,,," << t.Frame;
-    out << ',' << t.Evidence << ',' << s.SplitCount << ',' << s.MergeCount;
-    if (!s.Transactional)
+    out << ',' << t.Evidence << ',';
+    if (!cbt)
+    {
+        out << s.SplitCount;
+    }
+    out << ',';
+    if (!cbt)
+    {
+        out << s.MergeCount;
+    }
+    if (!s.Transactional && !cbt)
         out << ',' << s.CpuSplitCandidateMarkMilliseconds << ',' << s.CpuMergeCandidateMarkMilliseconds << ','
             << s.CpuSplitTopologyMilliseconds << ',' << s.CpuMergeTopologyMilliseconds << ',' << s.CpuMeshEmitMilliseconds;
     else out << ",,,,,";
