@@ -114,14 +114,17 @@ def quality_charts(writer, terrain, configurations):
     comparable = [config for config in items if mean(config, "frameMs") is not None and all(row["valid"] for row in config["quality"])]
     if comparable:
         fig, axis = plt.subplots(figsize=(11, 5))
-        for config in comparable:
+        markers = ("o", "s", "^", "D", "v", "P", "X", "<", ">", "h", "*", "p")
+        for index, config in enumerate(comparable):
             observed = [row["Emax"] for row in config["quality"] if row["valid"]]
             if not observed:
                 continue
             cost = mean(config, "frameMs")
-            axis.scatter(cost, max(observed), color=COLORS[config["case"]["algorithm"]])
-            axis.annotate(label(config), (cost, max(observed)), xytext=(4, 4), textcoords="offset points", fontsize=7)
+            axis.scatter(cost, max(observed), color=COLORS[config["case"]["algorithm"]],
+                         marker=markers[index % len(markers)], label=label(config))
         axis.set(xlabel="暖主机帧包络 / ms", ylabel="已有效观测关键帧的最大Emax / px", xscale="log", yscale="log")
+        axis.legend(loc="center left", bbox_to_anchor=(1.02, .5), fontsize=8)
+        fig.subplots_adjust(right=.70)
         writer.emit(fig, terrain + "-quality-cost", terrain + "：配置级成本与观测质量",
             {"configurations": [config["key"] for config in comparable]},
             "GPU异步帧包络非完成时间；配置关联不假定跨进程mesh相同。质量覆盖不足见失败表，不据此排名。")
@@ -147,6 +150,39 @@ def timeline(writer, terrain, configurations, by_id):
         "包含冷启动；CPU/GPU实际设备不同，主机帧包络不是GPU完成延迟。完整重复和工作计数在数表。")
 
 
+def excess_chart(writer, terrain, data, configurations):
+    by_case = {config["case"]["id"]: config for config in configurations}
+    rows = []
+    run_cases = {run["path"]: run["case"]["id"] for run in data["runs"]}
+    quality_cases = {index["path"]: run_cases.get(index["run"]) for index in data["quality"]}
+    for pair in data["qualityPairs"]:
+        result = pair["result"]
+        candidate = quality_cases.get(result["candidate"])
+        reference = quality_cases.get(result["reference"])
+        if candidate not in by_case or reference not in by_case:
+            continue
+        frames = result.get("frames", [])
+        valid = [frame for frame in frames if frame["status"] == "paired"]
+        if valid:
+            rows.append((label(by_case[candidate]) + " − " + label(by_case[reference]),
+                         max(frame["DmaxSamplePx"] for frame in valid), len(valid), len(frames)))
+    if not rows:
+        return
+    fig, axis = plt.subplots(figsize=(13, max(4, len(rows) * .36 + 2)))
+    for index, (name, value, valid, count) in enumerate(rows):
+        axis.barh(index, value, color="#ce7130" if value > 0 else "#256eb0",
+                  hatch="//" if valid < count else None)
+    axis.set(yticks=range(len(rows)),
+             yticklabels=[f"{name} [{valid}/{count}]" for name, value, valid, count in rows],
+             xlabel="已有效配对关键帧中的最大逐点超额 / px")
+    axis.tick_params(axis="y", labelsize=8)
+    axis.axvline(0, color="black", linewidth=.7)
+    fig.subplots_adjust(left=.43)
+    writer.emit(fig, terrain + "-pointwise-excess", terrain + "：逐点退化与配对覆盖",
+                {"pairs": [row[0] for row in rows]},
+                "正值表示至少一个点更差；不是Emax相减。斜线为部分覆盖，不作完整轨迹排名；N差异见逐点表。")
+
+
 def build(writer, data, statistics):
     by_id = {run["id"]: run for run in data["runs"]}
     terrains = sorted({config["case"]["terrain"] for config in statistics["configurations"]})
@@ -160,3 +196,4 @@ def build(writer, data, statistics):
             if data.get("study"):
                 timeline(writer, terrain, measured, by_id)
         quality_charts(writer, terrain, configurations)
+        excess_chart(writer, terrain, data, configurations)

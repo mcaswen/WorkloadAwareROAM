@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "peking547-b50000-classic-t1",
+  "terrain": "peking547",
+  "algorithm": "classic",
+  "heightPolicy": "fit",
+  "flipRecovery": false,
+  "camera": "pq-return24",
+  "material": "neutral",
+  "mode": "timing",
+  "prefix": "scaled",
+  "budget": 50000,
+  "workers": 1,
+  "maxDepth": 20,
+  "viewWidth": 1280,
+  "viewHeight": 720,
+  "splitPixels": 0.25,
+  "mergePixels": 0.1,
+  "backend": "d3d12",
+  "warmup": 3,
+  "captureStride": 8,
+  "maxFrames": 24
+}

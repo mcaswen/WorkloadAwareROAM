@@ -1,0 +1,26 @@
+{
+  "total": 24,
+  "tolerance": 1e-09,
+  "points": [
+    {
+      "budgetPx": 0,
+      "within": 3
+    },
+    {
+      "budgetPx": 0.1,
+      "within": 5
+    },
+    {
+      "budgetPx": 0.25,
+      "within": 9
+    },
+    {
+      "budgetPx": 0.5,
+      "within": 9
+    },
+    {
+      "budgetPx": 1,
+      "within": 9
+    }
+  ]
+}

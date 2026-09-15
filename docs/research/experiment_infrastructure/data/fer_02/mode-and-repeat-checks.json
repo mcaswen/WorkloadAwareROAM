@@ -1,0 +1,1152 @@
+[
+  {
+    "id": "peking547-b50000-classic-t1",
+    "result": {
+      "status": "pass",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b50000-classic-t1"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "peking547-b50000-dod-t8",
+    "result": {
+      "status": "pass",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b50000-dod-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "peking547-b50000-transactional-t8",
+    "result": {
+      "status": "pass",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b50000-transactional-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": true
+  },
+  {
+    "id": "peking547-b50000-transactional-t1",
+    "result": {
+      "status": "pass",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b50000-transactional-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-b50000-transactional-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-b50000-transactional-t1"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": true
+  },
+  {
+    "id": "peking547-b100000-classic-t1",
+    "result": {
+      "status": "pass",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b100000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-b100000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-b100000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b100000-classic-t1"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "peking547-b100000-dod-t8",
+    "result": {
+      "status": "pass",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b100000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-b100000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-b100000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b100000-dod-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "peking547-b100000-transactional-t8",
+    "result": {
+      "status": "pass",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b100000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-b100000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-b100000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b100000-transactional-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": true
+  },
+  {
+    "id": "peking547-b200000-classic-t1",
+    "result": {
+      "status": "pass",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b200000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-b200000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-b200000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b200000-classic-t1"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "peking547-b200000-dod-t8",
+    "result": {
+      "status": "pass",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b200000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-b200000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-b200000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b200000-dod-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "peking547-b200000-transactional-t8",
+    "result": {
+      "status": "pass",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b200000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-b200000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-b200000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b200000-transactional-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": true
+  },
+  {
+    "id": "generated-ridge-b50000-classic-t1",
+    "result": {
+      "status": "pass",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-generated-ridge-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-generated-ridge-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-generated-ridge-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-generated-ridge-b50000-classic-t1"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "generated-ridge-b50000-dod-t8",
+    "result": {
+      "status": "pass",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-generated-ridge-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-generated-ridge-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-generated-ridge-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-generated-ridge-b50000-dod-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "generated-ridge-b50000-transactional-t8",
+    "result": {
+      "status": "pass",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-generated-ridge-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-generated-ridge-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-generated-ridge-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-generated-ridge-b50000-transactional-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": true
+  },
+  {
+    "id": "dem-canyon-b50000-classic-t1",
+    "result": {
+      "status": "pass",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-canyon-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-canyon-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-canyon-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-canyon-b50000-classic-t1"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "dem-canyon-b50000-dod-t8",
+    "result": {
+      "status": "pass",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-canyon-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-canyon-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-canyon-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-canyon-b50000-dod-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "dem-canyon-b50000-transactional-t8",
+    "result": {
+      "status": "pass",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-canyon-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-canyon-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-canyon-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-canyon-b50000-transactional-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": true
+  },
+  {
+    "id": "dem-canyon-b50000-transactional-t1",
+    "result": {
+      "status": "pass",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-canyon-b50000-transactional-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-canyon-b50000-transactional-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-canyon-b50000-transactional-t1"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": true
+  },
+  {
+    "id": "dem-sierra-b50000-classic-t1",
+    "result": {
+      "status": "pass",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-sierra-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-sierra-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-sierra-b50000-classic-t1",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-classic-t1"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "dem-sierra-b50000-dod-t8",
+    "result": {
+      "status": "pass",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-sierra-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-sierra-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-sierra-b50000-dod-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-dod-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "dem-sierra-b50000-transactional-t8",
+    "result": {
+      "status": "pass",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-sierra-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-sierra-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-sierra-b50000-transactional-t8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-transactional-t8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "sequence",
+        "hash",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites"
+      ],
+      "notClaimed": "complete decision trace; cross-OS bit equivalence"
+    },
+    "flipCountsEqual": true
+  },
+  {
+    "id": "peking547-cbt-a16",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-cbt-a16"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "peking547-cbt-a8",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-cbt-a8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "peking547-cbt-a4",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 24,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-peking547-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-peking547-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-cbt-a4"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "generated-ridge-cbt-a16",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-generated-ridge-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-generated-ridge-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-generated-ridge-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-generated-ridge-cbt-a16"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "generated-ridge-cbt-a8",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-generated-ridge-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-generated-ridge-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-generated-ridge-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-generated-ridge-cbt-a8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "generated-ridge-cbt-a4",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-generated-ridge-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-generated-ridge-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-generated-ridge-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-generated-ridge-cbt-a4"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "dem-canyon-cbt-a16",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-canyon-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-canyon-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-canyon-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-canyon-cbt-a16"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "dem-canyon-cbt-a8",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-canyon-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-canyon-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-canyon-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-canyon-cbt-a8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "dem-canyon-cbt-a4",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-canyon-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-canyon-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-canyon-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-canyon-cbt-a4"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "dem-sierra-cbt-a16",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-sierra-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-sierra-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-sierra-cbt-a16",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-cbt-a16"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "dem-sierra-cbt-a8",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-sierra-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-sierra-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-sierra-cbt-a8",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-cbt-a8"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  },
+  {
+    "id": "dem-sierra-cbt-a4",
+    "result": {
+      "status": "input-and-generation-contracts-only",
+      "frames": 96,
+      "runs": [
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-sierra-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r2-dem-sierra-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r3-dem-sierra-cbt-a4",
+        "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-cbt-a4"
+      ],
+      "checked": [
+        "frame",
+        "sample",
+        "poseHash",
+        "projectionHash"
+      ],
+      "meshEquivalence": "not established across GPU processes; timing has no full mesh hash"
+    },
+    "flipCountsEqual": null
+  }
+]

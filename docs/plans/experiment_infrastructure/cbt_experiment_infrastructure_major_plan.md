@@ -115,4 +115,4 @@ CBI-03 CPU工程回归保持OPEN；当前用户授权继续实验，不等于回
 
 - CEI-01：统一数据、适用矩阵及配对已闭环，详见[小规划](cei_01_shared_evidence_plan.md)。
 - CEI-02：共同报告、视觉与配置化正式编排已闭环，详见[小规划](cei_02_reports_and_study_plan.md)。
-- CEI-03：待冻结与执行。
+- CEI-03：四算法总体实验已闭环，详见[小规划](cei_03_overall_experiment_plan.md)及[FER-02报告](../../research/experiment_infrastructure/fer_02_overall_results.md)。96正常/30视觉完成，质量111/120有效，全部无效与未解决问题保留。基础设施完成不意味着算法竞争性通过。

@@ -142,3 +142,20 @@ python3 -m experiment_infrastructure.formal_study timing   --config configs/expe
 先准备并冻结协议，再按 `freeze → timing → visual → verify → quality → analyze` 执行；最后用统一 `report`。所有计时结束前不并发评价/作图；已有失败不覆盖。省略参数仍保留FER-01历史默认，不自动迁移旧结果。
 
 报告里GPU普通帧当前N为空；只有实际捕获帧或明确注明来源代的延迟观测可提供N。GPU质量和正常成本是配置关联，不能宣称未捕获的两个进程输出同一网格。
+
+## FER-02 四算法总体实验实例
+
+[总体报告](../../research/experiment_infrastructure/fer_02_overall_results.md)及[数表/图像附录](../../research/experiment_infrastructure/fer_02_appendix.md)已完成。冻结32配置×3正常进程、30视觉、120质量观察；111有效/9个CBT覆盖歧义均保留。共同HTML含70图和30实际帧播放器，提交精简表和44张PNG。
+
+`formal_protocol.prepare()`只生成本轮预注册配置，要求目标目录不存在；已有FER-02不应重生成覆盖。重复实验应新建协议/输出目录，不能删除旧证据后继续沿用其身份。模块命令从仓库根使用 `PYTHONPATH=scripts python3 -m experiment_infrastructure.formal_study ...`，所需第三方Python包按现有环境路径提供。
+
+流程仍为 `freeze → timing → visual → verify → quality → analyze → report`。最后两步可用：
+
+```bash
+PYTHONPATH=scripts python3 -m experiment_infrastructure.formal_study analyze --config configs/experiments/formal/fer_02 --raw benchmark-output/experiment-infrastructure/fer-02
+python3 scripts/run_experiment.py report --analysis benchmark-output/experiment-infrastructure/fer-02/analysis/analysis.json --output benchmark-output/experiment-infrastructure/fer-02/report-new
+```
+
+已有report目录保留，重新生成用新目录。图表数值来自同一analysis；逐点超额图标明部分配对覆盖，最坏有效见证可能是启动帧，不能代表稳定质量。总事务帧/批宽须将独立flip-recovery记录与exchange/free同机会合并；共享旧transactionFrames字段单独不含净零翻边。
+
+本例没有重新采perf/Tracy，函数占比仍须用相同版本的独立捕获。实验基础设施闭环不代表算法性能/质量通过；CBI工程回归、CBT歧义、Transactional转向残差和预留扩展性继续开放。

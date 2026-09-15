@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-16",
+  "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+  "automatedChecks": "link and figure hash checks; 30 player event logic cases",
+  "agentVisualReview": "completed actual inspection",
+  "userVisualReview": "pending user",
+  "actualBrowserInteraction": "not verified; player event test is not browser interaction",
+  "reviewed": {
+    "scientific": 36,
+    "routes": 4,
+    "witnesses": 30,
+    "actualComparisonPanels": 4
+  },
+  "method": "All 70 figure overviews inspected; four actual D3D12 comparison panels and corrected quality-cost figures opened separately.",
+  "corrections": [
+    "Moved overlapping Peking/ridge quality-cost labels to an external legend; no data or configuration changed."
+  ],
+  "observations": [
+    "Same-pose panels show expected terrain/camera; CBT early frames retain coarse bootstrap.",
+    "Transactional ridge/sierra show more faceted shading in these captures; Emax does not evaluate normal/shading quality.",
+    "Invalid quality points omitted from error rankings but retained in complete tables and nearest-N matches.",
+    "Witness heatmaps use exported samples, grey means unobserved; screenshots do not certify crack freedom."
+  ],
+  "algorithmQualityStatus": "not granted; see cross-view residuals, Dmax and nine invalid CBT observations"
+}

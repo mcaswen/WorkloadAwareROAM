@@ -1,0 +1,883 @@
+[
+  {
+    "id": "dem-canyon-actual-comparison",
+    "title": "dem-canyon：固定50k CPU与CBT a16的实际画面",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-canyon-actual-comparison.png",
+    "sha256": "2b0fad139dd09767b4bfea82837bfc5d9a5d544ed35d8cd1b081497a36904d57",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "cases": [
+        "dem-canyon-b50000-classic-t1",
+        "dem-canyon-b50000-dod-t8",
+        "dem-canyon-b50000-transactional-t8",
+        "dem-canyon-cbt-a16"
+      ],
+      "frames": [
+        48,
+        95
+      ]
+    },
+    "note": "直接使用真实D3D12截图；同机会同相机，未离线重渲染。CBT面积预冻结，未按画面或质量选择。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/overview-figures/dem-canyon-actual-comparison.spec.json",
+    "fullSpecSha256": "c744713b0dfd52e2a8d6897c327e48ba95be2fcbfb7e5388b8c8debab486045b"
+  },
+  {
+    "id": "dem-sierra-actual-comparison",
+    "title": "dem-sierra：固定50k CPU与CBT a16的实际画面",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-sierra-actual-comparison.png",
+    "sha256": "2b5a2f365e80342308380f9b1f75d5286b177d0645234eecbf26d542387591c8",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "cases": [
+        "dem-sierra-b50000-classic-t1",
+        "dem-sierra-b50000-dod-t8",
+        "dem-sierra-b50000-transactional-t8",
+        "dem-sierra-cbt-a16"
+      ],
+      "frames": [
+        48,
+        95
+      ]
+    },
+    "note": "直接使用真实D3D12截图；同机会同相机，未离线重渲染。CBT面积预冻结，未按画面或质量选择。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/overview-figures/dem-sierra-actual-comparison.spec.json",
+    "fullSpecSha256": "cd6a2ea1792f5f6aedc5846ed774312d94fc6a3401946bf1b36f5532995daa63"
+  },
+  {
+    "id": "generated-ridge-actual-comparison",
+    "title": "generated-ridge：固定50k CPU与CBT a16的实际画面",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/generated-ridge-actual-comparison.png",
+    "sha256": "c97df7f93eb585e1681ff76c7bb09fcd823e586faf211411a481c432acf8e36f",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "cases": [
+        "generated-ridge-b50000-classic-t1",
+        "generated-ridge-b50000-dod-t8",
+        "generated-ridge-b50000-transactional-t8",
+        "generated-ridge-cbt-a16"
+      ],
+      "frames": [
+        48,
+        95
+      ]
+    },
+    "note": "直接使用真实D3D12截图；同机会同相机，未离线重渲染。CBT面积预冻结，未按画面或质量选择。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/overview-figures/generated-ridge-actual-comparison.spec.json",
+    "fullSpecSha256": "47d17372c9746f2f2b9cd13f025958ca891a34c4655b3b0ad065fdb033004d00"
+  },
+  {
+    "id": "peking547-actual-comparison",
+    "title": "peking547：固定50k CPU与CBT a16的实际画面",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-actual-comparison.png",
+    "sha256": "525a1f417a1c34bdf20452f515c33a56c94d551d906b435fb0f893f519eb11a1",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "cases": [
+        "peking547-b50000-classic-t1",
+        "peking547-b50000-dod-t8",
+        "peking547-b50000-transactional-t8",
+        "peking547-cbt-a16"
+      ],
+      "frames": [
+        15,
+        23
+      ]
+    },
+    "note": "直接使用真实D3D12截图；同机会同相机，未离线重渲染。CBT面积预冻结，未按画面或质量选择。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/overview-figures/peking547-actual-comparison.spec.json",
+    "fullSpecSha256": "affc27d5999ba25b3459f6c6f4bceaf872729823bbc040a5436c21c45639fe5c"
+  },
+  {
+    "id": "dem-canyon-pointwise-excess",
+    "title": "dem-canyon：逐点退化与配对覆盖",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-canyon-pointwise-excess.png",
+    "sha256": "f1dfc77f872bd87adc1875f4581090dda536af2af9339ee0dfcf7be1a0285452",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "pairs": [
+        "Classic 50k / 1t − DOD 50k / 8t",
+        "Transactional 50k / 8t − DOD 50k / 8t",
+        "Transactional 50k / 8t − CBT a=16",
+        "Transactional 50k / 8t − CBT a=4",
+        "Transactional 50k / 8t − CBT a=8"
+      ]
+    },
+    "note": "正值表示至少一个点更差；不是Emax相减。斜线为部分覆盖，不作完整轨迹排名；N差异见逐点表。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-canyon-pointwise-excess.spec.json",
+    "fullSpecSha256": "7bfecdbeff06218b137bda2cdebe83453389fdc4a7563acb51be1b1b0f1ee115"
+  },
+  {
+    "id": "dem-canyon-quality-cost",
+    "title": "dem-canyon：配置级成本与观测质量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-canyon-quality-cost.png",
+    "sha256": "74e457829d773fbaf6812c325a47fa49a2a4926c2549099db9b12266e468e26f",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "3e22f7658e73b2e4cd53f798a179a450bc1dae4b4a6b37060f1c6a10af446ec4",
+        "49965481f8fe326feaf6aed69044d3a96e729d2452e5307b2610c62638fea894",
+        "9364a719514a9c3167efeec4e6b8f69658f16ccabff20318d29537bcabd32f54",
+        "df6c1a9f9fe476af8eacda51533d239c6d077ec322f61d53be9ac16e4df1490a"
+      ]
+    },
+    "note": "GPU异步帧包络非完成时间；配置关联不假定跨进程mesh相同。质量覆盖不足见失败表，不据此排名。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-canyon-quality-cost.spec.json",
+    "fullSpecSha256": "f82bcca662dfd98373d9de036bd3bc55b5ce889c9e18499aebca07a27843d299"
+  },
+  {
+    "id": "dem-canyon-quality-n",
+    "title": "dem-canyon：同视图质量与实际数量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-canyon-quality-n.png",
+    "sha256": "e7d4b2153a25b8ea541874472cd560898831f759eba1e64f05b53d65061fd71b",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "frames": [
+        2,
+        48,
+        80,
+        95
+      ]
+    },
+    "note": "仅有效质量点；连线不是插值或Pareto证明。容量不是预算，数量不匹配仍保留。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-canyon-quality-n.spec.json",
+    "fullSpecSha256": "099dbe1e2378700d0f4681c80e52b6cafc891589852fd620fc3c7bd50131c1c1"
+  },
+  {
+    "id": "dem-canyon-quality-trajectory",
+    "title": "dem-canyon：质量与数量轨迹",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-canyon-quality-trajectory.png",
+    "sha256": "97bb7b8279412118de2b2e54704309863a7545282165a3ff3a5b60809ab30174",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "frames": [
+        2,
+        48,
+        80,
+        95
+      ]
+    },
+    "note": "只评价预冻结关键机会；无效质量留空不连线。不同view的误差下降不自动代表几何恢复。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-canyon-quality-trajectory.spec.json",
+    "fullSpecSha256": "15a20cb5ab8d6cde4b265e47889b4419dc53274eefb6e844c887bc57170bce86"
+  },
+  {
+    "id": "dem-canyon-runtime",
+    "title": "dem-canyon：独立进程正常成本",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-canyon-runtime.png",
+    "sha256": "c0856460f496ce0cdefcdb7a6abe879eb91b33c9a86c78aa60020412d6cdec03",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "3e22f7658e73b2e4cd53f798a179a450bc1dae4b4a6b37060f1c6a10af446ec4",
+        "49965481f8fe326feaf6aed69044d3a96e729d2452e5307b2610c62638fea894",
+        "23b370ec46474ef059bf856c39f57ae2272005cea959e0a3102b93ba3d2e4442",
+        "9364a719514a9c3167efeec4e6b8f69658f16ccabff20318d29537bcabd32f54",
+        "df6c1a9f9fe476af8eacda51533d239c6d077ec322f61d53be9ac16e4df1490a",
+        "bedc5b60257b3557824eb8c006bb525a59b7c28bdff7b58a83e28e689ff2a70e",
+        "6a0c74c5887b285e7660ec736dc40ff635574464f1d82044c9dd8d41c4c7dd70"
+      ],
+      "group": "warm"
+    },
+    "note": "CPU与GPU独立坐标/计时边界；误差线为进程均值范围，非CI，不表示同质量加速。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-canyon-runtime.spec.json",
+    "fullSpecSha256": "a51f9ab665c58b6fa61522f4cb2b40113583eafdf1996a2df2a9b1f87f900d85"
+  },
+  {
+    "id": "dem-canyon-stages-1",
+    "title": "dem-canyon：阶段成本边界（1）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-canyon-stages-1.png",
+    "sha256": "494271abcc3b4e0309afce9f3b24b0abacf55b745763859afa131efddb4a0d8d",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "3e22f7658e73b2e4cd53f798a179a450bc1dae4b4a6b37060f1c6a10af446ec4",
+        "49965481f8fe326feaf6aed69044d3a96e729d2452e5307b2610c62638fea894",
+        "23b370ec46474ef059bf856c39f57ae2272005cea959e0a3102b93ba3d2e4442"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-canyon-stages-1.spec.json",
+    "fullSpecSha256": "66fa67ec8a562fd5e39a110d09d7405991628daee731aeb17f84c4b902c73e26"
+  },
+  {
+    "id": "dem-canyon-stages-2",
+    "title": "dem-canyon：阶段成本边界（2）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-canyon-stages-2.png",
+    "sha256": "784134c05e5bebb8b123bb3a805d6afc155afb803e4c7f02e34c8ce15c69f985",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "9364a719514a9c3167efeec4e6b8f69658f16ccabff20318d29537bcabd32f54",
+        "df6c1a9f9fe476af8eacda51533d239c6d077ec322f61d53be9ac16e4df1490a",
+        "bedc5b60257b3557824eb8c006bb525a59b7c28bdff7b58a83e28e689ff2a70e"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-canyon-stages-2.spec.json",
+    "fullSpecSha256": "57655b234542645a4fd2e1961e70912781e3bf9d5dd7c7745bb4e32358a6353b"
+  },
+  {
+    "id": "dem-canyon-stages-3",
+    "title": "dem-canyon：阶段成本边界（3）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-canyon-stages-3.png",
+    "sha256": "292a54f4abb5483006876bcaec10f889e0bbecaa119ee7d6587cff5ef6a2fe20",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "6a0c74c5887b285e7660ec736dc40ff635574464f1d82044c9dd8d41c4c7dd70"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-canyon-stages-3.spec.json",
+    "fullSpecSha256": "465d9f5fb06c79da80e79757fec277599661418f909540c1b5eec004991cd46f"
+  },
+  {
+    "id": "dem-canyon-timeline",
+    "title": "dem-canyon：固定第一进程的时序与工作量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-canyon-timeline.png",
+    "sha256": "167e8099a422b1755c54b8a63aff83363c54bf4b94f1a9970d7b67261d348fe0",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "runs": [
+        "r1-dem-canyon-b50000-classic-t1",
+        "r1-dem-canyon-b50000-dod-t8",
+        "r1-dem-canyon-b50000-transactional-t1",
+        "r1-dem-canyon-b50000-transactional-t8",
+        "r1-dem-canyon-cbt-a16",
+        "r1-dem-canyon-cbt-a4",
+        "r1-dem-canyon-cbt-a8"
+      ]
+    },
+    "note": "包含冷启动；CPU/GPU实际设备不同，主机帧包络不是GPU完成延迟。完整重复和工作计数在数表。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-canyon-timeline.spec.json",
+    "fullSpecSha256": "0804b035104da05ff7e140c0166aa5baa66ae533753f0c665aa1e7d7e16122b5"
+  },
+  {
+    "id": "dem-sierra-pointwise-excess",
+    "title": "dem-sierra：逐点退化与配对覆盖",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-sierra-pointwise-excess.png",
+    "sha256": "adc4919b56368e328d03f86c6bf41c65a7287dc7b973015d95b8966b5f98cbc8",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "pairs": [
+        "Classic 50k / 1t − DOD 50k / 8t",
+        "Transactional 50k / 8t − DOD 50k / 8t",
+        "Transactional 50k / 8t − CBT a=16",
+        "Transactional 50k / 8t − CBT a=4",
+        "Transactional 50k / 8t − CBT a=8"
+      ]
+    },
+    "note": "正值表示至少一个点更差；不是Emax相减。斜线为部分覆盖，不作完整轨迹排名；N差异见逐点表。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-sierra-pointwise-excess.spec.json",
+    "fullSpecSha256": "9624efee50d023bb6ce3f66291dd87c88dc0c1075b341b7c4e3b41f0482c8935"
+  },
+  {
+    "id": "dem-sierra-quality-cost",
+    "title": "dem-sierra：配置级成本与观测质量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-sierra-quality-cost.png",
+    "sha256": "639cff99f52c1b6bf1e392d65ee0127bb00502891eeadc93370313d06ea26352",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "7f8329291874c939c1f910e56ccbe298a880c927c1cd9b7eb8d78cccf09d95f5",
+        "55536e548f374fabbb0779cc5a58589f6aeb498d9c3c9a040c3ce4bebbbb6895",
+        "14db56aebefdb78d60f0205aea3d327f0cb2a0f1f91a786cc8e289d90d9eef44",
+        "96a8e2ec0e7365f14a76b85c8bfaceaf052ad0f6fe2ef329a509109ab9051e02",
+        "280b9cbc756da0c1ef5fe688d56511a3e83a8334dbdd357654ff4fea9561b79e"
+      ]
+    },
+    "note": "GPU异步帧包络非完成时间；配置关联不假定跨进程mesh相同。质量覆盖不足见失败表，不据此排名。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-sierra-quality-cost.spec.json",
+    "fullSpecSha256": "ccfceba60d11950bc6e9feffdcbe44e6cea213166ccc2040cef6bb0cd11a4050"
+  },
+  {
+    "id": "dem-sierra-quality-n",
+    "title": "dem-sierra：同视图质量与实际数量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-sierra-quality-n.png",
+    "sha256": "64d4266df274463c1032ff74657ca1dc4e091345dcae1c23972b708a959c5b9e",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "frames": [
+        2,
+        48,
+        80,
+        95
+      ]
+    },
+    "note": "仅有效质量点；连线不是插值或Pareto证明。容量不是预算，数量不匹配仍保留。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-sierra-quality-n.spec.json",
+    "fullSpecSha256": "7fb1ed104c81868c935d500f64749acc71358a615f2ef5a66fa99f79994941f0"
+  },
+  {
+    "id": "dem-sierra-quality-trajectory",
+    "title": "dem-sierra：质量与数量轨迹",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-sierra-quality-trajectory.png",
+    "sha256": "9f36f798c6496f093fa1146e19c34032d6f9e91e3edb6f83905f4f945852217a",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "frames": [
+        2,
+        48,
+        80,
+        95
+      ]
+    },
+    "note": "只评价预冻结关键机会；无效质量留空不连线。不同view的误差下降不自动代表几何恢复。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-sierra-quality-trajectory.spec.json",
+    "fullSpecSha256": "928a7d7aa22e56120795cebec54eba84ca392644576ab1f1cb057ca0f7aa2519"
+  },
+  {
+    "id": "dem-sierra-runtime",
+    "title": "dem-sierra：独立进程正常成本",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-sierra-runtime.png",
+    "sha256": "1db6e046104e0361da467077dc71cb58105730b1405f28a936590f5fc7c1cc51",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "7f8329291874c939c1f910e56ccbe298a880c927c1cd9b7eb8d78cccf09d95f5",
+        "55536e548f374fabbb0779cc5a58589f6aeb498d9c3c9a040c3ce4bebbbb6895",
+        "14db56aebefdb78d60f0205aea3d327f0cb2a0f1f91a786cc8e289d90d9eef44",
+        "96a8e2ec0e7365f14a76b85c8bfaceaf052ad0f6fe2ef329a509109ab9051e02",
+        "555420f41bf89282bb13269cac7dd71c31a82c7658a6a68cf507077f4828184e",
+        "280b9cbc756da0c1ef5fe688d56511a3e83a8334dbdd357654ff4fea9561b79e"
+      ],
+      "group": "warm"
+    },
+    "note": "CPU与GPU独立坐标/计时边界；误差线为进程均值范围，非CI，不表示同质量加速。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-sierra-runtime.spec.json",
+    "fullSpecSha256": "1bc675f4a75f078624833505b4552d9342f998b1b2a79eee35874ac0c09634b5"
+  },
+  {
+    "id": "dem-sierra-stages-1",
+    "title": "dem-sierra：阶段成本边界（1）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-sierra-stages-1.png",
+    "sha256": "9f02bcba3b8928c38612f22b2d04071e14cac0f91d7e5eb2e056573510fb3663",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "7f8329291874c939c1f910e56ccbe298a880c927c1cd9b7eb8d78cccf09d95f5",
+        "55536e548f374fabbb0779cc5a58589f6aeb498d9c3c9a040c3ce4bebbbb6895",
+        "14db56aebefdb78d60f0205aea3d327f0cb2a0f1f91a786cc8e289d90d9eef44"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-sierra-stages-1.spec.json",
+    "fullSpecSha256": "21280cc0cb120fca87bb985e1619cda9627ee7dd4453e625f6746f676d046591"
+  },
+  {
+    "id": "dem-sierra-stages-2",
+    "title": "dem-sierra：阶段成本边界（2）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-sierra-stages-2.png",
+    "sha256": "bbe0f1a878f60a6bb4e9b43704a317ef00078adbee9ee5f26b6356fc75f3f331",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "96a8e2ec0e7365f14a76b85c8bfaceaf052ad0f6fe2ef329a509109ab9051e02",
+        "555420f41bf89282bb13269cac7dd71c31a82c7658a6a68cf507077f4828184e",
+        "280b9cbc756da0c1ef5fe688d56511a3e83a8334dbdd357654ff4fea9561b79e"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-sierra-stages-2.spec.json",
+    "fullSpecSha256": "335b36f07d809338c95798c807638e58c402b75ed5cb7c73068939871c7db909"
+  },
+  {
+    "id": "dem-sierra-timeline",
+    "title": "dem-sierra：固定第一进程的时序与工作量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/dem-sierra-timeline.png",
+    "sha256": "90c5b945d462ec9eadaf4db181750216ec98ce7e6f1fa8b269bb26512d8e2059",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "runs": [
+        "r1-dem-sierra-b50000-classic-t1",
+        "r1-dem-sierra-b50000-dod-t8",
+        "r1-dem-sierra-b50000-transactional-t8",
+        "r1-dem-sierra-cbt-a16",
+        "r1-dem-sierra-cbt-a4",
+        "r1-dem-sierra-cbt-a8"
+      ]
+    },
+    "note": "包含冷启动；CPU/GPU实际设备不同，主机帧包络不是GPU完成延迟。完整重复和工作计数在数表。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/dem-sierra-timeline.spec.json",
+    "fullSpecSha256": "176e3d84cde21b76df09544e44e82e6ac1d195a62967aa7d22092545469dcd57"
+  },
+  {
+    "id": "generated-ridge-pointwise-excess",
+    "title": "generated-ridge：逐点退化与配对覆盖",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/generated-ridge-pointwise-excess.png",
+    "sha256": "3a11b09ef5582551b073ef3589e37e0ca1be6fe9a3cf233a6da2250312bdb900",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "pairs": [
+        "Classic 50k / 1t − DOD 50k / 8t",
+        "Transactional 50k / 8t − DOD 50k / 8t",
+        "Transactional 50k / 8t − CBT a=16",
+        "Transactional 50k / 8t − CBT a=4",
+        "Transactional 50k / 8t − CBT a=8"
+      ]
+    },
+    "note": "正值表示至少一个点更差；不是Emax相减。斜线为部分覆盖，不作完整轨迹排名；N差异见逐点表。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/generated-ridge-pointwise-excess.spec.json",
+    "fullSpecSha256": "6ebf01a3d9ae20e44ce1fd76fcbdb6ff0a2d5ab390b247f84ad4aa02792d27ea"
+  },
+  {
+    "id": "generated-ridge-quality-cost",
+    "title": "generated-ridge：配置级成本与观测质量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/generated-ridge-quality-cost.png",
+    "sha256": "2685be0025df0aa68e67102e65d0636db4d792410848e3caec2589551fd244a8",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "a58618edccfba74c623ff11b099fd0e5208cb431b78dc1a8c716675ef9925edc",
+        "7efcbda8b68784c774d975b111f81c7f1024c669811c61d3d1b71faebced0839",
+        "f496ffb3b25f1aaf30b382e3a702feed3a21e73a8512e439cdd5cc7cb02e30bd",
+        "45674d23a8c6384f3678240891a1aae40a569089905bbcbb34588b854c8bbf04",
+        "f301192ce2c1eef365c89f965f2558e639401f2561759bbc8003c55814bea112",
+        "eeba721acb032ab7d1ac90fb9c2d01aaa865f39c1434b69cd998e42208ddcbbe"
+      ]
+    },
+    "note": "GPU异步帧包络非完成时间；配置关联不假定跨进程mesh相同。质量覆盖不足见失败表，不据此排名。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/generated-ridge-quality-cost.spec.json",
+    "fullSpecSha256": "5695a38418fe17f41a3415abd96d5866d25c8574e06deaf9cadd6e62ffcddbea"
+  },
+  {
+    "id": "generated-ridge-quality-n",
+    "title": "generated-ridge：同视图质量与实际数量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/generated-ridge-quality-n.png",
+    "sha256": "f6add46a05c6f909785745133d445f10350f4080d1d63c5e736dc14a5417df28",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "frames": [
+        2,
+        48,
+        80,
+        95
+      ]
+    },
+    "note": "仅有效质量点；连线不是插值或Pareto证明。容量不是预算，数量不匹配仍保留。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/generated-ridge-quality-n.spec.json",
+    "fullSpecSha256": "13cd86af34cc0ca80e346d9b674160b5eb98ddb88c4de2eb4a987a204db01f38"
+  },
+  {
+    "id": "generated-ridge-quality-trajectory",
+    "title": "generated-ridge：质量与数量轨迹",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/generated-ridge-quality-trajectory.png",
+    "sha256": "b10c60b6dbd676d96d96820422a92647fa63826307d9f070c883f80573108502",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "frames": [
+        2,
+        48,
+        80,
+        95
+      ]
+    },
+    "note": "只评价预冻结关键机会；无效质量留空不连线。不同view的误差下降不自动代表几何恢复。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/generated-ridge-quality-trajectory.spec.json",
+    "fullSpecSha256": "611bab1d3060f01c80aae1eb454f2448d98605466ed3eb89452295ca49d9115a"
+  },
+  {
+    "id": "generated-ridge-runtime",
+    "title": "generated-ridge：独立进程正常成本",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/generated-ridge-runtime.png",
+    "sha256": "46ea5cc6528edc244becff5e9b144691dee880ed07524d82b3cb54aa3385e021",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "a58618edccfba74c623ff11b099fd0e5208cb431b78dc1a8c716675ef9925edc",
+        "7efcbda8b68784c774d975b111f81c7f1024c669811c61d3d1b71faebced0839",
+        "f496ffb3b25f1aaf30b382e3a702feed3a21e73a8512e439cdd5cc7cb02e30bd",
+        "45674d23a8c6384f3678240891a1aae40a569089905bbcbb34588b854c8bbf04",
+        "f301192ce2c1eef365c89f965f2558e639401f2561759bbc8003c55814bea112",
+        "eeba721acb032ab7d1ac90fb9c2d01aaa865f39c1434b69cd998e42208ddcbbe"
+      ],
+      "group": "warm"
+    },
+    "note": "CPU与GPU独立坐标/计时边界；误差线为进程均值范围，非CI，不表示同质量加速。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/generated-ridge-runtime.spec.json",
+    "fullSpecSha256": "610db69c1ff852eb15e0f143d35015b4fc51ca3a7f17767764cc64d459ff4ed0"
+  },
+  {
+    "id": "generated-ridge-stages-1",
+    "title": "generated-ridge：阶段成本边界（1）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/generated-ridge-stages-1.png",
+    "sha256": "8f8dbab8d0c2101c4d5123ee3be08566ba2c9a55cfe8869fae10a28fff034df1",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "a58618edccfba74c623ff11b099fd0e5208cb431b78dc1a8c716675ef9925edc",
+        "7efcbda8b68784c774d975b111f81c7f1024c669811c61d3d1b71faebced0839",
+        "f496ffb3b25f1aaf30b382e3a702feed3a21e73a8512e439cdd5cc7cb02e30bd"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/generated-ridge-stages-1.spec.json",
+    "fullSpecSha256": "070423564c7156ae83ead9257ebea4080cae62211dccafcad5af1f4ced05b405"
+  },
+  {
+    "id": "generated-ridge-stages-2",
+    "title": "generated-ridge：阶段成本边界（2）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/generated-ridge-stages-2.png",
+    "sha256": "bb098368f5a4a38afa59833f46b0c24a927a5e37702bb9540cb32176b50e0ce0",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "45674d23a8c6384f3678240891a1aae40a569089905bbcbb34588b854c8bbf04",
+        "f301192ce2c1eef365c89f965f2558e639401f2561759bbc8003c55814bea112",
+        "eeba721acb032ab7d1ac90fb9c2d01aaa865f39c1434b69cd998e42208ddcbbe"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/generated-ridge-stages-2.spec.json",
+    "fullSpecSha256": "d229b8d8a2c4117ffdd2f30d13997cf7935f2c08d8690700b93b24f45c01e579"
+  },
+  {
+    "id": "generated-ridge-timeline",
+    "title": "generated-ridge：固定第一进程的时序与工作量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/generated-ridge-timeline.png",
+    "sha256": "6c865f501551b9b1d8228fedb842e2080d29749dbb3975aca30108f1063599fd",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "runs": [
+        "r1-generated-ridge-b50000-classic-t1",
+        "r1-generated-ridge-b50000-dod-t8",
+        "r1-generated-ridge-b50000-transactional-t8",
+        "r1-generated-ridge-cbt-a16",
+        "r1-generated-ridge-cbt-a4",
+        "r1-generated-ridge-cbt-a8"
+      ]
+    },
+    "note": "包含冷启动；CPU/GPU实际设备不同，主机帧包络不是GPU完成延迟。完整重复和工作计数在数表。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/generated-ridge-timeline.spec.json",
+    "fullSpecSha256": "70368e8d0eb478df95e8617fc271763528620d94a5e1fa7141b5d01d7804e6a9"
+  },
+  {
+    "id": "peking547-pointwise-excess",
+    "title": "peking547：逐点退化与配对覆盖",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-pointwise-excess.png",
+    "sha256": "59cc6a96fdcf7f3b0fbda184959d2b2a4af1e8c9b36dc4dd2dfad493f6bccb8e",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "pairs": [
+        "Classic 100k / 1t − DOD 100k / 8t",
+        "Transactional 100k / 8t − DOD 100k / 8t",
+        "Transactional 100k / 8t − CBT a=16",
+        "Transactional 100k / 8t − CBT a=4",
+        "Transactional 100k / 8t − CBT a=8",
+        "Classic 200k / 1t − DOD 200k / 8t",
+        "Transactional 200k / 8t − DOD 200k / 8t",
+        "Transactional 200k / 8t − CBT a=16",
+        "Transactional 200k / 8t − CBT a=4",
+        "Transactional 200k / 8t − CBT a=8",
+        "Classic 50k / 1t − DOD 50k / 8t",
+        "Transactional 50k / 8t − DOD 50k / 8t",
+        "Transactional 50k / 8t − CBT a=16",
+        "Transactional 50k / 8t − CBT a=4",
+        "Transactional 50k / 8t − CBT a=8"
+      ]
+    },
+    "note": "正值表示至少一个点更差；不是Emax相减。斜线为部分覆盖，不作完整轨迹排名；N差异见逐点表。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-pointwise-excess.spec.json",
+    "fullSpecSha256": "180be09d9cd7cb45b4174e0967f7d9c4901ed91e66576c1fea6fdea343e50f57"
+  },
+  {
+    "id": "peking547-quality-cost",
+    "title": "peking547：配置级成本与观测质量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-quality-cost.png",
+    "sha256": "b78a834325c60f5a76c95d6fa9ec5c1246b9a321d3a18fe71c798d013f7d70e3",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "01b61705d78f4b0248b9b04cbdc040d2c6da20c654079fb0efde1b7a132e31e5",
+        "abb420a5ff72b66b7f14694060d0ab6947c74cda214c377fadf432159534de5e",
+        "6ed17f1185eeaac863c1111c060642cf2461aad1943d9c8a5be3c23ffaf3c228",
+        "5ad43194d0ae5d933f30fbbae9fe29bcbe8aff83b6589145621a9476337175fa",
+        "adc6c5f2f0d1a2aa6c273c0a3c9ba67193ee3cae6052e83aaad649dde697a576",
+        "0fe355d678854765e3545727db1040702b3729f2d9d045ef16adbd32a6a3439c",
+        "1196acc201b207cbf559978d043d77302090394ad5b59dd131e9b75a494f2150",
+        "dad0f8db375276c73bfc6721b65f3592c2e5b08ccecc1f8dee41b70df82e2a33",
+        "213559c1d6f0f84fbef44566ae5a3ae2a679316bdcb2200de07d899b58d15ec6",
+        "34595dd6be4fba239ef2abccbfb0662c83c788be677afb95daa83c657efd0783",
+        "06c5ba862c982c55f04bbb726316f197828d5f5c97fd8bfb1a5b1fe266ea3a8d",
+        "9476fc0c35c7830b8a27be5741d88b0f191ab8db7fa65fd455e86f05097752e6"
+      ]
+    },
+    "note": "GPU异步帧包络非完成时间；配置关联不假定跨进程mesh相同。质量覆盖不足见失败表，不据此排名。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-quality-cost.spec.json",
+    "fullSpecSha256": "d674575c2e7ea6d73cd5fd1b6d274a5108e79874902814c1661069a335add8bd"
+  },
+  {
+    "id": "peking547-quality-n",
+    "title": "peking547：同视图质量与实际数量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-quality-n.png",
+    "sha256": "c64d738e17433bf72d013321a8688fe64cde70c737ada690506386d7eeb9c79d",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "frames": [
+        2,
+        15,
+        16,
+        23
+      ]
+    },
+    "note": "仅有效质量点；连线不是插值或Pareto证明。容量不是预算，数量不匹配仍保留。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-quality-n.spec.json",
+    "fullSpecSha256": "3956a7ba8fad3eb62bed2c4fb1e0f2d3112b9a3ffca433e11fe2801fcfe3c7a0"
+  },
+  {
+    "id": "peking547-quality-trajectory",
+    "title": "peking547：质量与数量轨迹",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-quality-trajectory.png",
+    "sha256": "0ac25bb78128ac08243e0762d1084adc0c67b36260376c2731ebb02835214e7d",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "frames": [
+        2,
+        15,
+        16,
+        23
+      ]
+    },
+    "note": "只评价预冻结关键机会；无效质量留空不连线。不同view的误差下降不自动代表几何恢复。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-quality-trajectory.spec.json",
+    "fullSpecSha256": "213a2b0bb33317dd6ca0ecdbdf81d3097bc32ed76b8a6fdcf5b29a025b174325"
+  },
+  {
+    "id": "peking547-runtime",
+    "title": "peking547：独立进程正常成本",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-runtime.png",
+    "sha256": "5cf3410b993b871e47625add0e15a03b91aa854d893beaeebc60e925180afc3c",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "01b61705d78f4b0248b9b04cbdc040d2c6da20c654079fb0efde1b7a132e31e5",
+        "abb420a5ff72b66b7f14694060d0ab6947c74cda214c377fadf432159534de5e",
+        "6ed17f1185eeaac863c1111c060642cf2461aad1943d9c8a5be3c23ffaf3c228",
+        "5ad43194d0ae5d933f30fbbae9fe29bcbe8aff83b6589145621a9476337175fa",
+        "adc6c5f2f0d1a2aa6c273c0a3c9ba67193ee3cae6052e83aaad649dde697a576",
+        "0fe355d678854765e3545727db1040702b3729f2d9d045ef16adbd32a6a3439c",
+        "1196acc201b207cbf559978d043d77302090394ad5b59dd131e9b75a494f2150",
+        "dad0f8db375276c73bfc6721b65f3592c2e5b08ccecc1f8dee41b70df82e2a33",
+        "f465d2c4d412982bec70567f3977779fd735bca1880bead215c3c76b65d212d1",
+        "213559c1d6f0f84fbef44566ae5a3ae2a679316bdcb2200de07d899b58d15ec6",
+        "34595dd6be4fba239ef2abccbfb0662c83c788be677afb95daa83c657efd0783",
+        "06c5ba862c982c55f04bbb726316f197828d5f5c97fd8bfb1a5b1fe266ea3a8d",
+        "9476fc0c35c7830b8a27be5741d88b0f191ab8db7fa65fd455e86f05097752e6"
+      ],
+      "group": "warm"
+    },
+    "note": "CPU与GPU独立坐标/计时边界；误差线为进程均值范围，非CI，不表示同质量加速。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-runtime.spec.json",
+    "fullSpecSha256": "ac268ef324b80cb30ccbac9de4997fc46812f2385a30670836d541cb15babe5c"
+  },
+  {
+    "id": "peking547-stages-1",
+    "title": "peking547：阶段成本边界（1）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-stages-1.png",
+    "sha256": "e18ce54b827d13bf5a141fe5418098c80847524c3bc8156cf0794d9472793c84",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "01b61705d78f4b0248b9b04cbdc040d2c6da20c654079fb0efde1b7a132e31e5",
+        "abb420a5ff72b66b7f14694060d0ab6947c74cda214c377fadf432159534de5e",
+        "6ed17f1185eeaac863c1111c060642cf2461aad1943d9c8a5be3c23ffaf3c228"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-stages-1.spec.json",
+    "fullSpecSha256": "11b65c9a0b97d308d02427ad41f075564eb81f03b4cb4948ac821069d58ed661"
+  },
+  {
+    "id": "peking547-stages-2",
+    "title": "peking547：阶段成本边界（2）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-stages-2.png",
+    "sha256": "ed298bcd86ec74c65a92f079ebc4c6fd7688e4a1fd68b1cdb7bb2f997a7fb858",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "5ad43194d0ae5d933f30fbbae9fe29bcbe8aff83b6589145621a9476337175fa",
+        "adc6c5f2f0d1a2aa6c273c0a3c9ba67193ee3cae6052e83aaad649dde697a576",
+        "0fe355d678854765e3545727db1040702b3729f2d9d045ef16adbd32a6a3439c"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-stages-2.spec.json",
+    "fullSpecSha256": "402621715b3b4d89050a4bef5de85b8ed635047c1a4fbdffd9344b837a0d0aea"
+  },
+  {
+    "id": "peking547-stages-3",
+    "title": "peking547：阶段成本边界（3）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-stages-3.png",
+    "sha256": "bf6eb7af5c49725752b1b9e6cf0aba7b11f86f3e18c0cdc2dbd0fc743708a14f",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "1196acc201b207cbf559978d043d77302090394ad5b59dd131e9b75a494f2150",
+        "dad0f8db375276c73bfc6721b65f3592c2e5b08ccecc1f8dee41b70df82e2a33",
+        "f465d2c4d412982bec70567f3977779fd735bca1880bead215c3c76b65d212d1"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-stages-3.spec.json",
+    "fullSpecSha256": "449d6681983abc34cc5d6bb31a8ef0417538a5e3a3b334c92fc4d5ec28c68407"
+  },
+  {
+    "id": "peking547-stages-4",
+    "title": "peking547：阶段成本边界（4）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-stages-4.png",
+    "sha256": "c53a8c06239e7651650556a92593ede7a8183ccc0d1c93dacb813e659656252e",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "213559c1d6f0f84fbef44566ae5a3ae2a679316bdcb2200de07d899b58d15ec6",
+        "34595dd6be4fba239ef2abccbfb0662c83c788be677afb95daa83c657efd0783",
+        "06c5ba862c982c55f04bbb726316f197828d5f5c97fd8bfb1a5b1fe266ea3a8d"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-stages-4.spec.json",
+    "fullSpecSha256": "abf18fbdd2b0fedd27041e2acc17e5dca47d1dc2791c03820ce5278f10d1cdb7"
+  },
+  {
+    "id": "peking547-stages-5",
+    "title": "peking547：阶段成本边界（5）",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-stages-5.png",
+    "sha256": "171f69873f662d2eb43e6fd4189544979b4c67a94ecaefb3ad25bfc0f727698a",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "configurations": [
+        "9476fc0c35c7830b8a27be5741d88b0f191ab8db7fa65fd455e86f05097752e6"
+      ]
+    },
+    "note": "GPU阶段显示固定第一正常进程，绘制另列；CPU阶段为进程均值。两种设备计时不能堆叠。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-stages-5.spec.json",
+    "fullSpecSha256": "2d4ec1cc8a3cea1efb3e6f97a4e2b0d0c3688002d60b92caf789a854fb77073f"
+  },
+  {
+    "id": "peking547-timeline",
+    "title": "peking547：固定第一进程的时序与工作量",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/peking547-timeline.png",
+    "sha256": "100f14bddd92dc1a6acb2fde9c8cb1edba76b883feb3bc288a73ab8c0afe7c4e",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "runs": [
+        "r1-peking547-b100000-classic-t1",
+        "r1-peking547-b100000-dod-t8",
+        "r1-peking547-b100000-transactional-t8",
+        "r1-peking547-b200000-classic-t1",
+        "r1-peking547-b200000-dod-t8",
+        "r1-peking547-b200000-transactional-t8",
+        "r1-peking547-b50000-classic-t1",
+        "r1-peking547-b50000-dod-t8",
+        "r1-peking547-b50000-transactional-t1",
+        "r1-peking547-b50000-transactional-t8",
+        "r1-peking547-cbt-a16",
+        "r1-peking547-cbt-a4",
+        "r1-peking547-cbt-a8"
+      ]
+    },
+    "note": "包含冷启动；CPU/GPU实际设备不同，主机帧包络不是GPU完成延迟。完整重复和工作计数在数表。",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/figures/peking547-timeline.spec.json",
+    "fullSpecSha256": "601a792ce1494baa7ad3a100c39e2cdd21ce4fc38c11cbce116eddf3103e92b9"
+  },
+  {
+    "id": "witness-visual-dem-canyon-b50000-transactional-t8-48",
+    "title": "dem-canyon / transactional / immutable / frame 48 / Emax 9.2745px",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/witness-visual-dem-canyon-b50000-transactional-t8-48.png",
+    "sha256": "de888b46d58b5a09b7e5dc80245385950c3cc38385ae27b733315b93fcba7c96",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "run": "visual-dem-canyon-b50000-transactional-t8",
+      "frame": 48,
+      "meshHash": "11488816544551648613",
+      "locations": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-transactional-t8/frame-48/locations.csv",
+      "bins": 64,
+      "displayAggregation": "max of exported finite points",
+      "displayVmax": 63.06815471320398,
+      "crop": [
+        584,
+        520,
+        200,
+        200
+      ]
+    },
+    "note": "灰格为没有导出点，未插值补全；完整Emax来自全Q。原图与叠层分开保存，裁剪不是新一次截图",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/visual-figures/witness-visual-dem-canyon-b50000-transactional-t8-48.spec.json",
+    "fullSpecSha256": "5f85deefe4f63f9965e5a6a1b949657eaa14dac2930c9c6b65b029d443416f00"
+  },
+  {
+    "id": "witness-visual-dem-sierra-b50000-transactional-t8-48",
+    "title": "dem-sierra / transactional / immutable / frame 48 / Emax 2.0150px",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/witness-visual-dem-sierra-b50000-transactional-t8-48.png",
+    "sha256": "99c1846a9ae6354f9790d178aef4062d7fff1f2cb9f92b1eb1ac0960f68d23a1",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "run": "visual-dem-sierra-b50000-transactional-t8",
+      "frame": 48,
+      "meshHash": "17778426753060689521",
+      "locations": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-transactional-t8/frame-48/locations.csv",
+      "bins": 64,
+      "displayAggregation": "max of exported finite points",
+      "displayVmax": 16.374504102298975,
+      "crop": [
+        504,
+        520,
+        200,
+        200
+      ]
+    },
+    "note": "灰格为没有导出点，未插值补全；完整Emax来自全Q。原图与叠层分开保存，裁剪不是新一次截图",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/visual-figures/witness-visual-dem-sierra-b50000-transactional-t8-48.spec.json",
+    "fullSpecSha256": "3b1ef2b73ddae4e3f1c6cf7ee26d59baff67164488329cddc72c14cbc914b6d8"
+  },
+  {
+    "id": "witness-visual-generated-ridge-b50000-transactional-t8-48",
+    "title": "generated-ridge / transactional / immutable / frame 48 / Emax 1.1640px",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/witness-visual-generated-ridge-b50000-transactional-t8-48.png",
+    "sha256": "7e1bc65601a2f262ef9b5e0304a17d08edb4d994d06bf7225e110870a39a86f0",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "run": "visual-generated-ridge-b50000-transactional-t8",
+      "frame": 48,
+      "meshHash": "13296071271573581660",
+      "locations": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-generated-ridge-b50000-transactional-t8/frame-48/locations.csv",
+      "bins": 64,
+      "displayAggregation": "max of exported finite points",
+      "displayVmax": 48.631061236831215,
+      "crop": [
+        502,
+        272,
+        200,
+        200
+      ]
+    },
+    "note": "灰格为没有导出点，未插值补全；完整Emax来自全Q。原图与叠层分开保存，裁剪不是新一次截图",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/visual-figures/witness-visual-generated-ridge-b50000-transactional-t8-48.spec.json",
+    "fullSpecSha256": "7521ecfab841e1f93e366f13bf7f47c72b32abdc96eea7d562fb1a9369601866"
+  },
+  {
+    "id": "witness-visual-peking547-b50000-transactional-t8-15",
+    "title": "peking547 / transactional / immutable / frame 15 / Emax 1.9966px",
+    "file": "docs/research/experiment_infrastructure/figures/fer_02/witness-visual-peking547-b50000-transactional-t8-15.png",
+    "sha256": "0caeb94ca49ea224816f8fdf59c9aff71e58fb6822cf456a4c8704b7a42005c0",
+    "analysisSha256": "72874d2ce96ea20c000314a0ace04675c8699e31975e5d77f8468edbdf525925",
+    "selection": {
+      "run": "visual-peking547-b50000-transactional-t8",
+      "frame": 15,
+      "meshHash": "10475014748678183350",
+      "locations": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b50000-transactional-t8/frame-15/locations.csv",
+      "bins": 64,
+      "displayAggregation": "max of exported finite points",
+      "displayVmax": 8.091670543434704,
+      "crop": [
+        0,
+        286,
+        200,
+        200
+      ]
+    },
+    "note": "灰格为没有导出点，未插值补全；完整Emax来自全Q。原图与叠层分开保存，裁剪不是新一次截图",
+    "fullSpec": "benchmark-output/experiment-infrastructure/fer-02/report/visual-figures/witness-visual-peking547-b50000-transactional-t8-15.spec.json",
+    "fullSpecSha256": "bd0e7588977720946dc12c954a4b1dc1311acf4b77f420851b04873ab706c8dc"
+  }
+]

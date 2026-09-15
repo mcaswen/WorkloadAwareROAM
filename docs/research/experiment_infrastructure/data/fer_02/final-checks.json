@@ -1,0 +1,24 @@
+{
+  "status": "pass",
+  "cases": 32,
+  "timingProcesses": 96,
+  "visualProcesses": 30,
+  "qualityValid": 111,
+  "qualityInvalid": 9,
+  "paired": 111,
+  "unpaired": 9,
+  "sameTaskCrossWorkerChecks": 18,
+  "sourceIdentities": 1,
+  "report": {
+    "localLinks": 771,
+    "figureSpecs": 70,
+    "status": "pass",
+    "visualReview": "requires actual image/page inspection"
+  },
+  "markdownLinks": 84,
+  "committedPng": 44,
+  "pythonTests": 16,
+  "playerLogic": 30,
+  "actualBrowserInteraction": "not tested",
+  "userVisual": "pending"
+}
