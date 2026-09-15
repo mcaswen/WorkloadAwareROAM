@@ -10,6 +10,7 @@ if(NOT PARALLEL_ROAM_EXPERIMENT_BOOST_INCLUDE)
 endif()
 add_library(parallel_roam_experiment_infrastructure STATIC
     "${PROJECT_SOURCE_DIR}/src/experiment/infrastructure/ExperimentCase.cpp"
+    "${PROJECT_SOURCE_DIR}/src/experiment/infrastructure/TerrainAssetCatalog.cpp"
     "${PROJECT_SOURCE_DIR}/src/experiment/infrastructure/ExperimentRecords.cpp")
 target_include_directories(parallel_roam_experiment_infrastructure PUBLIC "${PROJECT_SOURCE_DIR}/src")
 target_include_directories(parallel_roam_experiment_infrastructure SYSTEM PRIVATE "${PARALLEL_ROAM_EXPERIMENT_BOOST_INCLUDE}")

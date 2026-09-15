@@ -36,6 +36,370 @@
         "source": "已有仓库输入",
         "retrievedAt": null
       }
+    },
+    {
+      "id": "generated-flat",
+      "name": "平面",
+      "path": "assets/heightmaps/experiment/generated/Hm_Experiment_Flat_129.png",
+      "width": 129,
+      "height": 129,
+      "terrainSize": 80,
+      "heightScale": 12,
+      "fileSha256": "7b5a54694fe590e745fdbf6c33beedd3bac8c17548084471c46f8e76e32df8d3",
+      "sampleSha256": "0dcf49e778d2a0aebe01e8f8a9b1941fb9ceabd76febddb2af0f59d8bc728ec7",
+      "sampleEncoding": "uint16-le-row-major",
+      "kind": "generated",
+      "provenance": {
+        "source": "项目数值函数",
+        "licenseStatus": "项目自制",
+        "recipeVersion": 1,
+        "recipe": "flat",
+        "seed": 20260915,
+        "numpy": "2.5.3",
+        "rounding": "nearest-even",
+        "axis": "row=v increases; column=u increases",
+        "maxQuantizationError": 7.629510948348184e-06
+      }
+    },
+    {
+      "id": "generated-ramp",
+      "name": "非对称斜坡",
+      "path": "assets/heightmaps/experiment/generated/Hm_Experiment_Ramp_513.png",
+      "width": 513,
+      "height": 513,
+      "terrainSize": 80,
+      "heightScale": 12,
+      "fileSha256": "1d0853e541e945b7e526a40b78d3086b51e47c3bf9c4af96f03d4e12ffc6fced",
+      "sampleSha256": "50f23053d4e420b8bb2156fc4032ecddb80750acd8a60e82928d35c7d7e87663",
+      "sampleEncoding": "uint16-le-row-major",
+      "kind": "generated",
+      "provenance": {
+        "source": "项目数值函数",
+        "licenseStatus": "项目自制",
+        "recipeVersion": 1,
+        "recipe": "ramp",
+        "seed": 20260915,
+        "numpy": "2.5.3",
+        "rounding": "nearest-even",
+        "axis": "row=v increases; column=u increases",
+        "maxQuantizationError": 7.629510948348184e-06
+      }
+    },
+    {
+      "id": "generated-spike",
+      "name": "局部尖峰",
+      "path": "assets/heightmaps/experiment/generated/Hm_Experiment_Spike_513.png",
+      "width": 513,
+      "height": 513,
+      "terrainSize": 80,
+      "heightScale": 12,
+      "fileSha256": "b27459f3b2f499be6e08a9fa39aa2fb2e55318ef6761a5c304e76f807613f405",
+      "sampleSha256": "58f4ba0db01776556d639f754910c299e57ab790b88caf0b9cb3532b2c88a83f",
+      "sampleEncoding": "uint16-le-row-major",
+      "kind": "generated",
+      "provenance": {
+        "source": "项目数值函数",
+        "licenseStatus": "项目自制",
+        "recipeVersion": 1,
+        "recipe": "spike",
+        "seed": 20260915,
+        "numpy": "2.5.3",
+        "rounding": "nearest-even",
+        "axis": "row=v increases; column=u increases",
+        "maxQuantizationError": 7.629144614870742e-06
+      }
+    },
+    {
+      "id": "generated-ridge",
+      "name": "山脊",
+      "path": "assets/heightmaps/experiment/generated/Hm_Experiment_Ridge_513.png",
+      "width": 513,
+      "height": 513,
+      "terrainSize": 80,
+      "heightScale": 12,
+      "fileSha256": "c458f8c594fdd2377fd2c7c9bad0bb79a989cd774f081a5e78f1ec1f1fa3e385",
+      "sampleSha256": "89c310713046ffdb4724df0032a28f3ca852ccb503479287392717fcc81c7fa2",
+      "sampleEncoding": "uint16-le-row-major",
+      "kind": "generated",
+      "provenance": {
+        "source": "项目数值函数",
+        "licenseStatus": "项目自制",
+        "recipeVersion": 1,
+        "recipe": "ridge",
+        "seed": 20260915,
+        "numpy": "2.5.3",
+        "rounding": "nearest-even",
+        "axis": "row=v increases; column=u increases",
+        "maxQuantizationError": 7.62948577617828e-06
+      }
+    },
+    {
+      "id": "generated-valley",
+      "name": "深谷",
+      "path": "assets/heightmaps/experiment/generated/Hm_Experiment_Valley_513.png",
+      "width": 513,
+      "height": 513,
+      "terrainSize": 80,
+      "heightScale": 12,
+      "fileSha256": "6d9591e2c3eafe7a73b3efcaa03d365684b0d2824e8ab4ebd24befa4f961d017",
+      "sampleSha256": "ed821c505f47ca84b68b1a6070888a2aad13be4018e96c7a50fd561b8393a0a9",
+      "sampleEncoding": "uint16-le-row-major",
+      "kind": "generated",
+      "provenance": {
+        "source": "项目数值函数",
+        "licenseStatus": "项目自制",
+        "recipeVersion": 1,
+        "recipe": "valley",
+        "seed": 20260915,
+        "numpy": "2.5.3",
+        "rounding": "nearest-even",
+        "axis": "row=v increases; column=u increases",
+        "maxQuantizationError": 7.629498852801397e-06
+      }
+    },
+    {
+      "id": "generated-multiscale",
+      "name": "多尺度起伏",
+      "path": "assets/heightmaps/experiment/generated/Hm_Experiment_Multiscale_1001.png",
+      "width": 1001,
+      "height": 1001,
+      "terrainSize": 80,
+      "heightScale": 12,
+      "fileSha256": "4bbe01aac406b38a4169f2e1e5f350ca1c2029b8156dfe0ebb1f33ef407fe0fc",
+      "sampleSha256": "e2038e516668e11d5246d850b86a26b1035764b1e1991ffa6c255c1db0c5da6e",
+      "sampleEncoding": "uint16-le-row-major",
+      "kind": "generated",
+      "provenance": {
+        "source": "项目数值函数",
+        "licenseStatus": "项目自制",
+        "recipeVersion": 1,
+        "recipe": "multiscale",
+        "seed": 20260915,
+        "numpy": "2.5.3",
+        "rounding": "nearest-even",
+        "axis": "row=v increases; column=u increases",
+        "maxQuantizationError": 7.629446988288713e-06
+      }
+    },
+    {
+      "id": "dem-sierra",
+      "name": "Sierra Nevada山地",
+      "path": "assets/heightmaps/experiment/imported/Hm_Experiment_Sierra_513.png",
+      "width": 513,
+      "height": 513,
+      "terrainSize": 80,
+      "heightScale": 10.38941992187497,
+      "kind": "imported",
+      "fileSha256": "14ef2bf812983fd59352406aa3eff7f250a832814b1d4068cc6ffcc29a1e4070",
+      "sampleSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "sampleEncoding": "uint16-le-row-major",
+      "provenance": {
+        "source": "USGS 3DEP Bare Earth DEM export; frozen downloaded F32 raster",
+        "licenseStatus": "USGS 3DEP public domain",
+        "licenseUrl": "https://www.usgs.gov/3dep-product-news",
+        "acquiredAt": "2026-09-15",
+        "sourceSha256": "ce65a103ce0fb12a51cef50a396a0c1cc9e44e02e25d9f07f9662514bcb68844",
+        "sourceFile": "benchmark-output/experiment-infrastructure/eip-02/dem-source/sierra.tif",
+        "serviceDescription": "The USGS 3D Elevation Program (3DEP) Bare Earth DEM Dynamic service is based on multi-resolution USGS DEM sources and provides dynamic functions for visualization. These functions include: Hillshade, Aspect Map, Hillshade Stretched, Multi-directional Hillshade, Slope Map, Elevation Tinted Hillshade, Contour. In addition the OGC Web Map Service (WMS) and Web Coverage Service (WCS) interfaces are enabled. Data available in this map service reflects all 3DEP DEM data published as of August 24, 2026.",
+        "exportUrl": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?f=json&bbox=261204.54684919%2C4165276.9710132%2C271224.07809919%2C4175296.5022632&bboxSR=32611&imageSR=32611&size=513%2C513&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&renderingRule=%7B%22rasterFunction%22%3A+%22None%22%7D&adjustAspectRatio=false",
+        "projectionUrl": "https://utility.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=4326&outSR=32611&geometries=%7B%22geometryType%22%3A+%22esriGeometryPoint%22%2C+%22geometries%22%3A+%5B%7B%22x%22%3A+-119.65%2C+%22y%22%3A+37.65%7D%5D%7D",
+        "exportMetadata": {
+          "href": "https://elevation.nationalmap.gov/arcgis/rest/directories/elevation_output/3DEPElevation_ImageServer/_ags_3256bdec_ad1f_4876_9c52_568eef0ca4fa.tif",
+          "width": 513,
+          "height": 513,
+          "extent": {
+            "xmin": 261204.54684919,
+            "ymin": 4165276.9710132,
+            "xmax": 271224.07809919,
+            "ymax": 4175296.5022632,
+            "spatialReference": {
+              "wkid": 32611,
+              "latestWkid": 32611
+            }
+          },
+          "scale": 0
+        },
+        "centerWgs84": [
+          -119.65,
+          37.65
+        ],
+        "epsg": 32611,
+        "elevationOffsetMeters": 1220.484130859375,
+        "elevationRangeMeters": 1298.677490234375,
+        "intervalSpanMeters": 10000.00000000003,
+        "verticalExaggeration": 1,
+        "noDataCount": 0,
+        "rounding": "nearest-even",
+        "rowMapping": "north-up TIFF flipped; row=v increases north",
+        "reference": "quantized U16 + frozen bilinear interpolation",
+        "sourceLimitation": "服务采用多分辨率镶嵌及默认datum转换；保存实际F32导出作为冻结来源，不声称原始测量点",
+        "importSeconds": 55.12439504399998
+      }
+    },
+    {
+      "id": "dem-canyon",
+      "name": "Colorado河谷",
+      "path": "assets/heightmaps/experiment/imported/Hm_Experiment_Canyon_513.png",
+      "width": 513,
+      "height": 513,
+      "terrainSize": 80,
+      "heightScale": 11.973810546875,
+      "kind": "imported",
+      "fileSha256": "c44540e2db88e12aaaca880b5b5557a6bb0629c6421881acafe59184e11ca48a",
+      "sampleSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "sampleEncoding": "uint16-le-row-major",
+      "provenance": {
+        "source": "USGS 3DEP Bare Earth DEM export; frozen downloaded F32 raster",
+        "licenseStatus": "USGS 3DEP public domain",
+        "licenseUrl": "https://www.usgs.gov/3dep-product-news",
+        "acquiredAt": "2026-09-15",
+        "sourceSha256": "2b6f1b575637f95d201d9ce5c3d67c03fc1c87b285391ae12e53512a18cf1710",
+        "sourceFile": "benchmark-output/experiment-infrastructure/eip-02/dem-source/canyon.tif",
+        "serviceDescription": "The USGS 3D Elevation Program (3DEP) Bare Earth DEM Dynamic service is based on multi-resolution USGS DEM sources and provides dynamic functions for visualization. These functions include: Hillshade, Aspect Map, Hillshade Stretched, Multi-directional Hillshade, Slope Map, Elevation Tinted Hillshade, Contour. In addition the OGC Web Map Service (WMS) and Web Coverage Service (WCS) interfaces are enabled. Data available in this map service reflects all 3DEP DEM data published as of August 24, 2026.",
+        "exportUrl": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?f=json&bbox=395973.287873763%2C3990590.30998545%2C405992.819123763%2C4000609.84123545&bboxSR=32612&imageSR=32612&size=513%2C513&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&renderingRule=%7B%22rasterFunction%22%3A+%22None%22%7D&adjustAspectRatio=false",
+        "projectionUrl": "https://utility.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=4326&outSR=32612&geometries=%7B%22geometryType%22%3A+%22esriGeometryPoint%22%2C+%22geometries%22%3A+%5B%7B%22x%22%3A+-112.1%2C+%22y%22%3A+36.1%7D%5D%7D",
+        "exportMetadata": {
+          "href": "https://elevation.nationalmap.gov/arcgis/rest/directories/elevation_output/3DEPElevation_ImageServer/_ags_dc541779_808d_4942_a1e5_2838c2e7a064.tif",
+          "width": 513,
+          "height": 513,
+          "extent": {
+            "xmin": 395973.287873763,
+            "ymin": 3990590.30998545,
+            "xmax": 405992.819123763,
+            "ymax": 4000609.84123545,
+            "spatialReference": {
+              "wkid": 32612,
+              "latestWkid": 32612
+            }
+          },
+          "scale": 0
+        },
+        "centerWgs84": [
+          -112.1,
+          36.1
+        ],
+        "epsg": 32612,
+        "elevationOffsetMeters": 724.817138671875,
+        "elevationRangeMeters": 1496.726318359375,
+        "intervalSpanMeters": 10000.0,
+        "verticalExaggeration": 1,
+        "noDataCount": 0,
+        "rounding": "nearest-even",
+        "rowMapping": "north-up TIFF flipped; row=v increases north",
+        "reference": "quantized U16 + frozen bilinear interpolation",
+        "sourceLimitation": "服务采用多分辨率镶嵌及默认datum转换；保存实际F32导出作为冻结来源，不声称原始测量点",
+        "importSeconds": 18.531702205999977
+      }
+    },
+    {
+      "id": "dem-hills",
+      "name": "Appalachian缓丘",
+      "path": "assets/heightmaps/experiment/imported/Hm_Experiment_Hills_513.png",
+      "width": 513,
+      "height": 513,
+      "terrainSize": 80,
+      "heightScale": 5.08028076171875,
+      "kind": "imported",
+      "fileSha256": "4df5dbad70e6ddd2667875ac48b499290345b009f797936e88b9ea191198ae78",
+      "sampleSha256": "fd4b64bec24cffee2fe5b3a367ee42eb9da3b6716f70ebce6ec4d41adef7fbeb",
+      "sampleEncoding": "uint16-le-row-major",
+      "provenance": {
+        "source": "USGS 3DEP Bare Earth DEM export; frozen downloaded F32 raster",
+        "licenseStatus": "USGS 3DEP public domain",
+        "licenseUrl": "https://www.usgs.gov/3dep-product-news",
+        "acquiredAt": "2026-09-15",
+        "sourceSha256": "f3408171b254355b2ab8c98ff42c4b80cd1929eb38bde8c4719176c536dfe982",
+        "sourceFile": "benchmark-output/experiment-infrastructure/eip-02/dem-source/hills.tif",
+        "serviceDescription": "The USGS 3D Elevation Program (3DEP) Bare Earth DEM Dynamic service is based on multi-resolution USGS DEM sources and provides dynamic functions for visualization. These functions include: Hillshade, Aspect Map, Hillshade Stretched, Multi-directional Hillshade, Slope Map, Elevation Tinted Hillshade, Contour. In addition the OGC Web Map Service (WMS) and Web Coverage Service (WCS) interfaces are enabled. Data available in this map service reflects all 3DEP DEM data published as of August 24, 2026.",
+        "exportUrl": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?f=json&bbox=432060.104875863%2C4001349.0281918%2C442079.636125863%2C4011368.5594418&bboxSR=32617&imageSR=32617&size=513%2C513&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&renderingRule=%7B%22rasterFunction%22%3A+%22None%22%7D&adjustAspectRatio=false",
+        "projectionUrl": "https://utility.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=4326&outSR=32617&geometries=%7B%22geometryType%22%3A+%22esriGeometryPoint%22%2C+%22geometries%22%3A+%5B%7B%22x%22%3A+-81.7%2C+%22y%22%3A+36.2%7D%5D%7D",
+        "exportMetadata": {
+          "href": "https://elevation.nationalmap.gov/arcgis/rest/directories/elevation_output/3DEPElevation_ImageServer/_ags_f9855220_45da_4143_9cc4_e64c78a570cd.tif",
+          "width": 513,
+          "height": 513,
+          "extent": {
+            "xmin": 432060.104875863,
+            "ymin": 4001349.0281918,
+            "xmax": 442079.636125863,
+            "ymax": 4011368.5594418,
+            "spatialReference": {
+              "wkid": 32617,
+              "latestWkid": 32617
+            }
+          },
+          "scale": 0
+        },
+        "centerWgs84": [
+          -81.7,
+          36.2
+        ],
+        "epsg": 32617,
+        "elevationOffsetMeters": 818.3566284179688,
+        "elevationRangeMeters": 635.0350952148438,
+        "intervalSpanMeters": 10000.0,
+        "verticalExaggeration": 1,
+        "noDataCount": 0,
+        "rounding": "nearest-even",
+        "rowMapping": "north-up TIFF flipped; row=v increases north",
+        "reference": "quantized U16 + frozen bilinear interpolation",
+        "sourceLimitation": "服务采用多分辨率镶嵌及默认datum转换；保存实际F32导出作为冻结来源，不声称原始测量点",
+        "importSeconds": 39.701344363999965
+      }
+    },
+    {
+      "id": "dem-lowland",
+      "name": "沿海低地",
+      "path": "assets/heightmaps/experiment/imported/Hm_Experiment_Lowland_513.png",
+      "width": 513,
+      "height": 513,
+      "terrainSize": 80,
+      "heightScale": 0.10343474197387695,
+      "kind": "imported",
+      "fileSha256": "b50e7325df2c09ed8d8e29ed09b0254baf2d74cbfb9f48fb29b4da4f5c046248",
+      "sampleSha256": "19efbb9d6d52bc7af6a7647f29cbabc8dd60b96c7ba98208467bff8eef7f9070",
+      "sampleEncoding": "uint16-le-row-major",
+      "provenance": {
+        "source": "USGS 3DEP Bare Earth DEM export; frozen downloaded F32 raster",
+        "licenseStatus": "USGS 3DEP public domain",
+        "licenseUrl": "https://www.usgs.gov/3dep-product-news",
+        "acquiredAt": "2026-09-15",
+        "sourceSha256": "0008454ab6e423a1b7986c2fd1fece6bff8e823842fe7f51eb1b52a0a23f1353",
+        "sourceFile": "benchmark-output/experiment-infrastructure/eip-02/dem-source/lowland.tif",
+        "serviceDescription": "The USGS 3D Elevation Program (3DEP) Bare Earth DEM Dynamic service is based on multi-resolution USGS DEM sources and provides dynamic functions for visualization. These functions include: Hillshade, Aspect Map, Hillshade Stretched, Multi-directional Hillshade, Slope Map, Elevation Tinted Hillshade, Contour. In addition the OGC Web Map Service (WMS) and Web Coverage Service (WCS) interfaces are enabled. Data available in this map service reflects all 3DEP DEM data published as of August 24, 2026.",
+        "exportUrl": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?f=json&bbox=317037.65840088%2C3869770.60622956%2C327057.18965088%2C3879790.13747956&bboxSR=32618&imageSR=32618&size=513%2C513&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&renderingRule=%7B%22rasterFunction%22%3A+%22None%22%7D&adjustAspectRatio=false",
+        "projectionUrl": "https://utility.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer/project?f=json&inSR=4326&outSR=32618&geometries=%7B%22geometryType%22%3A+%22esriGeometryPoint%22%2C+%22geometries%22%3A+%5B%7B%22x%22%3A+-76.95%2C+%22y%22%3A+35.0%7D%5D%7D",
+        "exportMetadata": {
+          "href": "https://elevation.nationalmap.gov/arcgis/rest/directories/elevation_output/3DEPElevation_ImageServer/_ags_3ccd3087_6eac_47a0_a273_52285211572e.tif",
+          "width": 513,
+          "height": 513,
+          "extent": {
+            "xmin": 317037.65840088,
+            "ymin": 3869770.60622956,
+            "xmax": 327057.18965088,
+            "ymax": 3879790.13747956,
+            "spatialReference": {
+              "wkid": 32618,
+              "latestWkid": 32618
+            }
+          },
+          "scale": 0
+        },
+        "centerWgs84": [
+          -76.95,
+          35.0
+        ],
+        "epsg": 32618,
+        "elevationOffsetMeters": -0.7620015144348145,
+        "elevationRangeMeters": 12.92934274673462,
+        "intervalSpanMeters": 10000.0,
+        "verticalExaggeration": 1,
+        "noDataCount": 0,
+        "rounding": "nearest-even",
+        "rowMapping": "north-up TIFF flipped; row=v increases north",
+        "reference": "quantized U16 + frozen bilinear interpolation",
+        "sourceLimitation": "服务采用多分辨率镶嵌及默认datum转换；保存实际F32导出作为冻结来源，不声称原始测量点",
+        "importSeconds": 32.33884639400003
+      }
     }
   ]
 }

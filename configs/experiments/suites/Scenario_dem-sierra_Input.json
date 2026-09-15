@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "dem-sierra-input",
+  "terrain": "dem-sierra",
+  "algorithm": "dod",
+  "heightPolicy": "fit",
+  "camera": "overview-orbit",
+  "material": "legacy",
+  "mode": "timing",
+  "prefix": "fixed64",
+  "budget": 20000,
+  "workers": 1,
+  "maxDepth": 20,
+  "viewWidth": 1280,
+  "viewHeight": 720,
+  "splitPixels": 4
+}
