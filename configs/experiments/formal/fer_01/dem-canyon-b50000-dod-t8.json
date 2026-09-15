@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "dem-canyon-b50000-dod-t8",
+  "terrain": "dem-canyon",
+  "algorithm": "dod",
+  "heightPolicy": "fit",
+  "flipRecovery": false,
+  "camera": "reveal-return",
+  "material": "neutral",
+  "mode": "timing",
+  "prefix": "scaled",
+  "budget": 50000,
+  "workers": 8,
+  "maxDepth": 20,
+  "viewWidth": 1280,
+  "viewHeight": 720,
+  "splitPixels": 4,
+  "mergePixels": 2,
+  "backend": "opengl",
+  "warmup": 3,
+  "captureStride": 8,
+  "maxFrames": 96
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "generated-ridge-b50000-classic-t1",
+  "terrain": "generated-ridge",
+  "algorithm": "classic",
+  "heightPolicy": "fit",
+  "flipRecovery": false,
+  "camera": "overview-orbit",
+  "material": "neutral",
+  "mode": "timing",
+  "prefix": "scaled",
+  "budget": 50000,
+  "workers": 1,
+  "maxDepth": 20,
+  "viewWidth": 1280,
+  "viewHeight": 720,
+  "splitPixels": 4,
+  "mergePixels": 2,
+  "backend": "opengl",
+  "warmup": 3,
+  "captureStride": 8,
+  "maxFrames": 96
+}

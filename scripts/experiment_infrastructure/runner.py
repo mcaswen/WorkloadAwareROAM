@@ -63,6 +63,8 @@ def prepare(case, output, executable, mode=None, backend=None, cpu=False):
     workload={key:resolved[key] for key in workload_keys}
     task={**workload,"algorithm":resolved["algorithm"],"heightPolicy":resolved["heightPolicy"],
           "prefix":resolved["prefix"],"backend":resolved["backend"]}
+    # 未启用时保留已有任务身份；启用属于明确不同的决策策略
+    if resolved.get("flipRecovery",False): task["flipRecovery"]=True
     manifest={
         "schemaVersion":"eip-run-v1","id":output.name,"status":"prepared",
         "workloadId":digest(workload),"taskId":digest(task),"sourceId":source_id,

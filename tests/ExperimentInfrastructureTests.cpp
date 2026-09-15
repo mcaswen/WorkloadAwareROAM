@@ -46,6 +46,24 @@ int main(int argc, char** argv)
         // 直接构造损坏配置，检查解析器确实拒绝而不是静默修正
         boost::property_tree::ptree tree;
         boost::property_tree::read_json(input.string(), tree);
+        auto flip = tree;
+        flip.put("algorithm", "transactional");
+        flip.put("heightPolicy", "immutable");
+        flip.put("flipRecovery", true);
+        const auto flipPath = output / "flip.json";
+        boost::property_tree::write_json(flipPath.string(), flip);
+        Require(ExperimentCase::LoadResolved(flipPath).FlipRecovery, "翻边策略必须保留");
+        for (const auto& policy : {"fit", "immutable"})
+        {
+            auto invalid = flip;
+            invalid.put("heightPolicy", policy);
+            if (std::string(policy)=="immutable") invalid.put("algorithm", "dod");
+            boost::property_tree::write_json(flipPath.string(), invalid);
+            rejected = false;
+            try { (void)ExperimentCase::LoadResolved(flipPath); }
+            catch (const std::exception&) { rejected = true; }
+            Require(rejected, "翻边与高度或算法不兼容时必须拒绝");
+        }
         for (const auto& field : {"algorithm", "budget", "workers", "heightScale"})
         {
             auto broken = tree;

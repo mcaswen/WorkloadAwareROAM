@@ -19,6 +19,7 @@ struct ExperimentCase
     std::string SampleSha256;
     std::string Algorithm;
     std::string HeightPolicy;
+    bool FlipRecovery{};
     std::string Camera;
     std::string Material;
     std::string Mode;

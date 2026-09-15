@@ -39,6 +39,7 @@ ExperimentCase ExperimentCase::LoadResolved(const std::filesystem::path& path)
     value.SampleSha256 = data.get<std::string>("sampleSha256");
     value.Algorithm = data.get<std::string>("algorithm");
     value.HeightPolicy = data.get<std::string>("heightPolicy");
+    value.FlipRecovery = data.get<bool>("flipRecovery", false);
     value.Camera = data.get<std::string>("camera");
     value.Material = data.get<std::string>("material");
     value.Backend = data.get<std::string>("backend","opengl");
@@ -75,6 +76,8 @@ ExperimentCase ExperimentCase::LoadResolved(const std::filesystem::path& path)
     Require(!value.Id.empty() && !value.TerrainId.empty(), "实验身份为空");
     Require(OneOf(value.Algorithm, {"classic", "dod", "transactional"}), "未知算法");
     Require(OneOf(value.HeightPolicy, {"fit", "immutable"}), "未知高度策略");
+    Require(!value.FlipRecovery || (value.Algorithm=="transactional" && value.HeightPolicy=="immutable"),
+        "翻边恢复要求Transactional固定旧点策略");
     Require(OneOf(value.Mode, {"timing", "visual", "quality", "profile"}), "未知采集模式");
     Require(OneOf(value.Prefix, {"fixed64", "scaled"}), "未知前缀策略");
     Require(!value.Camera.empty() && !value.Material.empty(), "路线或材质缺失");

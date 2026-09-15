@@ -43,6 +43,7 @@ public:
         const std::string& image, const std::string& artifact);
 private:
     std::ofstream _stream;
+    std::ofstream _flip;
 };
 std::uint64_t ValidateReplayMesh(const Terrain::TerrainMeshData& mesh, const ReplayInput& input);
 int RunExperimentPlatform(int argc,char** argv);

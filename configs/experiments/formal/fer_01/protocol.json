@@ -1,0 +1,685 @@
+{
+  "schemaVersion": "fer-01-v1",
+  "seed": 20260915,
+  "repetitions": 3,
+  "statisticalUnit": "independent process; frames correlated",
+  "cases": [
+    {
+      "id": "peking547-b50000-classic-t1",
+      "path": "configs/experiments/formal/fer_01/peking547-b50000-classic-t1.json",
+      "sha256": "fc983a1e37e0b57984c260af7537cfeefa4a49d8f8687cc06af189144bfa8d9a",
+      "terrain": "peking547",
+      "budget": 50000,
+      "algorithm": "classic",
+      "workers": 1,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "cameraSha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+    },
+    {
+      "id": "peking547-b50000-dod-t8",
+      "path": "configs/experiments/formal/fer_01/peking547-b50000-dod-t8.json",
+      "sha256": "73d70527ddb345cb29746818e51f7d73e0076be8122238507701a549ba99c86d",
+      "terrain": "peking547",
+      "budget": 50000,
+      "algorithm": "dod",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "cameraSha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+    },
+    {
+      "id": "peking547-b50000-transactional-t8",
+      "path": "configs/experiments/formal/fer_01/peking547-b50000-transactional-t8.json",
+      "sha256": "af1a82f6a3dd94590b43a5a7a1a5631e34bd2e6bbf8b031d0586b169a8858271",
+      "terrain": "peking547",
+      "budget": 50000,
+      "algorithm": "transactional",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "cameraSha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+    },
+    {
+      "id": "peking547-b50000-transactional-t1",
+      "path": "configs/experiments/formal/fer_01/peking547-b50000-transactional-t1.json",
+      "sha256": "24841c7a3ce7afdad3824641deb8f1db85b65ab66d9520af3ca52bb0a26656cf",
+      "terrain": "peking547",
+      "budget": 50000,
+      "algorithm": "transactional",
+      "workers": 1,
+      "visual": false,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "cameraSha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+    },
+    {
+      "id": "peking547-b100000-classic-t1",
+      "path": "configs/experiments/formal/fer_01/peking547-b100000-classic-t1.json",
+      "sha256": "05f52586aed281a80092cf6a621b8aec87ee405f35ecd7be53ab0ef6697bebc8",
+      "terrain": "peking547",
+      "budget": 100000,
+      "algorithm": "classic",
+      "workers": 1,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "cameraSha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+    },
+    {
+      "id": "peking547-b100000-dod-t8",
+      "path": "configs/experiments/formal/fer_01/peking547-b100000-dod-t8.json",
+      "sha256": "9017131ad2a938c29742a019db24339ae18cac90af723c3a3b5ad6fbb7902436",
+      "terrain": "peking547",
+      "budget": 100000,
+      "algorithm": "dod",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "cameraSha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+    },
+    {
+      "id": "peking547-b100000-transactional-t8",
+      "path": "configs/experiments/formal/fer_01/peking547-b100000-transactional-t8.json",
+      "sha256": "8b3fef646f629f04604238a911291fb85b3ac462f565c78b9a59b978be6ad6ee",
+      "terrain": "peking547",
+      "budget": 100000,
+      "algorithm": "transactional",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "cameraSha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+    },
+    {
+      "id": "peking547-b200000-classic-t1",
+      "path": "configs/experiments/formal/fer_01/peking547-b200000-classic-t1.json",
+      "sha256": "fa5e8868839b90decfb7e5ad1df94779e01ad0ab878aa29aa4d247245ae64805",
+      "terrain": "peking547",
+      "budget": 200000,
+      "algorithm": "classic",
+      "workers": 1,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "cameraSha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+    },
+    {
+      "id": "peking547-b200000-dod-t8",
+      "path": "configs/experiments/formal/fer_01/peking547-b200000-dod-t8.json",
+      "sha256": "3c39d634d63c0e3b134ef155926fff00fd583f68d7e6f6220dff1909426f98c7",
+      "terrain": "peking547",
+      "budget": 200000,
+      "algorithm": "dod",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "cameraSha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+    },
+    {
+      "id": "peking547-b200000-transactional-t8",
+      "path": "configs/experiments/formal/fer_01/peking547-b200000-transactional-t8.json",
+      "sha256": "ffdb50eb906a76a24cae1fe840def7006ce361d77c184c68c7197cca79d8620c",
+      "terrain": "peking547",
+      "budget": 200000,
+      "algorithm": "transactional",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "cameraSha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+    },
+    {
+      "id": "generated-ridge-b50000-classic-t1",
+      "path": "configs/experiments/formal/fer_01/generated-ridge-b50000-classic-t1.json",
+      "sha256": "53d5bfb2a9727d573823720d9ea9d2593776a307505861df76ff3aa91a303bb7",
+      "terrain": "generated-ridge",
+      "budget": 50000,
+      "algorithm": "classic",
+      "workers": 1,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "cameraSha256": "ddf6693c102032f20bbe910c88d9ff18fad4ad1d66c0c43e3a3cd4d229cfaae6",
+      "sampleSha256": "89c310713046ffdb4724df0032a28f3ca852ccb503479287392717fcc81c7fa2"
+    },
+    {
+      "id": "generated-ridge-b50000-dod-t8",
+      "path": "configs/experiments/formal/fer_01/generated-ridge-b50000-dod-t8.json",
+      "sha256": "5a87a49e4ca837577a39cca850884e489570ff4ef985f2a67c7fc0dce1701933",
+      "terrain": "generated-ridge",
+      "budget": 50000,
+      "algorithm": "dod",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "cameraSha256": "ddf6693c102032f20bbe910c88d9ff18fad4ad1d66c0c43e3a3cd4d229cfaae6",
+      "sampleSha256": "89c310713046ffdb4724df0032a28f3ca852ccb503479287392717fcc81c7fa2"
+    },
+    {
+      "id": "generated-ridge-b50000-transactional-t8",
+      "path": "configs/experiments/formal/fer_01/generated-ridge-b50000-transactional-t8.json",
+      "sha256": "52f036cf8cb30f59b53e7ba80bdd49b93e517eee5dcee9e2a8a5625999d9bf4f",
+      "terrain": "generated-ridge",
+      "budget": 50000,
+      "algorithm": "transactional",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "cameraSha256": "ddf6693c102032f20bbe910c88d9ff18fad4ad1d66c0c43e3a3cd4d229cfaae6",
+      "sampleSha256": "89c310713046ffdb4724df0032a28f3ca852ccb503479287392717fcc81c7fa2"
+    },
+    {
+      "id": "dem-canyon-b50000-classic-t1",
+      "path": "configs/experiments/formal/fer_01/dem-canyon-b50000-classic-t1.json",
+      "sha256": "f046a00240244d37f74854cad270f77167da0f9487c91cfb0ec931db156f86e9",
+      "terrain": "dem-canyon",
+      "budget": 50000,
+      "algorithm": "classic",
+      "workers": 1,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "cameraSha256": "696d2f71ae2105ad7dc1a4a67bc277357c5af5164b91a46d52d79361d40da22d",
+      "sampleSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2"
+    },
+    {
+      "id": "dem-canyon-b50000-dod-t8",
+      "path": "configs/experiments/formal/fer_01/dem-canyon-b50000-dod-t8.json",
+      "sha256": "6092a3ecd9fc1554bf41ab76298981e549d81de1204d14031868e0a2eaec1fcc",
+      "terrain": "dem-canyon",
+      "budget": 50000,
+      "algorithm": "dod",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "cameraSha256": "696d2f71ae2105ad7dc1a4a67bc277357c5af5164b91a46d52d79361d40da22d",
+      "sampleSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2"
+    },
+    {
+      "id": "dem-canyon-b50000-transactional-t8",
+      "path": "configs/experiments/formal/fer_01/dem-canyon-b50000-transactional-t8.json",
+      "sha256": "373f86b21b4c066b4fd049ece41917598a5f64a7ee9d723438c6b1994e1d8abc",
+      "terrain": "dem-canyon",
+      "budget": 50000,
+      "algorithm": "transactional",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "cameraSha256": "696d2f71ae2105ad7dc1a4a67bc277357c5af5164b91a46d52d79361d40da22d",
+      "sampleSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2"
+    },
+    {
+      "id": "dem-canyon-b50000-transactional-t1",
+      "path": "configs/experiments/formal/fer_01/dem-canyon-b50000-transactional-t1.json",
+      "sha256": "a720ec1c30efe62743013beb4e03542e4a816b1c158f67fc8457b1fe891f1e81",
+      "terrain": "dem-canyon",
+      "budget": 50000,
+      "algorithm": "transactional",
+      "workers": 1,
+      "visual": false,
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "cameraSha256": "696d2f71ae2105ad7dc1a4a67bc277357c5af5164b91a46d52d79361d40da22d",
+      "sampleSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2"
+    },
+    {
+      "id": "dem-sierra-b50000-classic-t1",
+      "path": "configs/experiments/formal/fer_01/dem-sierra-b50000-classic-t1.json",
+      "sha256": "f92f86c6cd114525f4a5eeffbbddbc94e8e909ca5dc35af16d36527ec3d2cc0b",
+      "terrain": "dem-sierra",
+      "budget": 50000,
+      "algorithm": "classic",
+      "workers": 1,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "cameraSha256": "7bd44da1bfe16a39ca6225b648d9d7c970ded62d84868f4559d6ff9b74fb0e3b",
+      "sampleSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b"
+    },
+    {
+      "id": "dem-sierra-b50000-dod-t8",
+      "path": "configs/experiments/formal/fer_01/dem-sierra-b50000-dod-t8.json",
+      "sha256": "8c6be243e3e051aff6bdbd8978284a81d4277238e3a2e73fc93b41da0ee0bfda",
+      "terrain": "dem-sierra",
+      "budget": 50000,
+      "algorithm": "dod",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "cameraSha256": "7bd44da1bfe16a39ca6225b648d9d7c970ded62d84868f4559d6ff9b74fb0e3b",
+      "sampleSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b"
+    },
+    {
+      "id": "dem-sierra-b50000-transactional-t8",
+      "path": "configs/experiments/formal/fer_01/dem-sierra-b50000-transactional-t8.json",
+      "sha256": "36676ead44d320ace723e26c2ec27656fb3c7a71f5e695f0961f61d07e1f6f48",
+      "terrain": "dem-sierra",
+      "budget": 50000,
+      "algorithm": "transactional",
+      "workers": 8,
+      "visual": true,
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "cameraSha256": "7bd44da1bfe16a39ca6225b648d9d7c970ded62d84868f4559d6ff9b74fb0e3b",
+      "sampleSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b"
+    }
+  ],
+  "schedule": [
+    {
+      "block": 1,
+      "id": "peking547-b200000-transactional-t8",
+      "runId": "r1-peking547-b200000-transactional-t8"
+    },
+    {
+      "block": 1,
+      "id": "dem-canyon-b50000-transactional-t1",
+      "runId": "r1-dem-canyon-b50000-transactional-t1"
+    },
+    {
+      "block": 1,
+      "id": "dem-canyon-b50000-dod-t8",
+      "runId": "r1-dem-canyon-b50000-dod-t8"
+    },
+    {
+      "block": 1,
+      "id": "peking547-b50000-dod-t8",
+      "runId": "r1-peking547-b50000-dod-t8"
+    },
+    {
+      "block": 1,
+      "id": "peking547-b100000-dod-t8",
+      "runId": "r1-peking547-b100000-dod-t8"
+    },
+    {
+      "block": 1,
+      "id": "generated-ridge-b50000-transactional-t8",
+      "runId": "r1-generated-ridge-b50000-transactional-t8"
+    },
+    {
+      "block": 1,
+      "id": "dem-canyon-b50000-classic-t1",
+      "runId": "r1-dem-canyon-b50000-classic-t1"
+    },
+    {
+      "block": 1,
+      "id": "dem-canyon-b50000-transactional-t8",
+      "runId": "r1-dem-canyon-b50000-transactional-t8"
+    },
+    {
+      "block": 1,
+      "id": "peking547-b200000-classic-t1",
+      "runId": "r1-peking547-b200000-classic-t1"
+    },
+    {
+      "block": 1,
+      "id": "peking547-b200000-dod-t8",
+      "runId": "r1-peking547-b200000-dod-t8"
+    },
+    {
+      "block": 1,
+      "id": "peking547-b50000-transactional-t8",
+      "runId": "r1-peking547-b50000-transactional-t8"
+    },
+    {
+      "block": 1,
+      "id": "peking547-b100000-classic-t1",
+      "runId": "r1-peking547-b100000-classic-t1"
+    },
+    {
+      "block": 1,
+      "id": "dem-sierra-b50000-classic-t1",
+      "runId": "r1-dem-sierra-b50000-classic-t1"
+    },
+    {
+      "block": 1,
+      "id": "peking547-b50000-classic-t1",
+      "runId": "r1-peking547-b50000-classic-t1"
+    },
+    {
+      "block": 1,
+      "id": "generated-ridge-b50000-dod-t8",
+      "runId": "r1-generated-ridge-b50000-dod-t8"
+    },
+    {
+      "block": 1,
+      "id": "generated-ridge-b50000-classic-t1",
+      "runId": "r1-generated-ridge-b50000-classic-t1"
+    },
+    {
+      "block": 1,
+      "id": "dem-sierra-b50000-transactional-t8",
+      "runId": "r1-dem-sierra-b50000-transactional-t8"
+    },
+    {
+      "block": 1,
+      "id": "peking547-b100000-transactional-t8",
+      "runId": "r1-peking547-b100000-transactional-t8"
+    },
+    {
+      "block": 1,
+      "id": "peking547-b50000-transactional-t1",
+      "runId": "r1-peking547-b50000-transactional-t1"
+    },
+    {
+      "block": 1,
+      "id": "dem-sierra-b50000-dod-t8",
+      "runId": "r1-dem-sierra-b50000-dod-t8"
+    },
+    {
+      "block": 2,
+      "id": "generated-ridge-b50000-classic-t1",
+      "runId": "r2-generated-ridge-b50000-classic-t1"
+    },
+    {
+      "block": 2,
+      "id": "dem-canyon-b50000-transactional-t1",
+      "runId": "r2-dem-canyon-b50000-transactional-t1"
+    },
+    {
+      "block": 2,
+      "id": "generated-ridge-b50000-transactional-t8",
+      "runId": "r2-generated-ridge-b50000-transactional-t8"
+    },
+    {
+      "block": 2,
+      "id": "peking547-b200000-transactional-t8",
+      "runId": "r2-peking547-b200000-transactional-t8"
+    },
+    {
+      "block": 2,
+      "id": "dem-sierra-b50000-transactional-t8",
+      "runId": "r2-dem-sierra-b50000-transactional-t8"
+    },
+    {
+      "block": 2,
+      "id": "peking547-b50000-transactional-t8",
+      "runId": "r2-peking547-b50000-transactional-t8"
+    },
+    {
+      "block": 2,
+      "id": "dem-canyon-b50000-classic-t1",
+      "runId": "r2-dem-canyon-b50000-classic-t1"
+    },
+    {
+      "block": 2,
+      "id": "generated-ridge-b50000-dod-t8",
+      "runId": "r2-generated-ridge-b50000-dod-t8"
+    },
+    {
+      "block": 2,
+      "id": "dem-sierra-b50000-dod-t8",
+      "runId": "r2-dem-sierra-b50000-dod-t8"
+    },
+    {
+      "block": 2,
+      "id": "dem-sierra-b50000-classic-t1",
+      "runId": "r2-dem-sierra-b50000-classic-t1"
+    },
+    {
+      "block": 2,
+      "id": "peking547-b50000-transactional-t1",
+      "runId": "r2-peking547-b50000-transactional-t1"
+    },
+    {
+      "block": 2,
+      "id": "peking547-b100000-classic-t1",
+      "runId": "r2-peking547-b100000-classic-t1"
+    },
+    {
+      "block": 2,
+      "id": "peking547-b100000-transactional-t8",
+      "runId": "r2-peking547-b100000-transactional-t8"
+    },
+    {
+      "block": 2,
+      "id": "peking547-b50000-dod-t8",
+      "runId": "r2-peking547-b50000-dod-t8"
+    },
+    {
+      "block": 2,
+      "id": "peking547-b200000-classic-t1",
+      "runId": "r2-peking547-b200000-classic-t1"
+    },
+    {
+      "block": 2,
+      "id": "peking547-b100000-dod-t8",
+      "runId": "r2-peking547-b100000-dod-t8"
+    },
+    {
+      "block": 2,
+      "id": "dem-canyon-b50000-dod-t8",
+      "runId": "r2-dem-canyon-b50000-dod-t8"
+    },
+    {
+      "block": 2,
+      "id": "dem-canyon-b50000-transactional-t8",
+      "runId": "r2-dem-canyon-b50000-transactional-t8"
+    },
+    {
+      "block": 2,
+      "id": "peking547-b200000-dod-t8",
+      "runId": "r2-peking547-b200000-dod-t8"
+    },
+    {
+      "block": 2,
+      "id": "peking547-b50000-classic-t1",
+      "runId": "r2-peking547-b50000-classic-t1"
+    },
+    {
+      "block": 3,
+      "id": "dem-canyon-b50000-transactional-t1",
+      "runId": "r3-dem-canyon-b50000-transactional-t1"
+    },
+    {
+      "block": 3,
+      "id": "dem-canyon-b50000-classic-t1",
+      "runId": "r3-dem-canyon-b50000-classic-t1"
+    },
+    {
+      "block": 3,
+      "id": "peking547-b200000-classic-t1",
+      "runId": "r3-peking547-b200000-classic-t1"
+    },
+    {
+      "block": 3,
+      "id": "generated-ridge-b50000-transactional-t8",
+      "runId": "r3-generated-ridge-b50000-transactional-t8"
+    },
+    {
+      "block": 3,
+      "id": "dem-sierra-b50000-dod-t8",
+      "runId": "r3-dem-sierra-b50000-dod-t8"
+    },
+    {
+      "block": 3,
+      "id": "peking547-b100000-transactional-t8",
+      "runId": "r3-peking547-b100000-transactional-t8"
+    },
+    {
+      "block": 3,
+      "id": "dem-canyon-b50000-transactional-t8",
+      "runId": "r3-dem-canyon-b50000-transactional-t8"
+    },
+    {
+      "block": 3,
+      "id": "generated-ridge-b50000-dod-t8",
+      "runId": "r3-generated-ridge-b50000-dod-t8"
+    },
+    {
+      "block": 3,
+      "id": "dem-canyon-b50000-dod-t8",
+      "runId": "r3-dem-canyon-b50000-dod-t8"
+    },
+    {
+      "block": 3,
+      "id": "dem-sierra-b50000-transactional-t8",
+      "runId": "r3-dem-sierra-b50000-transactional-t8"
+    },
+    {
+      "block": 3,
+      "id": "peking547-b200000-dod-t8",
+      "runId": "r3-peking547-b200000-dod-t8"
+    },
+    {
+      "block": 3,
+      "id": "peking547-b50000-transactional-t1",
+      "runId": "r3-peking547-b50000-transactional-t1"
+    },
+    {
+      "block": 3,
+      "id": "dem-sierra-b50000-classic-t1",
+      "runId": "r3-dem-sierra-b50000-classic-t1"
+    },
+    {
+      "block": 3,
+      "id": "peking547-b50000-transactional-t8",
+      "runId": "r3-peking547-b50000-transactional-t8"
+    },
+    {
+      "block": 3,
+      "id": "peking547-b50000-dod-t8",
+      "runId": "r3-peking547-b50000-dod-t8"
+    },
+    {
+      "block": 3,
+      "id": "generated-ridge-b50000-classic-t1",
+      "runId": "r3-generated-ridge-b50000-classic-t1"
+    },
+    {
+      "block": 3,
+      "id": "peking547-b50000-classic-t1",
+      "runId": "r3-peking547-b50000-classic-t1"
+    },
+    {
+      "block": 3,
+      "id": "peking547-b100000-dod-t8",
+      "runId": "r3-peking547-b100000-dod-t8"
+    },
+    {
+      "block": 3,
+      "id": "peking547-b100000-classic-t1",
+      "runId": "r3-peking547-b100000-classic-t1"
+    },
+    {
+      "block": 3,
+      "id": "peking547-b200000-transactional-t8",
+      "runId": "r3-peking547-b200000-transactional-t8"
+    }
+  ],
+  "qualityBudgetsPx": [
+    0,
+    0.1,
+    0.25,
+    0.5,
+    1
+  ],
+  "noResultDependentChanges": true,
+  "backend": "opengl",
+  "limits": {
+    "secondsPerProcess": 180,
+    "gibPerProcess": 8
+  },
+  "mainMetric": "mean cpuMs over opportunities >=3, then mean across 3 processes",
+  "uncertainty": "all 3 process values and min/max; no CI or significance claim"
+}

@@ -20,6 +20,9 @@
     "splitPixels"
   ],
   "properties": {
+    "flipRecovery": {
+      "type": "boolean"
+    },
     "schemaVersion": {
       "const": 1
     },

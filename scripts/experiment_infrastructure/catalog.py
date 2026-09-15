@@ -113,6 +113,9 @@ def resolve_case(path: Path, root: Path = ROOT) -> dict:
         raise ValueError("材质内容不符")
     if case["algorithm"] != "transactional" and case["heightPolicy"] != "fit":
         raise ValueError("高度策略仅适用于Transactional")
+    if case.get("flipRecovery", False) and (case["algorithm"] != "transactional" or case["heightPolicy"] != "immutable"):
+        raise ValueError("翻边恢复要求Transactional固定旧点策略")
+    result["flipRecovery"] = case.get("flipRecovery", False)
     result.update(cameraFile=str(camera_file), cameraSha256=camera["sha256"],
         cameraFnv64=fnv64(camera_file.read_bytes()), sampleFnv64=fnv64(source_samples(local_path(root,asset["path"])).tobytes()),
         materialFile=str(material_file), materialSha256=material["sha256"],
