@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "eip-figure-v1",
+  "id": "dem-canyon-witness",
+  "title": "dem-canyon：机会 95 几何误差见证",
+  "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+  "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+  "selection": {
+    "cases": [
+      "dem-canyon-dod-b50000",
+      "dem-canyon-transactional-b50000",
+      "dem-canyon-cbt-a8"
+    ],
+    "frame": 95
+  },
+  "note": "统一色标；显示抽样位置和实际全Q最大点（青色叉），不是完整误差场或感知结论。",
+  "colors": {
+    "cbt": "#6b4da2",
+    "dod": "#256eb0",
+    "transactional": "#ce7130"
+  },
+  "statistics": "consume analysis; no new significance or outcome classifier",
+  "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+  "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+  "files": {
+    "png": {
+      "path": "dem-canyon-witness.png",
+      "sha256": "321e32b735e6d6aa1631255d86f3eb696d7f9af2ffb56e10f9f1c8bed9c245dd"
+    },
+    "svg": {
+      "path": "dem-canyon-witness.svg",
+      "sha256": "2058b32204a0b73f77c528b9762d6ee19419eeaa151907a8e375e909c191a192"
+    },
+    "pdf": {
+      "path": "dem-canyon-witness.pdf",
+      "sha256": "cbbd4777b09f4b36c0a049d5896c88129d7f84df39cfdc9d8ea3337bff57c6fe"
+    }
+  },
+  "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+}

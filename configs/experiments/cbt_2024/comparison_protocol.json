@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "cbi-comparison-v1",
+  "assets": [
+    {"id": "peking547", "camera": "pq-return24", "maxFrames": 24, "qualityFrames": [2, 15, 16, 23]},
+    {"id": "dem-canyon", "camera": "reveal-return", "maxFrames": 96, "qualityFrames": [2, 32, 64, 95]}
+  ],
+  "cbtAreas": [16, 8, 4],
+  "cbtCapacity": 524288,
+  "cpuBudgets": [50000, 200000],
+  "backend": "d3d12",
+  "workers": 8,
+  "warmup": 3,
+  "nearCountRelativeTolerance": 0.1,
+  "repetitions": 1,
+  "selection": "Keep all predeclared points; no quality-driven retuning",
+  "performanceScope": "Descriptive only; CPU uses preserved CBI-02 executable because CBI-03 CPU regression remains open"
+}

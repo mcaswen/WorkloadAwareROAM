@@ -1,0 +1,197 @@
+[
+  {
+    "case": "dem-canyon-cbt-a16",
+    "distinctXZ": 17598,
+    "sameXZDifferentHeight": 0,
+    "maximumHeightDifference": 0.0,
+    "worldXZ": [
+      -40.0,
+      -40.0
+    ],
+    "witnessVertices": [
+      {
+        "vertex": 30818,
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "vertex": 64587,
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "edgeMultiplicityAboveTwo": 0,
+    "boundarySingles": 221,
+    "internalSingleEdges": 0,
+    "sameXZDifferentUV": 0,
+    "maxUVSpread": 0.0,
+    "uvWitness": [
+      {
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "case": "dem-canyon-cbt-a8",
+    "distinctXZ": 33776,
+    "sameXZDifferentHeight": 0,
+    "maximumHeightDifference": 0.0,
+    "worldXZ": [
+      -40.0,
+      -40.0
+    ],
+    "witnessVertices": [
+      {
+        "vertex": 40530,
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "vertex": 181451,
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "edgeMultiplicityAboveTwo": 0,
+    "boundarySingles": 295,
+    "internalSingleEdges": 0,
+    "sameXZDifferentUV": 0,
+    "maxUVSpread": 0.0,
+    "uvWitness": [
+      {
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "case": "dem-canyon-cbt-a4",
+    "distinctXZ": 62896,
+    "sameXZDifferentHeight": 0,
+    "maximumHeightDifference": 0.0,
+    "worldXZ": [
+      -40.0,
+      -40.0
+    ],
+    "witnessVertices": [
+      {
+        "vertex": 309135,
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "vertex": 324950,
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "edgeMultiplicityAboveTwo": 0,
+    "boundarySingles": 383,
+    "internalSingleEdges": 0,
+    "sameXZDifferentUV": 0,
+    "maxUVSpread": 0.0,
+    "uvWitness": [
+      {
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "position": [
+          -40.0,
+          11.012396812438965,
+          -40.0
+        ],
+        "uv": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  }
+]

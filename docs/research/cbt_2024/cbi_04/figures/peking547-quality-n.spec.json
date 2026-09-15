@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "eip-figure-v1",
+  "id": "peking547-quality-n",
+  "title": "peking547：质量与实际数量",
+  "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+  "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+  "selection": {
+    "asset": "peking547",
+    "frames": [
+      2,
+      15,
+      16,
+      23
+    ]
+  },
+  "note": "同一机会内比较；无效质量点不绘制（见失败表），不插值补齐，容量不是硬预算。",
+  "colors": {
+    "cbt": "#6b4da2",
+    "dod": "#256eb0",
+    "transactional": "#ce7130"
+  },
+  "statistics": "consume analysis; no new significance or outcome classifier",
+  "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+  "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+  "files": {
+    "png": {
+      "path": "peking547-quality-n.png",
+      "sha256": "01263f4d677a3565c194f7c544edb7155e94b731f74c7d95f020f804d98c94ce"
+    },
+    "svg": {
+      "path": "peking547-quality-n.svg",
+      "sha256": "3c8d8d52d10b20297390f51971cba8de206ad69aecc9a7d97918bd05d76aa54d"
+    },
+    "pdf": {
+      "path": "peking547-quality-n.pdf",
+      "sha256": "5d6afd758013001b75ca19ecb111fa1fc51204cc629f0e69f3302a31a9665ec9"
+    }
+  },
+  "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+}

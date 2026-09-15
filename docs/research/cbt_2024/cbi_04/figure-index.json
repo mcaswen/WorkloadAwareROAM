@@ -1,0 +1,318 @@
+[
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "peking547-quality-n",
+    "title": "peking547：质量与实际数量",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+    "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+    "selection": {
+      "asset": "peking547",
+      "frames": [
+        2,
+        15,
+        16,
+        23
+      ]
+    },
+    "note": "同一机会内比较；无效质量点不绘制（见失败表），不插值补齐，容量不是硬预算。",
+    "colors": {
+      "cbt": "#6b4da2",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "peking547-quality-n.png",
+        "sha256": "01263f4d677a3565c194f7c544edb7155e94b731f74c7d95f020f804d98c94ce"
+      },
+      "svg": {
+        "path": "peking547-quality-n.svg",
+        "sha256": "3c8d8d52d10b20297390f51971cba8de206ad69aecc9a7d97918bd05d76aa54d"
+      },
+      "pdf": {
+        "path": "peking547-quality-n.pdf",
+        "sha256": "5d6afd758013001b75ca19ecb111fa1fc51204cc629f0e69f3302a31a9665ec9"
+      }
+    },
+    "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "peking547-trajectory",
+    "title": "peking547：冷启动与持续质量",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+    "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+    "selection": {
+      "asset": "peking547",
+      "frames": [
+        2,
+        15,
+        16,
+        23
+      ]
+    },
+    "note": "仅显示预冻结关键机会；早期低N是来源初始化，不增加隐藏收敛轮次。",
+    "colors": {
+      "cbt": "#6b4da2",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "peking547-trajectory.png",
+        "sha256": "717aefbb78ab75f2d93fc160837a75c55ccce58932c21435e11f9e69fbef977a"
+      },
+      "svg": {
+        "path": "peking547-trajectory.svg",
+        "sha256": "ca0ae082802cf00fab1fcbd1f6482344e180b40d01a0ceb11adf86ce3de92a80"
+      },
+      "pdf": {
+        "path": "peking547-trajectory.pdf",
+        "sha256": "b66288b5cf7c4bdc8f8a66a0b7328f46341c108d4b7409083e342261f6ad2697"
+      }
+    },
+    "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "peking547-actual-views",
+    "title": "peking547：机会 23 实际画面",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+    "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+    "selection": {
+      "cases": [
+        "peking547-dod-b50000",
+        "peking547-transactional-b50000",
+        "peking547-cbt-a8"
+      ],
+      "frame": 23
+    },
+    "note": "使用完整原截图；CBT展示预定中间面积8，数量不一致，不能凭画面宣称同预算胜出。",
+    "colors": {
+      "cbt": "#6b4da2",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "peking547-actual-views.png",
+        "sha256": "d43c4ccaa88a7f16a79992c9b5a25b42bde7b0514547a19d4c013c8166bd744d"
+      },
+      "svg": {
+        "path": "peking547-actual-views.svg",
+        "sha256": "eaaed4744c40317acc1de5c55256a49df720f25d2a2c9b575f4558a7515d2e83"
+      },
+      "pdf": {
+        "path": "peking547-actual-views.pdf",
+        "sha256": "cd8ce9ea99acb9d6dd6acd0ceb582e2695499ed1d279bd3c7e867b3bd83a616c"
+      }
+    },
+    "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "peking547-witness",
+    "title": "peking547：机会 23 几何误差见证",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+    "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+    "selection": {
+      "cases": [
+        "peking547-dod-b50000",
+        "peking547-transactional-b50000",
+        "peking547-cbt-a8"
+      ],
+      "frame": 23
+    },
+    "note": "统一色标；显示抽样位置和实际全Q最大点（青色叉），不是完整误差场或感知结论。",
+    "colors": {
+      "cbt": "#6b4da2",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "peking547-witness.png",
+        "sha256": "2c08a6eac900207559ff1829651ec3a828cf0685e9a271aa62f7201fbf49946f"
+      },
+      "svg": {
+        "path": "peking547-witness.svg",
+        "sha256": "43813e4fc23721edfd1bafc4ad017fba315c401c9380b418d3bf037a8ca54889"
+      },
+      "pdf": {
+        "path": "peking547-witness.pdf",
+        "sha256": "5a5d47ff60075b23aadf436eb77158b2e28a8e8cf31e6529c8bd49df89b62e52"
+      }
+    },
+    "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "dem-canyon-quality-n",
+    "title": "dem-canyon：质量与实际数量",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+    "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+    "selection": {
+      "asset": "dem-canyon",
+      "frames": [
+        2,
+        32,
+        64,
+        95
+      ]
+    },
+    "note": "同一机会内比较；无效质量点不绘制（见失败表），不插值补齐，容量不是硬预算。",
+    "colors": {
+      "cbt": "#6b4da2",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "dem-canyon-quality-n.png",
+        "sha256": "4f71772e26197ec54758ea2789690ed62b3d3fb3a6249050f8d56718cf35452e"
+      },
+      "svg": {
+        "path": "dem-canyon-quality-n.svg",
+        "sha256": "cb7d8a11aa712f71bb9f0d7ed0c93ad6309bfcdce45e8a229e51b5abaf9b6da4"
+      },
+      "pdf": {
+        "path": "dem-canyon-quality-n.pdf",
+        "sha256": "296ed68b906cb2d6e1f4fb88f116b5ba954950d0e09ecb6b00614019c58b7c14"
+      }
+    },
+    "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "dem-canyon-trajectory",
+    "title": "dem-canyon：冷启动与持续质量",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+    "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+    "selection": {
+      "asset": "dem-canyon",
+      "frames": [
+        2,
+        32,
+        64,
+        95
+      ]
+    },
+    "note": "仅显示预冻结关键机会；早期低N是来源初始化，不增加隐藏收敛轮次。",
+    "colors": {
+      "cbt": "#6b4da2",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "dem-canyon-trajectory.png",
+        "sha256": "a227681a27cc80fd03a91578ce935f9a1840efdd3377a86441455ab64299b3c5"
+      },
+      "svg": {
+        "path": "dem-canyon-trajectory.svg",
+        "sha256": "7917578d2ace6bce7f313a8c1eb246d2614c4dcde4476431f04ab41a52ddc864"
+      },
+      "pdf": {
+        "path": "dem-canyon-trajectory.pdf",
+        "sha256": "bd8baffefbed083c3049b8f55a0ba9c702b33d98b25a3df73b8be7e97f6dcb42"
+      }
+    },
+    "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "dem-canyon-actual-views",
+    "title": "dem-canyon：机会 95 实际画面",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+    "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+    "selection": {
+      "cases": [
+        "dem-canyon-dod-b50000",
+        "dem-canyon-transactional-b50000",
+        "dem-canyon-cbt-a8"
+      ],
+      "frame": 95
+    },
+    "note": "使用完整原截图；CBT展示预定中间面积8，数量不一致，不能凭画面宣称同预算胜出。",
+    "colors": {
+      "cbt": "#6b4da2",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "dem-canyon-actual-views.png",
+        "sha256": "7a676b316706c65daa11faa0ba3f2072d695a5799893e2d01613858c5eedcddf"
+      },
+      "svg": {
+        "path": "dem-canyon-actual-views.svg",
+        "sha256": "d023da5b92c4df2634135ac207cb2e382eb2027525e86b58797f469a1b5271d7"
+      },
+      "pdf": {
+        "path": "dem-canyon-actual-views.pdf",
+        "sha256": "f3dfeb9f8f5dff80b144e4df1fa63ecd050e39c28f3ca0a819e88a454e5020c7"
+      }
+    },
+    "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "dem-canyon-witness",
+    "title": "dem-canyon：机会 95 几何误差见证",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+    "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+    "selection": {
+      "cases": [
+        "dem-canyon-dod-b50000",
+        "dem-canyon-transactional-b50000",
+        "dem-canyon-cbt-a8"
+      ],
+      "frame": 95
+    },
+    "note": "统一色标；显示抽样位置和实际全Q最大点（青色叉），不是完整误差场或感知结论。",
+    "colors": {
+      "cbt": "#6b4da2",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "dem-canyon-witness.png",
+        "sha256": "321e32b735e6d6aa1631255d86f3eb696d7f9af2ffb56e10f9f1c8bed9c245dd"
+      },
+      "svg": {
+        "path": "dem-canyon-witness.svg",
+        "sha256": "2058b32204a0b73f77c528b9762d6ee19419eeaa151907a8e375e909c191a192"
+      },
+      "pdf": {
+        "path": "dem-canyon-witness.pdf",
+        "sha256": "cbbd4777b09f4b36c0a049d5896c88129d7f84df39cfdc9d8ea3337bff57c6fe"
+      }
+    },
+    "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+  }
+]

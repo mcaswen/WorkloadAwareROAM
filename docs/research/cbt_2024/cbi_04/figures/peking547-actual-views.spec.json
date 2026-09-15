@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "eip-figure-v1",
+  "id": "peking547-actual-views",
+  "title": "peking547：机会 23 实际画面",
+  "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+  "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+  "selection": {
+    "cases": [
+      "peking547-dod-b50000",
+      "peking547-transactional-b50000",
+      "peking547-cbt-a8"
+    ],
+    "frame": 23
+  },
+  "note": "使用完整原截图；CBT展示预定中间面积8，数量不一致，不能凭画面宣称同预算胜出。",
+  "colors": {
+    "cbt": "#6b4da2",
+    "dod": "#256eb0",
+    "transactional": "#ce7130"
+  },
+  "statistics": "consume analysis; no new significance or outcome classifier",
+  "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+  "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+  "files": {
+    "png": {
+      "path": "peking547-actual-views.png",
+      "sha256": "d43c4ccaa88a7f16a79992c9b5a25b42bde7b0514547a19d4c013c8166bd744d"
+    },
+    "svg": {
+      "path": "peking547-actual-views.svg",
+      "sha256": "eaaed4744c40317acc1de5c55256a49df720f25d2a2c9b575f4558a7515d2e83"
+    },
+    "pdf": {
+      "path": "peking547-actual-views.pdf",
+      "sha256": "cd8ce9ea99acb9d6dd6acd0ceb582e2695499ed1d279bd3c7e867b3bd83a616c"
+    }
+  },
+  "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+}

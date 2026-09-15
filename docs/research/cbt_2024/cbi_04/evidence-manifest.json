@@ -1,0 +1,276 @@
+{
+  "scope": "CBI-04 frozen single-process descriptive panel; raw artifacts remain ignored locally",
+  "rawRoot": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04",
+  "rawProtocolSha256": "43ca2b07fad549c901c11fccfcafd1abe1846dca11cebca35a00082c7f612109",
+  "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+  "runs": [
+    {
+      "path": "runs/dem-canyon-cbt-a16/timing/manifest.json",
+      "sha256": "424183a11b4c6088302ccac48529d4d455a3d05f687ca108a776e7db280a5d67"
+    },
+    {
+      "path": "runs/dem-canyon-cbt-a16/visual/manifest.json",
+      "sha256": "35db7f990967e1fb22674f3bc096230982ed9470929fb85462c0a354047ae66b"
+    },
+    {
+      "path": "runs/dem-canyon-cbt-a4/timing/manifest.json",
+      "sha256": "a65dd87ed8bdc341afd0a3f652b9e0d3d7d19c7d905733ba3180c744544d1137"
+    },
+    {
+      "path": "runs/dem-canyon-cbt-a4/visual/manifest.json",
+      "sha256": "ff39312f21a1f12bf472424dce5356576d849f6623dfad5e595e09e05cb2c704"
+    },
+    {
+      "path": "runs/dem-canyon-cbt-a8/timing/manifest.json",
+      "sha256": "c9e464775819558ebf2b8f974abb41c4b5982d237b4a2f5034dd36c0301cee8e"
+    },
+    {
+      "path": "runs/dem-canyon-cbt-a8/visual/manifest.json",
+      "sha256": "47f19e8352b682bc31fe2acb4e99e5e14637468d10fe59f4b3dd4df0e6d8c73a"
+    },
+    {
+      "path": "runs/dem-canyon-dod-b200000/timing/manifest.json",
+      "sha256": "ccf267a3abd29a37b4a4b493b0324a0c9e452dc637037118d5086fa67797cd34"
+    },
+    {
+      "path": "runs/dem-canyon-dod-b200000/visual/manifest.json",
+      "sha256": "b35085452d2b65899056f25adc57c4d4465e23663ed009f014ab63f8a9423ad2"
+    },
+    {
+      "path": "runs/dem-canyon-dod-b50000/timing/manifest.json",
+      "sha256": "30d12f767f1a47a36eebd0c7e3ec7fe779c3306a6aed29104d3d46516a7f35a7"
+    },
+    {
+      "path": "runs/dem-canyon-dod-b50000/visual/manifest.json",
+      "sha256": "e24a8633bc4c0fac92261710cf5b9af4d5008416549d2dd1f2f980d8796b2645"
+    },
+    {
+      "path": "runs/dem-canyon-transactional-b200000/timing/manifest.json",
+      "sha256": "4d3619f300635e3fb00bbd20c3641e93f2213b0aff20a760c5c4124708ecf2c9"
+    },
+    {
+      "path": "runs/dem-canyon-transactional-b200000/visual/manifest.json",
+      "sha256": "70802bf11d8ae85f3753d75c4586668622b2d19e05bd517744419234d6e81c32"
+    },
+    {
+      "path": "runs/dem-canyon-transactional-b50000/timing/manifest.json",
+      "sha256": "5c234a6d3707f8f47c85991cf21884d3729a6cc1ab64d6db676e873f6f2b177c"
+    },
+    {
+      "path": "runs/dem-canyon-transactional-b50000/visual/manifest.json",
+      "sha256": "9084122275eca98e0a8bffcad2c37c5f787820f92d77cf13c6a8b296dc087bf5"
+    },
+    {
+      "path": "runs/peking547-cbt-a16/timing/manifest.json",
+      "sha256": "1c6c1f8f3bf980a8b2d56ee421c96640e118456c42f6de5e5d8447a798ea166a"
+    },
+    {
+      "path": "runs/peking547-cbt-a16/visual/manifest.json",
+      "sha256": "45aa944e822408dc2632bc6795c8763f3622ab0d6275618185a220c56cee5687"
+    },
+    {
+      "path": "runs/peking547-cbt-a4/timing/manifest.json",
+      "sha256": "d6c5efee539e120e8e3158e9dae71168b5f5e9e61712be5f226fff6ee2b50090"
+    },
+    {
+      "path": "runs/peking547-cbt-a4/visual/manifest.json",
+      "sha256": "63af79b1612513b8dec1ac6a537c6d644b06101a94c8db682339c206580e3542"
+    },
+    {
+      "path": "runs/peking547-cbt-a8/timing/manifest.json",
+      "sha256": "009c03975be862343888ca4aa3e06a096e1b69c9334d2f97ed31fdc9f9a8ca2f"
+    },
+    {
+      "path": "runs/peking547-cbt-a8/visual/manifest.json",
+      "sha256": "bdb75f2856ff76431df3c1a5bab11732446effb9b48faae7663649a1297f6060"
+    },
+    {
+      "path": "runs/peking547-dod-b200000/timing/manifest.json",
+      "sha256": "3b172477ad7b31696ba1345d80b947afbd2a437e6097a19a63c753d5b6ca2123"
+    },
+    {
+      "path": "runs/peking547-dod-b200000/visual/manifest.json",
+      "sha256": "52f91aa5496a5f73837e012246384bbb437cee6b75dd5024c2f1ac61723e41cc"
+    },
+    {
+      "path": "runs/peking547-dod-b50000/timing/manifest.json",
+      "sha256": "7ba9f2d77f956cd31f7e6b07f03a96501058879f07a3aa65b204e6bacf65834f"
+    },
+    {
+      "path": "runs/peking547-dod-b50000/visual/manifest.json",
+      "sha256": "27725ae8d7276d44fad04a039ce1e3b1a356a5c0248981cefff88f4fa10568d8"
+    },
+    {
+      "path": "runs/peking547-transactional-b200000/timing/manifest.json",
+      "sha256": "1445ed2cb4ce88da1c53c2244f1a1bec57cb2c06e9c3b660432ed6af284e584b"
+    },
+    {
+      "path": "runs/peking547-transactional-b200000/visual/manifest.json",
+      "sha256": "d84981e528767ab59b8381955ba7ea88ee1a265eb84a17675d6a418b192d7361"
+    },
+    {
+      "path": "runs/peking547-transactional-b50000/timing/manifest.json",
+      "sha256": "18bd219f6bd0b17aa71c403862296090adb301ab115c4bac78cf0cfa5960bfbf"
+    },
+    {
+      "path": "runs/peking547-transactional-b50000/visual/manifest.json",
+      "sha256": "d41d4b27020a0e664c65e077c31d2f86f0b438b79a3707c1d4f80ee7e404276c"
+    }
+  ],
+  "quality": [
+    {
+      "path": "quality/dem-canyon-cbt-a16/quality-index.json",
+      "sha256": "d170f6da8f15de3e24a4d303bfeb94bdc3491b697e71aa7749994ec6d20238f3"
+    },
+    {
+      "path": "quality/dem-canyon-cbt-a4/quality-index.json",
+      "sha256": "03781014122a4f238c48e8aa96aaf8c95624b55e232b850a284c98061143917d"
+    },
+    {
+      "path": "quality/dem-canyon-cbt-a8/quality-index.json",
+      "sha256": "a751b42e6a47bf2c14a0c2c33fbad9db752a8a3bd2a099287f2fd73ceb2af59c"
+    },
+    {
+      "path": "quality/dem-canyon-dod-b200000/quality-index.json",
+      "sha256": "71ce0959334bd5d8d2ea822a078b4ba541fa496245ea3eea4884afd0afcf82f8"
+    },
+    {
+      "path": "quality/dem-canyon-dod-b50000/quality-index.json",
+      "sha256": "a8cbd4384b560b48274d8c7f68b13b79de9031be1725803b43282108fa5671cb"
+    },
+    {
+      "path": "quality/dem-canyon-transactional-b200000/quality-index.json",
+      "sha256": "808e881cf20519f29e3698c89c2121c80d4a9e0f218e42ef4399203a0cbb2fd2"
+    },
+    {
+      "path": "quality/dem-canyon-transactional-b50000/quality-index.json",
+      "sha256": "eb53883cf1c22b1f652d1c38d4a9883c08a7cac3a4a4df916f6e78f7e6e579c2"
+    },
+    {
+      "path": "quality/peking547-cbt-a16/quality-index.json",
+      "sha256": "cd96e76b312bc13082e172df6dc1c056c0a7a0bd9dcb8e62183b5eeffd1af451"
+    },
+    {
+      "path": "quality/peking547-cbt-a4/quality-index.json",
+      "sha256": "0c72f3c5a82e879866893c0cfdc813d990a0707b3715daf3b408fd01533f65ef"
+    },
+    {
+      "path": "quality/peking547-cbt-a8/quality-index.json",
+      "sha256": "12e60cd9b6905413f663d38215331c3f28c9bbc3dcbb1ac3d897a76f613afc47"
+    },
+    {
+      "path": "quality/peking547-dod-b200000/quality-index.json",
+      "sha256": "5577d614bc9558a40e320a38e0d00dbb87a411a7dde1c9029831a63b173ef184"
+    },
+    {
+      "path": "quality/peking547-dod-b50000/quality-index.json",
+      "sha256": "bd7570aa86ef8c2c30ca21861ea66b1fe9c32e34c1afd6211da8873775319933"
+    },
+    {
+      "path": "quality/peking547-transactional-b200000/quality-index.json",
+      "sha256": "6322684a79ec0208f4af9ae1908447ad56808c9e48a7ab1377ced37c1cf9f8c1"
+    },
+    {
+      "path": "quality/peking547-transactional-b50000/quality-index.json",
+      "sha256": "f2021d2eea7ec503653a9b658f66eaee61fa08a8ab7c45d5203c0b026d265d7f"
+    }
+  ],
+  "packaged": [
+    {
+      "path": "analysis.json",
+      "sha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d"
+    },
+    {
+      "path": "calibration.json",
+      "sha256": "d3ae8309c20066c41ae7a8859c85a37c9a2d38dcea1ab18bb73ec4eec7ed9b6b"
+    },
+    {
+      "path": "figure-index.json",
+      "sha256": "faf350b60812ee87eaa5dd598621c898099661c71ae5d5933e1ce165e564507e"
+    },
+    {
+      "path": "figures/dem-canyon-actual-views.png",
+      "sha256": "7a676b316706c65daa11faa0ba3f2072d695a5799893e2d01613858c5eedcddf"
+    },
+    {
+      "path": "figures/dem-canyon-actual-views.spec.json",
+      "sha256": "78fd37c03a1f8bf18a15c9ad6936394d7255e5f66f48946ba46e797ba2ac5b28"
+    },
+    {
+      "path": "figures/dem-canyon-quality-n.png",
+      "sha256": "4f71772e26197ec54758ea2789690ed62b3d3fb3a6249050f8d56718cf35452e"
+    },
+    {
+      "path": "figures/dem-canyon-quality-n.spec.json",
+      "sha256": "dcdf64feda2efb21042f49942a273bc065b0100a23c60be0c111a0cf5a033944"
+    },
+    {
+      "path": "figures/dem-canyon-trajectory.png",
+      "sha256": "a227681a27cc80fd03a91578ce935f9a1840efdd3377a86441455ab64299b3c5"
+    },
+    {
+      "path": "figures/dem-canyon-trajectory.spec.json",
+      "sha256": "07711873f6d898c5f064898c6a60a4f846d1b649242c90e498ef7b61e1fcb84f"
+    },
+    {
+      "path": "figures/dem-canyon-witness.png",
+      "sha256": "321e32b735e6d6aa1631255d86f3eb696d7f9af2ffb56e10f9f1c8bed9c245dd"
+    },
+    {
+      "path": "figures/dem-canyon-witness.spec.json",
+      "sha256": "cfdae71b14a558a8d1339a87ac287865e04f360ce4c2dee1c68d03d5e69411ac"
+    },
+    {
+      "path": "figures/peking547-actual-views.png",
+      "sha256": "d43c4ccaa88a7f16a79992c9b5a25b42bde7b0514547a19d4c013c8166bd744d"
+    },
+    {
+      "path": "figures/peking547-actual-views.spec.json",
+      "sha256": "9f62c360396eedc500dd7c1abd2a4b118fcdd129532898f9a1e36f144a66b717"
+    },
+    {
+      "path": "figures/peking547-quality-n.png",
+      "sha256": "01263f4d677a3565c194f7c544edb7155e94b731f74c7d95f020f804d98c94ce"
+    },
+    {
+      "path": "figures/peking547-quality-n.spec.json",
+      "sha256": "0895010348c227573fa985968c9daf877add9be3691f8c70449a247b6d40231b"
+    },
+    {
+      "path": "figures/peking547-trajectory.png",
+      "sha256": "717aefbb78ab75f2d93fc160837a75c55ccce58932c21435e11f9e69fbef977a"
+    },
+    {
+      "path": "figures/peking547-trajectory.spec.json",
+      "sha256": "ae49a10f58cdaefda58ce57d982eab6db13b69e75b029c4979cb91419957ce12"
+    },
+    {
+      "path": "figures/peking547-witness.png",
+      "sha256": "2c08a6eac900207559ff1829651ec3a828cf0685e9a271aa62f7201fbf49946f"
+    },
+    {
+      "path": "figures/peking547-witness.spec.json",
+      "sha256": "8d4482e6c48beeeb3148dc7847caad082c4508d6e3c8fc9de7c4c45280ab2b5f"
+    },
+    {
+      "path": "observations.csv",
+      "sha256": "437e7e581417e33c503fd525cf191df9aee5fae8756b322b4bf8aabc193cc845"
+    },
+    {
+      "path": "pairs.csv",
+      "sha256": "eb5af232b87b884333c620c1aa99a45cc673113dd76376927e50df996c9045f6"
+    },
+    {
+      "path": "protocol.json",
+      "sha256": "43ca2b07fad549c901c11fccfcafd1abe1846dca11cebca35a00082c7f612109"
+    },
+    {
+      "path": "timings.csv",
+      "sha256": "19d23dd6f4f7ee7bb42f8662eaf724b4ea83731dc4503ab53acb39a7d1b50062"
+    },
+    {
+      "path": "vertex-coherence-audit.json",
+      "sha256": "4a89f2bd8d12b7cdb479d581de8dde763ca9fa46acac87537656ebe387ed57b1"
+    }
+  ]
+}

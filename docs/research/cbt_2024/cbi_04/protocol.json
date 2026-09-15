@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "cbi-comparison-v1",
+  "assets": [
+    {
+      "id": "peking547",
+      "camera": "pq-return24",
+      "maxFrames": 24,
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ]
+    },
+    {
+      "id": "dem-canyon",
+      "camera": "reveal-return",
+      "maxFrames": 96,
+      "qualityFrames": [
+        2,
+        32,
+        64,
+        95
+      ]
+    }
+  ],
+  "cbtAreas": [
+    16,
+    8,
+    4
+  ],
+  "cbtCapacity": 524288,
+  "cpuBudgets": [
+    50000,
+    200000
+  ],
+  "backend": "d3d12",
+  "workers": 8,
+  "warmup": 3,
+  "nearCountRelativeTolerance": 0.1,
+  "repetitions": 1,
+  "selection": "Keep all predeclared points; no quality-driven retuning",
+  "performanceScope": "Descriptive only; CPU uses preserved CBI-02 executable because CBI-03 CPU regression remains open",
+  "programs": {
+    "cbt": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+      "sha256": "e34f860ac14971a49d8932b46d664c49b1311591bd31fb4fb0fe6317d20f17b2",
+      "sourceManifest": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/provenance/cbt/manifest.json",
+      "sourceManifestSha256": "b3576cfcf107995d862c5b50418522c358dd6dcb84e948d840f9c4a426f3188c"
+    },
+    "cpu": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM-cbi02.exe",
+      "sha256": "e45eec1e1e54fa720788cbc153ffcd2dde1e254f94ac55fca71a5913381d1b91",
+      "sourceManifest": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/provenance/cpu/manifest.json",
+      "sourceManifestSha256": "176b46da70c1c84d93ebdec0aada97d968afdc761fed17f5e53f2b47f34cbec7"
+    }
+  },
+  "probe": {
+    "path": "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+    "sha256": "3bbc626c16199fb6c7a9a0a75507dbd345e247b17d2ca2f293118efdf86029a1"
+  },
+  "cases": [
+    "peking547-cbt-a16",
+    "peking547-cbt-a8",
+    "peking547-cbt-a4",
+    "peking547-dod-b50000",
+    "peking547-transactional-b50000",
+    "peking547-dod-b200000",
+    "peking547-transactional-b200000",
+    "dem-canyon-cbt-a16",
+    "dem-canyon-cbt-a8",
+    "dem-canyon-cbt-a4",
+    "dem-canyon-dod-b50000",
+    "dem-canyon-transactional-b50000",
+    "dem-canyon-dod-b200000",
+    "dem-canyon-transactional-b200000"
+  ],
+  "caseHashes": {
+    "peking547-cbt-a16": "96a47ba22adef23d55e2220e6feb0453edb4f5c121916efb0b1e380897870989",
+    "peking547-cbt-a8": "4f084885135a349cf8a79b7b2656342a7a8592a131f73d040f8eb67189f89618",
+    "peking547-cbt-a4": "ed1953ba638db8ae424c4595f1e2ac2dda6b8b8b6392209bd15a056f04a315b3",
+    "peking547-dod-b50000": "2e96f2191bc26abcd70b6effb4163ce5dadc1127637c604b28751ce8fd3bda67",
+    "peking547-transactional-b50000": "1f0561c6cdc14f631a58bdea3d8744b9d9c8a70adc73103a2c70b74e5ce4ed57",
+    "peking547-dod-b200000": "ae09b0b72e356ef0cc6f5b6f49f9a9d1b316c9d570b1edfdc9ca866150af97d1",
+    "peking547-transactional-b200000": "7536d7fc0aaddc27d332e75d2f0c261836a89877a79f2c8bb9c9f379c4d2603c",
+    "dem-canyon-cbt-a16": "0a518849a7613128b94d9b7024a2cae349aaac198edbd5d922732510b74d473f",
+    "dem-canyon-cbt-a8": "8dbc977a3b3e57deef9decb6259aaaf47e1a22fbcce0a8a27605ebe51aa0bf6c",
+    "dem-canyon-cbt-a4": "5723404277fe68c4ba157fa9d5dbd5605ff5afcc72711dba312fff24cdd4eed2",
+    "dem-canyon-dod-b50000": "ee21be12f59698fd03779275efa24f6a8fa198fc37c677ccec810c3e6f349a33",
+    "dem-canyon-transactional-b50000": "0e3ac50bc8093558a9e798886646c06ba2421e9b0d0251159f7a5ca1a43831aa",
+    "dem-canyon-dod-b200000": "febe658b5f6244f9120150a27ec6be30ef6d105907ec0805ded6823513619ce3",
+    "dem-canyon-transactional-b200000": "6faf42c3b2e7774a3e52f2f8ee8b7a6615642f71d38005eb23e197c29a7e53b1"
+  }
+}

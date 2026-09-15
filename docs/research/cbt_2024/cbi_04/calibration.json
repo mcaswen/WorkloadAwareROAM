@@ -1,0 +1,306 @@
+{
+  "purpose": "N-only calibration before any quality evaluation",
+  "selection": "all three frozen points retained without retuning",
+  "records": [
+    {
+      "case": "peking547-cbt-a16",
+      "area": 16,
+      "capacity": 524288,
+      "actual": [
+        {
+          "frame": 0,
+          "N": 12
+        },
+        {
+          "frame": 2,
+          "N": 48
+        },
+        {
+          "frame": 8,
+          "N": 3009
+        },
+        {
+          "frame": 15,
+          "N": 45112
+        },
+        {
+          "frame": 16,
+          "N": 34582
+        },
+        {
+          "frame": 23,
+          "N": 45844
+        }
+      ],
+      "faults": 0
+    },
+    {
+      "case": "peking547-cbt-a8",
+      "area": 8,
+      "capacity": 524288,
+      "actual": [
+        {
+          "frame": 0,
+          "N": 12
+        },
+        {
+          "frame": 2,
+          "N": 48
+        },
+        {
+          "frame": 8,
+          "N": 3009
+        },
+        {
+          "frame": 15,
+          "N": 80193
+        },
+        {
+          "frame": 16,
+          "N": 63132
+        },
+        {
+          "frame": 23,
+          "N": 85238
+        }
+      ],
+      "faults": 0
+    },
+    {
+      "case": "peking547-cbt-a4",
+      "area": 4,
+      "capacity": 524288,
+      "actual": [
+        {
+          "frame": 0,
+          "N": 12
+        },
+        {
+          "frame": 2,
+          "N": 48
+        },
+        {
+          "frame": 8,
+          "N": 3009
+        },
+        {
+          "frame": 15,
+          "N": 130269
+        },
+        {
+          "frame": 16,
+          "N": 110004
+        },
+        {
+          "frame": 23,
+          "N": 140913
+        }
+      ],
+      "faults": 0
+    },
+    {
+      "case": "dem-canyon-cbt-a16",
+      "area": 16,
+      "capacity": 524288,
+      "actual": [
+        {
+          "frame": 0,
+          "N": 12
+        },
+        {
+          "frame": 2,
+          "N": 48
+        },
+        {
+          "frame": 8,
+          "N": 2885
+        },
+        {
+          "frame": 15,
+          "N": 31279
+        },
+        {
+          "frame": 16,
+          "N": 30654
+        },
+        {
+          "frame": 24,
+          "N": 22892
+        },
+        {
+          "frame": 32,
+          "N": 12456
+        },
+        {
+          "frame": 40,
+          "N": 17310
+        },
+        {
+          "frame": 48,
+          "N": 26716
+        },
+        {
+          "frame": 56,
+          "N": 34164
+        },
+        {
+          "frame": 64,
+          "N": 34870
+        },
+        {
+          "frame": 72,
+          "N": 34973
+        },
+        {
+          "frame": 80,
+          "N": 34973
+        },
+        {
+          "frame": 88,
+          "N": 34973
+        },
+        {
+          "frame": 95,
+          "N": 34973
+        }
+      ],
+      "faults": 0
+    },
+    {
+      "case": "dem-canyon-cbt-a8",
+      "area": 8,
+      "capacity": 524288,
+      "actual": [
+        {
+          "frame": 0,
+          "N": 12
+        },
+        {
+          "frame": 2,
+          "N": 48
+        },
+        {
+          "frame": 8,
+          "N": 2885
+        },
+        {
+          "frame": 15,
+          "N": 60115
+        },
+        {
+          "frame": 16,
+          "N": 59087
+        },
+        {
+          "frame": 24,
+          "N": 43714
+        },
+        {
+          "frame": 32,
+          "N": 23635
+        },
+        {
+          "frame": 40,
+          "N": 31209
+        },
+        {
+          "frame": 48,
+          "N": 49165
+        },
+        {
+          "frame": 56,
+          "N": 64680
+        },
+        {
+          "frame": 64,
+          "N": 66756
+        },
+        {
+          "frame": 72,
+          "N": 67261
+        },
+        {
+          "frame": 80,
+          "N": 67261
+        },
+        {
+          "frame": 88,
+          "N": 67261
+        },
+        {
+          "frame": 95,
+          "N": 67255
+        }
+      ],
+      "faults": 0
+    },
+    {
+      "case": "dem-canyon-cbt-a4",
+      "area": 4,
+      "capacity": 524288,
+      "actual": [
+        {
+          "frame": 0,
+          "N": 12
+        },
+        {
+          "frame": 2,
+          "N": 48
+        },
+        {
+          "frame": 8,
+          "N": 2885
+        },
+        {
+          "frame": 15,
+          "N": 110692
+        },
+        {
+          "frame": 16,
+          "N": 109068
+        },
+        {
+          "frame": 24,
+          "N": 78798
+        },
+        {
+          "frame": 32,
+          "N": 40956
+        },
+        {
+          "frame": 40,
+          "N": 54407
+        },
+        {
+          "frame": 48,
+          "N": 87729
+        },
+        {
+          "frame": 56,
+          "N": 119223
+        },
+        {
+          "frame": 64,
+          "N": 123986
+        },
+        {
+          "frame": 72,
+          "N": 125405
+        },
+        {
+          "frame": 80,
+          "N": 125405
+        },
+        {
+          "frame": 88,
+          "N": 125405
+        },
+        {
+          "frame": 95,
+          "N": 125407
+        }
+      ],
+      "faults": 0
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "eip-figure-v1",
+  "id": "peking547-trajectory",
+  "title": "peking547：冷启动与持续质量",
+  "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+  "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+  "selection": {
+    "asset": "peking547",
+    "frames": [
+      2,
+      15,
+      16,
+      23
+    ]
+  },
+  "note": "仅显示预冻结关键机会；早期低N是来源初始化，不增加隐藏收敛轮次。",
+  "colors": {
+    "cbt": "#6b4da2",
+    "dod": "#256eb0",
+    "transactional": "#ce7130"
+  },
+  "statistics": "consume analysis; no new significance or outcome classifier",
+  "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+  "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+  "files": {
+    "png": {
+      "path": "peking547-trajectory.png",
+      "sha256": "717aefbb78ab75f2d93fc160837a75c55ccce58932c21435e11f9e69fbef977a"
+    },
+    "svg": {
+      "path": "peking547-trajectory.svg",
+      "sha256": "ca0ae082802cf00fab1fcbd1f6482344e180b40d01a0ceb11adf86ce3de92a80"
+    },
+    "pdf": {
+      "path": "peking547-trajectory.pdf",
+      "sha256": "b66288b5cf7c4bdc8f8a66a0b7328f46341c108d4b7409083e342261f6ad2697"
+    }
+  },
+  "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+}

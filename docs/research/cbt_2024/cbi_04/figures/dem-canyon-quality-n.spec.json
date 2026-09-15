@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "eip-figure-v1",
+  "id": "dem-canyon-quality-n",
+  "title": "dem-canyon：质量与实际数量",
+  "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+  "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+  "selection": {
+    "asset": "dem-canyon",
+    "frames": [
+      2,
+      32,
+      64,
+      95
+    ]
+  },
+  "note": "同一机会内比较；无效质量点不绘制（见失败表），不插值补齐，容量不是硬预算。",
+  "colors": {
+    "cbt": "#6b4da2",
+    "dod": "#256eb0",
+    "transactional": "#ce7130"
+  },
+  "statistics": "consume analysis; no new significance or outcome classifier",
+  "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+  "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+  "files": {
+    "png": {
+      "path": "dem-canyon-quality-n.png",
+      "sha256": "4f71772e26197ec54758ea2789690ed62b3d3fb3a6249050f8d56718cf35452e"
+    },
+    "svg": {
+      "path": "dem-canyon-quality-n.svg",
+      "sha256": "cb7d8a11aa712f71bb9f0d7ed0c93ad6309bfcdce45e8a229e51b5abaf9b6da4"
+    },
+    "pdf": {
+      "path": "dem-canyon-quality-n.pdf",
+      "sha256": "296ed68b906cb2d6e1f4fb88f116b5ba954950d0e09ecb6b00614019c58b7c14"
+    }
+  },
+  "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+}

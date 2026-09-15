@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "eip-figure-v1",
+  "id": "peking547-witness",
+  "title": "peking547：机会 23 几何误差见证",
+  "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cbt-2024/cbi-04/analysis/analysis.json",
+  "analysisSha256": "dacedd20c445e8180e27071af643bb2b2e88795ab626a0d8bdcdd48b33b9980d",
+  "selection": {
+    "cases": [
+      "peking547-dod-b50000",
+      "peking547-transactional-b50000",
+      "peking547-cbt-a8"
+    ],
+    "frame": 23
+  },
+  "note": "统一色标；显示抽样位置和实际全Q最大点（青色叉），不是完整误差场或感知结论。",
+  "colors": {
+    "cbt": "#6b4da2",
+    "dod": "#256eb0",
+    "transactional": "#ce7130"
+  },
+  "statistics": "consume analysis; no new significance or outcome classifier",
+  "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+  "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+  "files": {
+    "png": {
+      "path": "peking547-witness.png",
+      "sha256": "2c08a6eac900207559ff1829651ec3a828cf0685e9a271aa62f7201fbf49946f"
+    },
+    "svg": {
+      "path": "peking547-witness.svg",
+      "sha256": "43813e4fc23721edfd1bafc4ad017fba315c401c9380b418d3bf037a8ca54889"
+    },
+    "pdf": {
+      "path": "peking547-witness.pdf",
+      "sha256": "5a5d47ff60075b23aadf436eb77158b2e28a8e8cf31e6529c8bd49df89b62e52"
+    }
+  },
+  "trajectoryColors": "Matplotlib per-case cycle; legend records each frozen parameter"
+}
