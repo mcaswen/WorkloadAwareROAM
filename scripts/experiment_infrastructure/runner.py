@@ -166,6 +166,18 @@ def compare_modes(paths):
     manifests=[load_json(p/"manifest.json") for p in paths]
     if any(m["status"]!="ok" for m in manifests): raise ValueError("存在失败运行")
     if len({m["executionId"] for m in manifests})!=1: raise ValueError("执行身份不同，不能合并")
+    if manifests[0]["case"]["algorithm"] == "cbt":
+        from .result_adapters import load_run
+        loaded = [load_run(path) for path in paths]
+        keys = ("frame", "sample", "poseHash", "projectionHash")
+        sequences = [[tuple(frame[key] for key in keys) for frame in data["frames"]] for data in loaded]
+        if any(sequence != sequences[0] for sequence in sequences):
+            raise ValueError("CBT采集模式的输入/机会序列不同")
+        return {
+            "status": "input-and-generation-contracts-only", "frames": len(sequences[0]),
+            "runs": [str(path) for path in paths], "checked": keys,
+            "meshEquivalence": "not established across GPU processes; timing has no full mesh hash",
+        }
     columns=("frame","sample","poseHash","projectionHash","faces","sequence","hash",
         "split","merge","status","updated","cold","seedFaces","samples","raw","examined","receivers","need",
         "feasible","exchanges","free","pairs","conflicts","donorReuse","touches","evaluations","vertexWrites","indexWrites")

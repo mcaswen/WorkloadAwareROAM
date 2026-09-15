@@ -10,6 +10,36 @@ from .result_adapters import load_run
 from .runner import save
 
 
+def valid_quality(item):
+    result = item.get("result", {})
+    return item.get("status") == "ok" and bool(result) and not any(
+        result.get(key, 0) for key in ("missing", "ambiguous", "invalidGeometry", "invalidProjection")
+    )
+
+
+def pointwise_excess(left, right, left_errors, right_errors):
+    """不同N可比较逐点误差，独立输入身份仍必须完全相同。"""
+    for key in ("terrain", "sourceHash", "sampleHash", "sampleCount", "poseHash", "projectionHash"):
+        if left[key] != right[key]:
+            raise ValueError("逐点比较的独立输入不一致: " + key)
+    x = np.asarray(left_errors)
+    y = np.asarray(right_errors)
+    if x.size != left["sampleCount"] or x.shape != y.shape:
+        raise ValueError("逐点误差文件尺寸不符")
+    if not np.all(np.isfinite(x)) or not np.all(np.isfinite(y)):
+        raise ValueError("逐点误差非有限")
+    if not np.array_equal(x < 0, y < 0):
+        raise ValueError("逐点可见域不一致")
+    visible = x >= 0
+    if not visible.any():
+        return None
+    indices = np.flatnonzero(visible)
+    difference = x[visible] - y[visible]
+    offset = int(np.argmax(difference))
+    return {"Dmax": float(difference[offset]), "witnessOrdinal": int(indices[offset]),
+            "visible": int(visible.sum())}
+
+
 def evaluate(run,output,probe,frames=(2,15,16,23),locations=True):
     run=Path(run).resolve();output=Path(output).resolve();probe=Path(probe).resolve()
     data=load_run(run)
@@ -54,38 +84,48 @@ def evaluate(run,output,probe,frames=(2,15,16,23),locations=True):
     return output/"quality-index.json"
 
 
-def pointwise_pair(candidate,reference,output):
+def pointwise_pair(candidate,reference,output,allow_different_budget=False):
     """Dmax为同域逐点误差差值的最大值；不以max差替代，不钳到零。"""
     candidate=Path(candidate).resolve();reference=Path(reference).resolve()
     a=load_json(candidate/"quality-index.json");b=load_json(reference/"quality-index.json")
-    if any(a[k]!=b[k] for k in ("workloadId","backend","sourceSha256","sampleSemantics")):
+    required = ("backend", "sourceSha256", "sampleSemantics", "reference")
+    if not allow_different_budget:
+        required = (*required, "workloadId")
+    if any(a[k]!=b[k] for k in required):
         raise ValueError("独立质量输入/采样/深度约定不一致")
+    manifests = [load_json(Path(index["run"]) / "manifest.json") for index in (a, b)]
+    geometry_keys = ("terrain", "sampleSha256", "terrainSize", "heightScale", "viewWidth", "viewHeight")
+    if any(manifests[0]["case"][key] != manifests[1]["case"][key] for key in geometry_keys):
+        raise ValueError("逐点比较的参数尺度或视口不一致")
+    for index in (a, b):
+        if content_hash(Path(index["run"]) / "manifest.json") != index["runManifestSha256"]:
+            raise ValueError("质量来源运行清单改变")
     rows=[];by={f["frame"]:f for f in b["frames"]}
     for left in a["frames"]:
         right=by.get(left["frame"]);item={"frame":left["frame"],"status":"unpaired"}
         if right and left["status"]==right["status"]=="ok":
-            if any(left[k]!=right[k] for k in ("poseHash","projectionHash","sampleHash","sampleCount")):
-                raise ValueError("逐点质量身份不符")
+            identities = []
             for root,row in ((candidate,left),(reference,right)):
                 if content_hash(root/row["errors"])!=row["errorsSha256"]: raise ValueError("逐点文件被改写")
+                quality = load_json(root / row["quality"])
+                if content_hash(root / row["quality"]) != row["qualitySha256"]:
+                    raise ValueError("质量文件被改写")
+                if not valid_quality({**row, "result": quality}):
+                    raise ValueError("成功状态含无效质量计数")
+                identities.append({key: row[key] for key in ("poseHash", "projectionHash", "sampleHash", "sampleCount")})
+                identities[-1].update(terrain=manifests[0]["case"]["terrain"], sourceHash=a["sourceSha256"])
             x=np.fromfile(candidate/left["errors"],dtype="<f8");y=np.fromfile(reference/right["errors"],dtype="<f8")
-            if x.size!=left["sampleCount"] or y.size!=x.size: raise ValueError("逐点文件截断")
-            if not np.all(np.isfinite(x)) or not np.all(np.isfinite(y)):
-                item["status"]="invalid-domain"
-            elif not np.array_equal(x<0,y<0):
-                item["status"]="visibility-mismatch"
+            value = pointwise_excess(*identities, x, y)
+            if value is None:
+                item["status"] = "no-visible-samples"
             else:
-                mask=x>=0
-                if not mask.any(): item["status"]="no-visible-samples"
-                else:
-                    ids=np.flatnonzero(mask);delta=x[mask]-y[mask];j=int(np.argmax(delta))
-                    item.update(status="paired",DmaxSamplePx=float(delta[j]),witnessOrdinal=int(ids[j]),
-                        visible=int(mask.sum()),candidateMesh=left["meshHash"],referenceMesh=right["meshHash"],
-                        candidateFaces=left["faces"],referenceFaces=right["faces"])
+                item.update(status="paired", DmaxSamplePx=value["Dmax"], witnessOrdinal=value["witnessOrdinal"],
+                    visible=value["visible"], candidateMesh=left["meshHash"], referenceMesh=right["meshHash"],
+                    candidateFaces=left["faces"], referenceFaces=right["faces"])
         rows.append(item)
     result={"schemaVersion":"eip-dmax-v1","candidate":str(candidate),"reference":str(reference),
         "definition":"max_q(e_candidate(q)-e_reference(q)), same reference-visible sampled domain",
-        "isAbsoluteQualityReplacement":False,"frames":rows}
+        "isAbsoluteQualityReplacement":False,"allowDifferentBudget":allow_different_budget,"frames":rows}
     output=Path(output);output.parent.mkdir(parents=True,exist_ok=True)
     with output.open("x") as f:
         import json;json.dump(result,f,ensure_ascii=False,indent=2,allow_nan=False)

@@ -10,6 +10,8 @@ from .catalog import load_json, content_hash
 from .result_adapters import load_run
 from .runner import save
 from .figures import FigureWriter
+from .gpu_observations import gpu_samples
+from .quality import pointwise_excess
 
 
 COLORS = {"cbt": "#6b4da2", "dod": "#256eb0", "transactional": "#ce7130"}
@@ -19,38 +21,6 @@ LABELS = {"cbt": "GPU CBT", "dod": "DOD8", "transactional": "Transactional8"}
 def mean(values):
     values = [value for value in values if value is not None]
     return statistics.mean(values) if values else None
-
-
-def pointwise_excess(left, right, left_errors, right_errors):
-    """不同N可比较逐点误差，独立输入身份仍必须完全相同。"""
-    for key in ("terrain", "sourceHash", "sampleHash", "sampleCount", "poseHash", "projectionHash"):
-        if left[key] != right[key]:
-            raise ValueError("逐点比较的独立输入不一致: " + key)
-    x = np.asarray(left_errors)
-    y = np.asarray(right_errors)
-    if x.size != left["sampleCount"] or x.shape != y.shape:
-        raise ValueError("逐点误差文件尺寸不符")
-    if not np.all(np.isfinite(x)) or not np.all(np.isfinite(y)):
-        raise ValueError("逐点误差非有限")
-    if not np.array_equal(x < 0, y < 0):
-        raise ValueError("逐点可见域不一致")
-    visible = x >= 0
-    if not visible.any():
-        return None
-    indices = np.flatnonzero(visible)
-    difference = x[visible] - y[visible]
-    offset = int(np.argmax(difference))
-    return {"Dmax": float(difference[offset]), "witnessOrdinal": int(indices[offset])}
-
-
-def gpu_samples(data, generation_column, value_column, warmup):
-    frames = {(r["resourceGeneration"], r["topologyGeneration"]): int(r["frame"]) for r in data}
-    samples = {}
-    for row in data:
-        key = (row["resourceGeneration"], row[generation_column])
-        if row[value_column] and frames.get(key, -1) >= warmup:
-            samples[key] = float(row[value_column])
-    return list(samples.values())
 
 
 def nearest_count_reference(left, candidates):

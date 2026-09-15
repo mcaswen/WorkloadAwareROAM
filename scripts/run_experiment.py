@@ -32,6 +32,11 @@ def main():
     quality.add_argument("--output",type=Path,required=True)
     quality.add_argument("--probe",type=Path,required=True)
     quality.add_argument("--frames",type=int,nargs="+",default=[2,15,16,23])
+    pair = sub.add_parser("pair", help="核对共同参考域并计算逐点Dmax")
+    pair.add_argument("--candidate", type=Path, required=True)
+    pair.add_argument("--reference", type=Path, required=True)
+    pair.add_argument("--output", type=Path, required=True)
+    pair.add_argument("--allow-different-budget", action="store_true")
     profile = sub.add_parser("profile",help="复用FPR采集新CPU ROI")
     profile.add_argument("collector",choices=["perf","tracy"])
     profile.add_argument("--case",type=Path,required=True)
@@ -48,12 +53,18 @@ def main():
     suite.add_argument("--output",type=Path,required=True)
     suite.add_argument("--budgets",type=int,nargs="+",default=[50000])
     suite.add_argument("--workers",type=int,nargs="+",default=[8])
-    suite.add_argument("--algorithms",choices=["classic","dod","transactional"],nargs="+",default=["transactional"])
+    suite.add_argument("--algorithms",choices=["classic","dod","transactional","cbt"],nargs="+",default=["transactional"])
     suite.add_argument("--prefixes",choices=["fixed64","scaled"],nargs="+",default=["scaled"])
+    suite.add_argument("--cbt-areas", type=float, nargs="+", default=[16, 8, 4])
+    suite.add_argument("--cbt-capacities", type=int, nargs="+", default=[524288])
     args = parser.parse_args()
     if args.command == "suite":
         from experiment_infrastructure.suite import expand
-        print(expand(args.case,args.output,args.budgets,args.workers,args.algorithms,args.prefixes))
+        print(expand(args.case,args.output,args.budgets,args.workers,args.algorithms,args.prefixes,
+            args.cbt_areas,args.cbt_capacities))
+    elif args.command == "pair":
+        from experiment_infrastructure.quality import pointwise_pair
+        print(pointwise_pair(args.candidate, args.reference, args.output, args.allow_different_budget))
     elif args.command == "report":
         from experiment_infrastructure.report import build
         print(build(args.analysis,args.output))
