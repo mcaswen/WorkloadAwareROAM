@@ -100,6 +100,80 @@ std::size_t Rank(const TransactionalState& state,const TransactionalSamples& sam
 }
 
 /// <summary>
+/// 只展开追加见证所覆盖的补丁，分离连接变化与新点拟合的几何作用
+/// 未拟合曲面是批前状态上的局部反事实，不参与认证、选择或实际发布
+/// </summary>
+void WritePatch(std::ostream& out,const TransactionalState& state,const TransactionalSamples& samples,
+    const Proposal& proposal,const Point& q)
+{
+    out<<",\"geometry\":{\"oldFaces\":[";
+    for (std::size_t i=0;i<proposal.Support.size();++i)
+    {
+        if (i) out<<',';
+        const auto& face=state.Face(proposal.Support[i]);out<<'['<<face.Id;
+        for (auto id : face.Vertices)
+        {
+            const auto& p=state.Vertex(id).Geometry;
+            out<<",["<<id<<','<<p.U<<','<<p.V<<','<<p.Height<<']';
+        }
+        out<<']';
+    }
+    out<<"],\"newFaces\":[";
+    for (std::size_t i=0;i<proposal.Faces.size();++i)
+    {
+        if (i) out<<',';const auto& f=proposal.Faces[i];
+        out<<'['<<f[0]<<','<<f[1]<<','<<f[2]<<']';
+    }
+    out<<"],\"pointReferences\":[";bool first=true;
+    for (const auto& [id,p] : proposal.Points)
+    {
+        if (!first) out<<',';first=false;
+        out<<'['<<id<<','<<ReferenceHeight(samples,p,state.Config().HeightScale)<<']';
+    }
+    out<<"],\"removedPoint\":";
+    if (proposal.Kind=='D')
+    {
+        const auto& p=state.Vertex(proposal.Center).Geometry;
+        out<<'['<<proposal.Center<<','<<p.U<<','<<p.V<<','<<p.Height<<','
+            <<ReferenceHeight(samples,p,state.Config().HeightScale)<<']';
+    }
+    else out<<"null";
+    out<<",\"newPoint\":";
+    auto unfitted=proposal;
+    if (proposal.Kind!='D')
+    {
+        const auto& p=proposal.Points.at(proposal.NewVertex);
+        const double initial=CurrentHeight(state,p,proposal.Root);
+        out<<"{\"id\":"<<proposal.NewVertex<<",\"initialHeight\":"<<initial
+            <<",\"fittedHeight\":"<<p.Height<<",\"referenceHeight\":"
+            <<ReferenceHeight(samples,p,state.Config().HeightScale)<<'}';
+        unfitted.Points.at(proposal.NewVertex).Height=initial;
+    }
+    else out<<"null";
+    out<<",\"unfittedWitnessHeight\":";Number(out,ReplacementHeight(unfitted,q));
+    // 全补丁样本与当前可见认证集合分别计数，避免把离屏缺约束误写成样本缺失
+    std::set<Slot> closed;
+    for (auto face : proposal.Support)
+        closed.insert(samples.FaceSamples(face).begin(),samples.FaceSamples(face).end());
+    double oldMax=0,nearestDistance=INFINITY;Slot nearest=InvalidSlot;
+    for (auto sid : proposal.Samples)
+    {
+        oldMax=std::max(oldMax,samples.Projection(sid).ErrorSquared);
+        const auto p=samples.Parameter(sid);const double distance=std::hypot(p.U-q.U,p.V-q.V);
+        if (distance<nearestDistance) { nearestDistance=distance;nearest=sid; }
+    }
+    out<<",\"closedSampleCount\":"<<closed.size()<<",\"oldVisibleMaxPx\":"<<std::sqrt(oldMax)
+        <<",\"nearestVisibleSample\":";
+    if (nearest!=InvalidSlot)
+    {
+        const auto p=samples.Parameter(nearest);
+        out<<'['<<nearest<<','<<p.U<<','<<p.V<<','<<nearestDistance<<']';
+    }
+    else out<<"null";
+    out<<'}';
+}
+
+/// <summary>
 /// 只为已入前缀但未执行的见证根补做可行性诊断
 /// 保留独立账本，不把额外回收认证写回正常批次
 /// </summary>
@@ -163,9 +237,18 @@ void Recovery(std::ostream& out,std::size_t frame,std::size_t witness,const Tran
 }
 
 TransactionalQualityProvenance::TransactionalQualityProvenance(const std::filesystem::path& output,
-    const Config& future,const Config& returned) : _future(future),_returned(returned),
+    const Config& future,const Config& returned,std::optional<Point> additionalWitness) : _future(future),_returned(returned),
     _witnesses(output/"witnesses.csv"),_transactions(output/"transactions.jsonl"),_recovery(output/"recovery.jsonl")
 {
+    _points.assign(Witnesses.begin(),Witnesses.end());
+    if (additionalWitness)
+    {
+        const auto& p=*additionalWitness;
+        if (!std::isfinite(p.U) || !std::isfinite(p.V) || p.U<0 || p.U>1 || p.V<0 || p.V>1)
+            throw std::runtime_error("追加见证必须位于有限单位参数域");
+        _points.push_back(p);
+    }
+    _expected.resize(_points.size());
     for (auto* file : {&_witnesses,&_transactions,&_recovery})
     { file->exceptions(std::ios::badbit|std::ios::failbit);*file<<std::setprecision(17); }
     _witnesses<<"frame,phase,witness,u,v,reference,height,heightResidual,visible,error,futureError,returnError,face,priority,rank\n";
@@ -174,9 +257,9 @@ TransactionalQualityProvenance::TransactionalQualityProvenance(const std::filesy
 void TransactionalQualityProvenance::Observe(std::size_t frame,const char* phase,const State& state,
     const Samples& samples,const Batch* batch)
 {
-    for (std::size_t i=0;i<Witnesses.size();++i)
+    for (std::size_t i=0;i<_points.size();++i)
     {
-        const auto& q=Witnesses[i];const auto slot=Owner(state,q);
+        const auto& q=_points[i];const auto slot=Owner(state,q);
         const double ref=ReferenceHeight(samples,q,state.Config().HeightScale),h=CurrentHeight(state,q,slot);
         _witnesses<<frame<<','<<phase<<','<<i<<','<<q.U<<','<<q.V<<','<<ref<<','<<h<<','<<h-ref<<','
             <<Visible(state.Config(),q,ref)<<',';
@@ -239,9 +322,9 @@ void TransactionalQualityProvenance::Before(std::size_t frame,const State& state
             _transactions<<"],\"support\":[";
             for (std::size_t j=0;j<p->Support.size();++j) { if (j) _transactions<<',';_transactions<<state.Face(p->Support[j]).Id; }
             _transactions<<"],\"witnesses\":[";first=true;
-            for (std::size_t j=0;j<Witnesses.size();++j)
+            for (std::size_t j=0;j<_points.size();++j)
             {
-                const auto& q=Witnesses[j];const auto next=ReplacementHeight(*p,q);
+                const auto& q=_points[j];const auto next=ReplacementHeight(*p,q);
                 if (!next) continue;
                 if (!first) _transactions<<',';first=false;
                 const double old=CurrentHeight(state,q,Owner(state,q)),ref=ReferenceHeight(samples,q,state.Config().HeightScale);
@@ -251,7 +334,10 @@ void TransactionalQualityProvenance::Before(std::size_t frame,const State& state
                 Number(_transactions,Error(state.Config(),q,ref,old));_transactions<<",\"errorAfter\":";
                 Number(_transactions,Error(state.Config(),q,ref,*next));_transactions<<'}';
             }
-            _transactions<<"]}\n";
+            _transactions<<']';
+            if (_points.size()>Witnesses.size() && ReplacementHeight(*p,_points.back()))
+                WritePatch(_transactions,state,samples,*p,_points.back());
+            _transactions<<"}\n";
         }
     }
 }

@@ -3,11 +3,13 @@
 #include "algorithms/greedy_transactional_lod/TransactionalPipeline.h"
 #include <filesystem>
 #include <fstream>
+#include <optional>
+#include <vector>
 
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
 /// <summary>
-/// 两个预先冻结见证的离线追溯，借用批前状态和已批准提案
+/// 预先冻结见证的离线追溯，保留原见证并允许追加一个参数域位置
 /// 全域定位与额外认证只进入独立探针，不参与正常决策或计时
 /// </summary>
 class TransactionalQualityProvenance
@@ -17,7 +19,8 @@ class TransactionalQualityProvenance
     using Batch=Algorithms::GreedyTransactionalLod::CertifiedBatch;
     using Config=Algorithms::GreedyTransactionalLod::Configuration;
 public:
-    TransactionalQualityProvenance(const std::filesystem::path& output,const Config& future,const Config& returned);
+    TransactionalQualityProvenance(const std::filesystem::path& output,const Config& future,const Config& returned,
+        std::optional<Algorithms::GreedyTransactionalLod::Point> additionalWitness = {});
     void Before(std::size_t frame,const State& state,const Samples& samples,const Batch& batch);
     void After(std::size_t frame,const State& state,const Samples& samples);
 private:
@@ -26,7 +29,8 @@ private:
     Config _future,_returned;
     std::ofstream _witnesses,_transactions,_recovery;
     // 批前局部预测与批后内部曲面比对；不以它代替实际 float 网格评价
-    std::array<double,2> _expected{};
+    std::vector<Algorithms::GreedyTransactionalLod::Point> _points;
+    std::vector<double> _expected;
     std::map<Algorithms::GreedyTransactionalLod::Identity,double> _survivors;
 };
 }

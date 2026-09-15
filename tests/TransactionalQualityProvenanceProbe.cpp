@@ -8,6 +8,7 @@
 #include "tools/CpuTaskExecutor.h"
 #include <iomanip>
 #include <iostream>
+#include <cmath>
 
 namespace
 {
@@ -19,14 +20,30 @@ TerrainLodViewInput View(std::size_t frame)
     const auto c=Benchmark::PlatformReplayCamera(true,Benchmark::PlatformReplayViews.at(frame),false);
     return BuildTerrainLodViewInput(c.View,c.Projection,c.CameraPosition,c.CameraForward,1280,720,false);
 }
+double Coordinate(const char* text)
+{
+    std::size_t used{};const double value=std::stod(text,&used);
+    if (text[used]!='\0' || !std::isfinite(value) || value<0 || value>1)
+        throw std::runtime_error("Witness coordinate must be finite and in [0,1]");
+    return value;
+}
 }
 
 int main(int argc,char** argv)
 {
     try
     {
-        if (argc!=2 && argc!=3) throw std::runtime_error("Usage: quality-provenance-probe OUTPUT [immutable]");
-        if (argc==3 && std::string_view(argv[2])!="immutable") throw std::runtime_error("Unknown height policy");
+        if (argc<2) throw std::runtime_error("Usage: quality-provenance-probe OUTPUT [immutable] [--witness U V]");
+        int next=2;const bool immutable=argc>next && std::string_view(argv[next])=="immutable";
+        if (immutable) ++next;
+        std::optional<Point> additionalWitness;
+        if (argc!=next)
+        {
+            // 参数必须在创建目录和种子之前验证，错误输入不能留下伪运行记录
+            if (argc!=next+3 || std::string_view(argv[next])!="--witness")
+                throw std::runtime_error("Usage: quality-provenance-probe OUTPUT [immutable] [--witness U V]");
+            additionalWitness=Point{Coordinate(argv[next+1]),Coordinate(argv[next+2]),0};
+        }
         const std::filesystem::path output(argv[1]);
         if (std::filesystem::exists(output)) throw std::runtime_error("Refusing provenance overwrite");
         std::filesystem::create_directories(output);
@@ -36,7 +53,7 @@ int main(int argc,char** argv)
         auto& s=input.Settings;s.TerrainSize=80;s.HeightScale=12;s.MaxDepth=20;s.TriangleBudget=50000;
         s.ScreenSpaceSplitThresholdPixels=.25F;s.ScreenSpaceMergeThresholdPixels=.10F;
         s.Transactional.WorkerCount=8;s.Transactional.PrefixLimit=s.Transactional.DonorLimit=160;
-        s.Transactional.PreserveSurvivingHeights=argc==3;
+        s.Transactional.PreserveSurvivingHeights=immutable;
         // 与平台共用公共种子，不通过旧轨迹重放获得后续目标
         auto seed=TransactionalSeedBuilder::Build(input);
         Tools::CpuTaskExecutor executor(8);
@@ -46,7 +63,7 @@ int main(int argc,char** argv)
         WorkLedger initialize;pipeline.Initialize(initialize);
         input.View=View(15);const auto future=TransactionalSeedBuilder::ConfigurationFor(input);
         input.View=View(16);const auto returned=TransactionalSeedBuilder::ConfigurationFor(input);
-        Experiment::GreedyTransactionalLod::TransactionalQualityProvenance audit(output,future,returned);
+        Experiment::GreedyTransactionalLod::TransactionalQualityProvenance audit(output,future,returned,additionalWitness);
         std::ofstream frames(output/"frames.csv");frames.exceptions(std::ios::badbit|std::ios::failbit);
         frames<<std::setprecision(17)<<"frame,sample,hash,faces,raw,examined,receivers,need,feasible,exchanges,free,pairs,conflicts,donorReuse\n";
         for (std::size_t frame=0;frame<Benchmark::PlatformReplayViews.size();++frame)
