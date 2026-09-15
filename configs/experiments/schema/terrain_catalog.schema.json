@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "terrains"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "terrains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "path",
+          "width",
+          "height",
+          "fileSha256",
+          "sampleSha256",
+          "sampleEncoding",
+          "terrainSize",
+          "heightScale",
+          "kind",
+          "provenance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 1025
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 1025
+          },
+          "fileSha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "sampleSha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "sampleEncoding": {
+            "const": "uint16-le-row-major"
+          },
+          "terrainSize": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "heightScale": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "kind": {
+            "enum": [
+              "legacy",
+              "generated",
+              "imported"
+            ]
+          },
+          "provenance": {
+            "type": "object",
+            "required": [
+              "licenseStatus",
+              "source"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

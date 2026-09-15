@@ -73,6 +73,7 @@ benchmark-output/*-profile-stacks.txt
 benchmark-output/cpu-cbt/
 benchmark-output/cpu-refinement/
 benchmark-output/profiling/
+benchmark-output/experiment-infrastructure/
 benchmark-output/roam-materialization/
 *.log
 logs/

@@ -57,6 +57,7 @@ target_include_directories(parallel_roam_cpu_execution PUBLIC "${CMAKE_CURRENT_S
 target_link_libraries(parallel_roam_cpu_execution PUBLIC parallel_roam_project_options Threads::Threads
     PRIVATE parallel_roam_project_warnings)
 include(TransactionalLod)
+include(ExperimentInfrastructure)
 
 # 应用和 CPU 执行测试共用同一组 DOD 源码，避免新增文件只接入一个后端
 set(PARALLEL_ROAM_DOD_SOURCES

@@ -592,3 +592,11 @@ if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
     target_compile_definitions(parallel_roam_transactional_command_line_tests PRIVATE PARALLEL_ROAM_TRANSACTIONAL_LOD_RUNTIME=1)
     add_test(NAME transactional_command_line COMMAND parallel_roam_transactional_command_line_tests)
 endif()
+
+if(TARGET parallel_roam_experiment_infrastructure AND TARGET ParallelROAM::STB)
+    add_executable(parallel_roam_experiment_infrastructure_tests ExperimentInfrastructureTests.cpp
+        ../src/terrain/HeightMap.cpp ../src/experiment/ExperimentCsvCodec.cpp)
+    target_include_directories(parallel_roam_experiment_infrastructure_tests SYSTEM PRIVATE "${PARALLEL_ROAM_EXPERIMENT_BOOST_INCLUDE}")
+    target_link_libraries(parallel_roam_experiment_infrastructure_tests PRIVATE parallel_roam_experiment_infrastructure
+        ParallelROAM::STB parallel_roam_project_warnings)
+endif()

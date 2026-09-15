@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "terrains": [
+    {
+      "id": "test129",
+      "name": "历史测试地形",
+      "path": "assets/heightmaps/Hm_Terrain_Test_129.pgm",
+      "width": 129,
+      "height": 129,
+      "terrainSize": 30,
+      "heightScale": 4,
+      "fileSha256": "88e7688c5ee298e4df16a250ae37e82c1e48ae8e66c973facfcc0eb208d6448c",
+      "sampleSha256": "8ac4ddc0cfcc899cf4d7a1ac906ed8f504a0bc8f4a101ee0f5c2ccfc2c7998de",
+      "sampleEncoding": "uint16-le-row-major",
+      "kind": "legacy",
+      "provenance": {
+        "licenseStatus": "历史来源未确认；不据此授予公开再分发许可",
+        "source": "已有仓库输入",
+        "retrievedAt": null
+      }
+    },
+    {
+      "id": "peking547",
+      "name": "历史北京地形",
+      "path": "assets/heightmaps/Hm_Terrain_Peking_513.png",
+      "width": 547,
+      "height": 547,
+      "terrainSize": 80,
+      "heightScale": 12,
+      "fileSha256": "1b084bacf08e3cb67afc3744d98cc80c6dfb7d55280d93d02a3f93294e121031",
+      "sampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "sampleEncoding": "uint16-le-row-major",
+      "kind": "legacy",
+      "provenance": {
+        "licenseStatus": "历史来源未确认；不据此授予公开再分发许可",
+        "source": "已有仓库输入",
+        "retrievedAt": null
+      }
+    }
+  ]
+}

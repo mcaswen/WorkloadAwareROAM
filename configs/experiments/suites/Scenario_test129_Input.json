@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "test129-legacy-input",
+  "terrain": "test129",
+  "algorithm": "dod",
+  "heightPolicy": "fit",
+  "camera": "pq-return24",
+  "material": "legacy",
+  "mode": "timing",
+  "prefix": "fixed64",
+  "budget": 4096,
+  "workers": 1,
+  "maxDepth": 14,
+  "viewWidth": 1280,
+  "viewHeight": 720,
+  "splitPixels": 12
+}

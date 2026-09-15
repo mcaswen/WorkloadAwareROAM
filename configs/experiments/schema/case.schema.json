@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "terrain",
+    "algorithm",
+    "heightPolicy",
+    "camera",
+    "material",
+    "mode",
+    "prefix",
+    "budget",
+    "workers",
+    "maxDepth",
+    "viewWidth",
+    "viewHeight",
+    "splitPixels"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+    },
+    "terrain": {
+      "type": "string",
+      "minLength": 1
+    },
+    "algorithm": {
+      "enum": [
+        "classic",
+        "dod",
+        "transactional"
+      ]
+    },
+    "heightPolicy": {
+      "enum": [
+        "fit",
+        "immutable"
+      ]
+    },
+    "camera": {
+      "type": "string",
+      "minLength": 1
+    },
+    "material": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "enum": [
+        "timing",
+        "visual",
+        "quality",
+        "profile"
+      ]
+    },
+    "prefix": {
+      "enum": [
+        "fixed64",
+        "scaled"
+      ]
+    },
+    "budget": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 200000
+    },
+    "workers": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64
+    },
+    "maxDepth": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 24
+    },
+    "viewWidth": {
+      "type": "integer",
+      "minimum": 64,
+      "maximum": 7680
+    },
+    "viewHeight": {
+      "type": "integer",
+      "minimum": 64,
+      "maximum": 4320
+    },
+    "splitPixels": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "mergePixels": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "captureStride": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000
+    },
+    "warmup": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "maxFrames": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000
+    },
+    "backend": {
+      "enum": [
+        "opengl",
+        "d3d12"
+      ]
+    }
+  }
+}
