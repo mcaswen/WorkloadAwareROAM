@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "kind": "reveal-return",
+  "opportunities": 96,
+  "nominalFps": 30,
+  "viewport": [
+    1280,
+    720
+  ],
+  "source": "CameraRecipe.cpp v1; frozen before algorithm runs"
+}

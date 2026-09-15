@@ -600,3 +600,12 @@ if(TARGET parallel_roam_experiment_infrastructure AND TARGET ParallelROAM::STB)
     target_link_libraries(parallel_roam_experiment_infrastructure_tests PRIVATE parallel_roam_experiment_infrastructure
         ParallelROAM::STB parallel_roam_project_warnings)
 endif()
+
+
+if(TARGET parallel_roam_experiment_infrastructure AND TARGET ParallelROAM::STB)
+    add_executable(parallel_roam_experiment_camera_tests ExperimentCameraSequenceTests.cpp
+        ../src/app/ExperimentCameraSession.cpp ../src/terrain/HeightMap.cpp)
+    target_link_libraries(parallel_roam_experiment_camera_tests PRIVATE
+        parallel_roam_experiment_infrastructure ParallelROAM::STB)
+    add_test(NAME experiment_camera COMMAND parallel_roam_experiment_camera_tests)
+endif()

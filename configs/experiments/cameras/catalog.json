@@ -1,0 +1,520 @@
+{
+  "schemaVersion": 1,
+  "cameras": [
+    {
+      "id": "test129-approach-return",
+      "asset": "test129",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "8ac4ddc0cfcc899cf4d7a1ac906ed8f504a0bc8f4a101ee0f5c2ccfc2c7998de",
+      "path": "configs/experiments/cameras/frozen/test129-approach-return.csv",
+      "sha256": "ea3d3bf3add74db6d917369296d5d20abfee10489436001df11aa8f25a660043"
+    },
+    {
+      "id": "test129-overview-orbit",
+      "asset": "test129",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "8ac4ddc0cfcc899cf4d7a1ac906ed8f504a0bc8f4a101ee0f5c2ccfc2c7998de",
+      "path": "configs/experiments/cameras/frozen/test129-overview-orbit.csv",
+      "sha256": "e297795634824f3e767538c7d2983fc0ddaa9eab7af303dbe519c65e2a2c2bf7"
+    },
+    {
+      "id": "test129-reveal-return",
+      "asset": "test129",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "8ac4ddc0cfcc899cf4d7a1ac906ed8f504a0bc8f4a101ee0f5c2ccfc2c7998de",
+      "path": "configs/experiments/cameras/frozen/test129-reveal-return.csv",
+      "sha256": "d6dedb81dda0b583e51c48b563664bacbf97a28867f4584cbaf785793305d053"
+    },
+    {
+      "id": "test129-stationary-recovery",
+      "asset": "test129",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "8ac4ddc0cfcc899cf4d7a1ac906ed8f504a0bc8f4a101ee0f5c2ccfc2c7998de",
+      "path": "configs/experiments/cameras/frozen/test129-stationary-recovery.csv",
+      "sha256": "2902c1d9417c886e701a7ab58353b7384915b58dee5183e2617f165495a3b1e6"
+    },
+    {
+      "id": "test129-terrain-traverse",
+      "asset": "test129",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "8ac4ddc0cfcc899cf4d7a1ac906ed8f504a0bc8f4a101ee0f5c2ccfc2c7998de",
+      "path": "configs/experiments/cameras/frozen/test129-terrain-traverse.csv",
+      "sha256": "8cf3cbc8eb46de907b16cebebc6934ddc739d81ea7604bf31a1c405d96fd531e"
+    },
+    {
+      "id": "peking547-approach-return",
+      "asset": "peking547",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "path": "configs/experiments/cameras/frozen/peking547-approach-return.csv",
+      "sha256": "6c287a05cd8d5a4e79a594c86aafd52ec5cbb3b57de1626e75542cf69b6537fe"
+    },
+    {
+      "id": "peking547-overview-orbit",
+      "asset": "peking547",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "path": "configs/experiments/cameras/frozen/peking547-overview-orbit.csv",
+      "sha256": "ddf6693c102032f20bbe910c88d9ff18fad4ad1d66c0c43e3a3cd4d229cfaae6"
+    },
+    {
+      "id": "peking547-reveal-return",
+      "asset": "peking547",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "path": "configs/experiments/cameras/frozen/peking547-reveal-return.csv",
+      "sha256": "53b5c71abfb78189a1c48059fe403424ebd3048f39157c592e4ab354fc85e81b"
+    },
+    {
+      "id": "peking547-stationary-recovery",
+      "asset": "peking547",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "path": "configs/experiments/cameras/frozen/peking547-stationary-recovery.csv",
+      "sha256": "05cba9ae814700384634f8406f368dc753c2f768f8a94f9a55427a5b644344b9"
+    },
+    {
+      "id": "peking547-terrain-traverse",
+      "asset": "peking547",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "path": "configs/experiments/cameras/frozen/peking547-terrain-traverse.csv",
+      "sha256": "7f0a7554382ea50b40026ed4db65be9f1760c9b5b34091c294e7a80ee859eff3"
+    },
+    {
+      "id": "generated-flat-approach-return",
+      "asset": "generated-flat",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "0dcf49e778d2a0aebe01e8f8a9b1941fb9ceabd76febddb2af0f59d8bc728ec7",
+      "path": "configs/experiments/cameras/frozen/generated-flat-approach-return.csv",
+      "sha256": "6c287a05cd8d5a4e79a594c86aafd52ec5cbb3b57de1626e75542cf69b6537fe"
+    },
+    {
+      "id": "generated-flat-overview-orbit",
+      "asset": "generated-flat",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "0dcf49e778d2a0aebe01e8f8a9b1941fb9ceabd76febddb2af0f59d8bc728ec7",
+      "path": "configs/experiments/cameras/frozen/generated-flat-overview-orbit.csv",
+      "sha256": "ddf6693c102032f20bbe910c88d9ff18fad4ad1d66c0c43e3a3cd4d229cfaae6"
+    },
+    {
+      "id": "generated-flat-reveal-return",
+      "asset": "generated-flat",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "0dcf49e778d2a0aebe01e8f8a9b1941fb9ceabd76febddb2af0f59d8bc728ec7",
+      "path": "configs/experiments/cameras/frozen/generated-flat-reveal-return.csv",
+      "sha256": "53b5c71abfb78189a1c48059fe403424ebd3048f39157c592e4ab354fc85e81b"
+    },
+    {
+      "id": "generated-flat-stationary-recovery",
+      "asset": "generated-flat",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "0dcf49e778d2a0aebe01e8f8a9b1941fb9ceabd76febddb2af0f59d8bc728ec7",
+      "path": "configs/experiments/cameras/frozen/generated-flat-stationary-recovery.csv",
+      "sha256": "05cba9ae814700384634f8406f368dc753c2f768f8a94f9a55427a5b644344b9"
+    },
+    {
+      "id": "generated-flat-terrain-traverse",
+      "asset": "generated-flat",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "0dcf49e778d2a0aebe01e8f8a9b1941fb9ceabd76febddb2af0f59d8bc728ec7",
+      "path": "configs/experiments/cameras/frozen/generated-flat-terrain-traverse.csv",
+      "sha256": "d8cb9017f7d2acb781aa21b27fb884508a4c5695563cd8a6cb880a914cabce3e"
+    },
+    {
+      "id": "generated-ramp-approach-return",
+      "asset": "generated-ramp",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "50f23053d4e420b8bb2156fc4032ecddb80750acd8a60e82928d35c7d7e87663",
+      "path": "configs/experiments/cameras/frozen/generated-ramp-approach-return.csv",
+      "sha256": "6c287a05cd8d5a4e79a594c86aafd52ec5cbb3b57de1626e75542cf69b6537fe"
+    },
+    {
+      "id": "generated-ramp-overview-orbit",
+      "asset": "generated-ramp",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "50f23053d4e420b8bb2156fc4032ecddb80750acd8a60e82928d35c7d7e87663",
+      "path": "configs/experiments/cameras/frozen/generated-ramp-overview-orbit.csv",
+      "sha256": "ddf6693c102032f20bbe910c88d9ff18fad4ad1d66c0c43e3a3cd4d229cfaae6"
+    },
+    {
+      "id": "generated-ramp-reveal-return",
+      "asset": "generated-ramp",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "50f23053d4e420b8bb2156fc4032ecddb80750acd8a60e82928d35c7d7e87663",
+      "path": "configs/experiments/cameras/frozen/generated-ramp-reveal-return.csv",
+      "sha256": "53b5c71abfb78189a1c48059fe403424ebd3048f39157c592e4ab354fc85e81b"
+    },
+    {
+      "id": "generated-ramp-stationary-recovery",
+      "asset": "generated-ramp",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "50f23053d4e420b8bb2156fc4032ecddb80750acd8a60e82928d35c7d7e87663",
+      "path": "configs/experiments/cameras/frozen/generated-ramp-stationary-recovery.csv",
+      "sha256": "05cba9ae814700384634f8406f368dc753c2f768f8a94f9a55427a5b644344b9"
+    },
+    {
+      "id": "generated-ramp-terrain-traverse",
+      "asset": "generated-ramp",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "50f23053d4e420b8bb2156fc4032ecddb80750acd8a60e82928d35c7d7e87663",
+      "path": "configs/experiments/cameras/frozen/generated-ramp-terrain-traverse.csv",
+      "sha256": "158f699bdd1b1c4320f344d035680d079e20e4a1fbd06dce246051e1ea3bac14"
+    },
+    {
+      "id": "generated-spike-approach-return",
+      "asset": "generated-spike",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "58f4ba0db01776556d639f754910c299e57ab790b88caf0b9cb3532b2c88a83f",
+      "path": "configs/experiments/cameras/frozen/generated-spike-approach-return.csv",
+      "sha256": "6c287a05cd8d5a4e79a594c86aafd52ec5cbb3b57de1626e75542cf69b6537fe"
+    },
+    {
+      "id": "generated-spike-overview-orbit",
+      "asset": "generated-spike",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "58f4ba0db01776556d639f754910c299e57ab790b88caf0b9cb3532b2c88a83f",
+      "path": "configs/experiments/cameras/frozen/generated-spike-overview-orbit.csv",
+      "sha256": "ddf6693c102032f20bbe910c88d9ff18fad4ad1d66c0c43e3a3cd4d229cfaae6"
+    },
+    {
+      "id": "generated-spike-reveal-return",
+      "asset": "generated-spike",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "58f4ba0db01776556d639f754910c299e57ab790b88caf0b9cb3532b2c88a83f",
+      "path": "configs/experiments/cameras/frozen/generated-spike-reveal-return.csv",
+      "sha256": "53b5c71abfb78189a1c48059fe403424ebd3048f39157c592e4ab354fc85e81b"
+    },
+    {
+      "id": "generated-spike-stationary-recovery",
+      "asset": "generated-spike",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "58f4ba0db01776556d639f754910c299e57ab790b88caf0b9cb3532b2c88a83f",
+      "path": "configs/experiments/cameras/frozen/generated-spike-stationary-recovery.csv",
+      "sha256": "05cba9ae814700384634f8406f368dc753c2f768f8a94f9a55427a5b644344b9"
+    },
+    {
+      "id": "generated-spike-terrain-traverse",
+      "asset": "generated-spike",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "58f4ba0db01776556d639f754910c299e57ab790b88caf0b9cb3532b2c88a83f",
+      "path": "configs/experiments/cameras/frozen/generated-spike-terrain-traverse.csv",
+      "sha256": "7e6089f4df79efc79413954c78cd39b07f13f823b205a4c8f27199161e1690da"
+    },
+    {
+      "id": "generated-ridge-approach-return",
+      "asset": "generated-ridge",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "89c310713046ffdb4724df0032a28f3ca852ccb503479287392717fcc81c7fa2",
+      "path": "configs/experiments/cameras/frozen/generated-ridge-approach-return.csv",
+      "sha256": "6c287a05cd8d5a4e79a594c86aafd52ec5cbb3b57de1626e75542cf69b6537fe"
+    },
+    {
+      "id": "generated-ridge-overview-orbit",
+      "asset": "generated-ridge",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "89c310713046ffdb4724df0032a28f3ca852ccb503479287392717fcc81c7fa2",
+      "path": "configs/experiments/cameras/frozen/generated-ridge-overview-orbit.csv",
+      "sha256": "ddf6693c102032f20bbe910c88d9ff18fad4ad1d66c0c43e3a3cd4d229cfaae6"
+    },
+    {
+      "id": "generated-ridge-reveal-return",
+      "asset": "generated-ridge",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "89c310713046ffdb4724df0032a28f3ca852ccb503479287392717fcc81c7fa2",
+      "path": "configs/experiments/cameras/frozen/generated-ridge-reveal-return.csv",
+      "sha256": "53b5c71abfb78189a1c48059fe403424ebd3048f39157c592e4ab354fc85e81b"
+    },
+    {
+      "id": "generated-ridge-stationary-recovery",
+      "asset": "generated-ridge",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "89c310713046ffdb4724df0032a28f3ca852ccb503479287392717fcc81c7fa2",
+      "path": "configs/experiments/cameras/frozen/generated-ridge-stationary-recovery.csv",
+      "sha256": "05cba9ae814700384634f8406f368dc753c2f768f8a94f9a55427a5b644344b9"
+    },
+    {
+      "id": "generated-ridge-terrain-traverse",
+      "asset": "generated-ridge",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "89c310713046ffdb4724df0032a28f3ca852ccb503479287392717fcc81c7fa2",
+      "path": "configs/experiments/cameras/frozen/generated-ridge-terrain-traverse.csv",
+      "sha256": "cec069157e8e2f539796be3f491c5e5f75badd86191042599fa5a465f98f26fe"
+    },
+    {
+      "id": "generated-valley-approach-return",
+      "asset": "generated-valley",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "ed821c505f47ca84b68b1a6070888a2aad13be4018e96c7a50fd561b8393a0a9",
+      "path": "configs/experiments/cameras/frozen/generated-valley-approach-return.csv",
+      "sha256": "6c287a05cd8d5a4e79a594c86aafd52ec5cbb3b57de1626e75542cf69b6537fe"
+    },
+    {
+      "id": "generated-valley-overview-orbit",
+      "asset": "generated-valley",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "ed821c505f47ca84b68b1a6070888a2aad13be4018e96c7a50fd561b8393a0a9",
+      "path": "configs/experiments/cameras/frozen/generated-valley-overview-orbit.csv",
+      "sha256": "ddf6693c102032f20bbe910c88d9ff18fad4ad1d66c0c43e3a3cd4d229cfaae6"
+    },
+    {
+      "id": "generated-valley-reveal-return",
+      "asset": "generated-valley",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "ed821c505f47ca84b68b1a6070888a2aad13be4018e96c7a50fd561b8393a0a9",
+      "path": "configs/experiments/cameras/frozen/generated-valley-reveal-return.csv",
+      "sha256": "53b5c71abfb78189a1c48059fe403424ebd3048f39157c592e4ab354fc85e81b"
+    },
+    {
+      "id": "generated-valley-stationary-recovery",
+      "asset": "generated-valley",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "ed821c505f47ca84b68b1a6070888a2aad13be4018e96c7a50fd561b8393a0a9",
+      "path": "configs/experiments/cameras/frozen/generated-valley-stationary-recovery.csv",
+      "sha256": "05cba9ae814700384634f8406f368dc753c2f768f8a94f9a55427a5b644344b9"
+    },
+    {
+      "id": "generated-valley-terrain-traverse",
+      "asset": "generated-valley",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "ed821c505f47ca84b68b1a6070888a2aad13be4018e96c7a50fd561b8393a0a9",
+      "path": "configs/experiments/cameras/frozen/generated-valley-terrain-traverse.csv",
+      "sha256": "b55bf88a75cd5ef2b034987cfb873a8c946d3f53ce168ea0d9bbb0cb4abf5b5c"
+    },
+    {
+      "id": "generated-multiscale-approach-return",
+      "asset": "generated-multiscale",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "e2038e516668e11d5246d850b86a26b1035764b1e1991ffa6c255c1db0c5da6e",
+      "path": "configs/experiments/cameras/frozen/generated-multiscale-approach-return.csv",
+      "sha256": "6c287a05cd8d5a4e79a594c86aafd52ec5cbb3b57de1626e75542cf69b6537fe"
+    },
+    {
+      "id": "generated-multiscale-overview-orbit",
+      "asset": "generated-multiscale",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "e2038e516668e11d5246d850b86a26b1035764b1e1991ffa6c255c1db0c5da6e",
+      "path": "configs/experiments/cameras/frozen/generated-multiscale-overview-orbit.csv",
+      "sha256": "ddf6693c102032f20bbe910c88d9ff18fad4ad1d66c0c43e3a3cd4d229cfaae6"
+    },
+    {
+      "id": "generated-multiscale-reveal-return",
+      "asset": "generated-multiscale",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "e2038e516668e11d5246d850b86a26b1035764b1e1991ffa6c255c1db0c5da6e",
+      "path": "configs/experiments/cameras/frozen/generated-multiscale-reveal-return.csv",
+      "sha256": "53b5c71abfb78189a1c48059fe403424ebd3048f39157c592e4ab354fc85e81b"
+    },
+    {
+      "id": "generated-multiscale-stationary-recovery",
+      "asset": "generated-multiscale",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "e2038e516668e11d5246d850b86a26b1035764b1e1991ffa6c255c1db0c5da6e",
+      "path": "configs/experiments/cameras/frozen/generated-multiscale-stationary-recovery.csv",
+      "sha256": "05cba9ae814700384634f8406f368dc753c2f768f8a94f9a55427a5b644344b9"
+    },
+    {
+      "id": "generated-multiscale-terrain-traverse",
+      "asset": "generated-multiscale",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "e2038e516668e11d5246d850b86a26b1035764b1e1991ffa6c255c1db0c5da6e",
+      "path": "configs/experiments/cameras/frozen/generated-multiscale-terrain-traverse.csv",
+      "sha256": "a81d4fb2292a82aad68b6205e88c415b55346f9df0dc57591d878b36ee010d35"
+    },
+    {
+      "id": "dem-sierra-approach-return",
+      "asset": "dem-sierra",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "path": "configs/experiments/cameras/frozen/dem-sierra-approach-return.csv",
+      "sha256": "07a563871bb99ecc8a57c9c5345face6e7aa35a0d127d182c69f8838ce947369"
+    },
+    {
+      "id": "dem-sierra-overview-orbit",
+      "asset": "dem-sierra",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "path": "configs/experiments/cameras/frozen/dem-sierra-overview-orbit.csv",
+      "sha256": "0a107deeca5a1ce67f4ba6c5e5cdc6b6d0c36a973e3b14d938fc1bc3c356077f"
+    },
+    {
+      "id": "dem-sierra-reveal-return",
+      "asset": "dem-sierra",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "path": "configs/experiments/cameras/frozen/dem-sierra-reveal-return.csv",
+      "sha256": "7bd44da1bfe16a39ca6225b648d9d7c970ded62d84868f4559d6ff9b74fb0e3b"
+    },
+    {
+      "id": "dem-sierra-stationary-recovery",
+      "asset": "dem-sierra",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "path": "configs/experiments/cameras/frozen/dem-sierra-stationary-recovery.csv",
+      "sha256": "97048812cdb5c913727c7e9ecbe6cbcd04c2c0e805140116796c007139e50843"
+    },
+    {
+      "id": "dem-sierra-terrain-traverse",
+      "asset": "dem-sierra",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "path": "configs/experiments/cameras/frozen/dem-sierra-terrain-traverse.csv",
+      "sha256": "9b3c97605f97f4bc2ffba089f597e9ac2c78e74156026d0df9bfdab0f26116e7"
+    },
+    {
+      "id": "dem-canyon-approach-return",
+      "asset": "dem-canyon",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "path": "configs/experiments/cameras/frozen/dem-canyon-approach-return.csv",
+      "sha256": "8b8b57d0347f1c2a5820a942ea3b8f195d97e82f04f0311179aee5abf73a918d"
+    },
+    {
+      "id": "dem-canyon-overview-orbit",
+      "asset": "dem-canyon",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "path": "configs/experiments/cameras/frozen/dem-canyon-overview-orbit.csv",
+      "sha256": "5ab369121767ef32c3427ca1c3637568efaea196db40f369e07d45ebc01581c5"
+    },
+    {
+      "id": "dem-canyon-reveal-return",
+      "asset": "dem-canyon",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "path": "configs/experiments/cameras/frozen/dem-canyon-reveal-return.csv",
+      "sha256": "696d2f71ae2105ad7dc1a4a67bc277357c5af5164b91a46d52d79361d40da22d"
+    },
+    {
+      "id": "dem-canyon-stationary-recovery",
+      "asset": "dem-canyon",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "path": "configs/experiments/cameras/frozen/dem-canyon-stationary-recovery.csv",
+      "sha256": "a01095d1ba455c1b62ae0b7bcc99cc73372719abe143196ed1ffef40c6d3fc50"
+    },
+    {
+      "id": "dem-canyon-terrain-traverse",
+      "asset": "dem-canyon",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "path": "configs/experiments/cameras/frozen/dem-canyon-terrain-traverse.csv",
+      "sha256": "ac355ae6be8423d3a01f4448a7312d33d9769bf360e06a70257d8ae4377c7766"
+    },
+    {
+      "id": "dem-hills-approach-return",
+      "asset": "dem-hills",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "fd4b64bec24cffee2fe5b3a367ee42eb9da3b6716f70ebce6ec4d41adef7fbeb",
+      "path": "configs/experiments/cameras/frozen/dem-hills-approach-return.csv",
+      "sha256": "a5ed15cb9efe4ca9fb7275821b297b4aec6974c7625543a88daefbdb706acd2c"
+    },
+    {
+      "id": "dem-hills-overview-orbit",
+      "asset": "dem-hills",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "fd4b64bec24cffee2fe5b3a367ee42eb9da3b6716f70ebce6ec4d41adef7fbeb",
+      "path": "configs/experiments/cameras/frozen/dem-hills-overview-orbit.csv",
+      "sha256": "833ec07097866a5646793ded4ab4ae4c7d1e0190d11820b3520462e241a24b88"
+    },
+    {
+      "id": "dem-hills-reveal-return",
+      "asset": "dem-hills",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "fd4b64bec24cffee2fe5b3a367ee42eb9da3b6716f70ebce6ec4d41adef7fbeb",
+      "path": "configs/experiments/cameras/frozen/dem-hills-reveal-return.csv",
+      "sha256": "adb602fcb627aa610f65f1669f32fb0d9567e6d97c51c867d01f873362fe8895"
+    },
+    {
+      "id": "dem-hills-stationary-recovery",
+      "asset": "dem-hills",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "fd4b64bec24cffee2fe5b3a367ee42eb9da3b6716f70ebce6ec4d41adef7fbeb",
+      "path": "configs/experiments/cameras/frozen/dem-hills-stationary-recovery.csv",
+      "sha256": "8bd7ea0be9307f341e1ceea956e4e3243c47513e36bd543a23416bb299e024af"
+    },
+    {
+      "id": "dem-hills-terrain-traverse",
+      "asset": "dem-hills",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "fd4b64bec24cffee2fe5b3a367ee42eb9da3b6716f70ebce6ec4d41adef7fbeb",
+      "path": "configs/experiments/cameras/frozen/dem-hills-terrain-traverse.csv",
+      "sha256": "10a71edca84a37849f433a4b366a4143819a3f7ecd6290247fc8e2c92fdb3e83"
+    },
+    {
+      "id": "dem-lowland-approach-return",
+      "asset": "dem-lowland",
+      "recipe": "configs/experiments/cameras/recipes/approach-return.json",
+      "assetSampleSha256": "19efbb9d6d52bc7af6a7647f29cbabc8dd60b96c7ba98208467bff8eef7f9070",
+      "path": "configs/experiments/cameras/frozen/dem-lowland-approach-return.csv",
+      "sha256": "65dfc2495cb3cb12b854b034a2890f7bfdb2c20992c5265798798c0c53046bd7"
+    },
+    {
+      "id": "dem-lowland-overview-orbit",
+      "asset": "dem-lowland",
+      "recipe": "configs/experiments/cameras/recipes/overview-orbit.json",
+      "assetSampleSha256": "19efbb9d6d52bc7af6a7647f29cbabc8dd60b96c7ba98208467bff8eef7f9070",
+      "path": "configs/experiments/cameras/frozen/dem-lowland-overview-orbit.csv",
+      "sha256": "12fdc795e96c6e8f2fbcadd87eb831a088700365662e6bfcd9f54ae3b4758ff2"
+    },
+    {
+      "id": "dem-lowland-reveal-return",
+      "asset": "dem-lowland",
+      "recipe": "configs/experiments/cameras/recipes/reveal-return.json",
+      "assetSampleSha256": "19efbb9d6d52bc7af6a7647f29cbabc8dd60b96c7ba98208467bff8eef7f9070",
+      "path": "configs/experiments/cameras/frozen/dem-lowland-reveal-return.csv",
+      "sha256": "f05d68d1bd73017620fa47a900861b2e5fc9be5a35b4778d06ef81efe714cbe9"
+    },
+    {
+      "id": "dem-lowland-stationary-recovery",
+      "asset": "dem-lowland",
+      "recipe": "configs/experiments/cameras/recipes/stationary-recovery.json",
+      "assetSampleSha256": "19efbb9d6d52bc7af6a7647f29cbabc8dd60b96c7ba98208467bff8eef7f9070",
+      "path": "configs/experiments/cameras/frozen/dem-lowland-stationary-recovery.csv",
+      "sha256": "8f98a1e76cd20403269a12d9fe0bbb77226845a201459e6aa2f3d733e84ed30f"
+    },
+    {
+      "id": "dem-lowland-terrain-traverse",
+      "asset": "dem-lowland",
+      "recipe": "configs/experiments/cameras/recipes/terrain-traverse.json",
+      "assetSampleSha256": "19efbb9d6d52bc7af6a7647f29cbabc8dd60b96c7ba98208467bff8eef7f9070",
+      "path": "configs/experiments/cameras/frozen/dem-lowland-terrain-traverse.csv",
+      "sha256": "07b13148bcd8cc42e01ca07afa4e6713e64c699095d0da98c8d4d0033345ad6f"
+    },
+    {
+      "id": "test129-historical-a64",
+      "asset": "test129",
+      "recipe": "legacy C++ export",
+      "path": "configs/experiments/cameras/frozen/test129-historical-a64.csv",
+      "sha256": "b7ddad138cd685464f64160fd8e9ea55c1b5f43ce40de5b41967176c4d6cfdb4"
+    },
+    {
+      "id": "peking547-historical-orbit",
+      "asset": "peking547",
+      "recipe": "legacy C++ export",
+      "path": "configs/experiments/cameras/frozen/peking547-historical-orbit.csv",
+      "sha256": "87444614544fa2accb26700d7fbdf516978e2f48383fc93f82d4e96233d2d60a"
+    },
+    {
+      "id": "test129-pq-return24",
+      "asset": "test129",
+      "recipe": "legacy C++ export",
+      "path": "configs/experiments/cameras/frozen/test129-pq-return24.csv",
+      "sha256": "3cb09f4e3dccdcb8a053543e0144bbaebc4b1a7c77e65f0eb73577bb1c2c8ab4"
+    },
+    {
+      "id": "peking547-pq-return24",
+      "asset": "peking547",
+      "recipe": "legacy C++ export",
+      "path": "configs/experiments/cameras/frozen/peking547-pq-return24.csv",
+      "sha256": "cd10f3e1a17551032484c19283c4426fbfdcdcc96a64ff516f304c9fca9fd327"
+    },
+    {
+      "id": "peking547-sve8",
+      "asset": "peking547",
+      "recipe": "legacy C++ export",
+      "path": "configs/experiments/cameras/frozen/peking547-sve8.csv",
+      "sha256": "c411cf9619b008d2c61da82bbc05318eb0fe215bb5e43b0855b1e1a32bd791d2"
+    }
+  ]
+}

@@ -9,6 +9,8 @@ if(NOT PARALLEL_ROAM_EXPERIMENT_BOOST_INCLUDE)
     message(FATAL_ERROR "Experiment infrastructure requires Boost.PropertyTree headers.")
 endif()
 add_library(parallel_roam_experiment_infrastructure STATIC
+    "${PROJECT_SOURCE_DIR}/src/experiment/infrastructure/CameraSequence.cpp"
+    "${PROJECT_SOURCE_DIR}/src/experiment/infrastructure/CameraRecipe.cpp"
     "${PROJECT_SOURCE_DIR}/src/experiment/infrastructure/ExperimentCase.cpp"
     "${PROJECT_SOURCE_DIR}/src/experiment/infrastructure/MaterialCatalog.cpp"
     "${PROJECT_SOURCE_DIR}/src/experiment/infrastructure/TerrainAssetCatalog.cpp"

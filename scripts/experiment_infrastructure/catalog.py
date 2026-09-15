@@ -96,6 +96,32 @@ def resolve_case(path: Path, root: Path = ROOT) -> dict:
                   fileSha256=asset["fileSha256"], sampleSha256=asset["sampleSha256"],
                   width=asset["width"], height=asset["height"],
                   terrainSize=asset["terrainSize"], heightScale=asset["heightScale"])
+    cameras = load_json(root / "configs/experiments/cameras/catalog.json")["cameras"]
+    camera_id = case["camera"] if case["camera"].startswith(case["terrain"]+"-") else case["terrain"]+"-"+case["camera"]
+    camera = next((item for item in cameras if item["id"] == camera_id), None)
+    if camera is None or camera["asset"] != case["terrain"]:
+        raise ValueError("路线未冻结或资产不匹配")
+    camera_file = local_path(root, camera["path"])
+    if content_hash(camera_file) != camera["sha256"]:
+        raise ValueError("冻结相机文件被修改")
+    materials = load_json(root / "assets/experiments/material_catalog.json")["materials"]
+    material = next((item for item in materials if item["id"] == case["material"]), None)
+    if material is None:
+        raise ValueError("未知材质")
+    material_file = local_path(root, material["path"])
+    if content_hash(material_file) != material["sha256"]:
+        raise ValueError("材质内容不符")
+    if case["algorithm"] != "transactional" and case["heightPolicy"] != "fit":
+        raise ValueError("高度策略仅适用于Transactional")
+    result.update(cameraFile=str(camera_file), cameraSha256=camera["sha256"],
+        cameraFnv64=fnv64(camera_file.read_bytes()), sampleFnv64=fnv64(source_samples(local_path(root,asset["path"])).tobytes()),
+        materialFile=str(material_file), materialSha256=material["sha256"],
+        materialTiling=material["tiling"], materialTint=material["heightTint"],
+        mergePixels=case.get("mergePixels",case["splitPixels"]*.5),
+        captureStride=case.get("captureStride",4), warmup=case.get("warmup",3),
+        maxFrames=case.get("maxFrames",10000))
+    if result["mergePixels"] > result["splitPixels"]:
+        raise ValueError("merge阈值不能大于split阈值")
     return result
 
 

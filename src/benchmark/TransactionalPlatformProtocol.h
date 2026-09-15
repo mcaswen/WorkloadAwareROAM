@@ -16,7 +16,7 @@ inline constexpr std::array<std::uint32_t,24> PlatformReplayViews{14,14,14,15,16
 /// </summary>
 inline Render::RenderContext PlatformReplayCamera(bool peking,std::uint32_t index,bool zo)
 {
-    Experiment::Formal::CameraSample sample;
+    ParallelRoam::Experiment::Formal::CameraSample sample;
     if (peking)
     {
         const float t=static_cast<float>(index)/63.0F,angle=t*6.28318530718F;
@@ -25,9 +25,9 @@ inline Render::RenderContext PlatformReplayCamera(bool peking,std::uint32_t inde
     }
     else
     {
-        Experiment::Formal::FormalScenario scenario;scenario.TrajectoryId="A";
+        ParallelRoam::Experiment::Formal::FormalScenario scenario;scenario.TrajectoryId="A";
         scenario.Settings.TerrainSize=30;
-        sample=Experiment::Formal::GenerateCameraSample(scenario,index);
+        sample=ParallelRoam::Experiment::Formal::GenerateCameraSample(scenario,index);
     }
     Render::RenderContext c;c.CameraPosition=sample.Position;
     c.CameraForward=glm::normalize(sample.Target-sample.Position);
