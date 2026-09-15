@@ -1,0 +1,30 @@
+{
+  "date": "2026-09-16",
+  "timingProcesses": 60,
+  "visualProcesses": 18,
+  "timingFrames": 3600,
+  "visualFrames": 1080,
+  "qualityEvaluations": 72,
+  "pointwisePairs": 24,
+  "failedFormalRuns": 0,
+  "budgetViolations": 0,
+  "qualityFlags": {
+    "missing": 0,
+    "ambiguous": 0,
+    "nearCrossing": 0,
+    "invalidGeometry": 0,
+    "invalidProjection": 0
+  },
+  "sourceId": "877debf5868c67e617be07dac3453357c67d9669d44f17aa7826666ff8e48cc7",
+  "binarySha256": "c12e8dddd8558b131ee82380564639f8ded804f8bb2f9cc203fb4f0ba621c198",
+  "commit": "2c3ccf8c56ae398fd247756d4a84c8365e8b2dc8",
+  "allCollectionSourceClean": true,
+  "independentProcessAggregation": "逐配置从原始帧独立重算一致",
+  "sameTaskThreadComparison": "两场景三个重复网格、公开工作量、翻边计数一致",
+  "figuresVerified": 19,
+  "localHtmlReferences": 288,
+  "missingHtmlReferences": [],
+  "browserInteraction": "未验证",
+  "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+  "scriptSha256": "014d07fde9a2dd0b8d7a878faf4cccc9e75272d71b5f3b27edf2008622ca9f0d"
+}

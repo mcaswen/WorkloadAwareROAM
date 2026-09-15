@@ -1,5 +1,7 @@
 # CPU ROAM 研究探索状态
 
+2026-09-16：[FER-01首轮正式实验](experiment_infrastructure/fer_01_results.md)已完成。复用EIP冻结4种地形、6组输入和20配置，采集60个独立计时进程、18组实际视觉回放和72个质量点；[数表及19组图像](experiment_infrastructure/fer_01_appendix.md)保留全部反例。同任务1→8线程约3.22×/4.44×，但Peking转向与峡谷质量、200k预留成本仍未满足竞争目标。实验完成不改变下列历史阶段各自的证明边界。
+
 > 更新日期：2026-09-14；依据：保留此前探索状态，MPR-03 已提交为 `602ed48`，原生接入规划为 `c2cd2d8`。NMP-01 实施与验收已提交 `2f04f48`，见[阶段审查](../reviews/roam_parallelism/native_materialization_01_review.md)。NMP-01P 压力性能未达门槛，契约审计后暂停扩展局部性能修改；候选出生及后续推导已提交为 `2d8809f`，未进入 NMP-02。当前另探索独立 greedy 候选，不修改主线定义。
 
 现有 [CPU ROAM 执行与特征分析研究定义](../plans/formal_experiment/cpu_roam_research_definition.md)继续有效。本目录记录独立探索，不自动修改研究问题、启动实现或重开历史实验。

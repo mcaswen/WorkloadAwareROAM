@@ -1,0 +1,847 @@
+[
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "runtime",
+    "title": "50k预算：三个独立进程的平均成本",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "cases": [
+        "peking547-b50000-classic-t1",
+        "peking547-b50000-dod-t8",
+        "peking547-b50000-transactional-t8",
+        "generated-ridge-b50000-classic-t1",
+        "generated-ridge-b50000-dod-t8",
+        "generated-ridge-b50000-transactional-t8",
+        "dem-canyon-b50000-classic-t1",
+        "dem-canyon-b50000-dod-t8",
+        "dem-canyon-b50000-transactional-t8",
+        "dem-sierra-b50000-classic-t1",
+        "dem-sierra-b50000-dod-t8",
+        "dem-sierra-b50000-transactional-t8"
+      ]
+    },
+    "note": "对数纵轴；误差线为进程均值的实际最小/最大，不是置信区间；不同算法质量另列",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "runtime.png",
+        "sha256": "ce2338bf316268f45b3897506f8021b88aa2a1b1cabfe764c2acab9c13d9117b"
+      },
+      "svg": {
+        "path": "runtime.svg",
+        "sha256": "6022772c39f4af3a50839b024e24d20898ec53929ea88c2f1b52c1b1404c398e"
+      },
+      "pdf": {
+        "path": "runtime.pdf",
+        "sha256": "64413ab23c91aaea0e60d4dc55bec0f1ca93c80f0ddbbae6eb0ab13fcef3a712"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "scaling",
+    "title": "Peking：相同冻结路线的预算规模对照",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "terrain": "peking547",
+      "budgets": [
+        50000,
+        100000,
+        200000
+      ]
+    },
+    "note": "增长前缀160/320/640；预算与前缀同时变化，不能当作单变量n复杂度拟合",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "scaling.png",
+        "sha256": "abefda1d0834dee322d3a22d2e504f0bbe2699103ad655232fc47a6b458bd0d6"
+      },
+      "svg": {
+        "path": "scaling.svg",
+        "sha256": "c6bb32693d8671d5a9e704a91eaa5e4efc061954d06d0697f202b84797df047b"
+      },
+      "pdf": {
+        "path": "scaling.pdf",
+        "sha256": "1e5bd19ead5ddbc76a2f26db1abd6b24338b6514e3b17f2580c7a933a3224e3f"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "stages",
+    "title": "事务8线程：完整阶段成本",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "cases": [
+        "peking547-b50000-transactional-t8",
+        "peking547-b100000-transactional-t8",
+        "peking547-b200000-transactional-t8",
+        "generated-ridge-b50000-transactional-t8",
+        "dem-canyon-b50000-transactional-t8",
+        "dem-sierra-b50000-transactional-t8"
+      ]
+    },
+    "note": "互斥阶段来自公开计时；保留未归属项，上传在CPU-ready之外，不叠加任务墙钟和父级阶段",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "stages.png",
+        "sha256": "2c9311d6d83075dfd1e14c131289bac612735f7ee27f07e2d80915b086075741"
+      },
+      "svg": {
+        "path": "stages.svg",
+        "sha256": "eff5747641ec7a7ba9ca4e772448cf806f01e7fe19e7a0e4eb0016d15c1f3a51"
+      },
+      "pdf": {
+        "path": "stages.pdf",
+        "sha256": "d0be4c0efe2ad8d72903aaaa209605d7dd9ed31ba146fece0310005b0cd130e7"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "timeline",
+    "title": "冻结轨迹的逐机会成本",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "repeat": 1
+    },
+    "note": "展示预指定第1重复；所有重复在CSV中。这里是阶段/机会时序，不是新的perf/Tracy函数采样",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "timeline.png",
+        "sha256": "dbf470c35831688cd241d6add2f0ded67e11064b7e818335c728e9bb4675ec32"
+      },
+      "svg": {
+        "path": "timeline.svg",
+        "sha256": "5898fb5db053f948190e80c9326ae840148223e4d1b0051c324e56dd1f50393b"
+      },
+      "pdf": {
+        "path": "timeline.pdf",
+        "sha256": "751f96227f7c6fa5f344abfb67a583f642410c11ab7f896b6e8f8214dd734657"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "quality",
+    "title": "独立双线性参考下的最大屏幕误差",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "frames": "pre-registered four per case"
+    },
+    "note": "线段只连接已评价帧，不保证中间误差；不同地形各用自己的纵轴，完整RMS/Hmax/Dmax见表",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "quality.png",
+        "sha256": "223bc661fe435ef1eff3d781a6b8dad11762f92c613249f94c75cfd5b9a7d4f4"
+      },
+      "svg": {
+        "path": "quality.svg",
+        "sha256": "a2e0a6d05a7a2ca5546d2216604db4f1c472386057fd45cc7f3308645d7b1e9f"
+      },
+      "pdf": {
+        "path": "quality.pdf",
+        "sha256": "0a3fe4029f10c45fe5789095caa58fb7cb5372fd89d4607b6cc751bac76fa735"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "quality-cost",
+    "title": "成本与质量的观测设计点",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "frames": "same pre-registered four per case"
+    },
+    "note": "各子图坐标范围独立；越左/越下越好。横线为进程均值范围，非CI；不是完整Pareto最优证明",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "quality-cost.png",
+        "sha256": "2aed06f2dc3a994535c46d39558c48d72f302972feccd79438e63860b390276a"
+      },
+      "svg": {
+        "path": "quality-cost.svg",
+        "sha256": "ff09d82c0a77888e6a3f6d68df14cf9d84147839e9cf142b1e78b93bdbe4caa6"
+      },
+      "pdf": {
+        "path": "quality-cost.pdf",
+        "sha256": "5ffecbe579e096c29002c0daeeb202dcda2c7f5ade9c796b08727df04877a5ca"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "work",
+    "title": "配对与冲突的真实工作量",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "cases": [
+        "peking547-b50000-transactional-t8",
+        "peking547-b100000-transactional-t8",
+        "peking547-b200000-transactional-t8",
+        "generated-ridge-b50000-transactional-t8",
+        "dem-canyon-b50000-transactional-t8",
+        "dem-sierra-b50000-transactional-t8"
+      ]
+    },
+    "note": "第1重复；已核对全部重复结果。零交换不等于无工作，净零翻边计数另外保留",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "work.png",
+        "sha256": "a2a0d8bc96d6b49754209431568cc4ce0a5b36617a17e4b55457158bb38f9bd8"
+      },
+      "svg": {
+        "path": "work.svg",
+        "sha256": "57adaaeb9065a751718ac7246aaa144c685538e158ad68aa5dd12e2fd5e3cf7e"
+      },
+      "pdf": {
+        "path": "work.pdf",
+        "sha256": "cb64a66042f00c7d24f25d7802e7b621106dfa4a9866a2b1370c7365a65c838a"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "actual-peking547-50000",
+    "title": "peking547 / 50k｜真实OpenGL关键帧",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "cases": [
+        "peking547-b50000-classic-t1",
+        "peking547-b50000-dod-t8",
+        "peking547-b50000-transactional-t8"
+      ],
+      "frames": [
+        2,
+        15,
+        16,
+        23
+      ]
+    },
+    "note": "相同中性材质/相机/视口；原始1280×720保留。缩略图用于对照，不替代数值质量和原像素检查",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "actual-peking547-50000.png",
+        "sha256": "bfcc6847199bf8b710d1919e6023b9cd0eab1929c34fb53905cbe46645db2d1e"
+      },
+      "svg": {
+        "path": "actual-peking547-50000.svg",
+        "sha256": "8c664793a05a8463df525536699286f3f772478b169f7b2df44052b47e4a07de"
+      },
+      "pdf": {
+        "path": "actual-peking547-50000.pdf",
+        "sha256": "89da29dc018ad080e24255ce8c39e53c678487d84c583ccf51461fb6b15e4ba9"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "actual-peking547-100000",
+    "title": "peking547 / 100k｜真实OpenGL关键帧",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "cases": [
+        "peking547-b100000-classic-t1",
+        "peking547-b100000-dod-t8",
+        "peking547-b100000-transactional-t8"
+      ],
+      "frames": [
+        2,
+        15,
+        16,
+        23
+      ]
+    },
+    "note": "相同中性材质/相机/视口；原始1280×720保留。缩略图用于对照，不替代数值质量和原像素检查",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "actual-peking547-100000.png",
+        "sha256": "0a5bbdad967849171cbc00a5d2c8796c430b1ed1615ecf000b26afb8fcb084df"
+      },
+      "svg": {
+        "path": "actual-peking547-100000.svg",
+        "sha256": "a7edf56313fe8dfc969d64d0771a48f0bb900f5f2bedc091ef2493d09f97c83d"
+      },
+      "pdf": {
+        "path": "actual-peking547-100000.pdf",
+        "sha256": "dcb4b186acb713a64a2d19767d1d6f1b8fa9cf4a4948b2981ff5edb0348a055e"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "actual-peking547-200000",
+    "title": "peking547 / 200k｜真实OpenGL关键帧",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "cases": [
+        "peking547-b200000-classic-t1",
+        "peking547-b200000-dod-t8",
+        "peking547-b200000-transactional-t8"
+      ],
+      "frames": [
+        2,
+        15,
+        16,
+        23
+      ]
+    },
+    "note": "相同中性材质/相机/视口；原始1280×720保留。缩略图用于对照，不替代数值质量和原像素检查",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "actual-peking547-200000.png",
+        "sha256": "22334b8a377c40bf351cad6cc1b0dcb54238d830db4b8d0fc0fb37c017fa841c"
+      },
+      "svg": {
+        "path": "actual-peking547-200000.svg",
+        "sha256": "a703991e7bf788c81269e901957bbdc40b9651736d12839cdd6356be7831052e"
+      },
+      "pdf": {
+        "path": "actual-peking547-200000.pdf",
+        "sha256": "0bdbf322ae32f3bdfe0f5c2b492249ecca4b5d5c339b1270ef9c89b6fd36fba0"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "actual-generated-ridge-50000",
+    "title": "generated-ridge / 50k｜真实OpenGL关键帧",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "cases": [
+        "generated-ridge-b50000-classic-t1",
+        "generated-ridge-b50000-dod-t8",
+        "generated-ridge-b50000-transactional-t8"
+      ],
+      "frames": [
+        2,
+        48,
+        80,
+        95
+      ]
+    },
+    "note": "相同中性材质/相机/视口；原始1280×720保留。缩略图用于对照，不替代数值质量和原像素检查",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "actual-generated-ridge-50000.png",
+        "sha256": "3fe87577bda6e8cfb32b6fa802aef9f3c7c72bd23a0f5f98eea4de3b55651a14"
+      },
+      "svg": {
+        "path": "actual-generated-ridge-50000.svg",
+        "sha256": "e76e5dcc15792e4587d45bcadf11bb9c35e93ac90ec5894260fcedb54dd9a575"
+      },
+      "pdf": {
+        "path": "actual-generated-ridge-50000.pdf",
+        "sha256": "80a6102ebff601fffaba9c386acdb0eb3fc46a1d631606a4c6be5ebe2c359d6c"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "actual-dem-canyon-50000",
+    "title": "dem-canyon / 50k｜真实OpenGL关键帧",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "cases": [
+        "dem-canyon-b50000-classic-t1",
+        "dem-canyon-b50000-dod-t8",
+        "dem-canyon-b50000-transactional-t8"
+      ],
+      "frames": [
+        2,
+        48,
+        80,
+        95
+      ]
+    },
+    "note": "相同中性材质/相机/视口；原始1280×720保留。缩略图用于对照，不替代数值质量和原像素检查",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "actual-dem-canyon-50000.png",
+        "sha256": "41c2c65a2ecefc8aca308fb2d87ad8a49dd5e32ae4af056b655762ce4503dd4c"
+      },
+      "svg": {
+        "path": "actual-dem-canyon-50000.svg",
+        "sha256": "d1efed5b33a5efc7190c73dbc88f1f516d28548ad2ddb9cf1c310f7d5e0c5ddc"
+      },
+      "pdf": {
+        "path": "actual-dem-canyon-50000.pdf",
+        "sha256": "e33c04eb7dca69432615187c264a60feaaa10c5011b6ee5b79d72f5025105f4c"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "actual-dem-sierra-50000",
+    "title": "dem-sierra / 50k｜真实OpenGL关键帧",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "cases": [
+        "dem-sierra-b50000-classic-t1",
+        "dem-sierra-b50000-dod-t8",
+        "dem-sierra-b50000-transactional-t8"
+      ],
+      "frames": [
+        2,
+        48,
+        80,
+        95
+      ]
+    },
+    "note": "相同中性材质/相机/视口；原始1280×720保留。缩略图用于对照，不替代数值质量和原像素检查",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "actual-dem-sierra-50000.png",
+        "sha256": "6f21a8417ccb238228954775cad894802f9b828aba0eda65382c78a2df50660d"
+      },
+      "svg": {
+        "path": "actual-dem-sierra-50000.svg",
+        "sha256": "be0b40c27854e9fe8153e3edb0e66a26a2d339bf335ae3fa9a8256890c522dc1"
+      },
+      "pdf": {
+        "path": "actual-dem-sierra-50000.pdf",
+        "sha256": "2505e27bf258e0978e10cc6980c7789a0d557f1dddb7e9f997bef80c1d83ca0a"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "witness-peking547-50000",
+    "title": "peking547 / 50k｜f15 / Emax=1.9966px",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "case": "peking547-b50000-transactional-t8",
+      "frame": 15,
+      "locations": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/quality-peking547-b50000-transactional-t8/frame-15/locations.csv",
+      "witness": {
+        "ordinal": "1790794",
+        "u": "0.97435897588729858",
+        "v": "1",
+        "pixelX": "54.457707306376903",
+        "pixelY": "386.36151373055486",
+        "referenceHeight": "1.9037766066970527",
+        "measuredHeight": "1.736194959252316",
+        "heightError": "0.16758164744473669",
+        "screenError": "1.9965571109865088",
+        "visible": "1",
+        "role": "screen-witness"
+      },
+      "crop": [
+        0,
+        286,
+        200,
+        200
+      ]
+    },
+    "note": "仅从四个已评价关键帧选最大者展示；两侧同一参考投影裁剪，不新增采样，不以画面相似推断误差相同",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "witness-peking547-50000.png",
+        "sha256": "5affa877abc994b638d128bd6f2077a067c6dec4e2c03256ecd9d0b20c51ae49"
+      },
+      "svg": {
+        "path": "witness-peking547-50000.svg",
+        "sha256": "c9fa60f744f59c506fcbe9ddc03e26837a1983c7eadeaa190168d0ee2c81ebd0"
+      },
+      "pdf": {
+        "path": "witness-peking547-50000.pdf",
+        "sha256": "6d539e36c95bd1681c2c6caa7d2fe868d446d215d12a5a200b75f7f7c47cd042"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "witness-peking547-100000",
+    "title": "peking547 / 100k｜f15 / Emax=1.9966px",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "case": "peking547-b100000-transactional-t8",
+      "frame": 15,
+      "locations": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/quality-peking547-b100000-transactional-t8/frame-15/locations.csv",
+      "witness": {
+        "ordinal": "1790794",
+        "u": "0.97435897588729858",
+        "v": "1",
+        "pixelX": "54.457707306376903",
+        "pixelY": "386.36151373055486",
+        "referenceHeight": "1.9037766066970527",
+        "measuredHeight": "1.736194959252316",
+        "heightError": "0.16758164744473669",
+        "screenError": "1.9965571109865088",
+        "visible": "1",
+        "role": "screen-witness"
+      },
+      "crop": [
+        0,
+        286,
+        200,
+        200
+      ]
+    },
+    "note": "仅从四个已评价关键帧选最大者展示；两侧同一参考投影裁剪，不新增采样，不以画面相似推断误差相同",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "witness-peking547-100000.png",
+        "sha256": "3f660c0cf0090deffe0e0a02e522883b1adca9fe71a6d14352357f18f0043b37"
+      },
+      "svg": {
+        "path": "witness-peking547-100000.svg",
+        "sha256": "e800ced51fa7f1720c1f814c6b3b00fd1c90c5a6ec1a15367d17ecf0e1bddbd9"
+      },
+      "pdf": {
+        "path": "witness-peking547-100000.pdf",
+        "sha256": "ebad859c6026ec4107962ca4bf74b20edc1640f8c060403dd01e7ec8b16e3730"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "witness-peking547-200000",
+    "title": "peking547 / 200k｜f15 / Emax=1.9966px",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "case": "peking547-b200000-transactional-t8",
+      "frame": 15,
+      "locations": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/quality-peking547-b200000-transactional-t8/frame-15/locations.csv",
+      "witness": {
+        "ordinal": "1790794",
+        "u": "0.97435897588729858",
+        "v": "1",
+        "pixelX": "54.457707306376903",
+        "pixelY": "386.36151373055486",
+        "referenceHeight": "1.9037766066970527",
+        "measuredHeight": "1.736194959252316",
+        "heightError": "0.16758164744473669",
+        "screenError": "1.9965571109865088",
+        "visible": "1",
+        "role": "screen-witness"
+      },
+      "crop": [
+        0,
+        286,
+        200,
+        200
+      ]
+    },
+    "note": "仅从四个已评价关键帧选最大者展示；两侧同一参考投影裁剪，不新增采样，不以画面相似推断误差相同",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "witness-peking547-200000.png",
+        "sha256": "90068e7ecb789be47e8f0c0848e3d3c4a053800faea69500b64fd600b8770cc3"
+      },
+      "svg": {
+        "path": "witness-peking547-200000.svg",
+        "sha256": "6a1a103fb4bfc68528b588467ea07e339644ffff56db41dc93efabeb1ab3c5b2"
+      },
+      "pdf": {
+        "path": "witness-peking547-200000.pdf",
+        "sha256": "e779c7e73b47d132a8c9e252c97a6b8c2fe4f06308654c7b015f92562d1170f5"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "witness-generated-ridge-50000",
+    "title": "generated-ridge / 50k｜f48 / Emax=1.1640px",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "case": "generated-ridge-b50000-transactional-t8",
+      "frame": 48,
+      "locations": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/quality-generated-ridge-b50000-transactional-t8/frame-48/locations.csv",
+      "witness": {
+        "ordinal": "626750",
+        "u": "0.5546875",
+        "v": "0.3984375",
+        "pixelX": "602.84538137713844",
+        "pixelY": "372.56165515336687",
+        "referenceHeight": "7.6116273746852823",
+        "measuredHeight": "7.4346535205841064",
+        "heightError": "0.17697385410117583",
+        "screenError": "1.1639886185997521",
+        "visible": "1",
+        "role": "screen-witness"
+      },
+      "crop": [
+        502,
+        272,
+        200,
+        200
+      ]
+    },
+    "note": "仅从四个已评价关键帧选最大者展示；两侧同一参考投影裁剪，不新增采样，不以画面相似推断误差相同",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "witness-generated-ridge-50000.png",
+        "sha256": "2740c15ebf5ef92fade9bfe54eb748e874e1151dc8a90fcd7785439ed0b37b94"
+      },
+      "svg": {
+        "path": "witness-generated-ridge-50000.svg",
+        "sha256": "b2fb19e5f255f4413a2b07e642dc8e78e5079dbef2e6aa67b2b8ffd446044b0e"
+      },
+      "pdf": {
+        "path": "witness-generated-ridge-50000.pdf",
+        "sha256": "f3111c3bd59530618871c82a6badb794e9a55844657b14cc72f0496b1ee12c59"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "witness-dem-canyon-50000",
+    "title": "dem-canyon / 50k｜f48 / Emax=9.2745px",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 48,
+      "locations": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/quality-dem-canyon-b50000-transactional-t8/frame-48/locations.csv",
+      "witness": {
+        "ordinal": "1574412",
+        "u": "0.837890625",
+        "v": "1",
+        "pixelX": "684.34107063225997",
+        "pixelY": "706.78749766932685",
+        "referenceHeight": "2.4800869703129136",
+        "measuredHeight": "3.612383708357811",
+        "heightError": "1.1322967380448974",
+        "screenError": "9.2744767366487686",
+        "visible": "1",
+        "role": "screen-witness"
+      },
+      "crop": [
+        584,
+        520,
+        200,
+        200
+      ]
+    },
+    "note": "仅从四个已评价关键帧选最大者展示；两侧同一参考投影裁剪，不新增采样，不以画面相似推断误差相同",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "witness-dem-canyon-50000.png",
+        "sha256": "6a2170a4f547d4aef7c12341e71bb500b4e891dccc7cda66b81e73b92cd8186e"
+      },
+      "svg": {
+        "path": "witness-dem-canyon-50000.svg",
+        "sha256": "13208b3adc50baf350e339b69f113a521037c951f100b13ed4266135159d0324"
+      },
+      "pdf": {
+        "path": "witness-dem-canyon-50000.pdf",
+        "sha256": "346be7aa43c42c7af9c3a7dc20c9573c9598030e73659727c5bf81e68a39ded8"
+      }
+    }
+  },
+  {
+    "schemaVersion": "eip-figure-v1",
+    "id": "witness-dem-sierra-50000",
+    "title": "dem-sierra / 50k｜f48 / Emax=2.0150px",
+    "analysis": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/formal-analysis.json",
+    "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+    "selection": {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 48,
+      "locations": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-01/quality-dem-sierra-b50000-transactional-t8/frame-48/locations.csv",
+      "witness": {
+        "ordinal": "1561810",
+        "u": "0.73828125",
+        "v": "0.9921875",
+        "pixelX": "604.59136061485583",
+        "pixelY": "699.96781516442888",
+        "referenceHeight": "6.4218296690446302",
+        "measuredHeight": "6.6430747509002686",
+        "heightError": "0.2212450818556384",
+        "screenError": "2.0150116535427092",
+        "visible": "1",
+        "role": "screen-witness"
+      },
+      "crop": [
+        504,
+        520,
+        200,
+        200
+      ]
+    },
+    "note": "仅从四个已评价关键帧选最大者展示；两侧同一参考投影裁剪，不新增采样，不以画面相似推断误差相同",
+    "colors": {
+      "classic": "#587391",
+      "dod": "#256eb0",
+      "transactional": "#ce7130"
+    },
+    "statistics": "consume analysis; no new significance or outcome classifier",
+    "font": "/mnt/d/CPP-Projects/WorkloadAwareROAM/assets/fonts/SourceHanSansSC-Regular.ttf",
+    "fontSha256": "e80613a35583f59b46dbf6cc2eb640f3db0bb0f53fa7f6fbaa7b09faf20e5172",
+    "files": {
+      "png": {
+        "path": "witness-dem-sierra-50000.png",
+        "sha256": "2860a89e884e304a2f5833df3e33c196e3cfc573a5b6d01b18edb93e39d62777"
+      },
+      "svg": {
+        "path": "witness-dem-sierra-50000.svg",
+        "sha256": "f9272457d0b4de9d6c753247aa4c0742d31abf736e035f3e320d6b64ba08cecf"
+      },
+      "pdf": {
+        "path": "witness-dem-sierra-50000.pdf",
+        "sha256": "663c657498ba89faae578b5aeb1bcd71f3e7c9e0894e18ff51318aef6d2a9621"
+      }
+    }
+  }
+]

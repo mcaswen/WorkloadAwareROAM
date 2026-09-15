@@ -1,0 +1,136 @@
+{
+  "rawRoot": "benchmark-output/experiment-infrastructure/fer-01",
+  "analysisSha256": "3c95c2f73040acf50ec4a4a376609627c8bbfd5a7601fbd48f6b54f2664a11c7",
+  "artifacts": [
+    {
+      "path": "data/fer_01/figure-index.json",
+      "sha256": "246a26993103003c168b04d549b757c7d987988d2e218268c99d782f6906e533",
+      "bytes": 33055
+    },
+    {
+      "path": "data/fer_01/final-audit.json",
+      "sha256": "5c1d142c892781991ff44d11ee8ec8dc90fa32a539eb6faa671b45177a8c9b14",
+      "bytes": 1101
+    },
+    {
+      "path": "data/fer_01/process-statistics.csv",
+      "sha256": "ddfcdec295c57f434154fb168c4e69e7fce591e51ee911f04c53740ccba91758",
+      "bytes": 14680
+    },
+    {
+      "path": "data/fer_01/quality.csv",
+      "sha256": "0e4cb267575596957536f75518a215079eb8892c8a57c8b22d0437a98495c3a3",
+      "bytes": 11529
+    },
+    {
+      "path": "data/fer_01/summary.json",
+      "sha256": "2ffb38f547fc563f97d88e1a1ececcf2e301a3fd818241abcb764ed07a3a479d",
+      "bytes": 945022
+    },
+    {
+      "path": "data/fer_01/visual-review.json",
+      "sha256": "0b2ae7e9441ae0938b700384b5c6bc95fca8a43407993db041990eac5f74e673",
+      "bytes": 3296
+    },
+    {
+      "path": "fer_01_appendix.md",
+      "sha256": "414e0a917943cae1e0b1210d82bf04c41f3737cbbea316ac9ad1c49386612e1b",
+      "bytes": 30425
+    },
+    {
+      "path": "figures/fer_01/actual-dem-canyon-50000.png",
+      "sha256": "41c2c65a2ecefc8aca308fb2d87ad8a49dd5e32ae4af056b655762ce4503dd4c",
+      "bytes": 631636
+    },
+    {
+      "path": "figures/fer_01/actual-dem-sierra-50000.png",
+      "sha256": "6f21a8417ccb238228954775cad894802f9b828aba0eda65382c78a2df50660d",
+      "bytes": 465672
+    },
+    {
+      "path": "figures/fer_01/actual-generated-ridge-50000.png",
+      "sha256": "3fe87577bda6e8cfb32b6fa802aef9f3c7c72bd23a0f5f98eea4de3b55651a14",
+      "bytes": 269917
+    },
+    {
+      "path": "figures/fer_01/actual-peking547-100000.png",
+      "sha256": "0a5bbdad967849171cbc00a5d2c8796c430b1ed1615ecf000b26afb8fcb084df",
+      "bytes": 383740
+    },
+    {
+      "path": "figures/fer_01/actual-peking547-200000.png",
+      "sha256": "22334b8a377c40bf351cad6cc1b0dcb54238d830db4b8d0fc0fb37c017fa841c",
+      "bytes": 387033
+    },
+    {
+      "path": "figures/fer_01/actual-peking547-50000.png",
+      "sha256": "bfcc6847199bf8b710d1919e6023b9cd0eab1929c34fb53905cbe46645db2d1e",
+      "bytes": 380595
+    },
+    {
+      "path": "figures/fer_01/quality-cost.png",
+      "sha256": "2aed06f2dc3a994535c46d39558c48d72f302972feccd79438e63860b390276a",
+      "bytes": 172538
+    },
+    {
+      "path": "figures/fer_01/quality.png",
+      "sha256": "223bc661fe435ef1eff3d781a6b8dad11762f92c613249f94c75cfd5b9a7d4f4",
+      "bytes": 229584
+    },
+    {
+      "path": "figures/fer_01/runtime.png",
+      "sha256": "ce2338bf316268f45b3897506f8021b88aa2a1b1cabfe764c2acab9c13d9117b",
+      "bytes": 52293
+    },
+    {
+      "path": "figures/fer_01/scaling.png",
+      "sha256": "abefda1d0834dee322d3a22d2e504f0bbe2699103ad655232fc47a6b458bd0d6",
+      "bytes": 126144
+    },
+    {
+      "path": "figures/fer_01/stages.png",
+      "sha256": "2c9311d6d83075dfd1e14c131289bac612735f7ee27f07e2d80915b086075741",
+      "bytes": 213568
+    },
+    {
+      "path": "figures/fer_01/timeline.png",
+      "sha256": "dbf470c35831688cd241d6add2f0ded67e11064b7e818335c728e9bb4675ec32",
+      "bytes": 307968
+    },
+    {
+      "path": "figures/fer_01/witness-dem-canyon-50000.png",
+      "sha256": "6a2170a4f547d4aef7c12341e71bb500b4e891dccc7cda66b81e73b92cd8186e",
+      "bytes": 320395
+    },
+    {
+      "path": "figures/fer_01/witness-dem-sierra-50000.png",
+      "sha256": "2860a89e884e304a2f5833df3e33c196e3cfc573a5b6d01b18edb93e39d62777",
+      "bytes": 211557
+    },
+    {
+      "path": "figures/fer_01/witness-generated-ridge-50000.png",
+      "sha256": "2740c15ebf5ef92fade9bfe54eb748e874e1151dc8a90fcd7785439ed0b37b94",
+      "bytes": 143645
+    },
+    {
+      "path": "figures/fer_01/witness-peking547-100000.png",
+      "sha256": "3f660c0cf0090deffe0e0a02e522883b1adca9fe71a6d14352357f18f0043b37",
+      "bytes": 115396
+    },
+    {
+      "path": "figures/fer_01/witness-peking547-200000.png",
+      "sha256": "90068e7ecb789be47e8f0c0848e3d3c4a053800faea69500b64fd600b8770cc3",
+      "bytes": 117585
+    },
+    {
+      "path": "figures/fer_01/witness-peking547-50000.png",
+      "sha256": "5affa877abc994b638d128bd6f2077a067c6dec4e2c03256ecd9d0b20c51ae49",
+      "bytes": 113853
+    },
+    {
+      "path": "figures/fer_01/work.png",
+      "sha256": "a2a0d8bc96d6b49754209431568cc4ce0a5b36617a17e4b55457158bb38f9bd8",
+      "bytes": 225798
+    }
+  ]
+}

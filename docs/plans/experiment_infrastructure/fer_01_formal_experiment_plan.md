@@ -55,4 +55,10 @@ Primary reference为冻结原始U16+双线性插值，k=0公共采样。记录 s
 
 ## 实现结果
 
-配置连接完成，定向验证与前后成本见[审查](../../reviews/experiment_infrastructure/fer_01_connection_review.md)。20个case与60项交错次序已保存至 `configs/experiments/formal/fer_01/protocol.json`。正式数据、失败记录、统计与视觉核查待本轮执行后回填。
+配置连接已提交为 `2c3ccf8`，定向验证与前后成本见[连接审查](../../reviews/experiment_infrastructure/fer_01_connection_review.md)。20个case与60项交错次序保存在 `configs/experiments/formal/fer_01/protocol.json`，采集全程使用该提交的干净源码和同一原生程序。
+
+2026-09-16完成60个正常进程（3600机会）、18个视觉进程（1080机会）、72个全Q质量评价及24组逐点Dmax。没有失败、超时、删改或替换正式样本。三个进程作为独立统计单位，正常/视觉/线程结果以及公开翻边计数分别核对。
+
+输出[完整报告](../../research/experiment_infrastructure/fer_01_results.md)、[数表和19组图像附录](../../research/experiment_infrastructure/fer_01_appendix.md)、60行进程统计、72行质量表和HTML实际画面浏览。实际查看19组PNG及Peking原始关键画面；用户视觉未代签，浏览器交互未作已验证声明。原始数据和SVG/PDF等完整产物保留于明确忽略的实验根，精简报告、CSV和PNG随本阶段提交。
+
+阶段出口为**实验执行与描述性分析完成**。同任务1→8线程约3.22×/4.44×；Peking50k/100k暖成本较低，但尚不同质量。Peking200k暖CPU约611.9ms、预留占87.9%，且出现秒级运动尖峰；独立屏幕质量仍存在反例。因此不授予性能/质量竞争目标通过，不扩大样本或启动修复。最终职责、统计、视觉和证据核查见[实验审查](../../reviews/experiment_infrastructure/fer_01_review.md)。

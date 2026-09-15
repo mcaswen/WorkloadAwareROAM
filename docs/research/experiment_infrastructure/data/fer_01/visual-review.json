@@ -1,0 +1,92 @@
+{
+  "date": "2026-09-16",
+  "reviewer": "Agent",
+  "figures": [
+    {
+      "id": "runtime",
+      "pngSha256": "ce2338bf316268f45b3897506f8021b88aa2a1b1cabfe764c2acab9c13d9117b"
+    },
+    {
+      "id": "scaling",
+      "pngSha256": "abefda1d0834dee322d3a22d2e504f0bbe2699103ad655232fc47a6b458bd0d6"
+    },
+    {
+      "id": "stages",
+      "pngSha256": "2c9311d6d83075dfd1e14c131289bac612735f7ee27f07e2d80915b086075741"
+    },
+    {
+      "id": "timeline",
+      "pngSha256": "dbf470c35831688cd241d6add2f0ded67e11064b7e818335c728e9bb4675ec32"
+    },
+    {
+      "id": "quality",
+      "pngSha256": "223bc661fe435ef1eff3d781a6b8dad11762f92c613249f94c75cfd5b9a7d4f4"
+    },
+    {
+      "id": "quality-cost",
+      "pngSha256": "2aed06f2dc3a994535c46d39558c48d72f302972feccd79438e63860b390276a"
+    },
+    {
+      "id": "work",
+      "pngSha256": "a2a0d8bc96d6b49754209431568cc4ce0a5b36617a17e4b55457158bb38f9bd8"
+    },
+    {
+      "id": "actual-peking547-50000",
+      "pngSha256": "bfcc6847199bf8b710d1919e6023b9cd0eab1929c34fb53905cbe46645db2d1e"
+    },
+    {
+      "id": "actual-peking547-100000",
+      "pngSha256": "0a5bbdad967849171cbc00a5d2c8796c430b1ed1615ecf000b26afb8fcb084df"
+    },
+    {
+      "id": "actual-peking547-200000",
+      "pngSha256": "22334b8a377c40bf351cad6cc1b0dcb54238d830db4b8d0fc0fb37c017fa841c"
+    },
+    {
+      "id": "actual-generated-ridge-50000",
+      "pngSha256": "3fe87577bda6e8cfb32b6fa802aef9f3c7c72bd23a0f5f98eea4de3b55651a14"
+    },
+    {
+      "id": "actual-dem-canyon-50000",
+      "pngSha256": "41c2c65a2ecefc8aca308fb2d87ad8a49dd5e32ae4af056b655762ce4503dd4c"
+    },
+    {
+      "id": "actual-dem-sierra-50000",
+      "pngSha256": "6f21a8417ccb238228954775cad894802f9b828aba0eda65382c78a2df50660d"
+    },
+    {
+      "id": "witness-peking547-50000",
+      "pngSha256": "5affa877abc994b638d128bd6f2077a067c6dec4e2c03256ecd9d0b20c51ae49"
+    },
+    {
+      "id": "witness-peking547-100000",
+      "pngSha256": "3f660c0cf0090deffe0e0a02e522883b1adca9fe71a6d14352357f18f0043b37"
+    },
+    {
+      "id": "witness-peking547-200000",
+      "pngSha256": "90068e7ecb789be47e8f0c0848e3d3c4a053800faea69500b64fd600b8770cc3"
+    },
+    {
+      "id": "witness-generated-ridge-50000",
+      "pngSha256": "2740c15ebf5ef92fade9bfe54eb748e874e1151dc8a90fcd7785439ed0b37b94"
+    },
+    {
+      "id": "witness-dem-canyon-50000",
+      "pngSha256": "6a2170a4f547d4aef7c12341e71bb500b4e891dccc7cda66b81e73b92cd8186e"
+    },
+    {
+      "id": "witness-dem-sierra-50000",
+      "pngSha256": "2860a89e884e304a2f5833df3e33c196e3cfc573a5b6d01b18edb93e39d62777"
+    }
+  ],
+  "observed": [
+    "19组PNG实际检查，含7组数值图、6组三算法时刻对照、6组见证裁剪。",
+    "修正质量/成本图中山脊Classic与DOD标签重叠，重新生成该图并核对。",
+    "Peking原始frame15及局部见证可见分片外观；外观不能单独归因于几何、法线或密度。",
+    "未在检查画面中看到明显网格孔洞；不代替程序化合法性或连续几何证明。",
+    "所有见证裁剪来自已预指定四个质量点；红圈是参考投影，可能与被测轮廓错开。"
+  ],
+  "browserInteraction": "未验证",
+  "userVisualReview": "未签收，Agent不代签",
+  "qualityApproval": "未授予；仍存在质量反例"
+}

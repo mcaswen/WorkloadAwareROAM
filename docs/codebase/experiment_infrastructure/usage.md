@@ -116,3 +116,11 @@ python3 scripts/run_experiment.py suite --case configs/experiments/cases/canyon-
 四种结果独立：程序化检查、Agent实际视觉、用户视觉、算法质量；浏览器不可用另列，不能以播放器逻辑单测代签页面交互。当前浏览器工具无可用surface，实际PNG与原生后端捕获已检查，真实浏览器交互仍待恢复。
 
 原始数据只放明确忽略的benchmark-output/experiment-infrastructure；小资产、清单、脚本与文档保留供审查。不要自动commit/push。结果索引见[验收报告](acceptance_results.md)。
+
+## 9. FER-01 正式重复与报告实例
+
+[FER-01完整报告](../../research/experiment_infrastructure/fer_01_results.md)展示在上述基础设施上执行一次有限正式实验的方法，协议在 `configs/experiments/formal/fer_01/protocol.json`。`formal_study.py`按预冻结次序运行20配置×3独立进程，正常结束后才采视觉与离线质量；`formal_report.py`从同一EIP analysis归约进程重复并生成19组图和数表，不继承开发验收的单进程判词。
+
+已有原始根 `benchmark-output/experiment-infrastructure/fer-01` 应保留。真正重跑使用新的实验根并重新冻结身份，不能删除本轮证据。报告中的CSV、PNG和精简汇总已随阶段保存于 `docs/research/experiment_infrastructure`；完整HTML、SVG/PDF、逐帧网格及误差数组留在原始根。当前实例没有新增perf/Tracy采样，不能把历史函数占比混入本轮平台时间。
+
+配置可选 `flipRecovery` 默认关闭，仅允许Transactional搭配immutable；开启时进入任务身份，并由回放适配传给已有公共开关。独立 `flip-recovery.csv` 保存触发、尝试、认证、冲突和执行数量，不改变原60列 `frames.csv`，也不把净零翻边并入预算交换分母。
