@@ -11,12 +11,14 @@ import matplotlib.pyplot as plt
 from .figures import FigureWriter
 from .runner import save
 from .catalog import source_samples
+from .quality import valid_quality
 
 
 def build_visuals(data,output,analysis_path):
     output=Path(output);media=output/"media";media.mkdir()
     players=[]
     w=FigureWriter(output/"visual-figures",analysis_path)
+    routes_seen = set()
     for run in data["runs"]:
         if run["mode"]!="visual" or run["status"]!="ok": continue
         folder=Path(run["path"]);frames=[]
@@ -29,8 +31,12 @@ def build_visuals(data,output,analysis_path):
             frames.append({"frame":int(f["frame"]),"event":f["event"],"seconds":float(camera[int(f["frame"])]["nominalSeconds"]),
                 "image":"media/"+name,"meshHash":f["hash"],"faces":f["faces"],"poseHash":f["poseHash"],
                 "cpuMs":f["cpuMs"],"timingMode":"visual includes capture; not normal performance"})
-        players.append({"id":run["id"],"title":run["case"]["terrain"]+" / "+run["case"]["algorithm"]+" / "+run["case"]["heightPolicy"],
+        players.append({"id":run["id"],"title":run["case"]["terrain"]+" / "+run["case"]["algorithm"]+" / "+(f"area={run['case']['cbtArea']:g}" if run["case"]["algorithm"] == "cbt" else run["case"]["heightPolicy"]),
                         "frames":frames,"material":run["case"]["material"],"backend":run["case"]["backend"]})
+        route_key = (run["case"]["sampleSha256"], run["case"]["cameraSha256"], len(run["frames"]))
+        if route_key in routes_seen:
+            continue
+        routes_seen.add(route_key)
         # 路线图直接读取实际C++冻结行，背景仅是原高度样本预览
         source=source_samples(Path(run["case"]["heightMap"]))*run["case"]["heightScale"]/65535
         fig,axes=plt.subplots(1,2,figsize=(10,4))
@@ -58,10 +64,12 @@ def build_visuals(data,output,analysis_path):
         if quality_run is None:continue
         visual=next((r for r in data["runs"] if r["mode"]=="visual" and r["executionId"]==quality_run["executionId"]),None)
         if visual is None:continue
-        valid=[r for r in q["frames"] if r.get("result") and r["status"]=="ok"]
+        valid = [row for row in q["frames"] if valid_quality(row)]
+        if (data.get("study") or {}).get("report", {}).get("witnessMode") == "worst-registered" and valid:
+            valid = [max(valid, key=lambda row: row["result"]["screenMax"])]
         # 同一参考源的所有比较共用全域色标
         vmax=max((i["result"]["screenMax"] or 0 for source in data["quality"] if source["sourceSha256"]==q["sourceSha256"]
-                  for i in source["frames"] if i.get("result")),default=1)
+                  for i in source["frames"] if valid_quality(i)),default=1)
         vmax=max(vmax,1e-12)
         for item in valid:
             f=next((f for f in visual["frames"] if f["frame"]==item["frame"] and f["hash"]==item["meshHash"] and f["image"]),None)
@@ -88,7 +96,8 @@ def build_visuals(data,output,analysis_path):
             axes[2].plot(float(witness["u"]),float(witness["v"]),"co",fillstyle="none")
             axes[2].set(xlabel="u",ylabel="v",title="已导出点的格内最大误差")
             fig.colorbar(p,ax=axes[2],label="px",fraction=.04)
-            title=f'{quality_run["case"]["terrain"]} / {q["algorithm"]} / {q["heightPolicy"]} / frame {item["frame"]} / Emax {item["result"]["screenMax"]:.4f}px'
+            policy = f"area={quality_run['case']['cbtArea']:g}" if q["algorithm"] == "cbt" else q["heightPolicy"]
+            title=f'{quality_run["case"]["terrain"]} / {q["algorithm"]} / {policy} / frame {item["frame"]} / Emax {item["result"]["screenMax"]:.4f}px'
             w.emit(fig,"witness-"+visual["id"]+"-"+str(item["frame"]),title,
                 {"run":visual["id"],"frame":item["frame"],"meshHash":item["meshHash"],
                  "locations":str(Path(q["path"])/item["locations"]),"bins":64,"displayAggregation":"max of exported finite points",

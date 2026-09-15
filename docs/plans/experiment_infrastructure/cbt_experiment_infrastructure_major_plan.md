@@ -114,5 +114,5 @@ CBI-03 CPU工程回归保持OPEN；当前用户授权继续实验，不等于回
 ## 10. 实现情况
 
 - CEI-01：统一数据、适用矩阵及配对已闭环，详见[小规划](cei_01_shared_evidence_plan.md)。
-- CEI-02：待开始。
+- CEI-02：共同报告、视觉与配置化正式编排已闭环，详见[小规划](cei_02_reports_and_study_plan.md)。
 - CEI-03：待冻结与执行。

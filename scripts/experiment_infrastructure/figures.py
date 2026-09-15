@@ -12,8 +12,8 @@ from .catalog import content_hash,ROOT
 from .runner import save
 from .analysis import STAGES,PASS
 
-COLORS={"classic":"#587391","dod":"#256eb0","transactional":"#ce7130"}
-LABELS={"classic":"Classic","dod":"DOD","transactional":"Transactional"}
+COLORS={"classic":"#587391","dod":"#256eb0","transactional":"#ce7130","cbt":"#6b4da2"}
+LABELS={"classic":"Classic","dod":"DOD","transactional":"Transactional","cbt":"GPU CBT"}
 STAGE_LABELS={"seedMs":"种子","initializeMs":"初始化","viewMs":"视图",
 "receiverMs":"接收认证","donorMs":"回收认证","reservationMs":"预留",
 "topologyPrepareMs":"拓扑准备","topologyPublishMs":"拓扑发布","sampleRepairMs":"样本续接",
@@ -63,87 +63,13 @@ def label(run):
     return f'{c["terrain"]} / {LABELS[c["algorithm"]]}{policy} / {c["workers"]}线程'
 
 
-def build_figures(data,output,analysis_path):
-    w=FigureWriter(output,analysis_path)
-    runs=[r for r in data["runs"] if r["mode"]=="timing" and r["status"]=="ok"]
-    if runs:
-        fig,ax=plt.subplots(figsize=(10,4.5))
-        y=np.arange(len(runs))
-        ax.barh(y,[r["groups"]["warm"]["cpuMs"] for r in runs],color=[COLORS[r["case"]["algorithm"]] for r in runs])
-        ax.set_yticks(y,[label(r) for r in runs],fontsize=9);ax.set_xlabel("CPU-ready (ms / 更新机会)")
-        for i,r in enumerate(runs):ax.text(r["groups"]["warm"]["cpuMs"],i,f'  {r["groups"]["warm"]["cpuMs"]:.3f}',va="center")
-        fig.subplots_adjust(left=.4)
-        w.emit(fig,"runtime","正常回放成本｜每配置一个独立进程",{"runs":[r["id"] for r in runs],"group":"warm"},
-            "跨算法成本比较，非同质量加速；冷启动/预热另外保留，短轨迹不提供置信区间")
-        fig,axes=plt.subplots(1,len(runs),figsize=(max(9,len(runs)*3.5),4),squeeze=False)
-        for ax,r in zip(axes[0],runs):
-            g=r["groups"]["warm"];keys=list(STAGES if r["case"]["algorithm"]=="transactional" else PASS)+["unattributedCpuMs"]
-            if g["stageAdditivity"]=="do not stack":
-                ax.text(.5,.5,"计时嵌套待审计",ha="center");continue
-            selected=[k for k in keys if g[k] is not None and g[k]>0]
-            ax.barh([STAGE_LABELS[k] for k in selected],[g[k] for k in selected],color=COLORS[r["case"]["algorithm"]])
-            ax.set_title(r["case"]["terrain"]+" / "+LABELS[r["case"]["algorithm"]]+" / "+str(r["case"]["workers"])+"t",fontsize=10);ax.set_xlabel("ms / 暖机会")
-        w.emit(fig,"stages","阶段成本与未归属部分",{"runs":[r["id"] for r in runs],"group":"warm","exclusiveKeys":[*STAGES,*PASS]},
-            "父级计时不与子级重复累加；未归属保留；图形上传/等待不包含在这些CPU阶段中")
-    tx=[r for r in runs if r["case"]["algorithm"]=="transactional"]
-    if tx:
-        fig,axes=plt.subplots(1,2,figsize=(11,4))
-        unique_work={}
-        for r in tx:
-            signature=tuple(tuple(f[k] for k in ("frame","pairs","conflicts","exchanges","need")) for f in r["frames"])
-            unique_work.setdefault(signature,r)
-        for r in unique_work.values():
-            f=r["frames"];x=[v["frame"] for v in f]
-            axes[0].plot(x,[v["pairs"] for v in f],label="pair checks",color="#256eb0")
-            axes[0].plot(x,[v["conflicts"] for v in f],label="conflict rejects",ls="--",color="#a94442")
-            axes[1].plot(x,[v["exchanges"] for v in f],label="exchanges",marker="o",color="#ce7130")
-            axes[1].plot(x,[v["need"] for v in f],label="D_need",ls="--",color="#587391")
-        for ax in axes:ax.set_xlabel("更新机会");ax.legend();ax.set_ylabel("真实计数")
-        w.emit(fig,"work","需求、配对与兑现",{"runs":[r["id"] for r in tx],"columns":["pairs","conflicts","need","exchanges"]},
-            "零事务仍保留；相同逐帧工作曲线只绘一次，全部运行见analysis；不是收敛证明")
-    if data["quality"]:
-        fig,axes=plt.subplots(2,2,figsize=(11,7))
-        keys=[("screenMax","sampled Emax (px)"),("heightMax","sampled Hmax (世界单位)"),
-              ("terrainSampleRms","可见参数域等权 RMS (px)"),("faces","实际三角形数")]
-        for q in data["quality"]:
-            items=[i for i in q["frames"] if i.get("result") and i["status"]=="ok"]
-            if not items:continue
-            text=q["algorithm"]+" / "+q["heightPolicy"]+" / "+Path(q["run"]).name
-            for ax,(key,ylabel) in zip(axes.flat,keys):
-                ax.plot([i["frame"] for i in items],[i.get(key,i["result"].get(key)) for i in items],
-                        marker="o",label=text,color=COLORS[q["algorithm"]])
-                ax.set_xlabel("更新机会");ax.set_ylabel(ylabel)
-        handles,labels=axes[0,0].get_legend_handles_labels()
-        fig.legend(handles,labels,fontsize=7,loc="upper center",bbox_to_anchor=(.5,.945),ncol=3)
-        w.emit(fig,"quality","独立双线性参考下的连续质量见证",{"quality":[q["path"] for q in data["quality"]],"sampling":"k=0"},
-            "只连接实际已评价关键帧；连线不是中间质量保证。RMS不是屏幕面积权重；不同地形不混合判胜")
-    if data.get("qualityPairs"):
-        fig,ax=plt.subplots(figsize=(9,4))
-        for pair in data["qualityPairs"]:
-            rows=[r for r in pair["result"]["frames"] if r["status"]=="paired"]
-            ax.plot([r["frame"] for r in rows],[r["DmaxSamplePx"] for r in rows],"o-",color="#ce7130",label="逐点Dmax")
-        ax.axhline(0,color="#555",lw=.8);ax.set_xlabel("更新机会");ax.set_ylabel("max(e_new(q) − e_DOD(q)) (px)");ax.legend()
-        w.emit(fig,"dmax","共同表示误差之外的局部退化",{"pairs":[p["path"] for p in data["qualityPairs"]]},
-            "同一reference-visible Q逐点相减；可为负，不以两个全局最大值相减替代")
-    # 质量运行与正常时间只能按相同任务/实际mesh身份关联
-    scatter=[]
-    for q in data["quality"]:
-        source=next((r for r in data["runs"] if r["path"]==q["run"]),None)
-        if not source:continue
-        timing=next((r for r in runs if r["executionId"]==source["executionId"]),None)
-        if timing:
-            for item in q["frames"]:
-                f=next((f for f in timing["frames"] if f["frame"]==item["frame"]),None)
-                if f and item.get("result") and f["hash"]==item["meshHash"]:
-                    scatter.append((timing,item,f))
-    if scatter:
-        fig,ax=plt.subplots(figsize=(9,4))
-        for r,item,f in scatter:
-            ax.scatter(f["cpuMs"],item["result"]["screenMax"],color=COLORS[r["case"]["algorithm"]],label=r["case"]["terrain"]+" / "+LABELS[r["case"]["algorithm"]],marker="s" if r["case"]["terrain"].startswith("generated") else "o")
-        handles,labels=ax.get_legend_handles_labels();unique=dict(zip(labels,handles));ax.legend(unique.values(),unique.keys())
-        ax.set_xlabel("相同机会的正常 CPU-ready (ms)");ax.set_ylabel("sampled Emax (px)")
-        w.emit(fig,"quality-cost","质量与正常时间：同实际mesh关联",{"points":[[r["id"],i["frame"]] for r,i,f in scatter]},
-            "不同语义的观测设计点，未作Pareto最优证明；质量评价和计时为不同进程")
+def build_figures(data, output, analysis_path, statistics=None):
+    from .process_statistics import aggregate
+    from .comparison_figures import build as build_comparison_figures
+    writer = FigureWriter(output, analysis_path)
+    statistics = aggregate(data) if statistics is None else statistics
+    build_comparison_figures(writer, data, statistics)
+    w = writer
     for h in data["history"]:
         if h["schema"]=="sve-timing-v1":
             rows=h["rows"];fig,axes=plt.subplots(1,2,figsize=(11,4))

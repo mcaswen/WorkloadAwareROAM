@@ -1,4 +1,4 @@
-"""FER-01 有限预注册实验；复用现有独立进程、采集和质量工具。"""
+"""冻结协议驱动的有限实验；保留FER-01默认路径并复用共享工具。"""
 from __future__ import annotations
 import argparse
 import csv
@@ -54,6 +54,14 @@ def prepare():
 
 
 def freeze():
+    protocol = load_json(CONFIG / "protocol.json")
+    for entry in protocol["cases"]:
+        case = ROOT / entry["path"]
+        resolved = resolve_case(case)
+        if content_hash(case) != entry["sha256"]:
+            raise ValueError("case与协议不符")
+        if any(resolved[key] != entry[key] for key in ("cameraSha256", "sampleSha256")):
+            raise ValueError("资产或路线与协议不符")
     RAW.mkdir(parents=True,exist_ok=False)
     save(RAW/"freeze.json",dict(protocolSha256=content_hash(CONFIG/"protocol.json"),
         executableSha256=content_hash(APP),probeSha256=content_hash(PROBE),
@@ -70,7 +78,15 @@ def collect(mode):
         entry=cases[task["id"]];case=ROOT/entry["path"];target=RAW/task["runId"]
         if content_hash(case)!=entry["sha256"]: raise ValueError("case与冻结清单不符")
         if target.exists():
-            print("保留已有运行",target.name,flush=True);continue
+            manifest = target / "manifest.json"
+            if not manifest.exists():
+                print("保留未完成目录", target.name, flush=True)
+                continue
+            old = load_json(manifest)
+            if old["binary"]["sha256"] != frozen["executableSha256"] or old["case"]["id"] != entry["id"]:
+                raise ValueError("已有运行身份与冻结配置不符")
+            print("保留已有运行", target.name, flush=True)
+            continue
         print(f"{mode} {index+1}/{len(tasks)} {target.name}",flush=True)
         try:
             run(case,target,APP,mode)
@@ -82,13 +98,17 @@ def collect(mode):
 def verify():
     protocol=load_json(CONFIG/"protocol.json");checks=[]
     for entry in protocol["cases"]:
-        paths=[RAW/f"r{i}-{entry['id']}" for i in (1,2,3)]
+        paths=[RAW/f"r{i}-{entry['id']}" for i in range(1, protocol["repetitions"] + 1)]
         if entry["visual"]: paths.append(RAW/("visual-"+entry["id"]))
         try:
             result=compare_modes(paths)
-            flips=[list(csv.DictReader((p/"run/flip-recovery.csv").open())) for p in paths]
-            if any(rows!=flips[0] for rows in flips): raise ValueError("翻边计数在重复或采集模式间不符")
-            checks.append(dict(id=entry["id"],result=result,flipCountsEqual=True))
+            flip_equal = None
+            if entry["algorithm"] == "transactional":
+                flips = [list(csv.DictReader((path / "run/flip-recovery.csv").open())) for path in paths]
+                if any(rows != flips[0] for rows in flips):
+                    raise ValueError("翻边计数在重复或采集模式间不符")
+                flip_equal = True
+            checks.append(dict(id=entry["id"], result=result, flipCountsEqual=flip_equal))
         except Exception as error: checks.append(dict(id=entry["id"],error=str(error)))
     save(RAW/"mode-and-repeat-checks.json",checks)
     if any("error" in row for row in checks): print("存在失败或结果差异，必须在报告中保留",flush=True)
@@ -106,13 +126,23 @@ def quality():
         if not manifest.exists() or load_json(manifest)["status"]!="ok": continue
         print("quality",entry["id"],flush=True)
         evaluate(source,target,PROBE,entry["qualityFrames"])
-    for entry in protocol["cases"]:
-        if entry["algorithm"]!="transactional" or not entry["visual"]: continue
-        other=f"{entry['terrain']}-b{entry['budget']}-dod-t8"
-        output=RAW/("dmax-"+entry["id"]+".json")
-        if output.exists(): continue
-        try: pointwise_pair(RAW/("quality-"+entry["id"]),RAW/("quality-"+other),output)
-        except Exception as error: save(output,dict(status="unpaired",error=str(error)))
+    pairings = protocol.get("pairs")
+    if pairings is None:
+        pairings = [dict(candidate=entry["id"],
+                        reference=f"{entry['terrain']}-b{entry['budget']}-dod-t8")
+                    for entry in protocol["cases"]
+                    if entry["algorithm"] == "transactional" and entry["visual"]]
+    for pair in pairings:
+        candidate = pair["candidate"]
+        reference = pair["reference"]
+        output = RAW / ("dmax-" + candidate + "--" + reference + ".json")
+        if output.exists():
+            continue
+        try:
+            pointwise_pair(RAW / ("quality-" + candidate), RAW / ("quality-" + reference),
+                           output, allow_different_budget=pair.get("differentBudget", False))
+        except Exception as error:
+            save(output, dict(status="unpaired", candidate=candidate, reference=reference, error=str(error)))
 
 
 def analyze():
@@ -120,11 +150,36 @@ def analyze():
     runs=sorted(p.parent for p in RAW.glob("*/manifest.json"))
     quality_paths=sorted(p.parent for p in RAW.glob("quality-*/quality-index.json"))
     pairs=[p for p in sorted(RAW.glob("dmax-*.json")) if "frames" in load_json(p)]
-    return build(runs,RAW/"analysis",quality_paths,pair_paths=pairs)
+    protocol = load_json(CONFIG / "protocol.json")
+    expected = protocol["schedule"] + [
+        dict(id=entry["id"], runId="visual-" + entry["id"])
+        for entry in protocol["cases"] if entry["visual"]]
+    protocol["runCompleteness"] = [
+        dict(runId=task["runId"], case=task["id"],
+             status=load_json(RAW / task["runId"] / "manifest.json")["status"]
+             if (RAW / task["runId"] / "manifest.json").exists() else "missing-manifest")
+        for task in expected]
+    return build(runs, RAW / "analysis", quality_paths, pair_paths=pairs, study=protocol)
 
 
-if __name__=="__main__":
-    parser=argparse.ArgumentParser();parser.add_argument("action",choices=["prepare","freeze","timing","visual","verify","quality","analyze"])
-    action=parser.parse_args().action
-    if action in ("timing","visual"): collect(action)
-    else: print(globals()[action]())
+def main():
+    global CONFIG, RAW, APP, PROBE
+    parser = argparse.ArgumentParser()
+    parser.add_argument("action", choices=["prepare", "freeze", "timing", "visual", "verify", "quality", "analyze"])
+    parser.add_argument("--config", type=Path, default=CONFIG)
+    parser.add_argument("--raw", type=Path, default=RAW)
+    parser.add_argument("--executable", type=Path, default=APP)
+    parser.add_argument("--probe", type=Path, default=PROBE)
+    arguments = parser.parse_args()
+    CONFIG, RAW = arguments.config.resolve(), arguments.raw.resolve()
+    APP, PROBE = arguments.executable.resolve(), arguments.probe.resolve()
+    if arguments.action == "prepare" and CONFIG != (ROOT / "configs/experiments/formal/fer_01"):
+        parser.error("新协议使用独立准备模块；prepare只保留FER-01历史定义")
+    if arguments.action in ("timing", "visual"):
+        collect(arguments.action)
+    else:
+        print(globals()[arguments.action]())
+
+
+if __name__ == "__main__":
+    main()

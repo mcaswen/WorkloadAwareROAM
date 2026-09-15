@@ -72,7 +72,7 @@ def summarize(run):
     return entry
 
 
-def build(runs,output,quality_paths=(),history_specs=(),pair_paths=()):
+def build(runs,output,quality_paths=(),history_specs=(),pair_paths=(),study=None):
     started=time.perf_counter();output=output.resolve();output.mkdir(parents=True,exist_ok=False)
     if len({str(Path(path).resolve()) for path in runs}) != len(runs):
         raise ValueError("不能将同一运行重复作为独立进程")
@@ -82,6 +82,9 @@ def build(runs,output,quality_paths=(),history_specs=(),pair_paths=()):
         "qualityPairs":[{"path":str(Path(p).resolve()),"sha256":content_hash(Path(p)),"result":load_json(Path(p))} for p in pair_paths],
         "comparisons":[],"statisticalUnit":"independent process; frames are correlated",
         "confidenceIntervals":None,"p95Policy":"not reported for this development sample"}
+    if study is not None:
+        analysis["study"] = study
+        analysis["p95Policy"] = "within-process trajectory diagnostic only; not independent samples"
     identifiers = [run["id"] for run in analysis["runs"]]
     for run in analysis["runs"]:
         run["manifestId"] = run["id"]

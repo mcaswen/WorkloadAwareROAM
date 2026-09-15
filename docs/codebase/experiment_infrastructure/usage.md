@@ -124,3 +124,21 @@ python3 scripts/run_experiment.py suite --case configs/experiments/cases/canyon-
 已有原始根 `benchmark-output/experiment-infrastructure/fer-01` 应保留。真正重跑使用新的实验根并重新冻结身份，不能删除本轮证据。报告中的CSV、PNG和精简汇总已随阶段保存于 `docs/research/experiment_infrastructure`；完整HTML、SVG/PDF、逐帧网格及误差数组留在原始根。当前实例没有新增perf/Tracy采样，不能把历史函数占比混入本轮平台时间。
 
 配置可选 `flipRecovery` 默认关闭，仅允许Transactional搭配immutable；开启时进入任务身份，并由回放适配传给已有公共开关。独立 `flip-recovery.csv` 保存触发、尝试、认证、冲突和执行数量，不改变原60列 `frames.csv`，也不把净零翻边并入预算交换分母。
+
+## 四算法共同报告与正式协议
+
+CBT 使用现有 `run/analyze/quality/report` 链，限定 D3D12；不支持 CPU-only、OpenGL 或 CPU profiler 模式。矩阵用 `suite --algorithms classic dod transactional cbt --cbt-areas 16 8 4 --cbt-capacities 524288`，CBT不乘CPU预算/线程/前缀维度。
+
+`pair --candidate <quality目录> --reference <quality目录> --output <json> --allow-different-budget` 允许同资产/Q/相机/尺度的不同预算逐点比较，输出实际N。最近N参考不跳过无效点；不同数量不代表同任务。
+
+普通报告生成 `process-statistics.json`、`processes.csv`、`quality.csv` 和 `numberMatches.csv`。重复按任务/来源/程序/线程分组，视觉采集不进入性能均值。CPU更新、GPU主机录制、GPU计算/绘制和帧包络独立解释；进程范围不是CI。质量不完整的配置不进入质量—成本点图。
+
+正式编排沿用同一模块，例如：
+
+```bash
+python3 -m experiment_infrastructure.formal_study timing   --config configs/experiments/formal/fer_02   --raw benchmark-output/experiment-infrastructure/fer-02   --executable build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe   --probe /home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe
+```
+
+先准备并冻结协议，再按 `freeze → timing → visual → verify → quality → analyze` 执行；最后用统一 `report`。所有计时结束前不并发评价/作图；已有失败不覆盖。省略参数仍保留FER-01历史默认，不自动迁移旧结果。
+
+报告里GPU普通帧当前N为空；只有实际捕获帧或明确注明来源代的延迟观测可提供N。GPU质量和正常成本是配置关联，不能宣称未捕获的两个进程输出同一网格。
