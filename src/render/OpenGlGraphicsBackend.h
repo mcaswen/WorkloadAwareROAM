@@ -31,6 +31,8 @@ public:
     void BeginImGuiFrame(Gui::ImGuiLayer& guiLayer) override;
     void RenderImGui(Gui::ImGuiLayer& guiLayer) override;
     void Present() override;
+    bool RequestFrameCapture(std::uint64_t id) override;
+    [[nodiscard]] std::optional<FrameCapture> TakeFrameCapture() override;
     void RefreshDrawableSize() override;
 
     [[nodiscard]] bool SetVSyncEnabled(bool enabled) override;
@@ -45,6 +47,8 @@ public:
     [[nodiscard]] bool IsValid() const override;
 
 private:
+    std::optional<std::uint64_t> _captureRequest;
+    std::optional<FrameCapture> _captureResult;
     // SDL 窗口由 Window 持有，OpenGL context 由本类持有
     SDL_Window* _window{nullptr};
     SDL_GLContext _context{nullptr};

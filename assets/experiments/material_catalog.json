@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "materials": [
+    {
+      "id": "legacy",
+      "name": "历史棋盘/高度染色",
+      "path": "assets/textures/Tex_Terrain_Debug_Diffuse.ppm",
+      "tiling": 12,
+      "heightTint": 0.35,
+      "sha256": "c83a42561a752ee6092c74674cf866412dce4b3cc8b8552e8e0ef45f84e37091",
+      "colorEncoding": "RGB8 interpreted as legacy UNORM; no new gamma transform",
+      "source": {
+        "kind": "existing-project"
+      }
+    },
+    {
+      "id": "neutral",
+      "name": "中性光照",
+      "path": "assets/textures/experiment/generated/Tex_Neutral.png",
+      "tiling": 1,
+      "heightTint": 0,
+      "sha256": "3f1832e7abd55772e90f51aaac8e243370956a50d219acaa0ad5bb9b4c6e24b2",
+      "colorEncoding": "RGB8 interpreted as legacy UNORM; no new gamma transform",
+      "source": {
+        "kind": "generated",
+        "rgb": [
+          155,
+          155,
+          155
+        ]
+      }
+    },
+    {
+      "id": "uv",
+      "name": "方向UV检查",
+      "path": "assets/textures/experiment/generated/Tex_Uv_Direction.png",
+      "tiling": 2,
+      "heightTint": 0,
+      "sha256": "86876bf6f5fa92de935b01577238f61a2c22263f8dbf18fc82fcab250f884380",
+      "colorEncoding": "RGB8 interpreted as legacy UNORM; no new gamma transform",
+      "source": {
+        "kind": "generated",
+        "version": 1
+      }
+    },
+    {
+      "id": "rock",
+      "name": "岩石 / Poly Haven",
+      "path": "assets/textures/experiment/external/Tex_rock_boulder_dry_diff_1k.jpg",
+      "tiling": 12,
+      "heightTint": 0,
+      "sha256": "20f653a42fb24f42aa40641663070d578678da49af18cc1049dbdd4ed8679f3c",
+      "colorEncoding": "RGB8 interpreted as legacy UNORM; no new gamma transform",
+      "source": {
+        "kind": "download",
+        "asset": "rock_boulder_dry",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rock_boulder_dry/rock_boulder_dry_diff_1k.jpg",
+        "date": "2026-09-15",
+        "license": "CC0",
+        "licenseUrl": "https://polyhaven.com/license",
+        "apiMd5": "da794cd9be3db91e3160cf081109f322"
+      }
+    },
+    {
+      "id": "soil",
+      "name": "土壤 / Poly Haven",
+      "path": "assets/textures/experiment/external/Tex_brown_mud_diff_1k.jpg",
+      "tiling": 12,
+      "heightTint": 0,
+      "sha256": "df3f135c899f10a3b018738343b222cbc67d13e7c76c5d8da834a3d34c984417",
+      "colorEncoding": "RGB8 interpreted as legacy UNORM; no new gamma transform",
+      "source": {
+        "kind": "download",
+        "asset": "brown_mud",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_mud/brown_mud_diff_1k.jpg",
+        "date": "2026-09-15",
+        "license": "CC0",
+        "licenseUrl": "https://polyhaven.com/license",
+        "apiMd5": "b141af27b413db140818d0a4998c394c"
+      }
+    },
+    {
+      "id": "grass",
+      "name": "草岩 / Poly Haven",
+      "path": "assets/textures/experiment/external/Tex_aerial_grass_rock_diff_1k.jpg",
+      "tiling": 12,
+      "heightTint": 0,
+      "sha256": "57b8041bfe0d0f01430e4dbaad45e7ddddf0a9fc97317f90dbc51f7b0d9e1b5d",
+      "colorEncoding": "RGB8 interpreted as legacy UNORM; no new gamma transform",
+      "source": {
+        "kind": "download",
+        "asset": "aerial_grass_rock",
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_grass_rock/aerial_grass_rock_diff_1k.jpg",
+        "date": "2026-09-15",
+        "license": "CC0",
+        "licenseUrl": "https://polyhaven.com/license",
+        "apiMd5": "e920ce36afd0abff000b8366d3d768d3"
+      }
+    }
+  ]
+}

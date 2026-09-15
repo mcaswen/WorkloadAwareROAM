@@ -72,6 +72,8 @@ in vec3 vDebugColor;
 in float vDebugHighlight;
 
 uniform sampler2D uTerrainTexture;
+uniform float uMaterialTiling;
+uniform float uMaterialHeightTint;
 uniform vec3 uCameraPosition;
 uniform vec3 uLightDirection;
 uniform vec3 uLightColor;
@@ -90,9 +92,9 @@ void main()
     vec3 viewDir = normalize(uCameraPosition - vWorldPosition);
     vec3 halfDir = normalize(lightDir + viewDir);
 
-    vec3 textureColor = texture(uTerrainTexture, vTexCoord * 12.0).rgb;
+    vec3 textureColor = texture(uTerrainTexture, vTexCoord * uMaterialTiling).rgb;
     vec3 heightTint = mix(vec3(0.10, 0.32, 0.12), vec3(0.66, 0.62, 0.48), smoothstep(0.2, 0.92, vHeight));
-    vec3 baseColor = mix(textureColor, heightTint, 0.35);
+    vec3 baseColor = mix(textureColor, heightTint, uMaterialHeightTint);
 
     float diffuse = max(dot(normal, lightDir), 0.0);
     float specular = pow(max(dot(normal, halfDir), 0.0), 32.0);
@@ -230,6 +232,21 @@ bool TerrainRenderer::Initialize(
     }
 
     _initialized = true;
+    return true;
+}
+
+bool TerrainRenderer::ApplyMaterial(const std::filesystem::path& path, float tiling, float tint, std::string* error)
+{
+    if (!std::isfinite(tiling) || tiling <= 0 || tiling > 128 ||
+        !std::isfinite(tint) || tint < 0 || tint > 1)
+    {
+        if (error) *error = "材质参数无效";
+        return false;
+    }
+    if (path != _texturePath && !LoadTexture(path, error)) return false;
+    _texturePath = path;
+    _materialTiling = tiling;
+    _materialHeightTint = tint;
     return true;
 }
 
@@ -433,6 +450,8 @@ void TerrainRenderer::Render(const RenderContext& context)
     _shader.SetInt("uDebugColorMode", static_cast<int>(_settings.DebugColorMode));
     _shader.SetFloat("uDebugOverlayStrength", _settings.DebugOverlayStrength);
     _shader.SetInt("uTerrainTexture", 0);
+    _shader.SetFloat("uMaterialTiling", _materialTiling);
+    _shader.SetFloat("uMaterialHeightTint", _materialHeightTint);
 
     glBindVertexArray(_vertexArrayId);
 
@@ -1158,15 +1177,11 @@ bool TerrainRenderer::LoadTexture(const std::filesystem::path& texturePath, std:
         return false;
     }
 
-    if (_textureId == 0)
-    {
-        // texture id 复用可以支持未来热重载
-        glGenTextures(1, &_textureId);
-    }
-
+    GLuint nextTexture = 0;
+    glGenTextures(1, &nextTexture);
     // 纹理强制上传为 RGBA8
     // source channel count 不进入 shader 分支
-    glBindTexture(GL_TEXTURE_2D, _textureId);
+    glBindTexture(GL_TEXTURE_2D, nextTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1182,7 +1197,17 @@ bool TerrainRenderer::LoadTexture(const std::filesystem::path& texturePath, std:
         GL_UNSIGNED_BYTE,
         pixels);
     glGenerateMipmap(GL_TEXTURE_2D);
+    const auto uploadError = glGetError();
     glBindTexture(GL_TEXTURE_2D, 0);
+    if (uploadError != GL_NO_ERROR)
+    {
+        glDeleteTextures(1, &nextTexture);
+        stbi_image_free(pixels);
+        if (errorMessage) *errorMessage = "OpenGL材质上传失败";
+        return false;
+    }
+    if (_textureId != 0) glDeleteTextures(1, &_textureId);
+    _textureId = nextTexture;
 
     // stb 分配的像素内存必须在上传后释放
     stbi_image_free(pixels);

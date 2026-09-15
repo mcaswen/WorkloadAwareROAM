@@ -13,6 +13,7 @@ cbuffer TerrainConstants : register(b0)
     float4 LightingParameters;
     // x 为地形调试着色模式
     int4 DebugParameters;
+    float4 MaterialParameters;
 };
 
 // 地形材质纹理使用图形根签名中的 t0 和静态采样器 s0
@@ -64,12 +65,12 @@ float4 PSMain(VertexOutput input) : SV_Target0
     const float3 viewDir = normalize(CameraPosition.xyz - input.WorldPosition);
     const float3 halfDir = normalize(lightDir + viewDir);
 
-    // 固定平铺频率保持不同 LOD 算法之间材质尺度一致
-    const float3 textureColor = TerrainTexture.Sample(TerrainSampler, input.TexCoord * 12.0).rgb;
+    // 同一观察预设在各算法间保持相同平铺频率
+    const float3 textureColor = TerrainTexture.Sample(TerrainSampler, input.TexCoord * MaterialParameters.x).rgb;
     // 高处逐渐混入岩土色，避免单一纹理掩盖地形形态
     const float heightBlend = smoothstep(0.2, 0.92, input.Height);
     const float3 heightTint = lerp(float3(0.10, 0.32, 0.12), float3(0.66, 0.62, 0.48), heightBlend);
-    const float3 baseColor = lerp(textureColor, heightTint, 0.35);
+    const float3 baseColor = lerp(textureColor, heightTint, MaterialParameters.y);
 
     const float diffuse = max(dot(normal, lightDir), 0.0);
     const float specular = pow(max(dot(normal, halfDir), 0.0), 32.0);

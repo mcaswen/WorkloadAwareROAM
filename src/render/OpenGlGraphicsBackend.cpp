@@ -1,3 +1,4 @@
+#include "render/OpenGlFrameCapture.h"
 #include "render/OpenGlGraphicsBackend.h"
 
 #include "gui/ImGuiLayer.h"
@@ -185,6 +186,8 @@ void OpenGlGraphicsBackend::WaitForGpuIdle()
 
 void OpenGlGraphicsBackend::Shutdown()
 {
+    _captureRequest.reset();
+    _captureResult.reset();
     // SDL 窗口由 Window 拥有，context 必须先于窗口释放
     if (_context != nullptr)
     {
@@ -217,10 +220,28 @@ void OpenGlGraphicsBackend::RenderImGui(Gui::ImGuiLayer& guiLayer)
     guiLayer.EndFrame();
 }
 
+bool OpenGlGraphicsBackend::RequestFrameCapture(std::uint64_t id)
+{
+    if (!IsValid() || _captureRequest || _captureResult) return false;
+    _captureRequest = id;
+    return true;
+}
+std::optional<FrameCapture> OpenGlGraphicsBackend::TakeFrameCapture()
+{
+    auto result = std::move(_captureResult);
+    _captureResult.reset();
+    return result;
+}
+
 void OpenGlGraphicsBackend::Present()
 {
     if (_window != nullptr)
     {
+        if (_captureRequest)
+        {
+            _captureResult = CaptureOpenGlBackBuffer(*_captureRequest, _drawableWidth, _drawableHeight);
+            _captureRequest.reset();
+        }
         SDL_GL_SwapWindow(_window);
     }
 }

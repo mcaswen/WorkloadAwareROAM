@@ -249,6 +249,8 @@ public:
         const TerrainRenderSettings& settings,
         std::string* errorMessage);
 
+    // 材质切换不标记网格过期；上传失败保留上一有效资源
+    bool ApplyMaterial(const std::filesystem::path& path, float tiling, float tint, std::string* error);
     bool ApplySettings(const TerrainRenderSettings& settings, std::string* errorMessage);
     bool LoadHeightMap(const std::filesystem::path& heightMapPath, std::string* errorMessage);
     bool UpdateForView(const RenderContext& context, std::string* errorMessage);
@@ -343,6 +345,8 @@ private:
     bool _cpuUploadRecoveryRequired{true};
     bool _lodStepRequested{false};
     TerrainRenderSettings _settings;
+    float _materialTiling{12.0F};
+    float _materialHeightTint{0.35F};
     std::filesystem::path _heightMapPath;
     std::filesystem::path _texturePath;
     RenderContext _lastRenderContext{};

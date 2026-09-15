@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "render/D3D12GraphicsBackend.h"
 
 #include "gui/ImGuiLayer.h"
@@ -259,6 +260,8 @@ void D3D12GraphicsBackend::WaitForGpuIdle()
 
 void D3D12GraphicsBackend::Shutdown()
 {
+    _captureRequest.reset();
+    _captureResult.reset();
     // 资源释放前确保 GPU 不再引用任何后端对象
     if (_commandQueue != nullptr && _fence != nullptr && _fenceEvent != nullptr)
     {
@@ -424,6 +427,19 @@ void D3D12GraphicsBackend::RenderImGui(Gui::ImGuiLayer& guiLayer)
     }
 }
 
+bool D3D12GraphicsBackend::RequestFrameCapture(std::uint64_t id)
+{
+    if (!IsValid() || _captureRequest || _captureResult) return false;
+    _captureRequest = id;
+    return true;
+}
+std::optional<FrameCapture> D3D12GraphicsBackend::TakeFrameCapture()
+{
+    auto result = std::move(_captureResult);
+    _captureResult.reset();
+    return result;
+}
+
 void D3D12GraphicsBackend::Present()
 {
     // 最小化或 BeginFrame 失败时没有可提交命令
@@ -447,6 +463,8 @@ void D3D12GraphicsBackend::Present()
             static_cast<std::uint64_t>(queryStart) * sizeof(std::uint64_t));
     }
 
+    if (_captureRequest)
+        _capture.Record(_device.Get(), _commandList.Get(), _backBuffers[_frameIndex].Get());
     D3D12_RESOURCE_BARRIER barrier{};
     // Present 前必须把交换链缓冲恢复为 PRESENT
     barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -491,6 +509,13 @@ void D3D12GraphicsBackend::Present()
         _frames[_frameIndex].FenceValue = fenceValue;
     }
 
+    if (_captureRequest)
+    {
+        std::string error;
+        if (!SignalAndWait(&error)) throw std::runtime_error(error);
+        _captureResult = _capture.Read(*_captureRequest);
+        _captureRequest.reset();
+    }
     // Present 后交换链索引可能变化，下一帧必须重新查询
     _frameIndex = _swapChain->GetCurrentBackBufferIndex();
     _frameOpen = false;

@@ -8,6 +8,7 @@
 #endif
 
 #include "render/GraphicsBackend.h"
+#include "render/D3D12FrameCapture.h"
 
 #include <SDL.h>
 
@@ -68,6 +69,8 @@ public:
     void BeginImGuiFrame(Gui::ImGuiLayer& guiLayer) override;
     void RenderImGui(Gui::ImGuiLayer& guiLayer) override;
     void Present() override;
+    bool RequestFrameCapture(std::uint64_t id) override;
+    [[nodiscard]] std::optional<FrameCapture> TakeFrameCapture() override;
     void RefreshDrawableSize() override;
 
     [[nodiscard]] bool SetVSyncEnabled(bool enabled) override;
@@ -97,6 +100,9 @@ public:
         std::string* errorMessage);
 
 private:
+    std::optional<std::uint64_t> _captureRequest;
+    std::optional<FrameCapture> _captureResult;
+    D3D12FrameCapture _capture;
     /// <summary>
     /// 与单个交换链缓冲绑定的命令分配器和完成值
     /// </summary>

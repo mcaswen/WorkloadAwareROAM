@@ -1,5 +1,7 @@
 #pragma once
 
+#include "render/FrameCapture.h"
+#include <optional>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -45,6 +47,9 @@ public:
     virtual void BeginImGuiFrame(Gui::ImGuiLayer& guiLayer) = 0;
     virtual void RenderImGui(Gui::ImGuiLayer& guiLayer) = 0;
     virtual void Present() = 0;
+    // 只允许一个待处理请求；结果在Present完成后领取
+    virtual bool RequestFrameCapture(std::uint64_t id) = 0;
+    [[nodiscard]] virtual std::optional<FrameCapture> TakeFrameCapture() = 0;
     virtual void RefreshDrawableSize() = 0;
 
     [[nodiscard]] virtual bool SetVSyncEnabled(bool enabled) = 0;

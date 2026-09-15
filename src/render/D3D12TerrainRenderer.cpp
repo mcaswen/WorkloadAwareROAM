@@ -132,7 +132,8 @@ struct TerrainConstants
     glm::vec4 LightingParameters{0.0F};
     glm::ivec4 DebugParameters{0};
     // 补齐 D3D12 常量缓冲的 256 字节对齐
-    std::array<std::uint32_t, 12> Padding{};
+    glm::vec4 MaterialParameters{12.0F, 0.35F, 0.0F, 0.0F};
+    std::array<std::uint32_t, 8> Padding{};
 };
 
 // 编译期锁定 CPU 与 HLSL 的常量缓冲布局契约
@@ -717,6 +718,21 @@ bool TerrainRenderer::Initialize(
     return true;
 }
 
+bool TerrainRenderer::ApplyMaterial(const std::filesystem::path& path, float tiling, float tint, std::string* error)
+{
+    if (!std::isfinite(tiling) || tiling <= 0 || tiling > 128 ||
+        !std::isfinite(tint) || tint < 0 || tint > 1)
+    {
+        if (error) *error = "材质参数无效";
+        return false;
+    }
+    if (path != _texturePath && !LoadTexture(path, error)) return false;
+    _texturePath = path;
+    _materialTiling = tiling;
+    _materialHeightTint = tint;
+    return true;
+}
+
 bool TerrainRenderer::ApplySettings(const TerrainRenderSettings& settings, std::string* errorMessage)
 {
     // 光照和线框设置立即生效，只有几何相关设置会标记网格过期
@@ -930,6 +946,7 @@ void TerrainRenderer::Render(const RenderContext& context)
         _settings.DiffuseStrength,
         _settings.SpecularStrength,
         _settings.DebugOverlayStrength};
+    constants.MaterialParameters = glm::vec4(_materialTiling, _materialHeightTint, 0, 0);
     constants.DebugParameters.x = static_cast<int>(_settings.DebugColorMode);
     std::memcpy(_d3d12State->MappedConstants[frameIndex], &constants, sizeof(constants));
 
@@ -1488,6 +1505,7 @@ bool TerrainRenderer::LoadTexture(const std::filesystem::path& texturePath, std:
         return false;
     }
 
+    Microsoft::WRL::ComPtr<ID3D12Resource> nextTexture;
     D3D12_RESOURCE_DESC textureDescription{};
     textureDescription.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     textureDescription.Width = static_cast<UINT64>(width);
@@ -1505,7 +1523,7 @@ bool TerrainRenderer::LoadTexture(const std::filesystem::path& texturePath, std:
         &textureDescription,
         D3D12_RESOURCE_STATE_COPY_DEST,
         nullptr,
-        IID_PPV_ARGS(&_d3d12State->Texture));
+        IID_PPV_ARGS(&nextTexture));
     if (FAILED(result))
     {
         stbi_image_free(pixels);
@@ -1551,13 +1569,13 @@ bool TerrainRenderer::LoadTexture(const std::filesystem::path& texturePath, std:
             source.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
             source.PlacedFootprint = footprint;
             D3D12_TEXTURE_COPY_LOCATION destination{};
-            destination.pResource = _d3d12State->Texture.Get();
+            destination.pResource = nextTexture.Get();
             destination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
             commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, nullptr);
             // 复制完成后转为像素着色器只读状态
             D3D12_RESOURCE_BARRIER barrier{};
             barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-            barrier.Transition.pResource = _d3d12State->Texture.Get();
+            barrier.Transition.pResource = nextTexture.Get();
             barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
             barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
             barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -1572,8 +1590,8 @@ bool TerrainRenderer::LoadTexture(const std::filesystem::path& texturePath, std:
     }
 
     // SRV 需要在纹理整个生命周期内保持同一堆索引
-    _d3d12State->TextureSrv = _d3d12State->Backend->AllocateSrvDescriptor();
-    if (!_d3d12State->TextureSrv.IsValid())
+    auto nextSrv = _d3d12State->Backend->AllocateSrvDescriptor();
+    if (!nextSrv.IsValid())
     {
         SetError(errorMessage, "D3D12 SRV heap has no descriptor available for the terrain texture");
         return false;
@@ -1584,9 +1602,14 @@ bool TerrainRenderer::LoadTexture(const std::filesystem::path& texturePath, std:
     srvDescription.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDescription.Texture2D.MipLevels = 1;
     _d3d12State->Backend->Device()->CreateShaderResourceView(
-        _d3d12State->Texture.Get(),
+        nextTexture.Get(),
         &srvDescription,
-        _d3d12State->TextureSrv.Cpu);
+        nextSrv.Cpu);
+    // 旧帧排空后再替换描述符与资源，不让失败上传破坏当前材质
+    _d3d12State->Backend->WaitForGpuIdle();
+    _d3d12State->Backend->ReleaseSrvDescriptor(_d3d12State->TextureSrv);
+    _d3d12State->Texture = std::move(nextTexture);
+    _d3d12State->TextureSrv = nextSrv;
     return true;
 }
 

@@ -136,6 +136,7 @@ if(PARALLEL_ROAM_BUILD_APP)
                 src/render/Shader.cpp
                 src/render/GraphicsBackend.cpp
                 src/render/OpenGlGraphicsBackend.cpp
+                src/render/OpenGlFrameCapture.cpp
                 src/render/TerrainRenderer.cpp
                 src/terrain/HeightMap.cpp
                 src/terrain/TerrainMeshBuilder.cpp
@@ -175,6 +176,7 @@ if(PARALLEL_ROAM_BUILD_APP)
                 src/render/GraphicsBackend.cpp
                 src/render/D3D12AgilitySdkExports.cpp
                 src/render/D3D12GraphicsBackend.cpp
+                src/render/D3D12FrameCapture.cpp
                 src/render/D3D12TerrainRenderer.cpp
                 src/terrain/HeightMap.cpp
                 src/terrain/TerrainMeshBuilder.cpp
