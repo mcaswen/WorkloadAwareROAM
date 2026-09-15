@@ -1,5 +1,6 @@
 #include "benchmark/TransactionalPlatformProtocol.h"
 #include "experiment/greedy_transactional_lod/TransactionalQualityProvenance.h"
+#include "experiment/greedy_transactional_lod/TransactionalFitCounterfactual.h"
 #include "experiment/mesh_quality/PlatformMeshArtifact.h"
 #include "algorithms/greedy_transactional_lod/TransactionalSeedBuilder.h"
 #include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
@@ -33,17 +34,22 @@ int main(int argc,char** argv)
 {
     try
     {
-        if (argc<2) throw std::runtime_error("Usage: quality-provenance-probe OUTPUT [immutable] [--witness U V]");
+        if (argc<2) throw std::runtime_error("Usage: quality-provenance-probe OUTPUT [immutable] [--witness U V] [--fit-audit]");
         int next=2;const bool immutable=argc>next && std::string_view(argv[next])=="immutable";
         if (immutable) ++next;
         std::optional<Point> additionalWitness;
-        if (argc!=next)
+        if (argc>next && std::string_view(argv[next])=="--witness")
         {
             // 参数必须在创建目录和种子之前验证，错误输入不能留下伪运行记录
-            if (argc!=next+3 || std::string_view(argv[next])!="--witness")
-                throw std::runtime_error("Usage: quality-provenance-probe OUTPUT [immutable] [--witness U V]");
+            if (argc<next+3) throw std::runtime_error("Witness requires U and V");
             additionalWitness=Point{Coordinate(argv[next+1]),Coordinate(argv[next+2]),0};
+            next+=3;
         }
+        const bool fitAudit=argc>next && std::string_view(argv[next])=="--fit-audit";
+        if (fitAudit) ++next;
+        if (argc!=next) throw std::runtime_error("Unknown provenance arguments");
+        if (fitAudit && (!immutable || !additionalWitness || additionalWitness->U!=.97985345125198364 ||
+            additionalWitness->V!=.94871795177459717)) throw std::runtime_error("Fit audit requires immutable and the frozen residual witness");
         const std::filesystem::path output(argv[1]);
         if (std::filesystem::exists(output)) throw std::runtime_error("Refusing provenance overwrite");
         std::filesystem::create_directories(output);
@@ -71,6 +77,13 @@ int main(int argc,char** argv)
             WorkLedger work;work.Deadline=std::chrono::steady_clock::now()+std::chrono::seconds(180);
             input.View=View(frame);pipeline.SetView(TransactionalSeedBuilder::ConfigurationFor(input),work);
             const auto batch=TransactionalReservation::Plan(pipeline.State(),pipeline.Samples(),work,execution);
+            // 反事实只借用已冻结批次；真实状态仍应用原来的全部事务
+            if (fitAudit && frame==7)
+            {
+                if (batch.Exchanges.empty()) throw std::runtime_error("Frozen fit transaction missing");
+                Experiment::GreedyTransactionalLod::TransactionalFitCounterfactual::Run(pipeline.State(),pipeline.Samples(),
+                    batch.Exchanges.front().Receiver,future,returned,*additionalWitness,output);
+            }
             // 批次已冻结后再观测，额外诊断不能影响本批成员
             audit.Before(frame,pipeline.State(),pipeline.Samples(),batch);
             pipeline.Apply(batch,work);static_cast<void>(pipeline.ConsumeMesh());

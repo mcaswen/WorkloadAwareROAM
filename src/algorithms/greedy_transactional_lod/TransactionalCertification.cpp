@@ -280,9 +280,10 @@ bool TransactionalCertification::Accepts(const TransactionalState& state,const T
 }
 
 std::string TransactionalCertification::Fit(const TransactionalState& state,const TransactionalSamples& samples,
-    Proposal& proposal,WorkLedger& work)
+    Proposal& proposal,WorkLedger& work,SingleHeightFitInterval* interval)
 {
     ROAM_CPU_ZONE("gtp.fit");
+    if (interval) *interval={};
     work.CheckLimit();++work.Proposals;
     for (const auto& face : proposal.Faces)
         if (!TransactionalPredicates::Shape(proposal.Points.at(face[0]),proposal.Points.at(face[1]),proposal.Points.at(face[2])))
@@ -350,6 +351,8 @@ std::string TransactionalCertification::Fit(const TransactionalState& state,cons
             }
         }
     }
+    // 仅在请求时一次性复制区间，不记录逐样本状态或改变原选值运算
+    if (interval && proposal.Free.size()==1) *interval={true,first,low,high};
     Pair delta{std::min(high,std::max(low,0.0)),0};
     // 一维选最接近零的增量，二维沿用冻结多边形顶点均值
     if (proposal.Free.size()==2)
