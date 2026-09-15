@@ -133,7 +133,10 @@ private:
     [[nodiscard]] static ApplicationLaunchMode FindLaunchMode(std::string_view argument)
     {
         // 独立入口直接分流，是否创建窗口由各自有限入口决定
-        static constexpr std::array<LaunchModeDescriptor, 4> modes{{
+        static constexpr std::array<LaunchModeDescriptor, 7> modes{{
+            {"--experiment-run", ApplicationLaunchMode::ExperimentReplay},
+            {"--experiment-camera", ApplicationLaunchMode::ExperimentCameraTools},
+            {"--experiment-preview", ApplicationLaunchMode::ExperimentAssetPreview},
             {"--transactional-platform-replay", ApplicationLaunchMode::TransactionalPlatformReplay},
             {"--transactional-platform-check", ApplicationLaunchMode::TransactionalPlatformCheck},
             {"--roam-probe", ApplicationLaunchMode::RoamProbe},
@@ -152,7 +155,8 @@ private:
     [[nodiscard]] static const OptionDescriptor* FindDescriptor(std::string_view argument)
     {
         // 别名单独登记但共享处理函数，新增名称不需要扩展条件分支
-        static constexpr std::array<OptionDescriptor, 34> descriptors{{
+        static constexpr std::array<OptionDescriptor, 35> descriptors{{
+            {"--experiment-asset", true, &CommandLineParser::HandleExperimentAsset},
             {"--algorithm", true, &CommandLineParser::HandleAlgorithm},
             {"--runtime-benchmark-algorithms", true, &CommandLineParser::HandleAlgorithmSequence},
             {"--transactional-workers", true, &CommandLineParser::HandleTransactionalLimit},
@@ -395,6 +399,12 @@ private:
         _result.Options.RuntimeBenchmark.HasParallelTopologyPhase = true;
         MarkRuntimeBenchmarkOverride();
         return true;
+    }
+
+    bool HandleExperimentAsset(std::string_view, std::string_view value)
+    {
+        _result.Options.ExperimentAssetId = std::string(value);
+        return !value.empty();
     }
 
     bool HandleHeightMap(std::string_view option, std::string_view value)

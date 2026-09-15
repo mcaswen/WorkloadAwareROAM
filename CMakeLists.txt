@@ -197,6 +197,13 @@ if(PARALLEL_ROAM_BUILD_APP)
             src/benchmark/formal/FormalTimingCalibration.cpp
             src/benchmark/formal/FormalExperimentRunner.cpp)
     endif()
+    if(PARALLEL_ROAM_FULL_APP_AVAILABLE AND TARGET parallel_roam_experiment_infrastructure)
+        list(APPEND PARALLEL_ROAM_APP_SOURCES src/app/ExperimentSessionController.cpp src/app/ExperimentCameraSession.cpp src/gui/ExperimentPanel.cpp
+            src/benchmark/experiment/ExperimentPlatformReplay.cpp src/benchmark/experiment/ExperimentVisualArtifacts.cpp
+            src/benchmark/experiment/ExperimentCameraTools.cpp src/benchmark/experiment/ExperimentLegacyCameraExport.cpp
+            src/benchmark/experiment/ExperimentCameraVisualReplay.cpp
+            src/benchmark/experiment/ExperimentReplay.cpp src/benchmark/experiment/ExperimentPlatformRun.cpp)
+    endif()
     add_executable(parallel_roam src/main.cpp ${PARALLEL_ROAM_APP_SOURCES})
     add_executable(ParallelROAM::app ALIAS parallel_roam)
 
@@ -222,6 +229,9 @@ if(PARALLEL_ROAM_BUILD_APP)
     )
 
     parallel_roam_link_optional_dependencies(parallel_roam)
+    if(PARALLEL_ROAM_FULL_APP_AVAILABLE AND TARGET parallel_roam_experiment_infrastructure)
+        target_link_libraries(parallel_roam PRIVATE parallel_roam_experiment_infrastructure)
+    endif()
 
     if(PARALLEL_ROAM_FULL_APP_AVAILABLE)
         target_compile_definitions(parallel_roam PRIVATE PARALLEL_ROAM_BUILD_FULL_APP=1)

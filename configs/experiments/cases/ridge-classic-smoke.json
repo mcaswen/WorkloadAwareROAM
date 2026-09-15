@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "ridge-classic-smoke",
+  "terrain": "generated-ridge",
+  "algorithm": "classic",
+  "heightPolicy": "fit",
+  "camera": "overview-orbit",
+  "material": "neutral",
+  "mode": "timing",
+  "prefix": "scaled",
+  "budget": 20000,
+  "workers": 8,
+  "maxDepth": 20,
+  "viewWidth": 1280,
+  "viewHeight": 720,
+  "splitPixels": 4,
+  "mergePixels": 2,
+  "backend": "opengl",
+  "warmup": 1,
+  "captureStride": 8,
+  "maxFrames": 4
+}

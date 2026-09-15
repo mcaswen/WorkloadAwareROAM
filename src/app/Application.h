@@ -1,6 +1,10 @@
 #pragma once
 
 #include "app/CameraController.h"
+#if defined(PARALLEL_ROAM_EXPERIMENT_INFRASTRUCTURE)
+#include "app/ExperimentSessionController.h"
+#include "gui/ExperimentPanel.h"
+#endif
 #include "app/InputState.h"
 #include "app/RuntimeBenchmark.h"
 #include "app/RuntimeBenchmarkConfig.h"
@@ -32,6 +36,7 @@ public:
 
     void EnableAutomaticRuntimeBenchmark();
     void ConfigureRuntimeBenchmark(const RuntimeBenchmarkOverrides& overrides);
+    void ConfigureExperimentAsset(const std::string& id) { _experimentAssetId = id; }
     bool Initialize();
 
     /// <summary>
@@ -168,6 +173,12 @@ private:
     [[nodiscard]] float RuntimeBenchmarkProgress() const;
 
     // 子系统按生命周期依赖顺序声明，析构和 Shutdown 更容易保持一致
+    std::string _experimentAssetId;
+#if defined(PARALLEL_ROAM_EXPERIMENT_INFRASTRUCTURE)
+    void ApplyExperimentSelection();
+    ExperimentSessionController _experimentSession;
+    Gui::ExperimentPanel _experimentPanel;
+#endif
     Platform::Window _window;
     std::unique_ptr<Render::IGraphicsBackend> _graphicsBackend;
     InputState _input;

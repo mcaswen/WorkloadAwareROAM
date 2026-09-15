@@ -252,6 +252,23 @@ bool Application::Initialize()
         return false;
     }
 
+#if defined(PARALLEL_ROAM_EXPERIMENT_INFRASTRUCTURE)
+    _experimentSession.Initialize(_experimentAssetId);
+    if (!_experimentAssetId.empty() && !_experimentSession.Error().empty())
+    {
+        std::cerr << _experimentSession.Error() << '\n';
+        Shutdown();
+        return false;
+    }
+    ApplyExperimentSelection();
+    if (!_experimentAssetId.empty() && !_experimentSession.Error().empty())
+    {
+        std::cerr << _experimentSession.Error() << '\n';
+        Shutdown();
+        return false;
+    }
+#endif
+
     // 初始化完成后重置时钟，避免资源加载耗时进入首帧 delta
     _frameTimer.Restart();
     _initialized = true;
@@ -299,7 +316,10 @@ int Application::Run(int maxFrameCount)
         }
         else
         {
-            _camera.Update(_input, frameTiming.ClampedDeltaSeconds);
+#if defined(PARALLEL_ROAM_EXPERIMENT_INFRASTRUCTURE)
+            if (!_experimentSession.Camera().Active())
+#endif
+                _camera.Update(_input, frameTiming.ClampedDeltaSeconds);
         }
 
         // RenderFrame 记录场景和 GUI，Present 统一关闭并提交后端帧
@@ -392,6 +412,18 @@ void Application::RenderFrame(const FrameTiming& frameTiming)
         _frameTimeMilliseconds = frameTiming.RawDeltaSeconds * 1000.0F;
     }
 
+#if defined(PARALLEL_ROAM_EXPERIMENT_INFRASTRUCTURE)
+    if (!_runtimeBenchmark.Active)
+    {
+        ApplyExperimentSelection();
+        if (const auto material = _experimentSession.TakeMaterial())
+        {
+            std::string error;
+            if (!_terrainRenderer.ApplyMaterial(material->Path, material->Tiling, material->HeightTint, &error))
+                _experimentSession.SetError(error);
+        }
+    }
+#endif
     _graphicsBackend->BeginFrame();
 
     _graphicsBackend->BeginImGuiFrame(_guiLayer);
@@ -412,8 +444,35 @@ void Application::RenderFrame(const FrameTiming& frameTiming)
         _terrainRenderer.RequestMeshRebuild();
     }
 
+    bool updateOpportunity = true;
+#if defined(PARALLEL_ROAM_EXPERIMENT_INFRASTRUCTURE)
+    if (!_runtimeBenchmark.Active)
+    {
+        auto& replay = _experimentSession.Camera();
+        if (replay.TakeReset()) _terrainRenderer.ResetTerrainLodAlgorithm();
+        if (const auto frozen = replay.Current())
+        {
+            if (frozen->Width != drawableWidth || frozen->Height != drawableHeight)
+            {
+                replay.Stop();
+                _experimentSession.SetError("实际视口与冻结路线不一致，请恢复窗口尺寸后重放");
+            }
+            else
+            {
+            renderContext.CameraPosition = frozen->Position;
+            renderContext.CameraForward = frozen->Forward;
+            renderContext.View = frozen->View;
+            renderContext.Projection = renderContext.UsesZeroToOneDepth ? frozen->ProjectionZo : frozen->ProjectionNo;
+            renderContext.DrawableWidth = frozen->Width;
+            renderContext.DrawableHeight = frozen->Height;
+            updateOpportunity = replay.ShouldUpdate();
+            if (updateOpportunity) _terrainRenderer.RequestMeshRebuild();
+            }
+        }
+    }
+#endif
     std::string meshUpdateError;
-    if (!_terrainRenderer.UpdateForView(renderContext, &meshUpdateError))
+    if (updateOpportunity && !_terrainRenderer.UpdateForView(renderContext, &meshUpdateError))
     {
         if (_runtimeBenchmark.Active && !_runtimeBenchmark.Failed)
         {
@@ -539,6 +598,32 @@ void Application::RenderFrame(const FrameTiming& frameTiming)
     debugData.Transactional = terrainStats.RoamLodStats.Transactional;
     RecordRuntimeBenchmarkSample(frameTiming, terrainStats, cameraPosition);
 
+#if defined(PARALLEL_ROAM_EXPERIMENT_INFRASTRUCTURE)
+    if (!_runtimeBenchmark.Active)
+    {
+        if (updateOpportunity) _experimentSession.Camera().CompleteOpportunity();
+        const auto command = _experimentPanel.Draw(_experimentSession.Assets(), _experimentSession.Materials(),
+            _terrainRenderer.HeightMapPath(), _experimentSession.Error(),
+            _experimentSession.Camera().KeyCount(), _experimentSession.Camera().Cursor(), _experimentSession.Camera().FrameCount());
+        auto& sessionCamera = _experimentSession.Camera();
+        try
+        {
+            if (command.Record) sessionCamera.Capture(renderContext.CameraPosition, renderContext.CameraForward, command.Hold);
+            if (command.Remove) sessionCamera.RemoveLast();
+            if (command.Export) _experimentSession.SetError("录制已保存: " +
+                sessionCamera.Export(_terrainRenderer.HeightMapPath(), _terrainSettings.TerrainSize, _terrainSettings.HeightScale).string());
+            if (command.Load) sessionCamera.Load(command.CameraPath);
+            if (command.Play) sessionCamera.Play();
+            if (command.Pause) sessionCamera.Pause();
+            if (command.Step) sessionCamera.Step();
+            if (command.Restart) sessionCamera.Restart();
+            if (command.Stop) sessionCamera.Stop();
+        }
+        catch (const std::exception& error) { _experimentSession.SetError(error.what()); }
+        _experimentSession.Request(command.Terrain);
+        _experimentSession.RequestMaterial(command.Material);
+    }
+#endif
     const bool previousVSyncEnabled = _terrainPanelState.VSyncEnabled;
     const int previousHeightMapIndex = _terrainPanelState.HeightMapIndex;
     if (_guiLayer.DrawDebugOverlay(debugData, _terrainPanelState))
@@ -1214,3 +1299,25 @@ float Application::RuntimeBenchmarkProgress() const
     return (completedAlgorithms + localProgress) / algorithmCount;
 }
 } // 命名空间 ParallelRoam::App
+
+#if defined(PARALLEL_ROAM_EXPERIMENT_INFRASTRUCTURE)
+void ParallelRoam::App::Application::ApplyExperimentSelection()
+{
+    const auto asset = _experimentSession.TakeSelection();
+    if (!asset) return;
+    _experimentSession.Camera().Stop();
+    std::string error;
+    if (!_terrainRenderer.LoadHeightMap(asset->Path, &error))
+    {
+        _experimentSession.SetError(error);
+        return;
+    }
+    _terrainPanelState.TerrainSize = asset->TerrainSize;
+    _terrainPanelState.HeightScale = asset->HeightScale;
+    _terrainPanelState.RoamMaxDepth = asset->Resolution <= 129 ? 14 : 20;
+    ApplyTerrainPanelSettings();
+    _camera.SetPose({0.0F, asset->TerrainSize * 0.5F + asset->HeightScale, asset->TerrainSize * 0.9F},
+        -90.0F, -30.0F);
+    _experimentSession.SetError({});
+}
+#endif

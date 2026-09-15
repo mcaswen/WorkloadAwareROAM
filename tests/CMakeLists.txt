@@ -609,3 +609,24 @@ if(TARGET parallel_roam_experiment_infrastructure AND TARGET ParallelROAM::STB)
         parallel_roam_experiment_infrastructure ParallelROAM::STB)
     add_test(NAME experiment_camera COMMAND parallel_roam_experiment_camera_tests)
 endif()
+
+
+if(TARGET parallel_roam_experiment_infrastructure AND TARGET parallel_roam_transactional_adapter_test_support)
+    add_executable(parallel_roam_experiment_cpu
+        ../src/benchmark/experiment/ExperimentCpuMain.cpp
+        ../src/benchmark/experiment/ExperimentReplay.cpp
+        ../src/benchmark/experiment/ExperimentCpuReplay.cpp
+        ../src/tools/profiling/ProfileSession.cpp
+        ../src/algorithms/TerrainLodAlgorithmRegistry.cpp
+        ../src/algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.cpp
+        ../src/algorithms/classic_roam/ClassicRoamMeshBuilder.cpp
+        ../src/algorithms/classic_roam/ClassicRoamMeshEmit.cpp
+        ../src/algorithms/classic_roam/ClassicRoamQueues.cpp
+        ../src/algorithms/classic_roam/ClassicRoamScoring.cpp
+        ../src/algorithms/classic_roam/ClassicRoamState.cpp
+        ../src/algorithms/classic_roam/ClassicRoamTopology.cpp
+        ../src/algorithms/classic_roam/ClassicRoamValidation.cpp)
+    target_link_libraries(parallel_roam_experiment_cpu PRIVATE parallel_roam_experiment_infrastructure
+        parallel_roam_transactional_lod_adapter parallel_roam_transactional_adapter_test_support
+        parallel_roam_cpu_execution parallel_roam_project_warnings)
+endif()

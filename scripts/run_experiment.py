@@ -14,8 +14,18 @@ def main():
     resolve = sub.add_parser("resolve", help="解析case并核对资产")
     resolve.add_argument("--case", type=Path, required=True)
     resolve.add_argument("--output", type=Path, required=True)
+    replay = sub.add_parser("run", help="冻结输入并运行独立平台/CPU进程")
+    replay.add_argument("--case",type=Path,required=True)
+    replay.add_argument("--output",type=Path,required=True)
+    replay.add_argument("--executable",type=Path,required=True)
+    replay.add_argument("--mode",choices=["timing","visual","quality"])
+    replay.add_argument("--backend",choices=["opengl","d3d12"])
+    replay.add_argument("--cpu",action="store_true")
     args = parser.parse_args()
-    if args.command == "catalog":
+    if args.command == "run":
+        from experiment_infrastructure.runner import run
+        print(run(args.case,args.output,args.executable,args.mode,args.backend,args.cpu))
+    elif args.command == "catalog":
         from experiment_infrastructure.asset_preview import build_preview
         if args.output.exists():
             raise ValueError("产物目录已存在，拒绝覆盖")

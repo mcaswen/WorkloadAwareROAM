@@ -16,6 +16,9 @@ enum class ApplicationLaunchMode
     TerrainLodBenchmark,
     TransactionalPlatformCheck,
     TransactionalPlatformReplay,
+    ExperimentAssetPreview,
+    ExperimentCameraTools,
+    ExperimentReplay,
 };
 
 /// <summary>
@@ -27,6 +30,7 @@ struct ApplicationCommandLineOptions
     ApplicationLaunchMode LaunchMode{ApplicationLaunchMode::Application};
 
     // 负数表示持续运行，冒烟测试使用固定帧数自动退出
+    std::string ExperimentAssetId;
     int MaxFrameCount{-1};
     bool FixedFrameSmokeTest{false};
 
