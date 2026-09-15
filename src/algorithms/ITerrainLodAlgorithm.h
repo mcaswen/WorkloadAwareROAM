@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algorithms/TerrainLodPassTrace.h"
+#include "algorithms/TerrainLodCbtTypes.h"
 #include "algorithms/TransactionalLodSettings.h"
 #include "algorithms/TransactionalLodStats.h"
 #include "terrain/HeightMap.h"
@@ -76,6 +77,7 @@ struct TerrainLodSettings
     // 只在拓扑配对回归中复制冻结状态，普通实验不得开启
     bool EnableTopologyPairEvidence{false};
     TransactionalLodSettings Transactional{};
+    TerrainLodCbtSettings Cbt{};
 };
 
 /// <summary>
@@ -289,6 +291,7 @@ struct TerrainLodRenderPacket
 /// </summary>
 struct TerrainLodStats
 {
+    TerrainLodCbtStats Cbt{};
     // 有值时使用事务阶段模型，旧五阶段字段不承担该算法的阶段解释
     std::optional<TransactionalLodStats> Transactional;
     // 阶段记录只描述当前真实实现，不会改变算法选择和执行顺序

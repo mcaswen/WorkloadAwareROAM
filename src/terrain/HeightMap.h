@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <cstdint>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -29,6 +30,11 @@ public:
     [[nodiscard]] int Height() const;
     [[nodiscard]] bool IsValid() const;
     [[nodiscard]] const std::filesystem::path& SourcePath() const;
+
+    /// <summary>
+    /// 借用归一化高度数组，供批量上传；视图有效至下次成功加载或销毁
+    /// </summary>
+    [[nodiscard]] std::span<const float> Values() const;
 
     /// <summary>
     /// 原始整数与归一化采样来自同一次成功加载；引用有效至下次加载或销毁

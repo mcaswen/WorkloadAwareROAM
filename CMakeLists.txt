@@ -14,6 +14,7 @@ include(CompilerWarnings)
 include(Sanitizers)
 include(Dependencies)
 include(PinnedD3D12Runtime)
+include(Cbt2024)
 include(Profiling)
 
 parallel_roam_apply_global_options()
@@ -244,6 +245,7 @@ if(PARALLEL_ROAM_BUILD_APP)
         parallel_roam_configure_pinned_d3d12_runtime(parallel_roam PARALLEL_ROAM_DXC_EXECUTABLE)
 
         set(PARALLEL_ROAM_DX12_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/shaders")
+        parallel_roam_prepare_cbt_shaders(parallel_roam)
         set(PARALLEL_ROAM_DX12_VERTEX_SHADER "${PARALLEL_ROAM_DX12_SHADER_DIR}/TerrainVS.cso")
         set(PARALLEL_ROAM_DX12_PIXEL_SHADER "${PARALLEL_ROAM_DX12_SHADER_DIR}/TerrainPS.cso")
         target_compile_definitions(
@@ -315,6 +317,7 @@ if(PARALLEL_ROAM_BUILD_TESTS)
     parallel_roam_ensure_glm()
     parallel_roam_ensure_stb()
     enable_testing()
+    parallel_roam_add_cbt_tests()
 
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/CMakeLists.txt")
         add_subdirectory(tests)
