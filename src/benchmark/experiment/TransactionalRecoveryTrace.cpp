@@ -163,9 +163,10 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
     try
     {
         const bool boundaryAudit = argc == 6 && std::string_view(argv[5]) == "--boundary-audit";
-        if (argc != 5 && !boundaryAudit)
+        const bool priorityAudit = argc == 6 && std::string_view(argv[5]) == "--priority-audit";
+        if (argc != 5 && !boundaryAudit && !priorityAudit)
         {
-            throw std::runtime_error("用法: --recovery-trace RESOLVED WITNESSES OUTPUT [--boundary-audit]");
+            throw std::runtime_error("用法: --recovery-trace RESOLVED WITNESSES OUTPUT [--boundary-audit|--priority-audit]");
         }
         const auto input = LoadReplayInput(argv[2]);
         const auto& settings = input.Settings;
@@ -225,12 +226,34 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         budget.exceptions(std::ios::badbit | std::ios::failbit);
         budget << "frame,attempts,certified,resolutionRejected,conflicts,freeExecuted,pairedExecuted,"
             "assignedFaces,consumedFreeFaces,unusedFaces,releasedFaces,netFaceChange,boundaryVertices\n";
+        std::ofstream priorityTimes;
+        if (priorityAudit)
+        {
+            priorityTimes.open(output / "priority-audit.csv");
+            priorityTimes.exceptions(std::ios::badbit | std::ios::failbit);
+            priorityTimes << std::setprecision(17) << "frame,seconds\n";
+        }
         for (std::size_t frame = 0; frame < input.Cameras.size(); ++frame)
         {
             WorkLedger work;
             work.Deadline = std::chrono::steady_clock::now() + std::chrono::seconds(180);
             task.View = View(input, frame);
             pipeline.SetView(TransactionalSeedBuilder::ConfigurationFor(task), work);
+            if (priorityAudit)
+            {
+                for (const auto& group : groups)
+                {
+                    if (frame == group.SourceFrame)
+                    {
+                        // 诊断快照取当前视图发布后、批次决策前，费用独立于生产账本
+                        const auto started = std::chrono::steady_clock::now();
+                        Audit::WritePrioritySnapshot(output / ("priority-" + std::to_string(frame) + ".csv"),
+                            pipeline.State(), pipeline.Samples());
+                        priorityTimes << frame << ',' <<
+                            std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count() << '\n';
+                    }
+                }
+            }
             // 私有边界提案只读取机会开始状态，不改变原批次及边界保持断言
             if (boundaryAudit)
             {

@@ -27,6 +27,11 @@ public:
     /// 在首次更新之前记录真实种子，不将 frame 0 的批后状态冒充初始状态
     /// </summary>
     void Seed(const State& state, const Samples& samples);
+    /// <summary>
+    /// 在指定批前快照导出全部活动面的误差与密度分量，供离线排序反事实使用
+    /// 只读已有闭面贡献和前缀，不改变生产账本或候选集合
+    /// </summary>
+    static void WritePrioritySnapshot(const std::filesystem::path& path, const State& state, const Samples& samples);
     void Before(std::size_t frame,const State& state,const Samples& samples,const Batch& batch);
     void After(std::size_t frame,const State& state,const Samples& samples);
 private:

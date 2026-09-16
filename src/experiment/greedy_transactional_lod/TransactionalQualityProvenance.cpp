@@ -4,7 +4,9 @@
 #include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 #include "algorithms/greedy_transactional_lod/TransactionalProposalEvidence.h"
+#include <cmath>
 #include <iomanip>
+#include <limits>
 #include <optional>
 #include <set>
 
@@ -352,6 +354,62 @@ TransactionalQualityProvenance::TransactionalQualityProvenance(const std::filesy
 void TransactionalQualityProvenance::Seed(const State& state, const Samples& samples)
 {
     Observe(0, "seed", state, samples, nullptr);
+}
+
+void TransactionalQualityProvenance::WritePrioritySnapshot(const std::filesystem::path& path,
+    const State& state, const Samples& samples)
+{
+    std::ofstream output(path);
+    output.exceptions(std::ios::badbit | std::ios::failbit);
+    output << std::setprecision(17)
+        << "root,slot,errorSquared,densitySquared,prioritySquared,visibleSamples,contributions,"
+        "inPrefix,thresholdPx,prefixLimit,rawCount,faces\n";
+    const auto prefix = samples.Prefix(state.Config().PrefixLimit);
+    const std::set<Slot> selected(prefix.begin(), prefix.end());
+    const auto& config = state.Config();
+    for (const auto slot : state.ActiveFaces())
+    {
+        double maximum = 0;
+        std::size_t visible = 0;
+        // 每个面的既有闭面贡献只遍历一次，避免每根重新定位全域样本
+        for (const auto sample : samples.FaceSamples(slot))
+        {
+            const auto& projection = samples.Projection(sample);
+            if (projection.Visible)
+            {
+                maximum = std::max(maximum, projection.ErrorSquared);
+                ++visible;
+            }
+        }
+        std::array<std::array<double, 4>, 3> clips;
+        bool projectable = true;
+        const auto& vertices = state.Face(slot).Vertices;
+        for (std::size_t corner = 0; corner < vertices.size(); ++corner)
+        {
+            const auto& point = state.Vertex(vertices[corner]).Geometry;
+            clips[corner] = Samples::Clip(config, point.U, point.V, point.Height);
+            projectable = projectable && clips[corner][3] > 0;
+        }
+        double density = std::numeric_limits<double>::infinity();
+        if (projectable)
+        {
+            double longest = 0;
+            // 独立重算公开评分公式的密度项，与持久 priority 做离线对账
+            for (std::size_t corner = 0; corner < clips.size(); ++corner)
+            {
+                const auto& a = clips[corner];
+                const auto& b = clips[(corner + 1) % clips.size()];
+                const double dx = a[0] / a[3] * (config.Width * .5) - b[0] / b[3] * (config.Width * .5);
+                const double dy = a[1] / a[3] * (config.Height * .5) - b[1] / b[3] * (config.Height * .5);
+                longest = std::max(longest, dx * dx + dy * dy);
+            }
+            density = .04 * longest;
+        }
+        output << state.Face(slot).Id << ',' << slot << ',' << maximum << ',' << density << ','
+            << samples.PrioritySquared(slot) << ',' << visible << ',' << samples.FaceSamples(slot).size() << ','
+            << selected.contains(slot) << ',' << config.SplitPixels << ',' << config.PrefixLimit << ','
+            << samples.RawCount() << ',' << state.FaceCount() << '\n';
+    }
 }
 
 void TransactionalQualityProvenance::Observe(std::size_t frame,const char* phase,const State& state,

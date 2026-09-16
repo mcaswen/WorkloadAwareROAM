@@ -1,0 +1,106 @@
+{
+  "smallCoordinateFixtures": [
+    2,
+    3
+  ],
+  "mismatchedIndexRejected": true,
+  "pythonSyntax": true,
+  "productionFilesUnchanged": 154,
+  "buildCacheRestored": true,
+  "baseline": "60bd106",
+  "binaryBefore": {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04c/run-01/experiment-cpu-before.exe",
+    "bytes": 1469440,
+    "sha256": "9ccecab0808fcbb93fcf2a371217595c5083b03e6840574e195032078f8c3041"
+  },
+  "binaryAfter": {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+    "bytes": 1475584,
+    "sha256": "fe50e6b74ed699fb9699f7c347d2272e954a17970b0fe003581ceed382a02ef2"
+  },
+  "commands": {
+    "dem-sierra-b50000-transactional-t8": {
+      "returncode": 0,
+      "elapsedSeconds": 4.779566099999999,
+      "peakRssBytes": 130949120,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--recovery-trace",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-dem-sierra-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-01\\run-01\\selection\\dem-sierra-b50000-transactional-t8.txt",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04c\\run-01\\dem-sierra-b50000-transactional-t8",
+        "--priority-audit"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1475584,
+        "sha256": "fe50e6b74ed699fb9699f7c347d2272e954a17970b0fe003581ceed382a02ef2"
+      }
+    },
+    "normal-after": {
+      "returncode": 0,
+      "elapsedSeconds": 2.7977729,
+      "peakRssBytes": 169869312,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--experiment-run",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04c\\run-01\\normal-after"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1475584,
+        "sha256": "fe50e6b74ed699fb9699f7c347d2272e954a17970b0fe003581ceed382a02ef2"
+      }
+    },
+    "normal-before": {
+      "returncode": 0,
+      "elapsedSeconds": 2.6603073999999998,
+      "peakRssBytes": 171012096,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04c\\run-01\\experiment-cpu-before.exe",
+        "--experiment-run",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04c\\run-01\\normal-before"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04c/run-01/experiment-cpu-before.exe",
+        "bytes": 1469440,
+        "sha256": "9ccecab0808fcbb93fcf2a371217595c5083b03e6840574e195032078f8c3041"
+      }
+    },
+    "peking547-b50000-transactional-t8": {
+      "returncode": 0,
+      "elapsedSeconds": 4.9037549,
+      "peakRssBytes": 187551744,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--recovery-trace",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-01\\run-01\\selection\\peking547-b50000-transactional-t8.txt",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04c\\run-01\\peking547-b50000-transactional-t8",
+        "--priority-audit"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1475584,
+        "sha256": "fe50e6b74ed699fb9699f7c347d2272e954a17970b0fe003581ceed382a02ef2"
+      }
+    }
+  },
+  "commentCoverage": {
+    "src": {
+      "comments": 5123,
+      "codeLines": 33723,
+      "minimumPercent": 15,
+      "passed": true
+    },
+    "requiredModuleChecksPassed": true
+  },
+  "scope": "仅QPC-04C诊断；生产策略未修改，未运行替代排序策略",
+  "documentationFileLinksValid": true
+}

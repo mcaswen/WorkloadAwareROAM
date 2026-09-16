@@ -1,0 +1,734 @@
+{
+  "scope": "QPC-04C 规划前只读核对；无新运行、无生产政策修改、非阶段验收",
+  "baselineCommit": "60bd106",
+  "method": "既有 errors.f64 小端 float64；核对原 quality-index SHA、样本/相机/投影身份；有限且非负为可见样本；严格 > 阈值计数",
+  "rows": [
+    {
+      "case": "peking547-b50000",
+      "frame": 15,
+      "variant": "off",
+      "triggerPx": 0.25,
+      "faces": 49999.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 1.9965571109865088,
+      "rmsTerrainSamplePx": 0.11532652990377588,
+      "abovePx": {
+        "0.1": 128792,
+        "0.25": 39496,
+        "0.5": 16699,
+        "1": 5332,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 1.7465571109865088,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b50000-transactional-t8/frame-15/errors.f64",
+      "errorsSha256": "ef10e089678d3fb1f1b00cd3f7e4a32696fec24d0718a3e3e046c9fe6f2d38f7",
+      "heightMax": 0.1675816474447367,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "10475014748678183350",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "peking547-b50000",
+      "frame": 15,
+      "variant": "on",
+      "triggerPx": 0.25,
+      "faces": 49999.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 1.9965571109865088,
+      "rmsTerrainSamplePx": 0.11210595739165888,
+      "abovePx": {
+        "0.1": 128756,
+        "0.25": 39020,
+        "0.5": 15454,
+        "1": 4983,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 1.7465571109865088,
+      "errors": "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-peking547-b50000-transactional-t8/frame-15/errors.f64",
+      "errorsSha256": "54edcf23c1ae40db7ac62b3235d545d03903402e0143fdb58e6347ba06f1007e",
+      "heightMax": 0.1675816474447367,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "1295375873371744311",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "peking547-b50000",
+      "frame": 15,
+      "variant": "dod",
+      "triggerPx": 0.25,
+      "faces": 50000.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 0.418727498700991,
+      "rmsTerrainSamplePx": 0.034051662565352046,
+      "abovePx": {
+        "0.1": 37433,
+        "0.25": 675,
+        "0.5": 0,
+        "1": 0,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0.16872749870099102,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b50000-dod-t8/frame-15/errors.f64",
+      "errorsSha256": "b0e365055c69a2f20f396f6d9ca9fa2e278130e279e9ed7f8f7f80f9999998a3",
+      "heightMax": 0.281968581366959,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "18334981271927936407",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "peking547-b200000",
+      "frame": 15,
+      "variant": "off",
+      "triggerPx": 0.25,
+      "faces": 200000.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 1.9965571109865088,
+      "rmsTerrainSamplePx": 0.09959895406105988,
+      "abovePx": {
+        "0.1": 44919,
+        "0.25": 22880,
+        "0.5": 13545,
+        "1": 4985,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 1.7465571109865088,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b200000-transactional-t8/frame-15/errors.f64",
+      "errorsSha256": "9b2030dddc37f815d44a85a940a894f83b44bc5dd130a0af7e8b679d02af296a",
+      "heightMax": 0.1675816474447367,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "13058053244743975573",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "peking547-b200000",
+      "frame": 15,
+      "variant": "on",
+      "triggerPx": 0.25,
+      "faces": 199999.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 1.8727696946551888,
+      "rmsTerrainSamplePx": 0.088220775046445,
+      "abovePx": {
+        "0.1": 45000,
+        "0.25": 22568,
+        "0.5": 12271,
+        "1": 3529,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 1.6227696946551888,
+      "errors": "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-peking547-b200000-transactional-t8/frame-15/errors.f64",
+      "errorsSha256": "2b41561b94fe7d3834f40bcebc8e49152a47214944c19b34b85865d159f5cd13",
+      "heightMax": 0.1529257389583658,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "13258218171301545841",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "peking547-b200000",
+      "frame": 15,
+      "variant": "dod",
+      "triggerPx": 0.25,
+      "faces": 199999.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 0.19377242496389396,
+      "rmsTerrainSamplePx": 0.01045321482950649,
+      "abovePx": {
+        "0.1": 326,
+        "0.25": 0,
+        "0.5": 0,
+        "1": 0,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b200000-dod-t8/frame-15/errors.f64",
+      "errorsSha256": "75367f3fe2d71f4e7d7f7d55a64a0dd821b35ce29cfd46139f59a2b13cc3bce3",
+      "heightMax": 0.281968581366959,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "6873051146041761150",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 48,
+      "variant": "off",
+      "triggerPx": 4,
+      "faces": 50000.0,
+      "q": 1574913,
+      "visible": 1114577,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "17793952616048786981",
+      "projectionHash": "14690849699447648148",
+      "EmaxPx": 9.274476736648769,
+      "rmsTerrainSamplePx": 0.47920022881298174,
+      "abovePx": {
+        "0.1": 737846,
+        "0.25": 420983,
+        "0.5": 161110,
+        "1": 23728,
+        "2": 7446,
+        "4": 2555
+      },
+      "maximumAboveTriggerPx": 5.274476736648769,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-transactional-t8/frame-48/errors.f64",
+      "errorsSha256": "3bf330f575ce89fcbca41c2bad07f1cfdf3cf6d88f0f870e212a7c24006cf921",
+      "heightMax": 1.165875234581235,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "11488816544551648613",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 48,
+      "variant": "on",
+      "triggerPx": 4,
+      "faces": 49998.0,
+      "q": 1574913,
+      "visible": 1114577,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "17793952616048786981",
+      "projectionHash": "14690849699447648148",
+      "EmaxPx": 7.626983864313568,
+      "rmsTerrainSamplePx": 0.44627527786602106,
+      "abovePx": {
+        "0.1": 737903,
+        "0.25": 420952,
+        "0.5": 160959,
+        "1": 23386,
+        "2": 6894,
+        "4": 1660
+      },
+      "maximumAboveTriggerPx": 3.6269838643135683,
+      "errors": "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-dem-canyon-b50000-transactional-t8/frame-48/errors.f64",
+      "errorsSha256": "d4db22ff16436fbbe52a1d7bcc8d4315cdb24cd5db3a1d0e8864cb9d042af753",
+      "heightMax": 1.165875234581235,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "79905008212085641",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 48,
+      "variant": "dod",
+      "triggerPx": 4,
+      "faces": 49999.0,
+      "q": 1574913,
+      "visible": 1114577,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "17793952616048786981",
+      "projectionHash": "14690849699447648148",
+      "EmaxPx": 1.839557369258571,
+      "rmsTerrainSamplePx": 0.24567629773539346,
+      "abovePx": {
+        "0.1": 646144,
+        "0.25": 296082,
+        "0.5": 62347,
+        "1": 1616,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-dod-t8/frame-48/errors.f64",
+      "errorsSha256": "4d2b16072ffce7fcd84b5f84e95179bcf5fe3777d42b0cd1e5d68af15c5c2e82",
+      "heightMax": 6.259914564360576,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "2957331639505755403",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 95,
+      "variant": "off",
+      "triggerPx": 4,
+      "faces": 50000.0,
+      "q": 1574913,
+      "visible": 1456877,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "3326756437934915451",
+      "projectionHash": "3702007046620065566",
+      "EmaxPx": 2.348192641609855,
+      "rmsTerrainSamplePx": 0.29916008308110387,
+      "abovePx": {
+        "0.1": 922570,
+        "0.25": 488716,
+        "0.5": 152438,
+        "1": 6020,
+        "2": 50,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-transactional-t8/frame-95/errors.f64",
+      "errorsSha256": "d8df37eb31fa08e2c0e64c5e3a0d055ab93311d441a3b97196a09457ad5ba7b5",
+      "heightMax": 1.165875234581235,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "14141856504628337756",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 95,
+      "variant": "on",
+      "triggerPx": 4,
+      "faces": 49999.0,
+      "q": 1574913,
+      "visible": 1456877,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "3326756437934915451",
+      "projectionHash": "3702007046620065566",
+      "EmaxPx": 2.348192641609855,
+      "rmsTerrainSamplePx": 0.2991685118868642,
+      "abovePx": {
+        "0.1": 922624,
+        "0.25": 488736,
+        "0.5": 152446,
+        "1": 6021,
+        "2": 50,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-dem-canyon-b50000-transactional-t8/frame-95/errors.f64",
+      "errorsSha256": "050ac9ef321fb822f2dbd9174fa57a7392d2694e079b8d771134e057c9ac7c8c",
+      "heightMax": 1.165875234581235,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "16205891462204131153",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 95,
+      "variant": "dod",
+      "triggerPx": 4,
+      "faces": 50000.0,
+      "q": 1574913,
+      "visible": 1456877,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "3326756437934915451",
+      "projectionHash": "3702007046620065566",
+      "EmaxPx": 2.348192641609855,
+      "rmsTerrainSamplePx": 0.29902875377936244,
+      "abovePx": {
+        "0.1": 921804,
+        "0.25": 488458,
+        "0.5": 152317,
+        "1": 5996,
+        "2": 50,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-dod-t8/frame-95/errors.f64",
+      "errorsSha256": "bc7b52e062229b46cf9c745aa5b9284dac8152d7cfc7d085ccb3d88083ff03c4",
+      "heightMax": 1.165875234581235,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "6910887810557670167",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "dem-sierra-b50000",
+      "frame": 48,
+      "variant": "off",
+      "triggerPx": 4,
+      "faces": 8960.0,
+      "q": 1574913,
+      "visible": 1155480,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "2106862884007421062",
+      "projectionHash": "14289999552568374451",
+      "EmaxPx": 2.015011653542709,
+      "rmsTerrainSamplePx": 0.28828535022446355,
+      "abovePx": {
+        "0.1": 784982,
+        "0.25": 409449,
+        "0.5": 107020,
+        "1": 1164,
+        "2": 5,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-transactional-t8/frame-48/errors.f64",
+      "errorsSha256": "fc0adf7fa5b8a59a189f1f0a588324a5a63709a78ca7eea251877fdc2d37e736",
+      "heightMax": 0.37772312545254305,
+      "sourceSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "meshHash": "17778426753060689521",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "dem-sierra-b50000",
+      "frame": 48,
+      "variant": "dod",
+      "triggerPx": 4,
+      "faces": 12085.0,
+      "q": 1574913,
+      "visible": 1155480,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "2106862884007421062",
+      "projectionHash": "14289999552568374451",
+      "EmaxPx": 1.0416797893895509,
+      "rmsTerrainSamplePx": 0.1883535590076793,
+      "abovePx": {
+        "0.1": 588821,
+        "0.25": 203747,
+        "0.5": 19321,
+        "1": 4,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-dod-t8/frame-48/errors.f64",
+      "errorsSha256": "8c9675f5ca4ca2f63d4ddacecced52da73f049d3be1cad135c0050205a1c73b5",
+      "heightMax": 1.754269891755163,
+      "sourceSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "meshHash": "13095104919855142654",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "dem-sierra-b50000",
+      "frame": 95,
+      "variant": "off",
+      "triggerPx": 4,
+      "faces": 8976.0,
+      "q": 1574913,
+      "visible": 1503180,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "10556526114892932750",
+      "projectionHash": "15310660121906759531",
+      "EmaxPx": 1.133568442602344,
+      "rmsTerrainSamplePx": 0.2549381436625957,
+      "abovePx": {
+        "0.1": 990243,
+        "0.25": 473740,
+        "0.5": 87448,
+        "1": 44,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-transactional-t8/frame-95/errors.f64",
+      "errorsSha256": "a075c08b70d4427e336683f90af5a33ca8323c090155351ff0bf0f2512e4f05b",
+      "heightMax": 0.37772312545254305,
+      "sourceSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "meshHash": "17184082594950031724",
+      "qualityStatus": "sampled_only"
+    },
+    {
+      "case": "dem-sierra-b50000",
+      "frame": 95,
+      "variant": "dod",
+      "triggerPx": 4,
+      "faces": 15919.0,
+      "q": 1574913,
+      "visible": 1503180,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "10556526114892932750",
+      "projectionHash": "15310660121906759531",
+      "EmaxPx": 1.08957745809527,
+      "rmsTerrainSamplePx": 0.17801768763925824,
+      "abovePx": {
+        "0.1": 754890,
+        "0.25": 236929,
+        "0.5": 16147,
+        "1": 6,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-dod-t8/frame-95/errors.f64",
+      "errorsSha256": "0d1fb68a835084dcd72e6959ef3c3c8d38aa2e2bd8d53e0e862cf738202ad685",
+      "heightMax": 0.37772312545254305,
+      "sourceSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "meshHash": "5042857137947386889",
+      "qualityStatus": "sampled_only"
+    }
+  ],
+  "indexHashes": {
+    "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b50000-transactional-t8/quality-index.json": "98bf9249317f7773efab1c3ba8aefc68fc695861e92cd15f12d1dd0fc6eeafe6",
+    "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-peking547-b50000-transactional-t8/quality-index.json": "747eb699498a6837c95a938567705c3966f75f9cf4430207583ed333a9141965",
+    "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b50000-dod-t8/quality-index.json": "7b93e8f86cf11cb9552cc3ff25539d6ebd127ecc5e75e9a0f7897bffbf983236",
+    "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b200000-transactional-t8/quality-index.json": "c89913c33daccc8e3f887c30b89c9114723fdbdc06ef94f7ba9a017cb29eedb4",
+    "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-peking547-b200000-transactional-t8/quality-index.json": "3743f17f5aa36b34c5df07389e6dacfc1afd459fdee81e945a5a80eaea0fe72c",
+    "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b200000-dod-t8/quality-index.json": "cbbb073fa6c5b71d57cdd5265de1413bfd9e6d95b4605145c8914d23f896747a",
+    "benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-transactional-t8/quality-index.json": "10b7296faec56461b6319e020b76525ba1842f4678f31394094ee6779ef712ca",
+    "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-dem-canyon-b50000-transactional-t8/quality-index.json": "a9f839816f71240352b1162085458a2329f9912c0a90b94bcef9d4dff1353f78",
+    "benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-dod-t8/quality-index.json": "0b69db71ec5560e0629be8bb95c68edc3a3d2a72d5aab260e8733ad621c8ec32",
+    "benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-transactional-t8/quality-index.json": "5b6039a11318e578d566b154be899e0628f8f520a40f410a2e10b72099b0a0ca",
+    "benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-dod-t8/quality-index.json": "afaf4ce4e00bcead0bb4f9f010c4edd5b21c09239414931b7c121ac58d49569b"
+  },
+  "elapsedSeconds": 1.3557112670000038,
+  "validation": {
+    "errorFilesShaMatch": true,
+    "qualityFilesShaMatch": true,
+    "samplePoseProjectionMatch": true,
+    "visibleMasksExact": true,
+    "sourceIdentityMatch": true,
+    "qualityValidityCountsZero": true,
+    "savedMaximumRmsMatch": true,
+    "triggerMatchesQpc01Configuration": true,
+    "additionalCheckSeconds": 1.1193880419999997
+  },
+  "rootEvidence": [
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "frame": 15,
+      "witness": 0,
+      "evalErrorPx": 1.9965571109865088,
+      "roots": [
+        {
+          "phase": "before",
+          "root": -112,
+          "rank": 194,
+          "priority": 15.972323772634594,
+          "threshold": 0.25,
+          "sampleMaxPx": 1.9965571240575115,
+          "visibleSamples": 1820
+        }
+      ]
+    },
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "frame": 15,
+      "witness": 1,
+      "evalErrorPx": 1.9808580779439462,
+      "roots": [
+        {
+          "phase": "before",
+          "root": -112,
+          "rank": 194,
+          "priority": 15.972323772634594,
+          "threshold": 0.25,
+          "sampleMaxPx": 1.9965571240575115,
+          "visibleSamples": 1820
+        }
+      ]
+    },
+    {
+      "case": "peking547-b200000-transactional-t8",
+      "frame": 15,
+      "witness": 0,
+      "evalErrorPx": 1.9965571109865088,
+      "roots": [
+        {
+          "phase": "before",
+          "root": -461,
+          "rank": 104,
+          "priority": 15.972323772634594,
+          "threshold": 0.25,
+          "sampleMaxPx": 1.9965571240575115,
+          "visibleSamples": 1820
+        }
+      ]
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 48,
+      "witness": 0,
+      "evalErrorPx": 9.274476736648769,
+      "roots": [
+        {
+          "phase": "before",
+          "root": -319,
+          "rank": 65,
+          "priority": 11.550127752746544,
+          "threshold": 4,
+          "sampleMaxPx": 9.274476736648769,
+          "visibleSamples": 817
+        }
+      ]
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 48,
+      "witness": 1,
+      "evalErrorPx": 8.889741297571057,
+      "roots": [
+        {
+          "phase": "before",
+          "root": -319,
+          "rank": 65,
+          "priority": 11.550127752746544,
+          "threshold": 4,
+          "sampleMaxPx": 9.274476736648769,
+          "visibleSamples": 817
+        }
+      ]
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 48,
+      "witness": 2,
+      "evalErrorPx": 8.972328616363596,
+      "roots": [
+        {
+          "phase": "before",
+          "root": 624,
+          "rank": 223,
+          "priority": 8.972328616363596,
+          "threshold": 4,
+          "sampleMaxPx": 8.972328616363596,
+          "visibleSamples": 425
+        }
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 48,
+      "witness": 0,
+      "evalErrorPx": 2.015011653542709,
+      "roots": [
+        {
+          "phase": "before",
+          "root": -236,
+          "rank": 1849,
+          "priority": 4.936132091927998,
+          "threshold": 4,
+          "sampleMaxPx": 2.0150116667015787,
+          "visibleSamples": 113
+        },
+        {
+          "phase": "before",
+          "root": -234,
+          "rank": 0,
+          "priority": 3.1075383805809236,
+          "threshold": 4,
+          "sampleMaxPx": 2.0150116667015787,
+          "visibleSamples": 117
+        }
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 48,
+      "witness": 1,
+      "evalErrorPx": 0.7807344860424038,
+      "roots": [
+        {
+          "phase": "before",
+          "root": 2160,
+          "rank": 0,
+          "priority": 2.6788358347759678,
+          "threshold": 4,
+          "sampleMaxPx": 0.8105628037612206,
+          "visibleSamples": 425
+        },
+        {
+          "phase": "before",
+          "root": 8007,
+          "rank": 0,
+          "priority": 2.6903013956878663,
+          "threshold": 4,
+          "sampleMaxPx": 0.793753327540715,
+          "visibleSamples": 425
+        }
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 48,
+      "witness": 2,
+      "evalErrorPx": 1.9558669711334542,
+      "roots": [
+        {
+          "phase": "before",
+          "root": -237,
+          "rank": 0,
+          "priority": 3.0135224581840925,
+          "threshold": 4,
+          "sampleMaxPx": 1.9729597301381145,
+          "visibleSamples": 117
+        },
+        {
+          "phase": "before",
+          "root": -234,
+          "rank": 0,
+          "priority": 3.1075383805809236,
+          "threshold": 4,
+          "sampleMaxPx": 2.0150116667015787,
+          "visibleSamples": 117
+        }
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 95,
+      "witness": 0,
+      "evalErrorPx": 1.133568442602344,
+      "roots": [
+        {
+          "phase": "before",
+          "root": 428,
+          "rank": 0,
+          "priority": 1.4892870546994188,
+          "threshold": 4,
+          "sampleMaxPx": 1.133568442602344,
+          "visibleSamples": 65
+        },
+        {
+          "phase": "before",
+          "root": 4812,
+          "rank": 0,
+          "priority": 1.4892870546994188,
+          "threshold": 4,
+          "sampleMaxPx": 1.133568442602344,
+          "visibleSamples": 65
+        }
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 95,
+      "witness": 1,
+      "evalErrorPx": 0.694446852998618,
+      "roots": [
+        {
+          "phase": "before",
+          "root": 2160,
+          "rank": 0,
+          "priority": 2.191395578208667,
+          "threshold": 4,
+          "sampleMaxPx": 0.72173964741823,
+          "visibleSamples": 425
+        },
+        {
+          "phase": "before",
+          "root": 8007,
+          "rank": 0,
+          "priority": 2.1625931804872325,
+          "threshold": 4,
+          "sampleMaxPx": 0.7052861693861805,
+          "visibleSamples": 425
+        }
+      ]
+    }
+  ],
+  "sourceSummaries": {
+    "docs/research/cpu_refinement/data/qpc_01_quality_recovery/summary.json": "f2cd34ec0634c1950f8fee83274c5fec234a8d66dcc50d15fe5a353dd973bdda",
+    "docs/research/cpu_refinement/data/qpc_04b/summary.json": "c17d4964e549b0899d9fa7dd8e58a17ac6a2d073df9ffd15ba7870de699635d3"
+  }
+}

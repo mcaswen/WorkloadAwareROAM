@@ -1,0 +1,2653 @@
+{
+  "scope": "QPC-04C误差目标诊断；未改变生产策略",
+  "quality": [
+    {
+      "case": "peking547-b50000",
+      "frame": 15,
+      "variant": "off",
+      "triggerPx": 0.25,
+      "faces": 49999.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 1.9965571109865088,
+      "rmsTerrainSamplePx": 0.11532652990377588,
+      "abovePx": {
+        "0.1": 128792,
+        "0.25": 39496,
+        "0.5": 16699,
+        "1": 5332,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 1.7465571109865088,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b50000-transactional-t8/frame-15/errors.f64",
+      "errorsSha256": "ef10e089678d3fb1f1b00cd3f7e4a32696fec24d0718a3e3e046c9fe6f2d38f7",
+      "heightMax": 0.1675816474447367,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "10475014748678183350",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.07521232157133438,
+        "0.25": 0.023064987365530646,
+        "0.5": 0.009751929917383944,
+        "1": 0.0031137966536613684,
+        "2": 0.0,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.0,
+      "excessVsOffAbove025": 0
+    },
+    {
+      "case": "peking547-b50000",
+      "frame": 15,
+      "variant": "on",
+      "triggerPx": 0.25,
+      "faces": 49999.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 1.9965571109865088,
+      "rmsTerrainSamplePx": 0.11210595739165888,
+      "abovePx": {
+        "0.1": 128756,
+        "0.25": 39020,
+        "0.5": 15454,
+        "1": 4983,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 1.7465571109865088,
+      "errors": "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-peking547-b50000-transactional-t8/frame-15/errors.f64",
+      "errorsSha256": "54edcf23c1ae40db7ac62b3235d545d03903402e0143fdb58e6347ba06f1007e",
+      "heightMax": 0.1675816474447367,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "1295375873371744311",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.07519129818807635,
+        "0.25": 0.022787011520230042,
+        "0.5": 0.009024871246377117,
+        "1": 0.0029099866326321453,
+        "2": 0.0,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.8765918934586087,
+      "excessVsOffAbove025": 946
+    },
+    {
+      "case": "peking547-b50000",
+      "frame": 15,
+      "variant": "dod",
+      "triggerPx": 0.25,
+      "faces": 50000.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 0.418727498700991,
+      "rmsTerrainSamplePx": 0.034051662565352046,
+      "abovePx": {
+        "0.1": 37433,
+        "0.25": 675,
+        "0.5": 0,
+        "1": 0,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0.16872749870099102,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b50000-dod-t8/frame-15/errors.f64",
+      "errorsSha256": "b0e365055c69a2f20f396f6d9ca9fa2e278130e279e9ed7f8f7f80f9999998a3",
+      "heightMax": 0.281968581366959,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "18334981271927936407",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.021860230708271942,
+        "0.25": 0.0003941884360880389,
+        "0.5": 0.0,
+        "1": 0.0,
+        "2": 0.0,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.34988286130642543,
+      "excessVsOffAbove025": 265
+    },
+    {
+      "case": "peking547-b200000",
+      "frame": 15,
+      "variant": "off",
+      "triggerPx": 0.25,
+      "faces": 200000.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 1.9965571109865088,
+      "rmsTerrainSamplePx": 0.09959895406105988,
+      "abovePx": {
+        "0.1": 44919,
+        "0.25": 22880,
+        "0.5": 13545,
+        "1": 4985,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 1.7465571109865088,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b200000-transactional-t8/frame-15/errors.f64",
+      "errorsSha256": "9b2030dddc37f815d44a85a940a894f83b44bc5dd130a0af7e8b679d02af296a",
+      "heightMax": 0.1675816474447367,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "13058053244743975573",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.026231926460205363,
+        "0.25": 0.013361528026213824,
+        "0.5": 0.007910047950833315,
+        "1": 0.0029111545983687022,
+        "2": 0.0,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.0,
+      "excessVsOffAbove025": 0
+    },
+    {
+      "case": "peking547-b200000",
+      "frame": 15,
+      "variant": "on",
+      "triggerPx": 0.25,
+      "faces": 199999.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 1.8727696946551888,
+      "rmsTerrainSamplePx": 0.088220775046445,
+      "abovePx": {
+        "0.1": 45000,
+        "0.25": 22568,
+        "0.5": 12271,
+        "1": 3529,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 1.6227696946551888,
+      "errors": "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-peking547-b200000-transactional-t8/frame-15/errors.f64",
+      "errorsSha256": "2b41561b94fe7d3834f40bcebc8e49152a47214944c19b34b85865d159f5cd13",
+      "heightMax": 0.1529257389583658,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "13258218171301545841",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.026279229072535926,
+        "0.25": 0.013179325371310908,
+        "0.5": 0.007166053776646408,
+        "1": 0.0020608755421550953,
+        "2": 0.0,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.7079509490811635,
+      "excessVsOffAbove025": 724
+    },
+    {
+      "case": "peking547-b200000",
+      "frame": 15,
+      "variant": "dod",
+      "triggerPx": 0.25,
+      "faces": 199999.0,
+      "q": 1790881,
+      "visible": 1712379,
+      "sampleHash": "12881002172889809993",
+      "poseHash": "13198516499610291869",
+      "projectionHash": "489952494327513795",
+      "EmaxPx": 0.19377242496389396,
+      "rmsTerrainSamplePx": 0.01045321482950649,
+      "abovePx": {
+        "0.1": 326,
+        "0.25": 0,
+        "0.5": 0,
+        "1": 0,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b200000-dod-t8/frame-15/errors.f64",
+      "errorsSha256": "75367f3fe2d71f4e7d7f7d55a64a0dd821b35ce29cfd46139f59a2b13cc3bce3",
+      "heightMax": 0.281968581366959,
+      "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f",
+      "meshHash": "6873051146041761150",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.00019037841505881585,
+        "0.25": 0.0,
+        "0.5": 0.0,
+        "1": 0.0,
+        "2": 0.0,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.1372341429197629,
+      "excessVsOffAbove025": 0
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 48,
+      "variant": "off",
+      "triggerPx": 4,
+      "faces": 50000.0,
+      "q": 1574913,
+      "visible": 1114577,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "17793952616048786981",
+      "projectionHash": "14690849699447648148",
+      "EmaxPx": 9.274476736648769,
+      "rmsTerrainSamplePx": 0.47920022881298174,
+      "abovePx": {
+        "0.1": 737846,
+        "0.25": 420983,
+        "0.5": 161110,
+        "1": 23728,
+        "2": 7446,
+        "4": 2555
+      },
+      "maximumAboveTriggerPx": 5.274476736648769,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-transactional-t8/frame-48/errors.f64",
+      "errorsSha256": "3bf330f575ce89fcbca41c2bad07f1cfdf3cf6d88f0f870e212a7c24006cf921",
+      "heightMax": 1.165875234581235,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "11488816544551648613",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.6619964345217961,
+        "0.25": 0.3777065200520018,
+        "0.5": 0.14454811107711715,
+        "1": 0.02128879386529598,
+        "2": 0.0066805613250587445,
+        "4": 0.002292349474284863
+      },
+      "DmaxVsOffPx": 0.0,
+      "excessVsOffAbove025": 0
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 48,
+      "variant": "on",
+      "triggerPx": 4,
+      "faces": 49998.0,
+      "q": 1574913,
+      "visible": 1114577,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "17793952616048786981",
+      "projectionHash": "14690849699447648148",
+      "EmaxPx": 7.626983864313568,
+      "rmsTerrainSamplePx": 0.44627527786602106,
+      "abovePx": {
+        "0.1": 737903,
+        "0.25": 420952,
+        "0.5": 160959,
+        "1": 23386,
+        "2": 6894,
+        "4": 1660
+      },
+      "maximumAboveTriggerPx": 3.6269838643135683,
+      "errors": "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-dem-canyon-b50000-transactional-t8/frame-48/errors.f64",
+      "errorsSha256": "d4db22ff16436fbbe52a1d7bcc8d4315cdb24cd5db3a1d0e8864cb9d042af753",
+      "heightMax": 1.165875234581235,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "79905008212085641",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.6620475749993047,
+        "0.25": 0.37767870680984805,
+        "0.5": 0.14441263367178758,
+        "1": 0.020981951000244935,
+        "2": 0.006185306174450038,
+        "4": 0.0014893542572653124
+      },
+      "DmaxVsOffPx": 2.852345263869267,
+      "excessVsOffAbove025": 267
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 48,
+      "variant": "dod",
+      "triggerPx": 4,
+      "faces": 49999.0,
+      "q": 1574913,
+      "visible": 1114577,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "17793952616048786981",
+      "projectionHash": "14690849699447648148",
+      "EmaxPx": 1.839557369258571,
+      "rmsTerrainSamplePx": 0.24567629773539346,
+      "abovePx": {
+        "0.1": 646144,
+        "0.25": 296082,
+        "0.5": 62347,
+        "1": 1616,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-dod-t8/frame-48/errors.f64",
+      "errorsSha256": "4d2b16072ffce7fcd84b5f84e95179bcf5fe3777d42b0cd1e5d68af15c5c2e82",
+      "heightMax": 6.259914564360576,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "2957331639505755403",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.5797212754255651,
+        "0.25": 0.2656451730118242,
+        "0.5": 0.055937813179349656,
+        "1": 0.0014498773974341835,
+        "2": 0.0,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 1.2799661615757545,
+      "excessVsOffAbove025": 5420
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 95,
+      "variant": "off",
+      "triggerPx": 4,
+      "faces": 50000.0,
+      "q": 1574913,
+      "visible": 1456877,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "3326756437934915451",
+      "projectionHash": "3702007046620065566",
+      "EmaxPx": 2.348192641609855,
+      "rmsTerrainSamplePx": 0.29916008308110387,
+      "abovePx": {
+        "0.1": 922570,
+        "0.25": 488716,
+        "0.5": 152438,
+        "1": 6020,
+        "2": 50,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-transactional-t8/frame-95/errors.f64",
+      "errorsSha256": "d8df37eb31fa08e2c0e64c5e3a0d055ab93311d441a3b97196a09457ad5ba7b5",
+      "heightMax": 1.165875234581235,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "14141856504628337756",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.6332518119237245,
+        "0.25": 0.3354545373425485,
+        "0.5": 0.10463340419266692,
+        "1": 0.004132126459543256,
+        "2": 3.431998720550877e-05,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.0,
+      "excessVsOffAbove025": 0
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 95,
+      "variant": "on",
+      "triggerPx": 4,
+      "faces": 49999.0,
+      "q": 1574913,
+      "visible": 1456877,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "3326756437934915451",
+      "projectionHash": "3702007046620065566",
+      "EmaxPx": 2.348192641609855,
+      "rmsTerrainSamplePx": 0.2991685118868642,
+      "abovePx": {
+        "0.1": 922624,
+        "0.25": 488736,
+        "0.5": 152446,
+        "1": 6021,
+        "2": 50,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/cpu-refinement/qpc-04b/run-01/quality-dem-canyon-b50000-transactional-t8/frame-95/errors.f64",
+      "errorsSha256": "050ac9ef321fb822f2dbd9174fa57a7392d2694e079b8d771134e057c9ac7c8c",
+      "heightMax": 1.165875234581235,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "16205891462204131153",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.6332888775099065,
+        "0.25": 0.3354682653374307,
+        "0.5": 0.1046388953906198,
+        "1": 0.004132812859287366,
+        "2": 3.431998720550877e-05,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 1.1108046910022433,
+      "excessVsOffAbove025": 21
+    },
+    {
+      "case": "dem-canyon-b50000",
+      "frame": 95,
+      "variant": "dod",
+      "triggerPx": 4,
+      "faces": 50000.0,
+      "q": 1574913,
+      "visible": 1456877,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "3326756437934915451",
+      "projectionHash": "3702007046620065566",
+      "EmaxPx": 2.348192641609855,
+      "rmsTerrainSamplePx": 0.29902875377936244,
+      "abovePx": {
+        "0.1": 921804,
+        "0.25": 488458,
+        "0.5": 152317,
+        "1": 5996,
+        "2": 50,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-dod-t8/frame-95/errors.f64",
+      "errorsSha256": "bc7b52e062229b46cf9c745aa5b9284dac8152d7cfc7d085ccb3d88083ff03c4",
+      "heightMax": 1.165875234581235,
+      "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2",
+      "meshHash": "6910887810557670167",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.6327260297197361,
+        "0.25": 0.33527744620856803,
+        "0.5": 0.10455034982362958,
+        "1": 0.004115652865684612,
+        "2": 3.431998720550877e-05,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.5971700716257822,
+      "excessVsOffAbove025": 9
+    },
+    {
+      "case": "dem-sierra-b50000",
+      "frame": 48,
+      "variant": "off",
+      "triggerPx": 4,
+      "faces": 8960.0,
+      "q": 1574913,
+      "visible": 1155480,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "2106862884007421062",
+      "projectionHash": "14289999552568374451",
+      "EmaxPx": 2.015011653542709,
+      "rmsTerrainSamplePx": 0.28828535022446355,
+      "abovePx": {
+        "0.1": 784982,
+        "0.25": 409449,
+        "0.5": 107020,
+        "1": 1164,
+        "2": 5,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-transactional-t8/frame-48/errors.f64",
+      "errorsSha256": "fc0adf7fa5b8a59a189f1f0a588324a5a63709a78ca7eea251877fdc2d37e736",
+      "heightMax": 0.37772312545254305,
+      "sourceSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "meshHash": "17778426753060689521",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.6793557655692872,
+        "0.25": 0.35435403468688337,
+        "0.5": 0.09261951742998581,
+        "1": 0.0010073735590403988,
+        "2": 4.327206009623706e-06,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.0,
+      "excessVsOffAbove025": 0
+    },
+    {
+      "case": "dem-sierra-b50000",
+      "frame": 48,
+      "variant": "dod",
+      "triggerPx": 4,
+      "faces": 12085.0,
+      "q": 1574913,
+      "visible": 1155480,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "2106862884007421062",
+      "projectionHash": "14289999552568374451",
+      "EmaxPx": 1.0416797893895509,
+      "rmsTerrainSamplePx": 0.1883535590076793,
+      "abovePx": {
+        "0.1": 588821,
+        "0.25": 203747,
+        "0.5": 19321,
+        "1": 4,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-dod-t8/frame-48/errors.f64",
+      "errorsSha256": "8c9675f5ca4ca2f63d4ddacecced52da73f049d3be1cad135c0050205a1c73b5",
+      "heightMax": 1.754269891755163,
+      "sourceSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "meshHash": "13095104919855142654",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.509589953958528,
+        "0.25": 0.17633104856856024,
+        "0.5": 0.016721189462387924,
+        "1": 3.4617648076989648e-06,
+        "2": 0.0,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.5375640948618096,
+      "excessVsOffAbove025": 1903
+    },
+    {
+      "case": "dem-sierra-b50000",
+      "frame": 95,
+      "variant": "off",
+      "triggerPx": 4,
+      "faces": 8976.0,
+      "q": 1574913,
+      "visible": 1503180,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "10556526114892932750",
+      "projectionHash": "15310660121906759531",
+      "EmaxPx": 1.133568442602344,
+      "rmsTerrainSamplePx": 0.2549381436625957,
+      "abovePx": {
+        "0.1": 990243,
+        "0.25": 473740,
+        "0.5": 87448,
+        "1": 44,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-transactional-t8/frame-95/errors.f64",
+      "errorsSha256": "a075c08b70d4427e336683f90af5a33ca8323c090155351ff0bf0f2512e4f05b",
+      "heightMax": 0.37772312545254305,
+      "sourceSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "meshHash": "17184082594950031724",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.6587654173152916,
+        "0.25": 0.3151585305818332,
+        "0.5": 0.058175334956558765,
+        "1": 2.9271278223499515e-05,
+        "2": 0.0,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.0,
+      "excessVsOffAbove025": 0
+    },
+    {
+      "case": "dem-sierra-b50000",
+      "frame": 95,
+      "variant": "dod",
+      "triggerPx": 4,
+      "faces": 15919.0,
+      "q": 1574913,
+      "visible": 1503180,
+      "sampleHash": "2831584742635955469",
+      "poseHash": "10556526114892932750",
+      "projectionHash": "15310660121906759531",
+      "EmaxPx": 1.08957745809527,
+      "rmsTerrainSamplePx": 0.17801768763925824,
+      "abovePx": {
+        "0.1": 754890,
+        "0.25": 236929,
+        "0.5": 16147,
+        "1": 6,
+        "2": 0,
+        "4": 0
+      },
+      "maximumAboveTriggerPx": 0,
+      "errors": "benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-dod-t8/frame-95/errors.f64",
+      "errorsSha256": "0d1fb68a835084dcd72e6959ef3c3c8d38aa2e2bd8d53e0e862cf738202ad685",
+      "heightMax": 0.37772312545254305,
+      "sourceSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b",
+      "meshHash": "5042857137947386889",
+      "qualityStatus": "sampled_only",
+      "aboveFraction": {
+        "0.1": 0.5021953458667625,
+        "0.25": 0.157618515413989,
+        "0.5": 0.010741893851701061,
+        "1": 3.9915379395681155e-06,
+        "2": 0.0,
+        "4": 0.0
+      },
+      "DmaxVsOffPx": 0.46128831379257945,
+      "excessVsOffAbove025": 859
+    }
+  ],
+  "sampleCoordinates": [
+    {
+      "width": 513,
+      "q": 1574913,
+      "bijectionToRuntimeGrid": false,
+      "commonIdealPositions": 1050625,
+      "evaluationOnlyPositions": 524288,
+      "runtimeOnlyPositions": 524288,
+      "evaluationGroups": {
+        "(0, 0)": 263169,
+        "(3, 0)": 262656,
+        "(0, 3)": 262656,
+        "(3, 3)": 262144,
+        "(2, 2)": 262144,
+        "(4, 4)": 262144
+      },
+      "runtimeGroups": {
+        "(0, 0)": 263169,
+        "(3, 0)": 262656,
+        "(0, 3)": 262656,
+        "(3, 3)": 262144,
+        "(4, 2)": 262144,
+        "(2, 4)": 262144
+      },
+      "maxUvDifference": 0.0,
+      "nonidenticalCoordinates": 0,
+      "ordering": "位置集合和发射顺序均不同；共同理想位置在非dyadic栅格上仍有float UV差异"
+    },
+    {
+      "width": 547,
+      "q": 1790881,
+      "bijectionToRuntimeGrid": false,
+      "commonIdealPositions": 1194649,
+      "evaluationOnlyPositions": 596232,
+      "runtimeOnlyPositions": 596232,
+      "evaluationGroups": {
+        "(0, 0)": 299209,
+        "(3, 0)": 298662,
+        "(0, 3)": 298662,
+        "(3, 3)": 298116,
+        "(2, 2)": 298116,
+        "(4, 4)": 298116
+      },
+      "runtimeGroups": {
+        "(0, 0)": 299209,
+        "(3, 0)": 298662,
+        "(0, 3)": 298662,
+        "(3, 3)": 298116,
+        "(4, 2)": 298116,
+        "(2, 4)": 298116
+      },
+      "maxUvDifference": 2.969315637812997e-08,
+      "nonidenticalCoordinates": 1790865,
+      "ordering": "位置集合和发射顺序均不同；共同理想位置在非dyadic栅格上仍有float UV差异"
+    }
+  ],
+  "prioritySnapshots": {
+    "peking547-b50000-transactional-t8": {
+      "15": {
+        "source": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04c/run-01/peking547-b50000-transactional-t8/priority-15.csv",
+          "bytes": 5131782,
+          "sha256": "7e3d237a129a9ffd747f7e58715b03ed4fc60c44b09ebf67badc76c04dc099cf"
+        },
+        "thresholdPx": 0.25,
+        "prefixLimit": 160,
+        "all": {
+          "roots": 49999,
+          "errorAboveTrigger": 451,
+          "densityOnlyAboveTrigger": 49548,
+          "densityDominant": 49999,
+          "noVisibleSamples": 899,
+          "maxSampleErrorPx": 1.9965571240575115
+        },
+        "eligible": {
+          "roots": 49999,
+          "errorAboveTrigger": 451,
+          "densityOnlyAboveTrigger": 49548,
+          "densityDominant": 49999,
+          "noVisibleSamples": 899,
+          "maxSampleErrorPx": 1.9965571240575115
+        },
+        "prefix": {
+          "roots": 160,
+          "errorAboveTrigger": 2,
+          "densityOnlyAboveTrigger": 158,
+          "densityDominant": 160,
+          "noVisibleSamples": 158,
+          "maxSampleErrorPx": 1.171977468182217
+        },
+        "outsidePrefix": {
+          "roots": 49839,
+          "errorAboveTrigger": 449,
+          "densityOnlyAboveTrigger": 49390,
+          "densityDominant": 49839,
+          "noVisibleSamples": 741,
+          "maxSampleErrorPx": 1.9965571240575115
+        },
+        "errorOrderedPrefixSamePopulation": {
+          "roots": 160,
+          "errorAboveTrigger": 160,
+          "densityOnlyAboveTrigger": 0,
+          "densityDominant": 160,
+          "noVisibleSamples": 0,
+          "maxSampleErrorPx": 1.9965571240575115
+        },
+        "prefixOverlap": 2,
+        "nonfinite": 0,
+        "nonfiniteWithErrorAboveTrigger": 0,
+        "witnesses": [
+          {
+            "witness": 0,
+            "root": -112,
+            "sampleMaxPx": 1.9965571240575115,
+            "densityPx": 15.972323772634594,
+            "priorityPx": 15.972323772634594,
+            "rank": 194,
+            "errorRankSamePopulation": 1
+          },
+          {
+            "witness": 1,
+            "root": -112,
+            "sampleMaxPx": 1.9965571240575115,
+            "densityPx": 15.972323772634594,
+            "priorityPx": 15.972323772634594,
+            "rank": 194,
+            "errorRankSamePopulation": 1
+          }
+        ],
+        "scoreAndIndexExact": true
+      }
+    },
+    "dem-sierra-b50000-transactional-t8": {
+      "48": {
+        "source": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04c/run-01/dem-sierra-b50000-transactional-t8/priority-48.csv",
+          "bytes": 779313,
+          "sha256": "c20355eea75244e23964f65859a9fe3f050d544748198c614d261c389a5f51dc"
+        },
+        "thresholdPx": 4.0,
+        "prefixLimit": 160,
+        "all": {
+          "roots": 8960,
+          "errorAboveTrigger": 0,
+          "densityOnlyAboveTrigger": 2950,
+          "densityDominant": 8959,
+          "noVisibleSamples": 3355,
+          "maxSampleErrorPx": 2.0150116667015787
+        },
+        "eligible": {
+          "roots": 2950,
+          "errorAboveTrigger": 0,
+          "densityOnlyAboveTrigger": 2950,
+          "densityDominant": 2950,
+          "noVisibleSamples": 2214,
+          "maxSampleErrorPx": 2.0150116667015787
+        },
+        "prefix": {
+          "roots": 160,
+          "errorAboveTrigger": 0,
+          "densityOnlyAboveTrigger": 160,
+          "densityDominant": 160,
+          "noVisibleSamples": 160,
+          "maxSampleErrorPx": 0.0
+        },
+        "outsidePrefix": {
+          "roots": 2790,
+          "errorAboveTrigger": 0,
+          "densityOnlyAboveTrigger": 2790,
+          "densityDominant": 2790,
+          "noVisibleSamples": 2054,
+          "maxSampleErrorPx": 2.0150116667015787
+        },
+        "errorOrderedPrefixSamePopulation": {
+          "roots": 160,
+          "errorAboveTrigger": 0,
+          "densityOnlyAboveTrigger": 160,
+          "densityDominant": 160,
+          "noVisibleSamples": 0,
+          "maxSampleErrorPx": 2.0150116667015787
+        },
+        "prefixOverlap": 0,
+        "nonfinite": 0,
+        "nonfiniteWithErrorAboveTrigger": 0,
+        "witnesses": [
+          {
+            "witness": 0,
+            "root": -236,
+            "sampleMaxPx": 2.0150116667015787,
+            "densityPx": 4.936132091927998,
+            "priorityPx": 4.936132091927998,
+            "rank": 1849,
+            "errorRankSamePopulation": 1
+          },
+          {
+            "witness": 0,
+            "root": -234,
+            "sampleMaxPx": 2.0150116667015787,
+            "densityPx": 3.1075383805809236,
+            "priorityPx": 3.1075383805809236,
+            "rank": 0,
+            "errorRankSamePopulation": 0
+          },
+          {
+            "witness": 1,
+            "root": 2160,
+            "sampleMaxPx": 0.8105628037612206,
+            "densityPx": 2.6788358347759678,
+            "priorityPx": 2.6788358347759678,
+            "rank": 0,
+            "errorRankSamePopulation": 0
+          },
+          {
+            "witness": 1,
+            "root": 8007,
+            "sampleMaxPx": 0.793753327540715,
+            "densityPx": 2.6903013956878663,
+            "priorityPx": 2.6903013956878663,
+            "rank": 0,
+            "errorRankSamePopulation": 0
+          },
+          {
+            "witness": 2,
+            "root": -237,
+            "sampleMaxPx": 1.9729597301381145,
+            "densityPx": 3.0135224581840925,
+            "priorityPx": 3.0135224581840925,
+            "rank": 0,
+            "errorRankSamePopulation": 0
+          },
+          {
+            "witness": 2,
+            "root": -234,
+            "sampleMaxPx": 2.0150116667015787,
+            "densityPx": 3.1075383805809236,
+            "priorityPx": 3.1075383805809236,
+            "rank": 0,
+            "errorRankSamePopulation": 0
+          }
+        ],
+        "scoreAndIndexExact": true
+      },
+      "95": {
+        "source": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04c/run-01/dem-sierra-b50000-transactional-t8/priority-95.csv",
+          "bytes": 831547,
+          "sha256": "f933bdf0e9d8cf50700e1ab64aebe9b189d908e80f7bd55b7afe099a62102225"
+        },
+        "thresholdPx": 4.0,
+        "prefixLimit": 160,
+        "all": {
+          "roots": 8976,
+          "errorAboveTrigger": 0,
+          "densityOnlyAboveTrigger": 150,
+          "densityDominant": 8966,
+          "noVisibleSamples": 397,
+          "maxSampleErrorPx": 1.133568442602344
+        },
+        "eligible": {
+          "roots": 150,
+          "errorAboveTrigger": 0,
+          "densityOnlyAboveTrigger": 150,
+          "densityDominant": 150,
+          "noVisibleSamples": 150,
+          "maxSampleErrorPx": 0.0
+        },
+        "prefix": {
+          "roots": 150,
+          "errorAboveTrigger": 0,
+          "densityOnlyAboveTrigger": 150,
+          "densityDominant": 150,
+          "noVisibleSamples": 150,
+          "maxSampleErrorPx": 0.0
+        },
+        "outsidePrefix": {
+          "roots": 0,
+          "errorAboveTrigger": 0,
+          "densityOnlyAboveTrigger": 0,
+          "densityDominant": 0,
+          "noVisibleSamples": 0,
+          "maxSampleErrorPx": 0.0
+        },
+        "errorOrderedPrefixSamePopulation": {
+          "roots": 150,
+          "errorAboveTrigger": 0,
+          "densityOnlyAboveTrigger": 150,
+          "densityDominant": 150,
+          "noVisibleSamples": 150,
+          "maxSampleErrorPx": 0.0
+        },
+        "prefixOverlap": 150,
+        "nonfinite": 0,
+        "nonfiniteWithErrorAboveTrigger": 0,
+        "witnesses": [
+          {
+            "witness": 0,
+            "root": 428,
+            "sampleMaxPx": 1.133568442602344,
+            "densityPx": 1.4892870546994188,
+            "priorityPx": 1.4892870546994188,
+            "rank": 0,
+            "errorRankSamePopulation": 0
+          },
+          {
+            "witness": 0,
+            "root": 4812,
+            "sampleMaxPx": 1.133568442602344,
+            "densityPx": 1.4892870546994188,
+            "priorityPx": 1.4892870546994188,
+            "rank": 0,
+            "errorRankSamePopulation": 0
+          },
+          {
+            "witness": 1,
+            "root": 2160,
+            "sampleMaxPx": 0.72173964741823,
+            "densityPx": 2.191395578208667,
+            "priorityPx": 2.191395578208667,
+            "rank": 0,
+            "errorRankSamePopulation": 0
+          },
+          {
+            "witness": 1,
+            "root": 8007,
+            "sampleMaxPx": 0.7052861693861805,
+            "densityPx": 2.1625931804872325,
+            "priorityPx": 2.1625931804872325,
+            "rank": 0,
+            "errorRankSamePopulation": 0
+          }
+        ],
+        "scoreAndIndexExact": true
+      }
+    }
+  },
+  "acceptanceEvents": [
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 8,
+      "source": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-on/frame-48/transactions.jsonl",
+        "bytes": 120871,
+        "sha256": "39030642bec70ba0b9e8bdb0c54e420fcdc25f8ba547ba2666150065a1d11a98"
+      },
+      "root": -335,
+      "samples": 356,
+      "closedSamples": 817,
+      "oldVisibleMaxPx": 4.911466153066949,
+      "targetPx": 4.901466,
+      "newVisibleUpperPx": 4.637617054771798,
+      "donorUpperPx": null,
+      "witnesses": [
+        {
+          "id": 0,
+          "heightBefore": 3.612383708357811,
+          "heightAfter": 2.7711874728796,
+          "visible": 0,
+          "errorBefore": 9.61498116074237,
+          "errorAfter": 2.4581618510568655
+        },
+        {
+          "id": 1,
+          "heightBefore": 3.571017324924469,
+          "heightAfter": 2.7945284921753513,
+          "visible": 0,
+          "errorBefore": 9.211335166099111,
+          "errorAfter": 2.6040152248717336
+        },
+        {
+          "id": 3,
+          "heightBefore": 4.131909981941154,
+          "heightAfter": 3.776019266931142,
+          "visible": 1,
+          "errorBefore": 0.07169671727975793,
+          "errorAfter": 3.1169425145298435
+        }
+      ],
+      "geometry": [
+        {
+          "witness": 0,
+          "geometry": {
+            "oldFaces": [
+              [
+                -335,
+                [
+                  -773400,
+                  0.859375,
+                  0.984375,
+                  3.775626549322932
+                ],
+                [
+                  0,
+                  0.875,
+                  1,
+                  4.398344993591309
+                ],
+                [
+                  456,
+                  0.8125,
+                  1,
+                  3.0746207237243652
+                ]
+              ]
+            ],
+            "newFaces": [
+              [
+                -773400,
+                0,
+                -1318405
+              ],
+              [
+                456,
+                -773400,
+                -1318405
+              ]
+            ],
+            "pointReferences": [
+              [
+                -1318405,
+                2.7011644149923466
+              ],
+              [
+                -773400,
+                4.043524734050028
+              ],
+              [
+                0,
+                4.39834489732892
+              ],
+              [
+                456,
+                3.074620858731819
+              ]
+            ],
+            "removedPoint": null,
+            "newPoint": {
+              "id": -1318405,
+              "initialHeight": 3.736482858657837,
+              "fittedHeight": 2.7011644149923466,
+              "referenceHeight": 2.7011644149923466
+            },
+            "unfittedWitnessHeight": 3.612383708357811,
+            "closedSampleCount": 817,
+            "oldVisibleMaxPx": 4.911466153066949,
+            "nearestVisibleSample": [
+              786351,
+              0.849609375,
+              0.9912109375,
+              0.0146484375
+            ]
+          }
+        },
+        {
+          "witness": 1,
+          "geometry": {
+            "oldFaces": [
+              [
+                -335,
+                [
+                  -773400,
+                  0.859375,
+                  0.984375,
+                  3.775626549322932
+                ],
+                [
+                  0,
+                  0.875,
+                  1,
+                  4.398344993591309
+                ],
+                [
+                  456,
+                  0.8125,
+                  1,
+                  3.0746207237243652
+                ]
+              ]
+            ],
+            "newFaces": [
+              [
+                -773400,
+                0,
+                -1318405
+              ],
+              [
+                456,
+                -773400,
+                -1318405
+              ]
+            ],
+            "pointReferences": [
+              [
+                -1318405,
+                2.7011644149923466
+              ],
+              [
+                -773400,
+                4.043524734050028
+              ],
+              [
+                0,
+                4.39834489732892
+              ],
+              [
+                456,
+                3.074620858731819
+              ]
+            ],
+            "removedPoint": null,
+            "newPoint": {
+              "id": -1318405,
+              "initialHeight": 3.736482858657837,
+              "fittedHeight": 2.7011644149923466,
+              "referenceHeight": 2.7011644149923466
+            },
+            "unfittedWitnessHeight": 3.571017324924469,
+            "closedSampleCount": 817,
+            "oldVisibleMaxPx": 4.911466153066949,
+            "nearestVisibleSample": [
+              786351,
+              0.849609375,
+              0.9912109375,
+              0.016253239235442616
+            ]
+          }
+        },
+        {
+          "witness": 3,
+          "geometry": {
+            "oldFaces": [
+              [
+                -335,
+                [
+                  -773400,
+                  0.859375,
+                  0.984375,
+                  3.775626549322932
+                ],
+                [
+                  0,
+                  0.875,
+                  1,
+                  4.398344993591309
+                ],
+                [
+                  456,
+                  0.8125,
+                  1,
+                  3.0746207237243652
+                ]
+              ]
+            ],
+            "newFaces": [
+              [
+                -773400,
+                0,
+                -1318405
+              ],
+              [
+                456,
+                -773400,
+                -1318405
+              ]
+            ],
+            "pointReferences": [
+              [
+                -1318405,
+                2.7011644149923466
+              ],
+              [
+                -773400,
+                4.043524734050028
+              ],
+              [
+                0,
+                4.39834489732892
+              ],
+              [
+                456,
+                3.074620858731819
+              ]
+            ],
+            "removedPoint": null,
+            "newPoint": {
+              "id": -1318405,
+              "initialHeight": 3.736482858657837,
+              "fittedHeight": 2.7011644149923466,
+              "referenceHeight": 2.7011644149923466
+            },
+            "unfittedWitnessHeight": 4.131909981941154,
+            "closedSampleCount": 817,
+            "oldVisibleMaxPx": 4.911466153066949,
+            "nearestVisibleSample": [
+              788410,
+              0.86328125,
+              0.9990234375,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "peking547-b200000-transactional-t8",
+      "frame": 13,
+      "source": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-on/frame-15/transactions.jsonl",
+        "bytes": 679380,
+        "sha256": "7cf80132da86bfc0167b21742858802567082ff3462f4196594f6c674df8235b"
+      },
+      "root": -495,
+      "samples": 1820,
+      "closedSamples": 1820,
+      "oldVisibleMaxPx": 1.1335417997111112,
+      "targetPx": 1.123541,
+      "newVisibleUpperPx": 1.0573120396728954,
+      "donorUpperPx": null,
+      "witnesses": [
+        {
+          "id": 0,
+          "heightBefore": 1.736194959252316,
+          "heightAfter": 1.8621077190118298,
+          "visible": 1,
+          "errorBefore": 1.1335417903781437,
+          "errorAfter": 0.28196100063233986
+        },
+        {
+          "id": 1,
+          "heightBefore": 1.7266571538488225,
+          "heightAfter": 1.7322782595302733,
+          "visible": 1,
+          "errorBefore": 0.007142803216652857,
+          "errorAfter": 0.030704818082583303
+        }
+      ],
+      "geometry": [
+        {
+          "witness": 0,
+          "geometry": {
+            "oldFaces": [
+              [
+                -495,
+                [
+                  -6819613,
+                  0.96875,
+                  0.96875,
+                  1.647886036568396
+                ],
+                [
+                  3,
+                  1,
+                  1,
+                  1.7395284175872803
+                ],
+                [
+                  110,
+                  0.9375,
+                  1,
+                  1.731403112411499
+                ]
+              ]
+            ],
+            "newFaces": [
+              [
+                -6819613,
+                3,
+                -11414781
+              ],
+              [
+                110,
+                -6819613,
+                -11414781
+              ]
+            ],
+            "pointReferences": [
+              [
+                -11414781,
+                1.8889219501029983
+              ],
+              [
+                -6819613,
+                1.7389462691691462
+              ],
+              [
+                3,
+                1.7395284962233921
+              ],
+              [
+                110,
+                1.7314030670634013
+              ]
+            ],
+            "removedPoint": null,
+            "newPoint": {
+              "id": -11414781,
+              "initialHeight": 1.7354657649993896,
+              "fittedHeight": 1.8889219501029983,
+              "referenceHeight": 1.8889219501029983
+            },
+            "unfittedWitnessHeight": 1.736194959252316,
+            "closedSampleCount": 1820,
+            "oldVisibleMaxPx": 1.1335417997111112,
+            "nearestVisibleSample": [
+              299194,
+              0.9743589743589743,
+              1,
+              1.528324244937096e-09
+            ]
+          }
+        },
+        {
+          "witness": 1,
+          "geometry": {
+            "oldFaces": [
+              [
+                -495,
+                [
+                  -6819613,
+                  0.96875,
+                  0.96875,
+                  1.647886036568396
+                ],
+                [
+                  3,
+                  1,
+                  1,
+                  1.7395284175872803
+                ],
+                [
+                  110,
+                  0.9375,
+                  1,
+                  1.731403112411499
+                ]
+              ]
+            ],
+            "newFaces": [
+              [
+                -6819613,
+                3,
+                -11414781
+              ],
+              [
+                110,
+                -6819613,
+                -11414781
+              ]
+            ],
+            "pointReferences": [
+              [
+                -11414781,
+                1.8889219501029983
+              ],
+              [
+                -6819613,
+                1.7389462691691462
+              ],
+              [
+                3,
+                1.7395284962233921
+              ],
+              [
+                110,
+                1.7314030670634013
+              ]
+            ],
+            "removedPoint": null,
+            "newPoint": {
+              "id": -11414781,
+              "initialHeight": 1.7354657649993896,
+              "fittedHeight": 1.8889219501029983,
+              "referenceHeight": 1.8889219501029983
+            },
+            "unfittedWitnessHeight": 1.7266571538488225,
+            "closedSampleCount": 1820,
+            "oldVisibleMaxPx": 1.1335417997111112,
+            "nearestVisibleSample": [
+              597292,
+              0.9404761904761905,
+              0.9981684981684982,
+              0
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "witnesses": [
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "frame": 15,
+      "returnFrame": 16,
+      "ordinal": 1790794,
+      "u": 0.9743589758872986,
+      "v": 1.0,
+      "roles": [
+        "screen_max"
+      ],
+      "actualPx": 1.9965571109865088,
+      "dodPx": 0.020611509775499484,
+      "excessPx": 1.9759456012110093,
+      "localWitness": 0,
+      "seedHeight": 1.736194959252316,
+      "targetHeight": 1.736194959252316,
+      "referenceHeight": 1.9037766066970527,
+      "seedFixedFuturePx": 1.9965571109865088,
+      "targetInternalPx": 1.9965571109865088,
+      "internalVsActualPx": 0.0,
+      "heightRange": 0.0,
+      "changes": [],
+      "rootObservationCounts": {
+        "shape_infeasible": 15,
+        "certified": 1,
+        "outside_prefix": 8
+      },
+      "targetRoots": [
+        {
+          "frame": 15,
+          "phase": "before",
+          "witness": 0,
+          "root": -112,
+          "rank": 194,
+          "priority": 15.972323772634594,
+          "threshold": 0.25,
+          "vertices": [
+            [
+              -828436,
+              0.96875,
+              0.96875,
+              1.647886036568396
+            ],
+            [
+              3,
+              1,
+              1,
+              1.7395284175872803
+            ],
+            [
+              110,
+              0.9375,
+              1,
+              1.731403112411499
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            1,
+            2
+          ],
+          "visibleSamples": 1820,
+          "sampleMaxPx": 1.9965571240575115
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 15,
+          "witness": 0,
+          "root": -112,
+          "stage": "outside_prefix"
+        }
+      ]
+    },
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "frame": 15,
+      "returnFrame": 16,
+      "ordinal": 1790800,
+      "u": 0.976190447807312,
+      "v": 1.0,
+      "roles": [
+        "largest_component",
+        "maximum_excess_component"
+      ],
+      "actualPx": 1.9808580779439462,
+      "dodPx": 0.0034887595707041833,
+      "excessPx": 1.977369318373242,
+      "localWitness": 1,
+      "seedHeight": 1.7364330595446518,
+      "targetHeight": 1.7364330595446518,
+      "referenceHeight": 1.9023117645186836,
+      "seedFixedFuturePx": 1.9808580779439462,
+      "targetInternalPx": 1.9808580779439462,
+      "internalVsActualPx": 0.0,
+      "heightRange": 0.0,
+      "changes": [],
+      "rootObservationCounts": {
+        "shape_infeasible": 15,
+        "certified": 1,
+        "outside_prefix": 8
+      },
+      "targetRoots": [
+        {
+          "frame": 15,
+          "phase": "before",
+          "witness": 1,
+          "root": -112,
+          "rank": 194,
+          "priority": 15.972323772634594,
+          "threshold": 0.25,
+          "vertices": [
+            [
+              -828436,
+              0.96875,
+              0.96875,
+              1.647886036568396
+            ],
+            [
+              3,
+              1,
+              1,
+              1.7395284175872803
+            ],
+            [
+              110,
+              0.9375,
+              1,
+              1.731403112411499
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            1,
+            2
+          ],
+          "visibleSamples": 1820,
+          "sampleMaxPx": 1.9965571240575115
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 15,
+          "witness": 1,
+          "root": -112,
+          "stage": "outside_prefix"
+        }
+      ]
+    },
+    {
+      "case": "peking547-b200000-transactional-t8",
+      "frame": 15,
+      "returnFrame": 16,
+      "ordinal": 1790794,
+      "u": 0.9743589758872986,
+      "v": 1.0,
+      "roles": [
+        "screen_max",
+        "largest_component",
+        "maximum_excess_component"
+      ],
+      "actualPx": 1.9965571109865088,
+      "dodPx": 0.004685191110353975,
+      "excessPx": 1.9918719198761548,
+      "localWitness": 0,
+      "seedHeight": 1.736194959252316,
+      "targetHeight": 1.736194959252316,
+      "referenceHeight": 1.9037766066970527,
+      "seedFixedFuturePx": 1.9965571109865088,
+      "targetInternalPx": 1.9965571109865088,
+      "internalVsActualPx": 0.0,
+      "heightRange": 0.0,
+      "changes": [],
+      "rootObservationCounts": {
+        "shape_infeasible": 19,
+        "certified": 1,
+        "outside_prefix": 4
+      },
+      "targetRoots": [
+        {
+          "frame": 15,
+          "phase": "before",
+          "witness": 0,
+          "root": -461,
+          "rank": 104,
+          "priority": 15.972323772634594,
+          "threshold": 0.25,
+          "vertices": [
+            [
+              -5425472,
+              0.96875,
+              0.96875,
+              1.647886036568396
+            ],
+            [
+              3,
+              1,
+              1,
+              1.7395284175872803
+            ],
+            [
+              110,
+              0.9375,
+              1,
+              1.731403112411499
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            1,
+            2
+          ],
+          "visibleSamples": 1820,
+          "sampleMaxPx": 1.9965571240575115
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 15,
+          "witness": 0,
+          "root": -461,
+          "stage": "shape_infeasible",
+          "attempts": [
+            [
+              "E",
+              "shape_infeasible"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ]
+          ],
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 48,
+      "returnFrame": 80,
+      "ordinal": 1574412,
+      "u": 0.837890625,
+      "v": 1.0,
+      "roles": [
+        "screen_max"
+      ],
+      "actualPx": 9.274476736648769,
+      "dodPx": 0.48755767057010524,
+      "excessPx": 8.786919066078664,
+      "localWitness": 0,
+      "seedHeight": 3.612383708357811,
+      "targetHeight": 3.612383708357811,
+      "referenceHeight": 2.4800869703129136,
+      "seedFixedFuturePx": 9.274476736648769,
+      "targetInternalPx": 9.274476736648769,
+      "internalVsActualPx": 0.0,
+      "heightRange": 0.0,
+      "changes": [],
+      "rootObservationCounts": {
+        "shape_infeasible": 6,
+        "certified": 1,
+        "flip_exhausted": 59,
+        "outside_prefix": 30
+      },
+      "targetRoots": [
+        {
+          "frame": 48,
+          "phase": "before",
+          "witness": 0,
+          "root": -319,
+          "rank": 65,
+          "priority": 11.550127752746544,
+          "threshold": 4,
+          "vertices": [
+            [
+              -773399,
+              0.859375,
+              0.984375,
+              3.775626549322932
+            ],
+            [
+              0,
+              0.875,
+              1,
+              4.398344993591309
+            ],
+            [
+              456,
+              0.8125,
+              1,
+              3.0746207237243652
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            1,
+            2
+          ],
+          "visibleSamples": 817,
+          "sampleMaxPx": 9.274476736648769
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 48,
+          "witness": 0,
+          "root": -319,
+          "stage": "flip_exhausted",
+          "attempts": [
+            [
+              "E",
+              "shape_infeasible"
+            ],
+            [
+              "E",
+              "shape_infeasible"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ],
+            [
+              "R",
+              "flip_nonconvex_or_existing_diagonal"
+            ],
+            [
+              "R",
+              "quality_infeasible"
+            ],
+            [
+              "R",
+              "flip_not_interior"
+            ]
+          ],
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 48,
+      "returnFrame": 80,
+      "ordinal": 1574406,
+      "u": 0.8359375,
+      "v": 1.0,
+      "roles": [
+        "largest_component"
+      ],
+      "actualPx": 8.889741297571057,
+      "dodPx": 2.105403356421619e-07,
+      "excessPx": 8.889741087030721,
+      "localWitness": 1,
+      "seedHeight": 3.571017324924469,
+      "targetHeight": 3.571017324924469,
+      "referenceHeight": 2.4862990637997737,
+      "seedFixedFuturePx": 8.889741297571057,
+      "targetInternalPx": 8.889741297571057,
+      "internalVsActualPx": 0.0,
+      "heightRange": 0.0,
+      "changes": [],
+      "rootObservationCounts": {
+        "shape_infeasible": 6,
+        "certified": 1,
+        "flip_exhausted": 59,
+        "outside_prefix": 30
+      },
+      "targetRoots": [
+        {
+          "frame": 48,
+          "phase": "before",
+          "witness": 1,
+          "root": -319,
+          "rank": 65,
+          "priority": 11.550127752746544,
+          "threshold": 4,
+          "vertices": [
+            [
+              -773399,
+              0.859375,
+              0.984375,
+              3.775626549322932
+            ],
+            [
+              0,
+              0.875,
+              1,
+              4.398344993591309
+            ],
+            [
+              456,
+              0.8125,
+              1,
+              3.0746207237243652
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            1,
+            2
+          ],
+          "visibleSamples": 817,
+          "sampleMaxPx": 9.274476736648769
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 48,
+          "witness": 1,
+          "root": -319,
+          "stage": "flip_exhausted",
+          "attempts": [
+            [
+              "E",
+              "shape_infeasible"
+            ],
+            [
+              "E",
+              "shape_infeasible"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ],
+            [
+              "R",
+              "flip_nonconvex_or_existing_diagonal"
+            ],
+            [
+              "R",
+              "quality_infeasible"
+            ],
+            [
+              "R",
+              "flip_not_interior"
+            ]
+          ],
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 48,
+      "returnFrame": 80,
+      "ordinal": 1574874,
+      "u": 0.98828125,
+      "v": 1.0,
+      "roles": [
+        "maximum_excess_component"
+      ],
+      "actualPx": 8.972328616363596,
+      "dodPx": 1.7128578219975206e-06,
+      "excessPx": 8.972326903505774,
+      "localWitness": 2,
+      "seedHeight": 7.559752345085144,
+      "targetHeight": 7.559752345085144,
+      "referenceHeight": 6.449797417048487,
+      "seedFixedFuturePx": 8.972328616363596,
+      "targetInternalPx": 8.972328616363596,
+      "internalVsActualPx": 0.0,
+      "heightRange": 0.0,
+      "changes": [],
+      "rootObservationCounts": {
+        "no_screen_samples": 3,
+        "fit_bound_failed": 23,
+        "outside_prefix": 34,
+        "certified": 1,
+        "flip_exhausted": 35
+      },
+      "targetRoots": [
+        {
+          "frame": 48,
+          "phase": "before",
+          "witness": 2,
+          "root": 624,
+          "rank": 223,
+          "priority": 8.972328616363596,
+          "threshold": 4,
+          "vertices": [
+            [
+              1498,
+              0.96875,
+              1,
+              7.316749572753906
+            ],
+            [
+              120,
+              0.984375,
+              0.984375,
+              5.609155178070068
+            ],
+            [
+              1722,
+              1,
+              1,
+              7.705554008483887
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            1
+          ],
+          "visibleSamples": 425,
+          "sampleMaxPx": 8.972328616363596
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 48,
+          "witness": 2,
+          "root": 624,
+          "stage": "outside_prefix"
+        }
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 48,
+      "returnFrame": 80,
+      "ordinal": 1561810,
+      "u": 0.73828125,
+      "v": 0.9921875,
+      "roles": [
+        "screen_max"
+      ],
+      "actualPx": 2.015011653542709,
+      "dodPx": 1.0416797893895509,
+      "excessPx": 0.9733318641531583,
+      "localWitness": 0,
+      "seedHeight": 6.640109062194824,
+      "targetHeight": 6.6430747523428595,
+      "referenceHeight": 6.42182966904463,
+      "seedFixedFuturePx": 1.9879600882205277,
+      "targetInternalPx": 2.0150116667015787,
+      "internalVsActualPx": 1.3158869549556584e-08,
+      "heightRange": 0.004248306139987612,
+      "changes": [
+        {
+          "frame": 3,
+          "kind": "E",
+          "root": 4182,
+          "heightBefore": 6.640109062194824,
+          "heightAfter": 6.644357368334812,
+          "fixedFutureBeforePx": 1.9879600882205277,
+          "fixedFutureAfterPx": 2.0267114117896274,
+          "visible": 0,
+          "unfittedWitnessHeight": 6.640109062194824
+        },
+        {
+          "frame": 5,
+          "kind": "E",
+          "root": -180,
+          "heightBefore": 6.644357368334812,
+          "heightAfter": 6.6430747523428595,
+          "fixedFutureBeforePx": 2.0267114117896274,
+          "fixedFutureAfterPx": 2.0150116667015787,
+          "visible": 0,
+          "unfittedWitnessHeight": 6.644357368334812
+        }
+      ],
+      "rootObservationCounts": {
+        "no_screen_samples": 2,
+        "fit_bound_failed": 1,
+        "certified": 2,
+        "shape_infeasible": 1,
+        "flip_exhausted": 42,
+        "below_threshold_or_nonfinite": 79,
+        "outside_prefix": 59
+      },
+      "targetRoots": [
+        {
+          "frame": 48,
+          "phase": "before",
+          "witness": 0,
+          "root": -236,
+          "rank": 1849,
+          "priority": 4.936132091927998,
+          "threshold": 4,
+          "vertices": [
+            [
+              -347383,
+              0.7421875,
+              0.9921875,
+              6.661802313682076
+            ],
+            [
+              1091,
+              0.75,
+              1,
+              6.678493976593018
+            ],
+            [
+              -168456,
+              0.7265625,
+              0.9921875,
+              6.586892068325208
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            2
+          ],
+          "visibleSamples": 113,
+          "sampleMaxPx": 2.0150116667015787
+        },
+        {
+          "frame": 48,
+          "phase": "before",
+          "witness": 0,
+          "root": -234,
+          "rank": 0,
+          "priority": 3.1075383805809236,
+          "threshold": 4,
+          "vertices": [
+            [
+              -347383,
+              0.7421875,
+              0.9921875,
+              6.661802313682076
+            ],
+            [
+              -168456,
+              0.7265625,
+              0.9921875,
+              6.586892068325208
+            ],
+            [
+              1620,
+              0.734375,
+              0.984375,
+              6.648530960083008
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            2
+          ],
+          "visibleSamples": 117,
+          "sampleMaxPx": 2.0150116667015787
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 48,
+          "witness": 0,
+          "root": -236,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 48,
+          "witness": 0,
+          "root": -234,
+          "stage": "outside_prefix"
+        }
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 48,
+      "returnFrame": 80,
+      "ordinal": 712846,
+      "u": 0.5625,
+      "v": 0.453125,
+      "roles": [
+        "largest_component"
+      ],
+      "actualPx": 0.7807344860424038,
+      "dodPx": 9.392993529668132e-07,
+      "excessPx": 0.7807335467430508,
+      "localWitness": 1,
+      "seedHeight": 8.58643102645874,
+      "targetHeight": 8.58643102645874,
+      "referenceHeight": 8.694232811043388,
+      "seedFixedFuturePx": 0.7807344860423647,
+      "targetInternalPx": 0.7807344860423647,
+      "internalVsActualPx": -3.907985046680551e-14,
+      "heightRange": 0.0,
+      "changes": [],
+      "rootObservationCounts": {
+        "below_threshold_or_nonfinite": 157,
+        "outside_prefix": 35
+      },
+      "targetRoots": [
+        {
+          "frame": 48,
+          "phase": "before",
+          "witness": 1,
+          "root": 2160,
+          "rank": 0,
+          "priority": 2.6788358347759678,
+          "threshold": 4,
+          "vertices": [
+            [
+              690,
+              0.5625,
+              0.4375,
+              8.669184684753418
+            ],
+            [
+              3511,
+              0.578125,
+              0.453125,
+              8.518261909484863
+            ],
+            [
+              1760,
+              0.5625,
+              0.46875,
+              8.503677368164062
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            2
+          ],
+          "visibleSamples": 425,
+          "sampleMaxPx": 0.8105628037612206
+        },
+        {
+          "frame": 48,
+          "phase": "before",
+          "witness": 1,
+          "root": 8007,
+          "rank": 0,
+          "priority": 2.6903013956878663,
+          "threshold": 4,
+          "vertices": [
+            [
+              1760,
+              0.5625,
+              0.46875,
+              8.503677368164062
+            ],
+            [
+              692,
+              0.546875,
+              0.453125,
+              8.579296112060547
+            ],
+            [
+              690,
+              0.5625,
+              0.4375,
+              8.669184684753418
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            2
+          ],
+          "visibleSamples": 425,
+          "sampleMaxPx": 0.793753327540715
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 48,
+          "witness": 1,
+          "root": 2160,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 48,
+          "witness": 1,
+          "root": 8007,
+          "stage": "outside_prefix"
+        }
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 48,
+      "returnFrame": 80,
+      "ordinal": 1555662,
+      "u": 0.73828125,
+      "v": 0.98828125,
+      "roles": [
+        "maximum_excess_component"
+      ],
+      "actualPx": 1.9558669711334542,
+      "dodPx": 3.828678507700674e-06,
+      "excessPx": 1.9558631424549464,
+      "localWitness": 2,
+      "seedHeight": 6.65602171421051,
+      "targetHeight": 6.655166636882542,
+      "referenceHeight": 6.439902360420929,
+      "seedFixedFuturePx": 1.963647903315109,
+      "targetInternalPx": 1.9558670703725063,
+      "internalVsActualPx": 9.923905208708561e-08,
+      "heightRange": 0.0008550773279685231,
+      "changes": [
+        {
+          "frame": 5,
+          "kind": "E",
+          "root": -180,
+          "heightBefore": 6.65602171421051,
+          "heightAfter": 6.655166636882542,
+          "fixedFutureBeforePx": 1.963647903315109,
+          "fixedFutureAfterPx": 1.9558670703725063,
+          "visible": 1,
+          "unfittedWitnessHeight": 6.65602171421051
+        }
+      ],
+      "rootObservationCounts": {
+        "no_screen_samples": 2,
+        "fit_bound_failed": 3,
+        "certified": 6,
+        "shape_infeasible": 1,
+        "below_threshold_or_nonfinite": 160,
+        "outside_prefix": 20
+      },
+      "targetRoots": [
+        {
+          "frame": 48,
+          "phase": "before",
+          "witness": 2,
+          "root": -237,
+          "rank": 0,
+          "priority": 3.0135224581840925,
+          "threshold": 4,
+          "vertices": [
+            [
+              -347383,
+              0.7421875,
+              0.9921875,
+              6.661802313682076
+            ],
+            [
+              1620,
+              0.734375,
+              0.984375,
+              6.648530960083008
+            ],
+            [
+              -83134,
+              0.75,
+              0.984375,
+              6.692335288648476
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            2
+          ],
+          "visibleSamples": 117,
+          "sampleMaxPx": 1.9729597301381145
+        },
+        {
+          "frame": 48,
+          "phase": "before",
+          "witness": 2,
+          "root": -234,
+          "rank": 0,
+          "priority": 3.1075383805809236,
+          "threshold": 4,
+          "vertices": [
+            [
+              -347383,
+              0.7421875,
+              0.9921875,
+              6.661802313682076
+            ],
+            [
+              -168456,
+              0.7265625,
+              0.9921875,
+              6.586892068325208
+            ],
+            [
+              1620,
+              0.734375,
+              0.984375,
+              6.648530960083008
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            2
+          ],
+          "visibleSamples": 117,
+          "sampleMaxPx": 2.0150116667015787
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 48,
+          "witness": 2,
+          "root": -237,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 48,
+          "witness": 2,
+          "root": -234,
+          "stage": "outside_prefix"
+        }
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 95,
+      "returnFrame": 80,
+      "ordinal": 864998,
+      "u": 0.05859375,
+      "v": 0.55078125,
+      "roles": [
+        "screen_max",
+        "maximum_excess_component"
+      ],
+      "actualPx": 1.133568442602344,
+      "dodPx": 8.30661393253102e-08,
+      "excessPx": 1.1335683595362047,
+      "localWitness": 0,
+      "seedHeight": 5.3989787101745605,
+      "targetHeight": 5.3989787101745605,
+      "referenceHeight": 5.565120684855898,
+      "seedFixedFuturePx": 1.133568442602344,
+      "targetInternalPx": 1.133568442602344,
+      "internalVsActualPx": 0.0,
+      "heightRange": 0.0,
+      "changes": [],
+      "rootObservationCounts": {
+        "below_threshold_or_nonfinite": 128,
+        "outside_prefix": 64
+      },
+      "targetRoots": [
+        {
+          "frame": 95,
+          "phase": "before",
+          "witness": 0,
+          "root": 428,
+          "rank": 0,
+          "priority": 1.4892870546994188,
+          "threshold": 4,
+          "vertices": [
+            [
+              1118,
+              0.0625,
+              0.546875,
+              5.388515949249268
+            ],
+            [
+              1120,
+              0.0625,
+              0.5546875,
+              5.547206878662109
+            ],
+            [
+              1119,
+              0.0546875,
+              0.5546875,
+              5.4094414710998535
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            2
+          ],
+          "visibleSamples": 65,
+          "sampleMaxPx": 1.133568442602344
+        },
+        {
+          "frame": 95,
+          "phase": "before",
+          "witness": 0,
+          "root": 4812,
+          "rank": 0,
+          "priority": 1.4892870546994188,
+          "threshold": 4,
+          "vertices": [
+            [
+              1119,
+              0.0546875,
+              0.5546875,
+              5.4094414710998535
+            ],
+            [
+              2130,
+              0.0546875,
+              0.546875,
+              5.452879428863525
+            ],
+            [
+              1118,
+              0.0625,
+              0.546875,
+              5.388515949249268
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            2
+          ],
+          "visibleSamples": 65,
+          "sampleMaxPx": 1.133568442602344
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": 428,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": 4812,
+          "stage": "outside_prefix"
+        }
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 95,
+      "returnFrame": 80,
+      "ordinal": 712846,
+      "u": 0.5625,
+      "v": 0.453125,
+      "roles": [
+        "largest_component"
+      ],
+      "actualPx": 0.694446852998618,
+      "dodPx": 8.354380282183426e-07,
+      "excessPx": 0.6944460175605898,
+      "localWitness": 1,
+      "seedHeight": 8.58643102645874,
+      "targetHeight": 8.58643102645874,
+      "referenceHeight": 8.694232811043388,
+      "seedFixedFuturePx": 0.694446852998598,
+      "targetInternalPx": 0.694446852998598,
+      "internalVsActualPx": -1.9984014443252818e-14,
+      "heightRange": 0.0,
+      "changes": [],
+      "rootObservationCounts": {
+        "below_threshold_or_nonfinite": 157,
+        "outside_prefix": 35
+      },
+      "targetRoots": [
+        {
+          "frame": 95,
+          "phase": "before",
+          "witness": 1,
+          "root": 2160,
+          "rank": 0,
+          "priority": 2.191395578208667,
+          "threshold": 4,
+          "vertices": [
+            [
+              690,
+              0.5625,
+              0.4375,
+              8.669184684753418
+            ],
+            [
+              3511,
+              0.578125,
+              0.453125,
+              8.518261909484863
+            ],
+            [
+              1760,
+              0.5625,
+              0.46875,
+              8.503677368164062
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            2
+          ],
+          "visibleSamples": 425,
+          "sampleMaxPx": 0.72173964741823
+        },
+        {
+          "frame": 95,
+          "phase": "before",
+          "witness": 1,
+          "root": 8007,
+          "rank": 0,
+          "priority": 2.1625931804872325,
+          "threshold": 4,
+          "vertices": [
+            [
+              1760,
+              0.5625,
+              0.46875,
+              8.503677368164062
+            ],
+            [
+              692,
+              0.546875,
+              0.453125,
+              8.579296112060547
+            ],
+            [
+              690,
+              0.5625,
+              0.4375,
+              8.669184684753418
+            ]
+          ],
+          "edgeCounts": [
+            2,
+            2,
+            2
+          ],
+          "visibleSamples": 425,
+          "sampleMaxPx": 0.7052861693861805
+        }
+      ],
+      "targetRecovery": [
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": 2160,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": 8007,
+          "stage": "outside_prefix"
+        }
+      ]
+    }
+  ],
+  "compatibility": {
+    "peking547-b50000-transactional-t8": {
+      "legacyFilesByteExact": 6,
+      "frames": 24,
+      "observationCosts": [
+        {
+          "frame": "15",
+          "seconds": "0.21021629999999999"
+        }
+      ]
+    },
+    "dem-sierra-b50000-transactional-t8": {
+      "legacyFilesByteExact": 10,
+      "frames": 96,
+      "observationCosts": [
+        {
+          "frame": "48",
+          "seconds": "0.069394300000000006"
+        },
+        {
+          "frame": "95",
+          "seconds": "0.0434931"
+        }
+      ]
+    },
+    "normal": {
+      "framesExact": 24,
+      "fieldsExact": [
+        "frame",
+        "sample",
+        "event",
+        "warmup",
+        "poseHash",
+        "projectionHash",
+        "faces",
+        "budget",
+        "workers",
+        "sequence",
+        "hash",
+        "uploadBytes",
+        "split",
+        "merge",
+        "status",
+        "updated",
+        "cold",
+        "seedFaces",
+        "samples",
+        "raw",
+        "examined",
+        "receivers",
+        "need",
+        "feasible",
+        "exchanges",
+        "free",
+        "pairs",
+        "conflicts",
+        "donorReuse",
+        "touches",
+        "evaluations",
+        "vertexWrites",
+        "indexWrites",
+        "image",
+        "artifact"
+      ],
+      "costs": {
+        "before": {
+          "meanMs": 40.0190619514102,
+          "medianMs": 34.72610092163086,
+          "p95Ms": 136.58389282226562,
+          "maxMs": 147.7996063232422
+        },
+        "after": {
+          "meanMs": 39.34877659025646,
+          "medianMs": 33.53929901123047,
+          "p95Ms": 138.4008026123047,
+          "maxMs": 144.6678009033203
+        }
+      }
+    }
+  },
+  "maxWitnessInternalOutputDifferencePx": 9.923905208708561e-08,
+  "analysisSeconds": 6.099905637999996,
+  "peakRssKiB": 297716
+}
