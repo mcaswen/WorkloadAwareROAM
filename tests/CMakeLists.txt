@@ -645,6 +645,8 @@ if(TARGET parallel_roam_experiment_infrastructure AND TARGET parallel_roam_trans
         ../src/benchmark/experiment/ExperimentCpuMain.cpp
         ../src/benchmark/experiment/ExperimentReplay.cpp
         ../src/benchmark/experiment/ExperimentCpuReplay.cpp
+        ../src/benchmark/experiment/TransactionalRecoveryTrace.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalQualityProvenance.cpp
         ../src/tools/profiling/ProfileSession.cpp
         ../src/algorithms/TerrainLodAlgorithmRegistry.cpp
         ../src/algorithms/classic_roam/ClassicRoamTerrainLodAlgorithm.cpp

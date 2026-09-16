@@ -1,0 +1,1340 @@
+{
+  "scope": "QPC-01 diagnostic evidence; no production repair",
+  "cases": {
+    "peking547-b50000-transactional-t8": {
+      "frames": 24,
+      "ferFrameIdentityExact": true,
+      "diagnosticSeconds": 4.6486466,
+      "binary": {
+        "path": "build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1418752,
+        "sha256": "85f158e708d39c59e221a016a15398e2d35d110823e77551fcbd2db99e5b352b"
+      },
+      "budget": 50000,
+      "prefix": 160,
+      "splitPixels": 0.25,
+      "finalFaces": 49999,
+      "boundaryEdges": 401,
+      "witnesses": [
+        {
+          "frame": 15,
+          "returnFrame": 16,
+          "ordinal": 1790794,
+          "u": 0.9743589758872986,
+          "v": 1.0,
+          "roles": [
+            "screen_max"
+          ],
+          "actualPx": 1.9965571109865088,
+          "dodPx": 0.020611509775499484,
+          "excessPx": 1.9759456012110093,
+          "localWitness": 0,
+          "seedHeight": 1.736194959252316,
+          "targetHeight": 1.736194959252316,
+          "referenceHeight": 1.9037766066970527,
+          "seedFixedFuturePx": 1.9965571109865088,
+          "targetInternalPx": 1.9965571109865088,
+          "internalVsActualPx": 0.0,
+          "heightRange": 0.0,
+          "changes": [],
+          "rootObservationCounts": {
+            "shape_infeasible": 15,
+            "certified": 1,
+            "outside_prefix": 8
+          },
+          "targetRoots": [
+            {
+              "frame": 15,
+              "phase": "before",
+              "witness": 0,
+              "root": -112,
+              "rank": 194,
+              "priority": 15.972323772634594,
+              "threshold": 0.25,
+              "vertices": [
+                [
+                  -828436,
+                  0.96875,
+                  0.96875,
+                  1.647886036568396
+                ],
+                [
+                  3,
+                  1,
+                  1,
+                  1.7395284175872803
+                ],
+                [
+                  110,
+                  0.9375,
+                  1,
+                  1.731403112411499
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                1,
+                2
+              ],
+              "visibleSamples": 1820,
+              "sampleMaxPx": 1.9965571240575115
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 15,
+              "witness": 0,
+              "root": -112,
+              "stage": "outside_prefix"
+            }
+          ]
+        },
+        {
+          "frame": 15,
+          "returnFrame": 16,
+          "ordinal": 1790800,
+          "u": 0.976190447807312,
+          "v": 1.0,
+          "roles": [
+            "largest_component",
+            "maximum_excess_component"
+          ],
+          "actualPx": 1.9808580779439462,
+          "dodPx": 0.0034887595707041833,
+          "excessPx": 1.977369318373242,
+          "localWitness": 1,
+          "seedHeight": 1.7364330595446518,
+          "targetHeight": 1.7364330595446518,
+          "referenceHeight": 1.9023117645186836,
+          "seedFixedFuturePx": 1.9808580779439462,
+          "targetInternalPx": 1.9808580779439462,
+          "internalVsActualPx": 0.0,
+          "heightRange": 0.0,
+          "changes": [],
+          "rootObservationCounts": {
+            "shape_infeasible": 15,
+            "certified": 1,
+            "outside_prefix": 8
+          },
+          "targetRoots": [
+            {
+              "frame": 15,
+              "phase": "before",
+              "witness": 1,
+              "root": -112,
+              "rank": 194,
+              "priority": 15.972323772634594,
+              "threshold": 0.25,
+              "vertices": [
+                [
+                  -828436,
+                  0.96875,
+                  0.96875,
+                  1.647886036568396
+                ],
+                [
+                  3,
+                  1,
+                  1,
+                  1.7395284175872803
+                ],
+                [
+                  110,
+                  0.9375,
+                  1,
+                  1.731403112411499
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                1,
+                2
+              ],
+              "visibleSamples": 1820,
+              "sampleMaxPx": 1.9965571240575115
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 15,
+              "witness": 1,
+              "root": -112,
+              "stage": "outside_prefix"
+            }
+          ]
+        }
+      ],
+      "warmNoTopologyFrames": 10,
+      "totals": {
+        "receivers": 308,
+        "need": 308,
+        "feasible": 308,
+        "exchanges": 145,
+        "free": 0,
+        "pairs": 28580,
+        "conflicts": 23551,
+        "donorReuse": 4127,
+        "flips": 1
+      },
+      "pages": [
+        {
+          "frame": 15,
+          "visibleSamples": 1712379,
+          "excessSamples": 35179,
+          "components": 141,
+          "largestComponentSamples": 7932
+        }
+      ]
+    },
+    "peking547-b200000-transactional-t8": {
+      "frames": 24,
+      "ferFrameIdentityExact": true,
+      "diagnosticSeconds": 25.194454099999998,
+      "binary": {
+        "path": "build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1418752,
+        "sha256": "85f158e708d39c59e221a016a15398e2d35d110823e77551fcbd2db99e5b352b"
+      },
+      "budget": 200000,
+      "prefix": 640,
+      "splitPixels": 0.25,
+      "finalFaces": 200000,
+      "boundaryEdges": 766,
+      "witnesses": [
+        {
+          "frame": 15,
+          "returnFrame": 16,
+          "ordinal": 1790794,
+          "u": 0.9743589758872986,
+          "v": 1.0,
+          "roles": [
+            "screen_max",
+            "largest_component",
+            "maximum_excess_component"
+          ],
+          "actualPx": 1.9965571109865088,
+          "dodPx": 0.004685191110353975,
+          "excessPx": 1.9918719198761548,
+          "localWitness": 0,
+          "seedHeight": 1.736194959252316,
+          "targetHeight": 1.736194959252316,
+          "referenceHeight": 1.9037766066970527,
+          "seedFixedFuturePx": 1.9965571109865088,
+          "targetInternalPx": 1.9965571109865088,
+          "internalVsActualPx": 0.0,
+          "heightRange": 0.0,
+          "changes": [],
+          "rootObservationCounts": {
+            "shape_infeasible": 19,
+            "certified": 1,
+            "outside_prefix": 4
+          },
+          "targetRoots": [
+            {
+              "frame": 15,
+              "phase": "before",
+              "witness": 0,
+              "root": -461,
+              "rank": 104,
+              "priority": 15.972323772634594,
+              "threshold": 0.25,
+              "vertices": [
+                [
+                  -5425472,
+                  0.96875,
+                  0.96875,
+                  1.647886036568396
+                ],
+                [
+                  3,
+                  1,
+                  1,
+                  1.7395284175872803
+                ],
+                [
+                  110,
+                  0.9375,
+                  1,
+                  1.731403112411499
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                1,
+                2
+              ],
+              "visibleSamples": 1820,
+              "sampleMaxPx": 1.9965571240575115
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 15,
+              "witness": 0,
+              "root": -461,
+              "stage": "shape_infeasible",
+              "attempts": [
+                [
+                  "E",
+                  "shape_infeasible"
+                ],
+                [
+                  "E",
+                  "fit_bound_failed"
+                ],
+                [
+                  "F",
+                  "shape_infeasible"
+                ],
+                [
+                  "H",
+                  "shape_infeasible"
+                ]
+              ],
+              "selected": false
+            }
+          ]
+        }
+      ],
+      "warmNoTopologyFrames": 9,
+      "totals": {
+        "receivers": 1114,
+        "need": 1114,
+        "feasible": 1114,
+        "exchanges": 522,
+        "free": 0,
+        "pairs": 412142,
+        "conflicts": 355191,
+        "donorReuse": 48240,
+        "flips": 1
+      },
+      "pages": [
+        {
+          "frame": 15,
+          "visibleSamples": 1712379,
+          "excessSamples": 22498,
+          "components": 42,
+          "largestComponentSamples": 7705
+        }
+      ]
+    },
+    "dem-canyon-b50000-transactional-t8": {
+      "frames": 96,
+      "ferFrameIdentityExact": true,
+      "diagnosticSeconds": 15.3290534,
+      "binary": {
+        "path": "build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1418752,
+        "sha256": "85f158e708d39c59e221a016a15398e2d35d110823e77551fcbd2db99e5b352b"
+      },
+      "budget": 50000,
+      "prefix": 160,
+      "splitPixels": 4,
+      "finalFaces": 50000,
+      "boundaryEdges": 316,
+      "witnesses": [
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 1574412,
+          "u": 0.837890625,
+          "v": 1.0,
+          "roles": [
+            "screen_max"
+          ],
+          "actualPx": 9.274476736648769,
+          "dodPx": 0.48755767057010524,
+          "excessPx": 8.786919066078664,
+          "localWitness": 0,
+          "seedHeight": 3.612383708357811,
+          "targetHeight": 3.612383708357811,
+          "referenceHeight": 2.4800869703129136,
+          "seedFixedFuturePx": 9.274476736648769,
+          "targetInternalPx": 9.274476736648769,
+          "internalVsActualPx": 0.0,
+          "heightRange": 0.0,
+          "changes": [],
+          "rootObservationCounts": {
+            "shape_infeasible": 6,
+            "certified": 1,
+            "flip_exhausted": 59,
+            "outside_prefix": 30
+          },
+          "targetRoots": [
+            {
+              "frame": 48,
+              "phase": "before",
+              "witness": 0,
+              "root": -319,
+              "rank": 65,
+              "priority": 11.550127752746544,
+              "threshold": 4,
+              "vertices": [
+                [
+                  -773399,
+                  0.859375,
+                  0.984375,
+                  3.775626549322932
+                ],
+                [
+                  0,
+                  0.875,
+                  1,
+                  4.398344993591309
+                ],
+                [
+                  456,
+                  0.8125,
+                  1,
+                  3.0746207237243652
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                1,
+                2
+              ],
+              "visibleSamples": 817,
+              "sampleMaxPx": 9.274476736648769
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 48,
+              "witness": 0,
+              "root": -319,
+              "stage": "flip_exhausted",
+              "attempts": [
+                [
+                  "E",
+                  "shape_infeasible"
+                ],
+                [
+                  "E",
+                  "shape_infeasible"
+                ],
+                [
+                  "F",
+                  "shape_infeasible"
+                ],
+                [
+                  "H",
+                  "shape_infeasible"
+                ],
+                [
+                  "R",
+                  "flip_nonconvex_or_existing_diagonal"
+                ],
+                [
+                  "R",
+                  "quality_infeasible"
+                ],
+                [
+                  "R",
+                  "flip_not_interior"
+                ]
+              ],
+              "selected": false
+            }
+          ]
+        },
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 1574406,
+          "u": 0.8359375,
+          "v": 1.0,
+          "roles": [
+            "largest_component"
+          ],
+          "actualPx": 8.889741297571057,
+          "dodPx": 2.105403356421619e-07,
+          "excessPx": 8.889741087030721,
+          "localWitness": 1,
+          "seedHeight": 3.571017324924469,
+          "targetHeight": 3.571017324924469,
+          "referenceHeight": 2.4862990637997737,
+          "seedFixedFuturePx": 8.889741297571057,
+          "targetInternalPx": 8.889741297571057,
+          "internalVsActualPx": 0.0,
+          "heightRange": 0.0,
+          "changes": [],
+          "rootObservationCounts": {
+            "shape_infeasible": 6,
+            "certified": 1,
+            "flip_exhausted": 59,
+            "outside_prefix": 30
+          },
+          "targetRoots": [
+            {
+              "frame": 48,
+              "phase": "before",
+              "witness": 1,
+              "root": -319,
+              "rank": 65,
+              "priority": 11.550127752746544,
+              "threshold": 4,
+              "vertices": [
+                [
+                  -773399,
+                  0.859375,
+                  0.984375,
+                  3.775626549322932
+                ],
+                [
+                  0,
+                  0.875,
+                  1,
+                  4.398344993591309
+                ],
+                [
+                  456,
+                  0.8125,
+                  1,
+                  3.0746207237243652
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                1,
+                2
+              ],
+              "visibleSamples": 817,
+              "sampleMaxPx": 9.274476736648769
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 48,
+              "witness": 1,
+              "root": -319,
+              "stage": "flip_exhausted",
+              "attempts": [
+                [
+                  "E",
+                  "shape_infeasible"
+                ],
+                [
+                  "E",
+                  "shape_infeasible"
+                ],
+                [
+                  "F",
+                  "shape_infeasible"
+                ],
+                [
+                  "H",
+                  "shape_infeasible"
+                ],
+                [
+                  "R",
+                  "flip_nonconvex_or_existing_diagonal"
+                ],
+                [
+                  "R",
+                  "quality_infeasible"
+                ],
+                [
+                  "R",
+                  "flip_not_interior"
+                ]
+              ],
+              "selected": false
+            }
+          ]
+        },
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 1574874,
+          "u": 0.98828125,
+          "v": 1.0,
+          "roles": [
+            "maximum_excess_component"
+          ],
+          "actualPx": 8.972328616363596,
+          "dodPx": 1.7128578219975206e-06,
+          "excessPx": 8.972326903505774,
+          "localWitness": 2,
+          "seedHeight": 7.559752345085144,
+          "targetHeight": 7.559752345085144,
+          "referenceHeight": 6.449797417048487,
+          "seedFixedFuturePx": 8.972328616363596,
+          "targetInternalPx": 8.972328616363596,
+          "internalVsActualPx": 0.0,
+          "heightRange": 0.0,
+          "changes": [],
+          "rootObservationCounts": {
+            "no_screen_samples": 3,
+            "fit_bound_failed": 23,
+            "outside_prefix": 34,
+            "certified": 1,
+            "flip_exhausted": 35
+          },
+          "targetRoots": [
+            {
+              "frame": 48,
+              "phase": "before",
+              "witness": 2,
+              "root": 624,
+              "rank": 223,
+              "priority": 8.972328616363596,
+              "threshold": 4,
+              "vertices": [
+                [
+                  1498,
+                  0.96875,
+                  1,
+                  7.316749572753906
+                ],
+                [
+                  120,
+                  0.984375,
+                  0.984375,
+                  5.609155178070068
+                ],
+                [
+                  1722,
+                  1,
+                  1,
+                  7.705554008483887
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                1
+              ],
+              "visibleSamples": 425,
+              "sampleMaxPx": 8.972328616363596
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 48,
+              "witness": 2,
+              "root": 624,
+              "stage": "outside_prefix"
+            }
+          ]
+        }
+      ],
+      "warmNoTopologyFrames": 76,
+      "totals": {
+        "receivers": 165,
+        "need": 165,
+        "feasible": 163,
+        "exchanges": 77,
+        "free": 0,
+        "pairs": 15154,
+        "conflicts": 8843,
+        "donorReuse": 491,
+        "flips": 1
+      },
+      "pages": [
+        {
+          "frame": 48,
+          "visibleSamples": 1114577,
+          "excessSamples": 131219,
+          "components": 1988,
+          "largestComponentSamples": 20454
+        }
+      ]
+    },
+    "dem-sierra-b50000-transactional-t8": {
+      "frames": 96,
+      "ferFrameIdentityExact": true,
+      "diagnosticSeconds": 4.4973347,
+      "binary": {
+        "path": "build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1418752,
+        "sha256": "85f158e708d39c59e221a016a15398e2d35d110823e77551fcbd2db99e5b352b"
+      },
+      "budget": 50000,
+      "prefix": 160,
+      "splitPixels": 4,
+      "finalFaces": 8976,
+      "boundaryEdges": 162,
+      "witnesses": [
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 1561810,
+          "u": 0.73828125,
+          "v": 0.9921875,
+          "roles": [
+            "screen_max"
+          ],
+          "actualPx": 2.015011653542709,
+          "dodPx": 1.0416797893895509,
+          "excessPx": 0.9733318641531583,
+          "localWitness": 0,
+          "seedHeight": 6.640109062194824,
+          "targetHeight": 6.6430747523428595,
+          "referenceHeight": 6.42182966904463,
+          "seedFixedFuturePx": 1.9879600882205277,
+          "targetInternalPx": 2.0150116667015787,
+          "internalVsActualPx": 1.3158869549556584e-08,
+          "heightRange": 0.004248306139987612,
+          "changes": [
+            {
+              "frame": 3,
+              "kind": "E",
+              "root": 4182,
+              "heightBefore": 6.640109062194824,
+              "heightAfter": 6.644357368334812,
+              "fixedFutureBeforePx": 1.9879600882205277,
+              "fixedFutureAfterPx": 2.0267114117896274,
+              "visible": 0,
+              "unfittedWitnessHeight": 6.640109062194824
+            },
+            {
+              "frame": 5,
+              "kind": "E",
+              "root": -180,
+              "heightBefore": 6.644357368334812,
+              "heightAfter": 6.6430747523428595,
+              "fixedFutureBeforePx": 2.0267114117896274,
+              "fixedFutureAfterPx": 2.0150116667015787,
+              "visible": 0,
+              "unfittedWitnessHeight": 6.644357368334812
+            }
+          ],
+          "rootObservationCounts": {
+            "no_screen_samples": 2,
+            "fit_bound_failed": 1,
+            "certified": 2,
+            "shape_infeasible": 1,
+            "flip_exhausted": 42,
+            "below_threshold_or_nonfinite": 79,
+            "outside_prefix": 59
+          },
+          "targetRoots": [
+            {
+              "frame": 48,
+              "phase": "before",
+              "witness": 0,
+              "root": -236,
+              "rank": 1849,
+              "priority": 4.936132091927998,
+              "threshold": 4,
+              "vertices": [
+                [
+                  -347383,
+                  0.7421875,
+                  0.9921875,
+                  6.661802313682076
+                ],
+                [
+                  1091,
+                  0.75,
+                  1,
+                  6.678493976593018
+                ],
+                [
+                  -168456,
+                  0.7265625,
+                  0.9921875,
+                  6.586892068325208
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                2
+              ],
+              "visibleSamples": 113,
+              "sampleMaxPx": 2.0150116667015787
+            },
+            {
+              "frame": 48,
+              "phase": "before",
+              "witness": 0,
+              "root": -234,
+              "rank": 0,
+              "priority": 3.1075383805809236,
+              "threshold": 4,
+              "vertices": [
+                [
+                  -347383,
+                  0.7421875,
+                  0.9921875,
+                  6.661802313682076
+                ],
+                [
+                  -168456,
+                  0.7265625,
+                  0.9921875,
+                  6.586892068325208
+                ],
+                [
+                  1620,
+                  0.734375,
+                  0.984375,
+                  6.648530960083008
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                2
+              ],
+              "visibleSamples": 117,
+              "sampleMaxPx": 2.0150116667015787
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 48,
+              "witness": 0,
+              "root": -236,
+              "stage": "outside_prefix"
+            },
+            {
+              "frame": 48,
+              "witness": 0,
+              "root": -234,
+              "stage": "outside_prefix"
+            }
+          ]
+        },
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 712846,
+          "u": 0.5625,
+          "v": 0.453125,
+          "roles": [
+            "largest_component"
+          ],
+          "actualPx": 0.7807344860424038,
+          "dodPx": 9.392993529668132e-07,
+          "excessPx": 0.7807335467430508,
+          "localWitness": 1,
+          "seedHeight": 8.58643102645874,
+          "targetHeight": 8.58643102645874,
+          "referenceHeight": 8.694232811043388,
+          "seedFixedFuturePx": 0.7807344860423647,
+          "targetInternalPx": 0.7807344860423647,
+          "internalVsActualPx": -3.907985046680551e-14,
+          "heightRange": 0.0,
+          "changes": [],
+          "rootObservationCounts": {
+            "below_threshold_or_nonfinite": 157,
+            "outside_prefix": 35
+          },
+          "targetRoots": [
+            {
+              "frame": 48,
+              "phase": "before",
+              "witness": 1,
+              "root": 2160,
+              "rank": 0,
+              "priority": 2.6788358347759678,
+              "threshold": 4,
+              "vertices": [
+                [
+                  690,
+                  0.5625,
+                  0.4375,
+                  8.669184684753418
+                ],
+                [
+                  3511,
+                  0.578125,
+                  0.453125,
+                  8.518261909484863
+                ],
+                [
+                  1760,
+                  0.5625,
+                  0.46875,
+                  8.503677368164062
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                2
+              ],
+              "visibleSamples": 425,
+              "sampleMaxPx": 0.8105628037612206
+            },
+            {
+              "frame": 48,
+              "phase": "before",
+              "witness": 1,
+              "root": 8007,
+              "rank": 0,
+              "priority": 2.6903013956878663,
+              "threshold": 4,
+              "vertices": [
+                [
+                  1760,
+                  0.5625,
+                  0.46875,
+                  8.503677368164062
+                ],
+                [
+                  692,
+                  0.546875,
+                  0.453125,
+                  8.579296112060547
+                ],
+                [
+                  690,
+                  0.5625,
+                  0.4375,
+                  8.669184684753418
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                2
+              ],
+              "visibleSamples": 425,
+              "sampleMaxPx": 0.793753327540715
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 48,
+              "witness": 1,
+              "root": 2160,
+              "stage": "outside_prefix"
+            },
+            {
+              "frame": 48,
+              "witness": 1,
+              "root": 8007,
+              "stage": "outside_prefix"
+            }
+          ]
+        },
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 1555662,
+          "u": 0.73828125,
+          "v": 0.98828125,
+          "roles": [
+            "maximum_excess_component"
+          ],
+          "actualPx": 1.9558669711334542,
+          "dodPx": 3.828678507700674e-06,
+          "excessPx": 1.9558631424549464,
+          "localWitness": 2,
+          "seedHeight": 6.65602171421051,
+          "targetHeight": 6.655166636882542,
+          "referenceHeight": 6.439902360420929,
+          "seedFixedFuturePx": 1.963647903315109,
+          "targetInternalPx": 1.9558670703725063,
+          "internalVsActualPx": 9.923905208708561e-08,
+          "heightRange": 0.0008550773279685231,
+          "changes": [
+            {
+              "frame": 5,
+              "kind": "E",
+              "root": -180,
+              "heightBefore": 6.65602171421051,
+              "heightAfter": 6.655166636882542,
+              "fixedFutureBeforePx": 1.963647903315109,
+              "fixedFutureAfterPx": 1.9558670703725063,
+              "visible": 1,
+              "unfittedWitnessHeight": 6.65602171421051
+            }
+          ],
+          "rootObservationCounts": {
+            "no_screen_samples": 2,
+            "fit_bound_failed": 3,
+            "certified": 6,
+            "shape_infeasible": 1,
+            "below_threshold_or_nonfinite": 160,
+            "outside_prefix": 20
+          },
+          "targetRoots": [
+            {
+              "frame": 48,
+              "phase": "before",
+              "witness": 2,
+              "root": -237,
+              "rank": 0,
+              "priority": 3.0135224581840925,
+              "threshold": 4,
+              "vertices": [
+                [
+                  -347383,
+                  0.7421875,
+                  0.9921875,
+                  6.661802313682076
+                ],
+                [
+                  1620,
+                  0.734375,
+                  0.984375,
+                  6.648530960083008
+                ],
+                [
+                  -83134,
+                  0.75,
+                  0.984375,
+                  6.692335288648476
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                2
+              ],
+              "visibleSamples": 117,
+              "sampleMaxPx": 1.9729597301381145
+            },
+            {
+              "frame": 48,
+              "phase": "before",
+              "witness": 2,
+              "root": -234,
+              "rank": 0,
+              "priority": 3.1075383805809236,
+              "threshold": 4,
+              "vertices": [
+                [
+                  -347383,
+                  0.7421875,
+                  0.9921875,
+                  6.661802313682076
+                ],
+                [
+                  -168456,
+                  0.7265625,
+                  0.9921875,
+                  6.586892068325208
+                ],
+                [
+                  1620,
+                  0.734375,
+                  0.984375,
+                  6.648530960083008
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                2
+              ],
+              "visibleSamples": 117,
+              "sampleMaxPx": 2.0150116667015787
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 48,
+              "witness": 2,
+              "root": -237,
+              "stage": "outside_prefix"
+            },
+            {
+              "frame": 48,
+              "witness": 2,
+              "root": -234,
+              "stage": "outside_prefix"
+            }
+          ]
+        },
+        {
+          "frame": 95,
+          "returnFrame": 80,
+          "ordinal": 864998,
+          "u": 0.05859375,
+          "v": 0.55078125,
+          "roles": [
+            "screen_max",
+            "maximum_excess_component"
+          ],
+          "actualPx": 1.133568442602344,
+          "dodPx": 8.30661393253102e-08,
+          "excessPx": 1.1335683595362047,
+          "localWitness": 0,
+          "seedHeight": 5.3989787101745605,
+          "targetHeight": 5.3989787101745605,
+          "referenceHeight": 5.565120684855898,
+          "seedFixedFuturePx": 1.133568442602344,
+          "targetInternalPx": 1.133568442602344,
+          "internalVsActualPx": 0.0,
+          "heightRange": 0.0,
+          "changes": [],
+          "rootObservationCounts": {
+            "below_threshold_or_nonfinite": 128,
+            "outside_prefix": 64
+          },
+          "targetRoots": [
+            {
+              "frame": 95,
+              "phase": "before",
+              "witness": 0,
+              "root": 428,
+              "rank": 0,
+              "priority": 1.4892870546994188,
+              "threshold": 4,
+              "vertices": [
+                [
+                  1118,
+                  0.0625,
+                  0.546875,
+                  5.388515949249268
+                ],
+                [
+                  1120,
+                  0.0625,
+                  0.5546875,
+                  5.547206878662109
+                ],
+                [
+                  1119,
+                  0.0546875,
+                  0.5546875,
+                  5.4094414710998535
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                2
+              ],
+              "visibleSamples": 65,
+              "sampleMaxPx": 1.133568442602344
+            },
+            {
+              "frame": 95,
+              "phase": "before",
+              "witness": 0,
+              "root": 4812,
+              "rank": 0,
+              "priority": 1.4892870546994188,
+              "threshold": 4,
+              "vertices": [
+                [
+                  1119,
+                  0.0546875,
+                  0.5546875,
+                  5.4094414710998535
+                ],
+                [
+                  2130,
+                  0.0546875,
+                  0.546875,
+                  5.452879428863525
+                ],
+                [
+                  1118,
+                  0.0625,
+                  0.546875,
+                  5.388515949249268
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                2
+              ],
+              "visibleSamples": 65,
+              "sampleMaxPx": 1.133568442602344
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 95,
+              "witness": 0,
+              "root": 428,
+              "stage": "outside_prefix"
+            },
+            {
+              "frame": 95,
+              "witness": 0,
+              "root": 4812,
+              "stage": "outside_prefix"
+            }
+          ]
+        },
+        {
+          "frame": 95,
+          "returnFrame": 80,
+          "ordinal": 712846,
+          "u": 0.5625,
+          "v": 0.453125,
+          "roles": [
+            "largest_component"
+          ],
+          "actualPx": 0.694446852998618,
+          "dodPx": 8.354380282183426e-07,
+          "excessPx": 0.6944460175605898,
+          "localWitness": 1,
+          "seedHeight": 8.58643102645874,
+          "targetHeight": 8.58643102645874,
+          "referenceHeight": 8.694232811043388,
+          "seedFixedFuturePx": 0.694446852998598,
+          "targetInternalPx": 0.694446852998598,
+          "internalVsActualPx": -1.9984014443252818e-14,
+          "heightRange": 0.0,
+          "changes": [],
+          "rootObservationCounts": {
+            "below_threshold_or_nonfinite": 157,
+            "outside_prefix": 35
+          },
+          "targetRoots": [
+            {
+              "frame": 95,
+              "phase": "before",
+              "witness": 1,
+              "root": 2160,
+              "rank": 0,
+              "priority": 2.191395578208667,
+              "threshold": 4,
+              "vertices": [
+                [
+                  690,
+                  0.5625,
+                  0.4375,
+                  8.669184684753418
+                ],
+                [
+                  3511,
+                  0.578125,
+                  0.453125,
+                  8.518261909484863
+                ],
+                [
+                  1760,
+                  0.5625,
+                  0.46875,
+                  8.503677368164062
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                2
+              ],
+              "visibleSamples": 425,
+              "sampleMaxPx": 0.72173964741823
+            },
+            {
+              "frame": 95,
+              "phase": "before",
+              "witness": 1,
+              "root": 8007,
+              "rank": 0,
+              "priority": 2.1625931804872325,
+              "threshold": 4,
+              "vertices": [
+                [
+                  1760,
+                  0.5625,
+                  0.46875,
+                  8.503677368164062
+                ],
+                [
+                  692,
+                  0.546875,
+                  0.453125,
+                  8.579296112060547
+                ],
+                [
+                  690,
+                  0.5625,
+                  0.4375,
+                  8.669184684753418
+                ]
+              ],
+              "edgeCounts": [
+                2,
+                2,
+                2
+              ],
+              "visibleSamples": 425,
+              "sampleMaxPx": 0.7052861693861805
+            }
+          ],
+          "targetRecovery": [
+            {
+              "frame": 95,
+              "witness": 1,
+              "root": 2160,
+              "stage": "outside_prefix"
+            },
+            {
+              "frame": 95,
+              "witness": 1,
+              "root": 8007,
+              "stage": "outside_prefix"
+            }
+          ]
+        }
+      ],
+      "warmNoTopologyFrames": 80,
+      "totals": {
+        "receivers": 169,
+        "need": 0,
+        "feasible": 0,
+        "exchanges": 0,
+        "free": 92,
+        "pairs": 0,
+        "conflicts": 77,
+        "donorReuse": 0,
+        "flips": 2
+      },
+      "pages": [
+        {
+          "frame": 48,
+          "visibleSamples": 1155480,
+          "excessSamples": 145425,
+          "components": 1004,
+          "largestComponentSamples": 1398
+        },
+        {
+          "frame": 95,
+          "visibleSamples": 1503180,
+          "excessSamples": 141377,
+          "components": 1324,
+          "largestComponentSamples": 1267
+        }
+      ]
+    }
+  },
+  "selection": {
+    "path": "benchmark-output/cpu-refinement/qpc-01/run-01/selection.json",
+    "bytes": 24532,
+    "sha256": "51600773ea8998a298196ea6a0816e0c6e00103b58075267044ef5624bf38c32"
+  },
+  "validation": {
+    "independentSmallSamplingDomains": 3,
+    "rejections": {
+      "empty": 1,
+      "outside_uv": 1,
+      "nonfinite": 1,
+      "frame_range": 1,
+      "over_quota": 1,
+      "overwrite": 1,
+      "unknown_extra": 1
+    },
+    "productionSourcesUnchanged": true,
+    "diagnosticBinary": {
+      "path": "build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+      "bytes": 1418752,
+      "sha256": "85f158e708d39c59e221a016a15398e2d35d110823e77551fcbd2db99e5b352b"
+    }
+  },
+  "normalCompatibility": {
+    "frames": 24,
+    "warmBeforeMs": 39.1207762218657,
+    "warmAfterMs": 38.55778648739769,
+    "ratio": 0.9856089324180297,
+    "scope": "one process pair; no renderer"
+  },
+  "oldProbeCompatibility": {
+    "witnesses.csv": true,
+    "transactions.jsonl": true,
+    "recovery.jsonl": true
+  }
+}

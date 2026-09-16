@@ -157,7 +157,7 @@ structural failure可以与view-dependent failure有不同生命周期，但不�
 
 | 阶段 | 小规划建议路径 | 当前状态 |
 |---|---|---|
-| QPC-01 质量来源与恢复阻塞 | `docs/plans/cpu_refinement/qpc_01_quality_recovery_audit_plan.md` | 未开始 |
+| QPC-01 质量来源与恢复阻塞 | [小规划](qpc_01_quality_recovery_audit_plan.md) | 诊断完成，待用户验收；未修复质量 |
 | QPC-02 CBT质量有效性 | `docs/plans/cbt_2024/qpc_02_quality_validity_plan.md` | 未开始，独立审计 |
 | QPC-03 CPU参考与计时边界 | `docs/plans/profiling/qpc_03_cpu_baseline_audit_plan.md` | 未开始，独立审计 |
 | QPC-04 有限质量修复与契约冻结 | `docs/plans/cpu_refinement/qpc_04_quality_contract_plan.md` | 条件阶段，依赖01 |
@@ -360,5 +360,7 @@ Peking优先50k与200k既有路线；100k用于解释规模，按需要复用/�
 各阶段报告/事实/审查放在其小规划对应模块，使用同一QPC编号并由本文件索引。原始程序/mesh/误差/诊断追踪进入Git忽略的benchmark-output；聚合表、必要图、生成脚本和来源清单按阶段提交。最终交付逐项回答V01–V12，不用总PASS抹掉OPEN项。
 
 规划编写时只创建本大规划，并将问题清单指向该承接规划，没有创建九份占位小规划或修改算法。用户现已授权先提交现有内容，再进入QPC-01的独立小规划；每阶段完成后均需用户验收，后续状态按实际执行回填。
+
+2026-09-16：QPC-01已按冻结四轨迹完成240机会追溯，见[结果](../../research/cpu_refinement/qpc_01_quality_recovery_results.md)。当前原语保持外边界折线，Peking/峡谷所选边界残差来自seed；山地另外存在新点拟合、目录/前缀及阈值阻塞。阶段出口是诊断完成，不是质量修复或性能准入。**当前等待用户验收，QPC-02及后续小阶段保持未开始。**
 
 规划自检：12项问题均有归属；九阶段职责和依赖独立；每阶段包含实验、实现归属、验收/成本、退出与提交；关键语义变化没有被等价优化授权覆盖；既有FER/PQ/GWR结果不改写。后续实现仍需对照本规划完成架构审查。

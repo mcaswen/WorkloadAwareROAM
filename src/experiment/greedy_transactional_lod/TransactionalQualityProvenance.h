@@ -9,7 +9,7 @@
 namespace ParallelRoam::Experiment::GreedyTransactionalLod
 {
 /// <summary>
-/// 预先冻结见证的离线追溯，保留原见证并允许追加一个参数域位置
+/// 预先冻结见证的离线追溯，兼容历史见证和显式有限见证列表
 /// 全域定位与额外认证只进入独立探针，不参与正常决策或计时
 /// </summary>
 class TransactionalQualityProvenance
@@ -21,6 +21,12 @@ class TransactionalQualityProvenance
 public:
     TransactionalQualityProvenance(const std::filesystem::path& output,const Config& future,const Config& returned,
         std::optional<Algorithms::GreedyTransactionalLod::Point> additionalWitness = {});
+    TransactionalQualityProvenance(const std::filesystem::path& output, const Config& future,
+        const Config& returned, std::vector<Algorithms::GreedyTransactionalLod::Point> witnesses);
+    /// <summary>
+    /// 在首次更新之前记录真实种子，不将 frame 0 的批后状态冒充初始状态
+    /// </summary>
+    void Seed(const State& state, const Samples& samples);
     void Before(std::size_t frame,const State& state,const Samples& samples,const Batch& batch);
     void After(std::size_t frame,const State& state,const Samples& samples);
 private:
@@ -28,6 +34,8 @@ private:
     // 固定未来视图只作反事实投影，不替换当前算法视图
     Config _future,_returned;
     std::ofstream _witnesses,_transactions,_recovery;
+    std::ofstream _roots;
+    bool _explicitWitnesses{};
     // 批前局部预测与批后内部曲面比对；不以它代替实际 float 网格评价
     std::vector<Algorithms::GreedyTransactionalLod::Point> _points;
     std::vector<double> _expected;

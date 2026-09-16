@@ -100,6 +100,77 @@ std::size_t Rank(const TransactionalState& state,const TransactionalSamples& sam
 }
 
 /// <summary>
+/// 显式见证记录全部覆盖根；共享边上的任意 owner 不能代表全部恢复机会
+/// 参数域包围盒只排除不可能命中，最终覆盖仍使用现有精确谓词
+/// </summary>
+std::vector<Slot> CoveringRoots(const TransactionalState& state, const Point& q)
+{
+    std::vector<Slot> roots;
+    for (const auto slot : state.ActiveFaces())
+    {
+        const auto& face = state.Face(slot);
+        const auto& a = state.Vertex(face.Vertices[0]).Geometry;
+        const auto& b = state.Vertex(face.Vertices[1]).Geometry;
+        const auto& c = state.Vertex(face.Vertices[2]).Geometry;
+        if (q.U < std::min({a.U, b.U, c.U}) || q.U > std::max({a.U, b.U, c.U}) ||
+            q.V < std::min({a.V, b.V, c.V}) || q.V > std::max({a.V, b.V, c.V}))
+        {
+            continue;
+        }
+        if (Predicates::Contains(q, a, b, c))
+        {
+            roots.push_back(slot);
+        }
+    }
+    std::sort(roots.begin(), roots.end(), [&](Slot a, Slot b) { return state.Face(a).Id < state.Face(b).Id; });
+    if (roots.empty())
+    {
+        throw std::runtime_error("显式见证缺少参数域覆盖");
+    }
+    return roots;
+}
+
+void WriteRoot(std::ostream& out, std::size_t frame, const char* phase, std::size_t witness,
+    const TransactionalState& state, const TransactionalSamples& samples, Slot slot)
+{
+    const auto& face = state.Face(slot);
+    out << "{\"frame\":" << frame << ",\"phase\":\"" << phase << "\",\"witness\":" << witness
+        << ",\"root\":" << face.Id << ",\"rank\":" << Rank(state, samples, slot)
+        << ",\"priority\":" << std::sqrt(samples.PrioritySquared(slot))
+        << ",\"threshold\":" << state.Config().SplitPixels << ",\"vertices\":[";
+    for (std::size_t corner = 0; corner < 3; ++corner)
+    {
+        if (corner != 0)
+        {
+            out << ',';
+        }
+        const auto id = face.Vertices[corner];
+        const auto& point = state.Vertex(id).Geometry;
+        out << '[' << id << ',' << point.U << ',' << point.V << ',' << point.Height << ']';
+    }
+    out << "],\"edgeCounts\":[";
+    for (std::size_t corner = 0; corner < 3; ++corner)
+    {
+        if (corner != 0)
+        {
+            out << ',';
+        }
+        out << state.Edges().at(EdgeKey(face.Vertices[corner], face.Vertices[(corner + 1) % 3])).Count;
+    }
+    std::size_t visible = 0;
+    double maximum = 0;
+    for (const auto sample : samples.FaceSamples(slot))
+    {
+        if (samples.Projection(sample).Visible)
+        {
+            ++visible;
+            maximum = std::max(maximum, samples.Projection(sample).ErrorSquared);
+        }
+    }
+    out << "],\"visibleSamples\":" << visible << ",\"sampleMaxPx\":" << std::sqrt(maximum) << "}\n";
+}
+
+/// <summary>
 /// 只展开追加见证所覆盖的补丁，分离连接变化与新点拟合的几何作用
 /// 未拟合曲面是批前状态上的局部反事实，不参与认证、选择或实际发布
 /// </summary>
@@ -256,12 +327,43 @@ TransactionalQualityProvenance::TransactionalQualityProvenance(const std::filesy
     _witnesses<<"frame,phase,witness,u,v,reference,height,heightResidual,visible,error,futureError,returnError,face,priority,rank\n";
 }
 
+TransactionalQualityProvenance::TransactionalQualityProvenance(const std::filesystem::path& output,
+    const Config& future, const Config& returned, std::vector<Point> witnesses)
+    : TransactionalQualityProvenance(output, future, returned, std::optional<Point>{})
+{
+    if (witnesses.empty() || witnesses.size() > 6)
+    {
+        throw std::runtime_error("显式见证数量必须在 1 到 6 之间");
+    }
+    for (const auto& point : witnesses)
+    {
+        if (!std::isfinite(point.U) || !std::isfinite(point.V) || point.U < 0 || point.U > 1 ||
+            point.V < 0 || point.V > 1)
+        {
+            throw std::runtime_error("显式见证必须位于有限单位参数域");
+        }
+    }
+    _points = std::move(witnesses);
+    _expected.resize(_points.size());
+    _explicitWitnesses = true;
+    _roots.exceptions(std::ios::badbit | std::ios::failbit);
+    _roots.open(output / "roots.jsonl");
+    _roots << std::setprecision(17);
+}
+
+void TransactionalQualityProvenance::Seed(const State& state, const Samples& samples)
+{
+    Observe(0, "seed", state, samples, nullptr);
+}
+
 void TransactionalQualityProvenance::Observe(std::size_t frame,const char* phase,const State& state,
     const Samples& samples,const Batch* batch)
 {
     for (std::size_t i=0;i<_points.size();++i)
     {
-        const auto& q=_points[i];const auto slot=Owner(state,q);
+        const auto& q=_points[i];
+        const auto roots = _explicitWitnesses ? CoveringRoots(state, q) : std::vector<Slot>{Owner(state, q)};
+        const auto slot = roots.front();
         const double ref=ReferenceHeight(samples,q,state.Config().HeightScale),h=CurrentHeight(state,q,slot);
         _witnesses<<frame<<','<<phase<<','<<i<<','<<q.U<<','<<q.V<<','<<ref<<','<<h<<','<<h-ref<<','
             <<Visible(state.Config(),q,ref)<<',';
@@ -269,9 +371,23 @@ void TransactionalQualityProvenance::Observe(std::size_t frame,const char* phase
         Number(_witnesses,Error(_future,q,ref,h));_witnesses<<',';
         Number(_witnesses,Error(_returned,q,ref,h));
         _witnesses<<','<<state.Face(slot).Id<<','<<std::sqrt(samples.PrioritySquared(slot))<<','<<Rank(state,samples,slot)<<'\n';
-        if (batch) { _expected[i]=h;Recovery(_recovery,frame,i,state,samples,*batch,slot); }
-        else if (std::abs(h-_expected[i])>1e-8)
+        if (batch)
+        {
+            _expected[i] = h;
+            for (const auto root : roots)
+            {
+                Recovery(_recovery, frame, i, state, samples, *batch, root);
+            }
+        }
+        else if (std::string_view(phase) != "seed" && std::abs(h-_expected[i])>1e-8)
             throw std::runtime_error("见证补丁预测与批后实际曲面不同");
+        if (_explicitWitnesses)
+        {
+            for (const auto root : roots)
+            {
+                WriteRoot(_roots, frame, phase, i, state, samples, root);
+            }
+        }
     }
 }
 
@@ -337,7 +453,28 @@ void TransactionalQualityProvenance::Before(std::size_t frame,const State& state
                 Number(_transactions,Error(state.Config(),q,ref,*next));_transactions<<'}';
             }
             _transactions<<']';
-            if (p->Kind=='R' || (_points.size()>Witnesses.size() && ReplacementHeight(*p,_points.back())))
+            if (_explicitWitnesses)
+            {
+                _transactions << ",\"witnessGeometry\":[";
+                bool firstWitness = true;
+                for (std::size_t j = 0; j < _points.size(); ++j)
+                {
+                    if (!ReplacementHeight(*p, _points[j]))
+                    {
+                        continue;
+                    }
+                    if (!firstWitness)
+                    {
+                        _transactions << ',';
+                    }
+                    firstWitness = false;
+                    _transactions << "{\"witness\":" << j;
+                    WritePatch(_transactions, state, samples, *p, _points[j]);
+                    _transactions << '}';
+                }
+                _transactions << ']';
+            }
+            else if (p->Kind=='R' || (_points.size()>Witnesses.size() && ReplacementHeight(*p,_points.back())))
                 WritePatch(_transactions,state,samples,*p,_points.back());
             if (p->Kind=='R')
             {

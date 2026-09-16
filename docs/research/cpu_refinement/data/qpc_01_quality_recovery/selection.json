@@ -1,0 +1,537 @@
+{
+  "rule": "T-DOD>0.25 px; raster-cell 8-connectivity; fixed before replay",
+  "scope": "diagnostic components, not continuous error regions",
+  "cases": {
+    "peking547-b50000-transactional-t8": {
+      "resolved": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b50000-transactional-t8/inputs/resolved.json",
+        "bytes": 1539,
+        "sha256": "6e4bf04d1343febe85f7bc5138112f9d01af653cce09042fc3727669146f698c"
+      },
+      "witnessTable": {
+        "path": "benchmark-output/cpu-refinement/qpc-01/run-01/selection/peking547-b50000-transactional-t8.txt",
+        "bytes": 72,
+        "sha256": "e116d70a38ba4cdbd2573993f623ba0e4c135b4035eab4918d12bc092b447f8d"
+      },
+      "witnesses": [
+        {
+          "frame": 15,
+          "returnFrame": 16,
+          "ordinal": 1790794,
+          "u": 0.9743589758872986,
+          "v": 1.0,
+          "roles": [
+            "screen_max"
+          ],
+          "actualPx": 1.9965571109865088,
+          "dodPx": 0.020611509775499484,
+          "excessPx": 1.9759456012110093
+        },
+        {
+          "frame": 15,
+          "returnFrame": 16,
+          "ordinal": 1790800,
+          "u": 0.976190447807312,
+          "v": 1.0,
+          "roles": [
+            "largest_component",
+            "maximum_excess_component"
+          ],
+          "actualPx": 1.9808580779439462,
+          "dodPx": 0.0034887595707041833,
+          "excessPx": 1.977369318373242
+        }
+      ],
+      "pages": [
+        {
+          "frame": 15,
+          "visibleSamples": 1712379,
+          "excessSamples": 35179,
+          "components": 141,
+          "largestComponentSamples": 7932,
+          "input": {
+            "frame": 15,
+            "returncode": 0,
+            "elapsedSeconds": 1.226796904000139,
+            "stdout": "sampled_only q=1790881 ms=878.721\n",
+            "stderr": "",
+            "argv": [
+              "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b50000-transactional-t8/run/mesh-15.bin",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b50000-transactional-t8/inputs/height.png",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b50000-transactional-t8/frame-15",
+              "--locations"
+            ],
+            "poseHash": "13198516499610291869",
+            "projectionHash": "489952494327513795",
+            "meshHash": "10475014748678183350",
+            "faces": 49999.0,
+            "budget": 50000.0,
+            "status": "ok",
+            "quality": "frame-15/quality.json",
+            "qualitySha256": "490a8942a6f13e1aa558dd14057d354e82a1e37064ac145df74492229f704470",
+            "errors": "frame-15/errors.f64",
+            "errorsSha256": "ef10e089678d3fb1f1b00cd3f7e4a32696fec24d0718a3e3e046c9fe6f2d38f7",
+            "locations": "frame-15/locations.csv",
+            "sampleHash": "12881002172889809993",
+            "sampleCount": 1790881,
+            "locationsSha256": "0425d3d8d0615b76729717f07096d061b64d5f997218ad7f44367072eaebfb88"
+          },
+          "dodInput": {
+            "frame": 15,
+            "returncode": 0,
+            "elapsedSeconds": 1.2144536180001069,
+            "stdout": "sampled_only q=1790881 ms=876.769\n",
+            "stderr": "",
+            "argv": [
+              "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b50000-dod-t8/run/mesh-15.bin",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b50000-dod-t8/inputs/height.png",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b50000-dod-t8/frame-15",
+              "--locations"
+            ],
+            "poseHash": "13198516499610291869",
+            "projectionHash": "489952494327513795",
+            "meshHash": "18334981271927936407",
+            "faces": 50000.0,
+            "budget": 50000.0,
+            "status": "ok",
+            "quality": "frame-15/quality.json",
+            "qualitySha256": "0a27e20c05cd4c5500a769d5260d3b1142bd49ba4ff38f9e2afc5372732df4fc",
+            "errors": "frame-15/errors.f64",
+            "errorsSha256": "b0e365055c69a2f20f396f6d9ca9fa2e278130e279e9ed7f8f7f80f9999998a3",
+            "locations": "frame-15/locations.csv",
+            "sampleHash": "12881002172889809993",
+            "sampleCount": 1790881,
+            "locationsSha256": "ff8eb886b85e4631438730778c24ee4d95c91ffeedbd231013d24085c612312c"
+          },
+          "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+        }
+      ]
+    },
+    "peking547-b200000-transactional-t8": {
+      "resolved": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b200000-transactional-t8/inputs/resolved.json",
+        "bytes": 1544,
+        "sha256": "d7c8fb15d0cea5500c45a541a761f8f11de3c662b7751e43bed6e1125fa9253f"
+      },
+      "witnessTable": {
+        "path": "benchmark-output/cpu-refinement/qpc-01/run-01/selection/peking547-b200000-transactional-t8.txt",
+        "bytes": 36,
+        "sha256": "569cb2ed0a08282f0b1b147d8698d2709e2172f40c40d14ee8d033611d02d8d2"
+      },
+      "witnesses": [
+        {
+          "frame": 15,
+          "returnFrame": 16,
+          "ordinal": 1790794,
+          "u": 0.9743589758872986,
+          "v": 1.0,
+          "roles": [
+            "screen_max",
+            "largest_component",
+            "maximum_excess_component"
+          ],
+          "actualPx": 1.9965571109865088,
+          "dodPx": 0.004685191110353975,
+          "excessPx": 1.9918719198761548
+        }
+      ],
+      "pages": [
+        {
+          "frame": 15,
+          "visibleSamples": 1712379,
+          "excessSamples": 22498,
+          "components": 42,
+          "largestComponentSamples": 7705,
+          "input": {
+            "frame": 15,
+            "returncode": 0,
+            "elapsedSeconds": 1.9999930210001367,
+            "stdout": "sampled_only q=1790881 ms=1124.04\n",
+            "stderr": "",
+            "argv": [
+              "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b200000-transactional-t8/run/mesh-15.bin",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b200000-transactional-t8/inputs/height.png",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b200000-transactional-t8/frame-15",
+              "--locations"
+            ],
+            "poseHash": "13198516499610291869",
+            "projectionHash": "489952494327513795",
+            "meshHash": "13058053244743975573",
+            "faces": 200000.0,
+            "budget": 200000.0,
+            "status": "ok",
+            "quality": "frame-15/quality.json",
+            "qualitySha256": "e0a767ec8c10327fda09c2899553fd4acbf9872257d6e4555a1381756385a78d",
+            "errors": "frame-15/errors.f64",
+            "errorsSha256": "9b2030dddc37f815d44a85a940a894f83b44bc5dd130a0af7e8b679d02af296a",
+            "locations": "frame-15/locations.csv",
+            "sampleHash": "12881002172889809993",
+            "sampleCount": 1790881,
+            "locationsSha256": "2bcb1f91e4f60ed5e1ceff6e1aef8d59d502d8d8c71efbcb77c8afae264449be"
+          },
+          "dodInput": {
+            "frame": 15,
+            "returncode": 0,
+            "elapsedSeconds": 1.9989232339999035,
+            "stdout": "sampled_only q=1790881 ms=1106.05\n",
+            "stderr": "",
+            "argv": [
+              "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b200000-dod-t8/run/mesh-15.bin",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-peking547-b200000-dod-t8/inputs/height.png",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-peking547-b200000-dod-t8/frame-15",
+              "--locations"
+            ],
+            "poseHash": "13198516499610291869",
+            "projectionHash": "489952494327513795",
+            "meshHash": "6873051146041761150",
+            "faces": 199999.0,
+            "budget": 200000.0,
+            "status": "ok",
+            "quality": "frame-15/quality.json",
+            "qualitySha256": "997b8287dfd08217fbaefbf092d0ff0bf53931c8270a83cafba87f529d7702f4",
+            "errors": "frame-15/errors.f64",
+            "errorsSha256": "75367f3fe2d71f4e7d7f7d55a64a0dd821b35ce29cfd46139f59a2b13cc3bce3",
+            "locations": "frame-15/locations.csv",
+            "sampleHash": "12881002172889809993",
+            "sampleCount": 1790881,
+            "locationsSha256": "0c95aacfdf1d17629c2089c44e58c30f1f582a6943b1d9c560bed58a0c77f930"
+          },
+          "sourceSha256": "aa8d08125e409ef497e2553319d62bb2c2a32fe7b5cb4b90b0f18f79238a914f"
+        }
+      ]
+    },
+    "dem-canyon-b50000-transactional-t8": {
+      "resolved": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-canyon-b50000-transactional-t8/inputs/resolved.json",
+        "bytes": 1555,
+        "sha256": "b6e5a6ce14d425bd66566f7db18a1bc080141a33d4758ef5d60a30e407f9ab1c"
+      },
+      "witnessTable": {
+        "path": "benchmark-output/cpu-refinement/qpc-01/run-01/selection/dem-canyon-b50000-transactional-t8.txt",
+        "bytes": 81,
+        "sha256": "6ab76f1612a3f70b52dc6b8859b8a0bfa364310ff057a305f2b0b2d3caa54d1f"
+      },
+      "witnesses": [
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 1574412,
+          "u": 0.837890625,
+          "v": 1.0,
+          "roles": [
+            "screen_max"
+          ],
+          "actualPx": 9.274476736648769,
+          "dodPx": 0.48755767057010524,
+          "excessPx": 8.786919066078664
+        },
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 1574406,
+          "u": 0.8359375,
+          "v": 1.0,
+          "roles": [
+            "largest_component"
+          ],
+          "actualPx": 8.889741297571057,
+          "dodPx": 2.105403356421619e-07,
+          "excessPx": 8.889741087030721
+        },
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 1574874,
+          "u": 0.98828125,
+          "v": 1.0,
+          "roles": [
+            "maximum_excess_component"
+          ],
+          "actualPx": 8.972328616363596,
+          "dodPx": 1.7128578219975206e-06,
+          "excessPx": 8.972326903505774
+        }
+      ],
+      "pages": [
+        {
+          "frame": 48,
+          "visibleSamples": 1114577,
+          "excessSamples": 131219,
+          "components": 1988,
+          "largestComponentSamples": 20454,
+          "input": {
+            "frame": 48,
+            "returncode": 0,
+            "elapsedSeconds": 1.1287694190000366,
+            "stdout": "sampled_only q=1574913 ms=817.732\n",
+            "stderr": "",
+            "argv": [
+              "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-canyon-b50000-transactional-t8/run/mesh-48.bin",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-canyon-b50000-transactional-t8/inputs/height.png",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-transactional-t8/frame-48",
+              "--locations"
+            ],
+            "poseHash": "17793952616048786981",
+            "projectionHash": "14690849699447648148",
+            "meshHash": "11488816544551648613",
+            "faces": 50000.0,
+            "budget": 50000.0,
+            "status": "ok",
+            "quality": "frame-48/quality.json",
+            "qualitySha256": "1faad744543023821b15d6252356be132b5c7c7e86a07c1195c0cc4c456f2a73",
+            "errors": "frame-48/errors.f64",
+            "errorsSha256": "3bf330f575ce89fcbca41c2bad07f1cfdf3cf6d88f0f870e212a7c24006cf921",
+            "locations": "frame-48/locations.csv",
+            "sampleHash": "2831584742635955469",
+            "sampleCount": 1574913,
+            "locationsSha256": "6f59553529ef473a3492c02eaba3b1c3784463d926043e5123b6d9a5d058ac48"
+          },
+          "dodInput": {
+            "frame": 48,
+            "returncode": 0,
+            "elapsedSeconds": 1.1519066559999374,
+            "stdout": "sampled_only q=1574913 ms=861.291\n",
+            "stderr": "",
+            "argv": [
+              "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-canyon-b50000-dod-t8/run/mesh-48.bin",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-canyon-b50000-dod-t8/inputs/height.png",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-dem-canyon-b50000-dod-t8/frame-48",
+              "--locations"
+            ],
+            "poseHash": "17793952616048786981",
+            "projectionHash": "14690849699447648148",
+            "meshHash": "2957331639505755403",
+            "faces": 49999.0,
+            "budget": 50000.0,
+            "status": "ok",
+            "quality": "frame-48/quality.json",
+            "qualitySha256": "422b5a8818880048f3c7acb421687ddc9296415d2d52e997f460a0b99f5ed433",
+            "errors": "frame-48/errors.f64",
+            "errorsSha256": "4d2b16072ffce7fcd84b5f84e95179bcf5fe3777d42b0cd1e5d68af15c5c2e82",
+            "locations": "frame-48/locations.csv",
+            "sampleHash": "2831584742635955469",
+            "sampleCount": 1574913,
+            "locationsSha256": "6d2bcea3290ff5e7db31b1be1b2499d9cebb165182a7578fafdb02eed25dafee"
+          },
+          "sourceSha256": "e1e8da6c861e3ec8c451aec601e569c6ab756a6e757a6eff27be7cea5efd7cf2"
+        }
+      ]
+    },
+    "dem-sierra-b50000-transactional-t8": {
+      "resolved": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-sierra-b50000-transactional-t8/inputs/resolved.json",
+        "bytes": 1557,
+        "sha256": "5f323336aece7406b22fc3becb601faae9425c2bbd2ee8bd19472e5ca9134df6"
+      },
+      "witnessTable": {
+        "path": "benchmark-output/cpu-refinement/qpc-01/run-01/selection/dem-sierra-b50000-transactional-t8.txt",
+        "bytes": 164,
+        "sha256": "92681cf20d01261ab93d70f567e3470cb11da6762267adaee9922325727d4e7b"
+      },
+      "witnesses": [
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 1561810,
+          "u": 0.73828125,
+          "v": 0.9921875,
+          "roles": [
+            "screen_max"
+          ],
+          "actualPx": 2.015011653542709,
+          "dodPx": 1.0416797893895509,
+          "excessPx": 0.9733318641531583
+        },
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 712846,
+          "u": 0.5625,
+          "v": 0.453125,
+          "roles": [
+            "largest_component"
+          ],
+          "actualPx": 0.7807344860424038,
+          "dodPx": 9.392993529668132e-07,
+          "excessPx": 0.7807335467430508
+        },
+        {
+          "frame": 48,
+          "returnFrame": 80,
+          "ordinal": 1555662,
+          "u": 0.73828125,
+          "v": 0.98828125,
+          "roles": [
+            "maximum_excess_component"
+          ],
+          "actualPx": 1.9558669711334542,
+          "dodPx": 3.828678507700674e-06,
+          "excessPx": 1.9558631424549464
+        },
+        {
+          "frame": 95,
+          "returnFrame": 80,
+          "ordinal": 864998,
+          "u": 0.05859375,
+          "v": 0.55078125,
+          "roles": [
+            "screen_max",
+            "maximum_excess_component"
+          ],
+          "actualPx": 1.133568442602344,
+          "dodPx": 8.30661393253102e-08,
+          "excessPx": 1.1335683595362047
+        },
+        {
+          "frame": 95,
+          "returnFrame": 80,
+          "ordinal": 712846,
+          "u": 0.5625,
+          "v": 0.453125,
+          "roles": [
+            "largest_component"
+          ],
+          "actualPx": 0.694446852998618,
+          "dodPx": 8.354380282183426e-07,
+          "excessPx": 0.6944460175605898
+        }
+      ],
+      "pages": [
+        {
+          "frame": 48,
+          "visibleSamples": 1155480,
+          "excessSamples": 145425,
+          "components": 1004,
+          "largestComponentSamples": 1398,
+          "input": {
+            "frame": 48,
+            "returncode": 0,
+            "elapsedSeconds": 0.87073549500019,
+            "stdout": "sampled_only q=1574913 ms=703.312\n",
+            "stderr": "",
+            "argv": [
+              "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-transactional-t8/run/mesh-48.bin",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-transactional-t8/inputs/height.png",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-transactional-t8/frame-48",
+              "--locations"
+            ],
+            "poseHash": "2106862884007421062",
+            "projectionHash": "14289999552568374451",
+            "meshHash": "17778426753060689521",
+            "faces": 8960.0,
+            "budget": 50000.0,
+            "status": "ok",
+            "quality": "frame-48/quality.json",
+            "qualitySha256": "be282cbde647286cc69f6381c7fae6457aeb1b9ca84077980f5aafcd15e9df9d",
+            "errors": "frame-48/errors.f64",
+            "errorsSha256": "fc0adf7fa5b8a59a189f1f0a588324a5a63709a78ca7eea251877fdc2d37e736",
+            "locations": "frame-48/locations.csv",
+            "sampleHash": "2831584742635955469",
+            "sampleCount": 1574913,
+            "locationsSha256": "01da0268dac9bf42345f267be2b28992a82b44accac296823f759a89a31a0e3f"
+          },
+          "dodInput": {
+            "frame": 48,
+            "returncode": 0,
+            "elapsedSeconds": 0.8574156069998935,
+            "stdout": "sampled_only q=1574913 ms=713.814\n",
+            "stderr": "",
+            "argv": [
+              "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-dod-t8/run/mesh-48.bin",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-dod-t8/inputs/height.png",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-dod-t8/frame-48",
+              "--locations"
+            ],
+            "poseHash": "2106862884007421062",
+            "projectionHash": "14289999552568374451",
+            "meshHash": "13095104919855142654",
+            "faces": 12085.0,
+            "budget": 50000.0,
+            "status": "ok",
+            "quality": "frame-48/quality.json",
+            "qualitySha256": "32892e6525ea9da48e50326c9a067a2f447aa6429e28b486b2dc7ea5d81de698",
+            "errors": "frame-48/errors.f64",
+            "errorsSha256": "8c9675f5ca4ca2f63d4ddacecced52da73f049d3be1cad135c0050205a1c73b5",
+            "locations": "frame-48/locations.csv",
+            "sampleHash": "2831584742635955469",
+            "sampleCount": 1574913,
+            "locationsSha256": "43f033ca57a3219a9fe7d676d4dbfd06ae6125c529a010659a5d8dbb3b77e992"
+          },
+          "sourceSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b"
+        },
+        {
+          "frame": 95,
+          "visibleSamples": 1503180,
+          "excessSamples": 141377,
+          "components": 1324,
+          "largestComponentSamples": 1267,
+          "input": {
+            "frame": 95,
+            "returncode": 0,
+            "elapsedSeconds": 0.8965265929996349,
+            "stdout": "sampled_only q=1574913 ms=744.897\n",
+            "stderr": "",
+            "argv": [
+              "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-transactional-t8/run/mesh-95.bin",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-transactional-t8/inputs/height.png",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-transactional-t8/frame-95",
+              "--locations"
+            ],
+            "poseHash": "10556526114892932750",
+            "projectionHash": "15310660121906759531",
+            "meshHash": "17184082594950031724",
+            "faces": 8976.0,
+            "budget": 50000.0,
+            "status": "ok",
+            "quality": "frame-95/quality.json",
+            "qualitySha256": "175e515a8bc961ef962ef3093f85f0919ac60e946dc5c110d3e861e5e8334df8",
+            "errors": "frame-95/errors.f64",
+            "errorsSha256": "a075c08b70d4427e336683f90af5a33ca8323c090155351ff0bf0f2512e4f05b",
+            "locations": "frame-95/locations.csv",
+            "sampleHash": "2831584742635955469",
+            "sampleCount": 1574913,
+            "locationsSha256": "a379617f458f2a7dbb47c7a17f74d3caf23e55119e3a603a941d650b487769c0"
+          },
+          "dodInput": {
+            "frame": 95,
+            "returncode": 0,
+            "elapsedSeconds": 0.954230254000322,
+            "stdout": "sampled_only q=1574913 ms=779.951\n",
+            "stderr": "",
+            "argv": [
+              "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-dod-t8/run/mesh-95.bin",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-dod-t8/inputs/height.png",
+              "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/quality-dem-sierra-b50000-dod-t8/frame-95",
+              "--locations"
+            ],
+            "poseHash": "10556526114892932750",
+            "projectionHash": "15310660121906759531",
+            "meshHash": "5042857137947386889",
+            "faces": 15919.0,
+            "budget": 50000.0,
+            "status": "ok",
+            "quality": "frame-95/quality.json",
+            "qualitySha256": "c82628be17cc230782de15a360a186ad149bfdb7524222d272f6c11bb81d97cd",
+            "errors": "frame-95/errors.f64",
+            "errorsSha256": "0d1fb68a835084dcd72e6959ef3c3c8d38aa2e2bd8d53e0e862cf738202ad685",
+            "locations": "frame-95/locations.csv",
+            "sampleHash": "2831584742635955469",
+            "sampleCount": 1574913,
+            "locationsSha256": "6b5249245c3e6d975e86ffa75170b2c2ee9d709b5995cdaa678ac25f121fd801"
+          },
+          "sourceSha256": "ffd5787ebf7b451fc306b7a9d447917010ff39bceac3e19ce6aaa524fa67a70b"
+        }
+      ]
+    }
+  }
+}
