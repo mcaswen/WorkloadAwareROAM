@@ -1,0 +1,648 @@
+{
+  "positive": [
+    {
+      "name": "internal_edge_split",
+      "delta": 2,
+      "fixed_full_boundary": true,
+      "points": {
+        "0": [
+          "0",
+          "0"
+        ],
+        "1": [
+          "2",
+          "0"
+        ],
+        "2": [
+          "2",
+          "2"
+        ],
+        "3": [
+          "0",
+          "2"
+        ],
+        "4": [
+          "1",
+          "1"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          4
+        ],
+        [
+          0,
+          4,
+          3
+        ],
+        [
+          4,
+          2,
+          3
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        },
+        {
+          "vertices": 5,
+          "faces": 4,
+          "boundary_vertices": 4
+        }
+      ]
+    },
+    {
+      "name": "edge_collapse_4_to_0",
+      "delta": -2,
+      "fixed_full_boundary": true,
+      "points": {
+        "0": [
+          "0",
+          "0"
+        ],
+        "1": [
+          "2",
+          "0"
+        ],
+        "2": [
+          "2",
+          "2"
+        ],
+        "3": [
+          "0",
+          "2"
+        ],
+        "4": [
+          "1",
+          "1"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          4
+        ],
+        [
+          0,
+          4,
+          3
+        ],
+        [
+          4,
+          2,
+          3
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 5,
+          "faces": 4,
+          "boundary_vertices": 4
+        },
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        }
+      ]
+    },
+    {
+      "name": "edge_flip",
+      "delta": 0,
+      "fixed_full_boundary": true,
+      "points": {
+        "0": [
+          "0",
+          "0"
+        ],
+        "1": [
+          "2",
+          "0"
+        ],
+        "2": [
+          "2",
+          "2"
+        ],
+        "3": [
+          "0",
+          "2"
+        ],
+        "4": [
+          "1",
+          "1"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        },
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        }
+      ]
+    },
+    {
+      "name": "free_boundary_split",
+      "delta": 1,
+      "fixed_full_boundary": false,
+      "points": {
+        "0": [
+          "0",
+          "0"
+        ],
+        "1": [
+          "2",
+          "0"
+        ],
+        "2": [
+          "0",
+          "2"
+        ],
+        "3": [
+          "1",
+          "0"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          1,
+          2
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          3,
+          2
+        ],
+        [
+          3,
+          1,
+          2
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 3,
+          "faces": 1,
+          "boundary_vertices": 3
+        },
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        }
+      ]
+    },
+    {
+      "name": "free_boundary_collapse",
+      "delta": -1,
+      "fixed_full_boundary": false,
+      "points": {
+        "0": [
+          "0",
+          "0"
+        ],
+        "1": [
+          "2",
+          "0"
+        ],
+        "2": [
+          "0",
+          "2"
+        ],
+        "3": [
+          "1",
+          "0"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          3,
+          2
+        ],
+        [
+          3,
+          1,
+          2
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          1,
+          2
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        },
+        {
+          "vertices": 3,
+          "faces": 1,
+          "boundary_vertices": 3
+        }
+      ]
+    },
+    {
+      "name": "degree_five_removal",
+      "delta": -2,
+      "fixed_full_boundary": true,
+      "points": {
+        "0": [
+          "0",
+          "0"
+        ],
+        "1": [
+          "3",
+          "0"
+        ],
+        "2": [
+          "4",
+          "2"
+        ],
+        "3": [
+          "2",
+          "4"
+        ],
+        "4": [
+          "0",
+          "3"
+        ],
+        "5": [
+          "2",
+          "2"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          1,
+          2,
+          5
+        ],
+        [
+          2,
+          3,
+          5
+        ],
+        [
+          3,
+          4,
+          5
+        ],
+        [
+          4,
+          0,
+          5
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          3,
+          4
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 6,
+          "faces": 5,
+          "boundary_vertices": 5
+        },
+        {
+          "vertices": 5,
+          "faces": 3,
+          "boundary_vertices": 5
+        }
+      ]
+    },
+    {
+      "name": "complete_roam_diamond",
+      "delta": 2,
+      "fixed_full_boundary": true,
+      "points": {
+        "0": [
+          "0",
+          "0"
+        ],
+        "1": [
+          "2",
+          "0"
+        ],
+        "2": [
+          "2",
+          "2"
+        ],
+        "3": [
+          "0",
+          "2"
+        ],
+        "4": [
+          "1",
+          "1"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          4
+        ],
+        [
+          0,
+          4,
+          3
+        ],
+        [
+          4,
+          2,
+          3
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        },
+        {
+          "vertices": 5,
+          "faces": 4,
+          "boundary_vertices": 4
+        }
+      ]
+    },
+    {
+      "name": "vertical_surface_split",
+      "delta": 2,
+      "fixed_full_boundary": true,
+      "points": {
+        "0": [
+          "0",
+          "0"
+        ],
+        "1": [
+          "2",
+          "0"
+        ],
+        "2": [
+          "2",
+          "2"
+        ],
+        "3": [
+          "0",
+          "2"
+        ],
+        "4": [
+          "1",
+          "1"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          4
+        ],
+        [
+          0,
+          4,
+          3
+        ],
+        [
+          4,
+          2,
+          3
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        },
+        {
+          "vertices": 5,
+          "faces": 4,
+          "boundary_vertices": 4
+        }
+      ],
+      "world_points": {
+        "0": [
+          "0",
+          "0",
+          "0"
+        ],
+        "1": [
+          "0",
+          "2",
+          "0"
+        ],
+        "2": [
+          "0",
+          "2",
+          "2"
+        ],
+        "3": [
+          "0",
+          "0",
+          "2"
+        ],
+        "4": [
+          "0",
+          "1",
+          "1"
+        ]
+      },
+      "embedding_certificate": "injective linear map; exterior restricted to x>=2"
+    }
+  ],
+  "negative": [
+    {
+      "name": "one_sided_internal_split",
+      "rejected": true
+    },
+    {
+      "name": "concave_flip",
+      "rejected": true
+    },
+    {
+      "name": "tetrahedron_collapse_link_failure",
+      "extra_simplex": [
+        2,
+        3
+      ]
+    },
+    {
+      "name": "remote_surface_intersection",
+      "witness": [
+        "1",
+        "1/2",
+        "1"
+      ],
+      "patch_face": [
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "1",
+          "2"
+        ]
+      ],
+      "external_face": [
+        [
+          "3/4",
+          "1/4",
+          "1"
+        ],
+        [
+          "5/4",
+          "1/4",
+          "1"
+        ],
+        [
+          "1",
+          "3/4",
+          "1"
+        ]
+      ]
+    }
+  ],
+  "scope": "有限组合与精确局部几何；不是一般几何或Lean证明",
+  "seconds": 0.0026163300000003886,
+  "peak_rss_bytes": 21848064,
+  "sources": {
+    "docs/research/adaptive_triangulation/checks/check_local_replacements.py": "277f219cc68c72f33e2b3b61d4ed88a1e1f3e1b80b4c53e978c7b722d7581b40",
+    "docs/research/cpu_refinement/checks/verify_bounded_patch_refit.py": "a7c572dbc9c7ead584e939702623b00cc8be181d508278ca18ae03d0fc9cea24"
+  }
+}

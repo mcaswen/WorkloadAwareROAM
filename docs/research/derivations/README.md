@@ -5,6 +5,7 @@
 ## 1. 阅读入口
 
 - **连续阅读公式与推导链：**[数学推导总览](mathematical_derivations.md)。包含前提、推导、边界和原文链接，不仅罗列公式。
+- **一般模型：**[资源约束三角化事务](../adaptive_triangulation/README.md)、[推导与反例](../adaptive_triangulation/model_derivation.md)和[大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)。ATT-01局部拼接与8正/4反实例完成；ATT-02/03待执行，尚无新增Lean文件。
 - **当前算法优化：**[QPC-04E 逐点损伤与质量组合推导](../cpu_refinement/quality_contract_derivation.md)及[小规划](../../plans/cpu_refinement/qpc_04e_quality_contract_optimization_plan.md)。抽象Lean核心与只读自然审计已完成，见[结果](../cpu_refinement/qpc_04e_quality_contract_results.md)；持续政策未接入。
 - **实现与费用：**[算法及阶段复杂度](../cpu_refinement/transactional_algorithm_overview.md)、[QPC-04D 原因分析](../cpu_refinement/qpc_04d_error_first_results.md)、[质量与成本重审](../cpu_refinement/transactional_quality_cost_reassessment.md)。
 - **历史状态：**[研究入口](../README.md)。早期状态按记录日期解释，不替代最新阶段报告。
@@ -26,6 +27,8 @@
 
 旧模型提供局部性和状态契约的思路，不证明当前算法的目标选择或持续质量。局部删点、区间求解、DP 和冲突集合本身也不自动构成原创贡献。
 
+另立的**一般局部三角化事务模型**已完成ATT-01的条件拼接与有限实例，资源和质量机械层继续分阶段验证。它抽取不依赖ROAM的子命题，不代表上述两条模型已经统一，也不反向证明当前生产满足新增质量条件。
+
 ## 3. 当前事务算法的推导索引
 
 | 编号 | 原文 | 核心问题与过程 | 状态/边界 |
@@ -40,6 +43,7 @@
 | TX-07 | [算法及复杂度](../cpu_refinement/transactional_algorithm_overview.md) | 阶段费用、精确分支、串行成本 | GWR 主体，页首有后续修订 |
 | TX-08 | [质量/成本重审](../cpu_refinement/transactional_quality_cost_reassessment.md) | 04B/04D 反例→需求、损伤与进展分离 | 候选设计，未改生产 |
 | TX-09 | [QPC-04E 形式推导](../cpu_refinement/quality_contract_derivation.md) | QC-01～09、逐点条件、归纳、组合及计费 | QC-01～03抽象Lean、71交换有限审计；三操作点保留机会，非持续修复 |
+| ATT-00 | [一般事务模型推导](../adaptive_triangulation/model_derivation.md)、[操作嵌入](../adaptive_triangulation/operation_embeddings.md) | 接口、面数奇偶性、终点/前缀预算、资源语义与一般损失 | ATT-01条件几何及8正/4反实例完成；资源/质量机械层待执行 |
 
 质量演进证据：[PQ-01](../cpu_refinement/pq_01_quality_provenance_results.md)、[PQ-02](../cpu_refinement/pq_02_residual_provenance_results.md)、[PQ-03](../cpu_refinement/pq_03_fit_counterfactual_results.md)、[PQ-04](../cpu_refinement/pq_04_local_recovery_results.md)、[PQ-05](../cpu_refinement/pq_05_flip_recovery_results.md)、[QPC-01](../cpu_refinement/qpc_01_quality_recovery_results.md)、[04A](../cpu_refinement/qpc_04a_boundary_feasibility_results.md)、[04B](../cpu_refinement/qpc_04b_boundary_integration_results.md)、[04C](../cpu_refinement/qpc_04c_quality_target_results.md)、[04D](../cpu_refinement/qpc_04d_error_first_results.md)。它们是事实与反例来源，不升级为 Lean 定理。
 
@@ -90,6 +94,9 @@ docs/research/
 ├── cpu_refinement/
 │   ├── quality_contract_derivation.md  QC-01～09 详细过程
 │   └── formal/quality_contract/        新质量抽象模型、1个Lean源
+├── adaptive_triangulation/
+│   ├── README.md                    一般模型的范围、来源与规划
+│   └── model_derivation.md          ATT初步分析、反例及待证义务
 ├── roam_threshold/formal/           原 4 个 Lean 源文件
 └── roam_parallelism/formal/materialization/  原 2 个 Lean 源文件
 ~~~
