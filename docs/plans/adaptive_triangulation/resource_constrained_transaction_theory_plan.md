@@ -192,7 +192,7 @@ docs/reviews/adaptive_triangulation/
 
 出口/停止：若只有忽略下一轮可观察状态才能交换，标为“仅核心几何组合”，不升级完整状态定理。若公共资源只能全局串行维护，则记录成本和适用性，不据此伪称无并行，也不把它从状态里删除。
 
-**实现情况：未开始。**
+**实现情况：已完成ATT-02。** [小规划](att_02_resource_composition_plan.md)、[推导第9节](../../research/adaptive_triangulation/model_derivation.md#9-att-02由具体更新导出交换与资源定理)、[审查](../../reviews/adaptive_triangulation/att_02_review.md)记录具体更新、一般排列和实际净额的Lean核心；完整几何映射与生产R/W仍是实例义务。
 
 ### ATT-03：一般质量、总定理与边界裁决
 

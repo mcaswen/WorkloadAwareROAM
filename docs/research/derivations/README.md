@@ -5,7 +5,7 @@
 ## 1. 阅读入口
 
 - **连续阅读公式与推导链：**[数学推导总览](mathematical_derivations.md)。包含前提、推导、边界和原文链接，不仅罗列公式。
-- **一般模型：**[资源约束三角化事务](../adaptive_triangulation/README.md)、[推导与反例](../adaptive_triangulation/model_derivation.md)和[大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)。ATT-01局部拼接与8正/4反实例完成；ATT-02/03待执行，尚无新增Lean文件。
+- **一般模型：**[资源约束三角化事务](../adaptive_triangulation/README.md)、[推导与反例](../adaptive_triangulation/model_derivation.md)和[大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)。ATT-01局部拼接与8正/4反实例、ATT-02资源/预算两个Lean模块完成；质量待ATT-03。
 - **当前算法优化：**[QPC-04E 逐点损伤与质量组合推导](../cpu_refinement/quality_contract_derivation.md)及[小规划](../../plans/cpu_refinement/qpc_04e_quality_contract_optimization_plan.md)。抽象Lean核心与只读自然审计已完成，见[结果](../cpu_refinement/qpc_04e_quality_contract_results.md)；持续政策未接入。
 - **实现与费用：**[算法及阶段复杂度](../cpu_refinement/transactional_algorithm_overview.md)、[QPC-04D 原因分析](../cpu_refinement/qpc_04d_error_first_results.md)、[质量与成本重审](../cpu_refinement/transactional_quality_cost_reassessment.md)。
 - **历史状态：**[研究入口](../README.md)。早期状态按记录日期解释，不替代最新阶段报告。
@@ -43,7 +43,7 @@
 | TX-07 | [算法及复杂度](../cpu_refinement/transactional_algorithm_overview.md) | 阶段费用、精确分支、串行成本 | GWR 主体，页首有后续修订 |
 | TX-08 | [质量/成本重审](../cpu_refinement/transactional_quality_cost_reassessment.md) | 04B/04D 反例→需求、损伤与进展分离 | 候选设计，未改生产 |
 | TX-09 | [QPC-04E 形式推导](../cpu_refinement/quality_contract_derivation.md) | QC-01～09、逐点条件、归纳、组合及计费 | QC-01～03抽象Lean、71交换有限审计；三操作点保留机会，非持续修复 |
-| ATT-00 | [一般事务模型推导](../adaptive_triangulation/model_derivation.md)、[操作嵌入](../adaptive_triangulation/operation_embeddings.md) | 接口、面数奇偶性、终点/前缀预算、资源语义与一般损失 | ATT-01条件几何及8正/4反实例完成；资源/质量机械层待执行 |
+| ATT-00 | [一般事务模型推导](../adaptive_triangulation/model_derivation.md)、[操作嵌入](../adaptive_triangulation/operation_embeddings.md) | 接口、面数奇偶性、终点/前缀预算、资源语义与一般损失 | ATT-01几何、ATT-02资源/预算完成；质量待执行 |
 
 质量演进证据：[PQ-01](../cpu_refinement/pq_01_quality_provenance_results.md)、[PQ-02](../cpu_refinement/pq_02_residual_provenance_results.md)、[PQ-03](../cpu_refinement/pq_03_fit_counterfactual_results.md)、[PQ-04](../cpu_refinement/pq_04_local_recovery_results.md)、[PQ-05](../cpu_refinement/pq_05_flip_recovery_results.md)、[QPC-01](../cpu_refinement/qpc_01_quality_recovery_results.md)、[04A](../cpu_refinement/qpc_04a_boundary_feasibility_results.md)、[04B](../cpu_refinement/qpc_04b_boundary_integration_results.md)、[04C](../cpu_refinement/qpc_04c_quality_target_results.md)、[04D](../cpu_refinement/qpc_04d_error_first_results.md)。它们是事实与反例来源，不升级为 Lean 定理。
 
@@ -68,7 +68,7 @@
 
 ## 5. 全部项目 Lean 源文件
 
-截至本页日期，共 **7 个源文件、3 个证明目录**。前6个状态引用历史记录，本次没有重跑；新增质量模块已实际运行Lean 4.8.0。
+截至本页日期，共 **9 个源文件、4 个证明目录**。前7个状态引用历史记录；本轮只检查新增ATT模块，工具链为Lean 4.8.0。
 
 | 文件 | 核心声明/职责 | 验证依据 |
 |---|---|---|
@@ -79,8 +79,10 @@
 | [StateModel.lean](../roam_parallelism/formal/materialization/StateModel.lean) | `Region/LeafSupport/MergeSupport/TargetMarks/Repair` 定义 | [物化验证 §10](../roam_parallelism/target_materialization_gate.md#101-实际机械检查) |
 | [Locality.lean](../roam_parallelism/formal/materialization/Locality.lean) | 12 项引理，包括 `repair_split_queue_exact`、`repair_merge_queue_exact` | 同上 |
 | [QualityContract.lean](../cpu_refinement/formal/quality_contract/QualityContract.lean) | 15项标量/有限和引理，含`pointwise_iff_excess`、`sequence_envelope`、`potential_nonincrease`、`potential_zero_iff`、`common_maximum_bound` | [本轮机械检查](../cpu_refinement/data/qpc_04e_quality_contract/lean-verification.json) |
+| [StateTransactions.lean](../adaptive_triangulation/formal/StateTransactions.lean) | 具体资源更新、读取/使能稳定、`apply_commute`、`count_delta`、`delta_stable` | [ATT-02账本](../adaptive_triangulation/data/att_02.json) |
+| [BatchSafety.lean](../adaptive_triangulation/formal/BatchSafety.lean) | `run_permutation`、`count_run_frozen`、`endpoint_budget`、确定续接投影及构造例 | 同上 |
 
-三份[阈值工具链](../roam_threshold/formal/lean-toolchain)、[物化工具链](../roam_parallelism/formal/materialization/lean-toolchain)和[质量工具链](../cpu_refinement/formal/quality_contract/lean-toolchain)均冻结Lean 4.8.0。声明、公理依赖、复现命令及输入指纹读相应验证记录；本轮通过Ubuntu编排调用Windows Lean，只重新验证新增质量模块。
+[阈值工具链](../roam_threshold/formal/lean-toolchain)、[物化工具链](../roam_parallelism/formal/materialization/lean-toolchain)、[质量工具链](../cpu_refinement/formal/quality_contract/lean-toolchain)和[ATT工具链](../adaptive_triangulation/formal/lean-toolchain)均冻结Lean 4.8.0。声明、公理依赖、复现命令及输入指纹读相应验证记录；本轮通过Ubuntu编排调用Windows Lean。
 
 质量Lean使用显式有序代数法律，未机械建立Rat/Real实例或生产几何对应。旧Lean的`score`是固定函数，`TargetMarks`是净端点定义；两类模型互不替代，不能据此省略生产失败生命周期、动态依赖或目标发现成本。
 

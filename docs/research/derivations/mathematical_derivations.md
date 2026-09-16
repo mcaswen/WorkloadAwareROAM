@@ -507,7 +507,7 @@ $$
 
 ## 14. 一般资源约束三角化事务：立项边界
 
-**状态：ATT-01条件拼接和有限实例完成，资源/质量层尚待后续。** 原文与中间步骤见[模型推导](../adaptive_triangulation/model_derivation.md)、[操作嵌入](../adaptive_triangulation/operation_embeddings.md)，范围见[大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)。
+**状态：ATT-01条件拼接/有限实例、ATT-02资源/预算Lean核心完成；质量待ATT-03。** 原文与中间步骤见[模型推导](../adaptive_triangulation/model_derivation.md)、[操作嵌入](../adaptive_triangulation/operation_embeddings.md)，范围见[大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)。
 
 给定局部替换 $K_i\to K_i'$，实际面数差 $\delta_i\in\mathbb Z$，完整资源集 $R_i,W_i$，证书 $\mathcal C_i$ 和优先级 $P_i$。这里需要先区分完整补丁边界和连接未修改网格的接口 I：
 
@@ -531,6 +531,8 @@ N'=N_0+\sum_{i\in\mathcal B}\delta_i\le B_{\max}.
 $$
 
 这只约束终点；满预算时 +2/−2 先加后减会中间越界，失败后只保留 +2 也越界。整批可见发布、合法顺序前缀及失败子集复核须明确；临时内存另计。
+
+ATT-02从只读取R、只修改W的具体键值更新证明框架、使能稳定和逐键交换，再通过相邻交换生成任意有限排列。实际面键存在差求和而非任意账本delta导出上述预算式。面键唯一完整、几何映射、共享派生恢复仍是实例义务；顺序独立不自动等于低span或便宜续接。
 
 固定观察集 Q、环境、权重 $w_q\ge0$ 与目标 $\tau_q\ge0$，则逐点损失条件：
 

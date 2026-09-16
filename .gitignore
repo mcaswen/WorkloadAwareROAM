@@ -76,6 +76,7 @@ benchmark-output/cpu-refinement/
 benchmark-output/profiling/
 benchmark-output/experiment-infrastructure/
 benchmark-output/roam-materialization/
+benchmark-output/adaptive-triangulation/
 *.log
 logs/
 captures/

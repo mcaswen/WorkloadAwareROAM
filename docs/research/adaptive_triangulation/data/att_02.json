@@ -1,0 +1,96 @@
+{
+  "stage": "ATT-02",
+  "date": "2026-09-17",
+  "toolchain": "leanprover/lean4:v4.8.0",
+  "execution": "Ubuntu WSL orchestrates repository Windows lean.exe",
+  "baseline": "N/A: new abstract proof module; no production change",
+  "compiler_memory_bytes": null,
+  "memory_note": "GNU time RSS records WSL launcher only, not Windows Lean.",
+  "sources": {
+    "docs/research/adaptive_triangulation/formal/BatchSafety.lean": "badfca472f92801c7b7c3b99dfc6cff576fa185586ee16dd7469ac2f2ee07b8b",
+    "docs/research/adaptive_triangulation/formal/StateTransactions.lean": "09c524109e76b623fc77cdcae241c92b84cfa320ce2bd15c9f49654fb15090a9"
+  },
+  "declarations": {
+    "BatchSafety.lean": [
+      "run_permutation",
+      "read_stable_run",
+      "enabled_after_prefix",
+      "total_congr",
+      "frozen_net_stable",
+      "count_run_frozen",
+      "endpoint_budget",
+      "derived_observation_equal",
+      "create_delta_one",
+      "delete_delta_negative_one",
+      "final_fits_but_prefix_and_subset_do_not",
+      "replace_delta_zero",
+      "actual_count_nonnegative"
+    ],
+    "StateTransactions.lean": [
+      "independent_symm",
+      "apply_frame",
+      "read_stable",
+      "enabled_stable",
+      "apply_commute",
+      "total_sub",
+      "count_delta",
+      "delta_stable",
+      "concrete_create_delete_independent",
+      "absent_read_detects_conflict"
+    ]
+  },
+  "runs": [
+    {
+      "module": "StateTransactions",
+      "exit": 0,
+      "elapsed_s": 0.84,
+      "output_capture": "tool transcript; no raw log",
+      "checked_axioms": [
+        "apply_frame",
+        "read_stable",
+        "enabled_stable",
+        "apply_commute",
+        "count_delta",
+        "delta_stable"
+      ],
+      "axioms": [
+        "propext",
+        "Classical.choice",
+        "Quot.sound"
+      ]
+    },
+    {
+      "module": "BatchSafety",
+      "exit": 0,
+      "elapsed_s": 0.8,
+      "revision": "first; unused pattern-variable warnings"
+    },
+    {
+      "module": "BatchSafety",
+      "exit": 1,
+      "elapsed_s": 0.71,
+      "revision": "added actual count nonnegative",
+      "failure": "decide on polymorphic Option mass has free variables; failed elaboration reported sorryAx; not accepted proof"
+    },
+    {
+      "module": "BatchSafety",
+      "exit": 0,
+      "elapsed_s": 0.68,
+      "revision": "final ATT-02",
+      "stdout": "'AdaptiveTransactions.run_permutation' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.enabled_after_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.count_run_frozen' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.endpoint_budget' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.derived_observation_equal' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.create_delta_one' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.delete_delta_negative_one' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.final_fits_but_prefix_and_subset_do_not' does not depend on any axioms\n'AdaptiveTransactions.replace_delta_zero' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.actual_count_nonnegative' depends on axioms: [propext, Classical.choice, Quot.sound]\nelapsed=0.68 launcher_rss_kb=1816\n"
+    }
+  ],
+  "reproduce": [
+    "mkdir -p benchmark-output/adaptive-triangulation/att-02",
+    "tools/downloads/lean/lean-4.8.0-windows/bin/lean.exe -o D:/CPP-Projects/WorkloadAwareROAM/benchmark-output/adaptive-triangulation/att-02/StateTransactions.olean D:/CPP-Projects/WorkloadAwareROAM/docs/research/adaptive_triangulation/formal/StateTransactions.lean",
+    "WSLENV=LEAN_PATH LEAN_PATH=D:/CPP-Projects/WorkloadAwareROAM/benchmark-output/adaptive-triangulation/att-02 tools/downloads/lean/lean-4.8.0-windows/bin/lean.exe -o D:/CPP-Projects/WorkloadAwareROAM/benchmark-output/adaptive-triangulation/att-02/BatchSafety.olean D:/CPP-Projects/WorkloadAwareROAM/docs/research/adaptive_triangulation/formal/BatchSafety.lean"
+  ],
+  "not_proved": [
+    "geometry-to-complete-unique-face-key mapping",
+    "production resource completeness",
+    "arbitrary prefix budget",
+    "temporary allocation bound",
+    "C++ race freedom",
+    "cheap derived-state recovery"
+  ]
+}

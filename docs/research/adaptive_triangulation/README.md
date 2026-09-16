@@ -1,6 +1,6 @@
 # 资源约束自适应三角化事务：理论研究入口
 
-日期：2026-09-17。状态：**用户授权逐阶段自主闭环；ATT-01完成，ATT-02/03待执行**。对应[大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)、[推导与反例](model_derivation.md)和[验证账本](verification.md)。本模块不改生产算法，也不替代 QPC 的持续质量调查。
+日期：2026-09-17。状态：**用户授权逐阶段自主闭环；ATT-01/02完成，ATT-03待执行**。对应[大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)、[推导与反例](model_derivation.md)和[验证账本](verification.md)。本模块不改生产算法，也不替代 QPC 的持续质量调查。
 
 ## 1. 对建议的判断
 
@@ -39,7 +39,7 @@
 | [model_derivation.md](model_derivation.md) | 定义、初步判断、中间推导、失败尝试和后续证明义务；已创建，不是完成的总定理 |
 | [大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md) | 阶段、文件归属、形式化边界与验收条件；已创建 |
 | [operation_embeddings.md](operation_embeddings.md) | 各类原语的显式实例、支持和前提；ATT-01已完成 |
-| `formal/` | 有限资源更新、整数预算和加权质量的最小 Lean 核心；ATT-02/03 按需创建，不先搭平台 |
+| `formal/` | ATT-02已完成资源更新和预算两个Lean模块；加权质量待ATT-03 |
 | [verification.md](verification.md) | 纸面、机械、有限几何证据与最后边界表；按阶段追加 |
 
 复用[QPC-04E 推导](../cpu_refinement/quality_contract_derivation.md)中的标量命题与[批次组合记录](../cpu_refinement/transaction_batch_derivation.md)，但不移动、覆写或追认它们为新模型的完整证明。历史 ROAM 端点修复不作为本模块的基础定理。
@@ -59,7 +59,7 @@ Reynolds 的分离逻辑已有根据受影响存储进行局部推理的框架�
 | 一般化问题值得验证 | 是，有具体可检验的前提缺口 |
 | 初步代数与反例 | 已记录纸面过程 |
 | 非 ROAM 操作嵌入、几何对应 | ATT-01条件式证明与8正/4反有限检查完成 |
-| 资源组合与预算的机械检查 | 待 ATT-02 |
+| 资源组合与预算的机械检查 | ATT-02完成；真实映射/完整资源集仍为实例义务 |
 | 一般质量组合、总定理和边界裁决 | 待 ATT-03 |
 | 生产接入、性能提升、持续恢复 | 不在本轮范围，没有新增结论 |
 
