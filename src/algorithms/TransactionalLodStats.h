@@ -28,6 +28,10 @@ struct TransactionalLodStats
     std::uint64_t VertexWrites{}, IndexWrites{}, SourceBytes{};
     std::size_t FlipExecuted{};
     std::uint64_t FlipTriggered{}, FlipAttempts{}, FlipCertified{}, FlipConflicts{};
+    std::uint64_t BoundaryAttempts{}, BoundaryCertified{}, BoundaryResolutionRejected{}, BoundaryConflicts{};
+    std::size_t BoundaryFreeExecuted{}, BoundaryPairedExecuted{};
+    std::size_t AssignedFaces{}, ConsumedFreeFaces{}, UnusedFaces{}, ReleasedFaces{};
+    std::int64_t NetFaceChange{};
     double SeedMilliseconds{}, InitializeMilliseconds{}, ViewMilliseconds{};
     double ReceiverMilliseconds{}, DonorMilliseconds{}, ReservationMilliseconds{};
     double TopologyPrepareMilliseconds{}, TopologyPublishMilliseconds{}, SampleRepairMilliseconds{};

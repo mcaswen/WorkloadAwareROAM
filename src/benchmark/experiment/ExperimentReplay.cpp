@@ -64,6 +64,7 @@ ReplayInput LoadReplayInput(const std::filesystem::path& path)
     s.Transactional.WorkerCount=c.Workers;
     s.Transactional.PreserveSurvivingHeights=c.HeightPolicy=="immutable";
     s.Transactional.EnableFlipRecovery=c.FlipRecovery;
+    s.Transactional.EnableBoundaryRefinement=c.BoundaryRefinement;
     s.Transactional.PrefixLimit=s.Transactional.DonorLimit=c.Prefix=="fixed64" ? 64 : 64*c.Budget/20000;
     if (s.Transactional.PrefixLimit==0) throw std::runtime_error("增长额度为零，请选择适用预算");
     auto& p=s.PassPolicy;
@@ -117,11 +118,15 @@ std::uint64_t ValidateReplayMesh(const Terrain::TerrainMeshData& mesh,const Repl
     return ParallelRoam::Experiment::MeshQuality::PlatformMeshHash(mesh);
 }
 ReplayFrameWriter::ReplayFrameWriter(const std::filesystem::path& output):_stream(output),
-    _flip(output.parent_path()/"flip-recovery.csv")
+    _flip(output.parent_path()/"flip-recovery.csv"),
+    _boundary(output.parent_path()/"boundary-refinement.csv")
 {
     _stream.exceptions(std::ios::badbit|std::ios::failbit);
     _flip.exceptions(std::ios::badbit|std::ios::failbit);
     _flip << "frame,triggered,attempts,certified,conflicts,executed\n";
+    _boundary.exceptions(std::ios::badbit | std::ios::failbit);
+    _boundary << "frame,attempts,certified,resolutionRejected,conflicts,freeExecuted,pairedExecuted,"
+        "assignedFaces,consumedFreeFaces,unusedFaces,releasedFaces,netFaceChange\n";
     _stream << std::setprecision(17)
         << "frame,sample,event,warmup,poseHash,projectionHash,faces,budget,workers,sequence,hash,cpuMs,uploadMs,uploadBytes,beginMs,waitMs,renderMs,presentMs,frameMs,evidenceMs,split,merge,splitScoreMs,mergeScoreMs,splitTopologyMs,mergeTopologyMs,meshEmitMs,status,updated,cold,seedFaces,samples,raw,examined,receivers,need,feasible,exchanges,free,pairs,conflicts,donorReuse,touches,evaluations,vertexWrites,indexWrites,seedMs,initializeMs,viewMs,receiverMs,donorMs,reservationMs,topologyPrepareMs,topologyPublishMs,sampleRepairMs,meshPrepareMs,continuationMs,adapterMs,image,artifact\n";
 }
@@ -172,6 +177,11 @@ void ReplayFrameWriter::Append(const ReplayInput& input,std::size_t frame,bool z
         // 净零恢复不进入预算交换分母；独立记录已有计数，避免零交换被误读为无修改
         _flip << frame << ',' << x.FlipTriggered << ',' << x.FlipAttempts << ',' << x.FlipCertified
             << ',' << x.FlipConflicts << ',' << x.FlipExecuted << '\n';
+        // 边界接收消耗一面，预算旁表与原有接收数量保持不同口径
+        _boundary << frame << ',' << x.BoundaryAttempts << ',' << x.BoundaryCertified << ','
+            << x.BoundaryResolutionRejected << ',' << x.BoundaryConflicts << ',' << x.BoundaryFreeExecuted << ','
+            << x.BoundaryPairedExecuted << ',' << x.AssignedFaces << ',' << x.ConsumedFreeFaces << ','
+            << x.UnusedFaces << ',' << x.ReleasedFaces << ',' << x.NetFaceChange << '\n';
         out << ',' << static_cast<int>(x.Status) << ',' << x.Updated << ',' << x.ColdStart << ',' << x.SeedTriangles
             << ',' << x.Samples << ',' << x.RawCandidates << ',' << x.Examined << ',' << x.Receivers << ',' << x.Need
             << ',' << x.Feasible << ',' << x.Exchanges << ',' << x.FreeExecuted << ',' << x.PairChecks << ',' << x.Conflicts

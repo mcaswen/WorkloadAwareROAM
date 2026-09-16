@@ -114,6 +114,48 @@ BoundaryGeometry Boundary(const TransactionalState& state)
     }
     return result;
 }
+
+/// <summary>
+/// 只按获批单侧事务更新期望边界，随后独立扫描实际关联进行比对
+/// 旧点坐标与高度必须保留，其他事务不能隐式改变外接口
+/// </summary>
+void AdvanceBoundary(const TransactionalState& state, const CertifiedBatch& batch, BoundaryGeometry& expected)
+{
+    for (const auto& exchange : batch.Exchanges)
+    {
+        if (exchange.Kind != ExchangeKind::BoundaryRefinement)
+        {
+            continue;
+        }
+        const auto& proposal = exchange.Receiver;
+        const auto& point = proposal.Points.at(proposal.NewVertex);
+        const auto& face = state.Face(proposal.Root).Vertices;
+        bool found = false;
+        for (std::size_t index = 0; index < face.size(); ++index)
+        {
+            const auto edge = EdgeKey(face[index], face[(index + 1) % face.size()]);
+            if (!expected.Edges.contains(edge))
+            {
+                continue;
+            }
+            const auto& a = expected.Vertices.at(edge[0]);
+            const auto& b = expected.Vertices.at(edge[1]);
+            if (point.U == (a.U + b.U) * .5 && point.V == (a.V + b.V) * .5)
+            {
+                expected.Edges.erase(edge);
+                expected.Edges.insert(EdgeKey(edge[0], proposal.NewVertex));
+                expected.Edges.insert(EdgeKey(proposal.NewVertex, edge[1]));
+                expected.Vertices.emplace(proposal.NewVertex, point);
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("获批单侧事务没有可继承的旧边界");
+        }
+    }
+}
 }
 
 int RunTransactionalRecoveryTrace(int argc, char** argv)
@@ -152,6 +194,7 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         WorkLedger initialization;
         pipeline.Initialize(initialization);
         const auto boundary = Boundary(pipeline.State());
+        auto expectedBoundary = boundary;
         std::ofstream boundaryFile(output / "boundary.csv");
         boundaryFile.exceptions(std::ios::badbit | std::ios::failbit);
         boundaryFile << std::setprecision(17) << "a,b,au,av,ah,bu,bv,bh\n";
@@ -178,6 +221,10 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         frames.exceptions(std::ios::badbit | std::ios::failbit);
         frames << "frame,hash,faces,raw,examined,receivers,need,feasible,exchanges,free,pairs,conflicts,donorReuse,"
             "flipTriggered,flipAttempts,flipCertified,flipConflicts,flips,touches,boundaryUnchanged\n";
+        std::ofstream budget(output / "boundary-refinement.csv");
+        budget.exceptions(std::ios::badbit | std::ios::failbit);
+        budget << "frame,attempts,certified,resolutionRejected,conflicts,freeExecuted,pairedExecuted,"
+            "assignedFaces,consumedFreeFaces,unusedFaces,releasedFaces,netFaceChange,boundaryVertices\n";
         for (std::size_t frame = 0; frame < input.Cameras.size(); ++frame)
         {
             WorkLedger work;
@@ -203,18 +250,32 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
                 audit->Before(frame, pipeline.State(), pipeline.Samples(), batch);
             }
             const auto oldCount = pipeline.State().FaceCount();
+            AdvanceBoundary(pipeline.State(), batch, expectedBoundary);
+            std::int64_t actualDifference = 0;
+            for (const auto& exchange : batch.Exchanges)
+            {
+                actualDifference += static_cast<std::int64_t>(exchange.Receiver.Faces.size()) -
+                    static_cast<std::int64_t>(exchange.Receiver.Support.size());
+                if (exchange.HasDonor)
+                {
+                    actualDifference += static_cast<std::int64_t>(exchange.Donor.Faces.size()) -
+                        static_cast<std::int64_t>(exchange.Donor.Support.size());
+                }
+            }
             pipeline.Apply(batch, work);
             static_cast<void>(pipeline.ConsumeMesh());
-            if (pipeline.State().FaceCount() != oldCount + 2 * batch.FreeExecuted ||
-                batch.AssignedCredits != std::min((settings.TriangleBudget - oldCount) / 2, batch.Receivers) ||
+            if (static_cast<std::int64_t>(pipeline.State().FaceCount()) != static_cast<std::int64_t>(oldCount) + actualDifference ||
+                actualDifference != batch.NetFaceChange ||
+                batch.AssignedFaces > settings.TriangleBudget - oldCount ||
+                batch.ConsumedFreeFaces + batch.UnusedFaces != batch.AssignedFaces ||
                 batch.Exchanges.size() != batch.Executed + batch.FreeExecuted + batch.FlipExecuted ||
                 pipeline.State().FaceCount() > settings.TriangleBudget)
             {
                 throw std::runtime_error("批次预算或事务计数不同");
             }
-            if (Boundary(pipeline.State()) != boundary)
+            if (Boundary(pipeline.State()) != expectedBoundary)
             {
-                throw std::runtime_error("当前原语改变了种子的外边界折线");
+                throw std::runtime_error("实际边界不符合已批准单侧细分，其余旧点或接口发生变化");
             }
             for (const auto& audit : audits)
             {
@@ -225,7 +286,12 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
                 << ',' << batch.Feasible << ',' << batch.Executed << ',' << batch.FreeExecuted << ',' << work.PairChecks
                 << ',' << work.Conflicts << ',' << work.DonorReuse << ',' << work.FlipTriggered << ',' << work.FlipAttempts
                 << ',' << work.FlipCertified << ',' << work.FlipConflicts << ',' << batch.FlipExecuted
-                << ',' << work.SampleTouches << ",1\n";
+                << ',' << work.SampleTouches << ',' << (expectedBoundary == boundary) << '\n';
+            budget << frame << ',' << work.BoundaryAttempts << ',' << work.BoundaryCertified << ','
+                << work.BoundaryResolutionRejected << ',' << work.BoundaryConflicts << ',' << batch.BoundaryFreeExecuted << ','
+                << batch.BoundaryPairedExecuted << ',' << batch.AssignedFaces << ',' << batch.ConsumedFreeFaces << ','
+                << batch.UnusedFaces << ',' << batch.ReleasedFaces << ',' << batch.NetFaceChange << ','
+                << expectedBoundary.Vertices.size() << '\n';
             frames.flush();
         }
         TransactionalStateInvariant::Validate(pipeline.State());

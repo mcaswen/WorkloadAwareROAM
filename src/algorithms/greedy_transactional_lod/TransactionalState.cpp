@@ -19,6 +19,10 @@ TransactionalState::TransactionalState(const InitialMesh& input) : _config(input
 {
     if (_config.EnableFlipRecovery && (!_config.PreserveSurvivingHeights || _config.HeightGuard))
         throw std::runtime_error("翻边恢复需要固定旧点且关闭 HeightGuard");
+    if (_config.EnableBoundaryRefinement && (!_config.PreserveSurvivingHeights || _config.HeightGuard))
+    {
+        throw std::runtime_error("边界细分需要固定旧点且关闭 HeightGuard");
+    }
     if (_config.Budget < input.Faces.size() || input.Faces.empty() ||
         !std::isfinite(_config.TerrainSize) || !std::isfinite(_config.HeightScale) ||
         !(_config.TerrainSize > 0) || !(_config.HeightScale > 0) ||
@@ -61,7 +65,7 @@ TransactionalState::TransactionalState(const InitialMesh& input) : _config(input
             edge.Faces[edge.Count++] = slot;
         }
     }
-    // 边界是拓扑事实，后续相机变化只读取；合法事务不会改变外边界
+    // 初建恢复边界事实，相机只读；后续新边界点由有证书的局部提交创建
     for (const auto& [key,edge] : _edges)
         if (edge.Count==1)
             for (auto id : key) _vertices[_vertexIndex.at(id)].Boundary=true;

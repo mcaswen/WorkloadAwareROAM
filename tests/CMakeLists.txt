@@ -61,6 +61,12 @@ if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
     target_link_libraries(parallel_roam_transactional_flip_recovery_tests PRIVATE
         parallel_roam_transactional_lod_adapter parallel_roam_transactional_adapter_test_support parallel_roam_project_warnings)
     add_test(NAME transactional_flip_recovery COMMAND parallel_roam_transactional_flip_recovery_tests)
+    add_executable(parallel_roam_transactional_boundary_refinement_tests TransactionalBoundaryRefinementTests.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalValidation.cpp)
+    target_link_libraries(parallel_roam_transactional_boundary_refinement_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_project_warnings)
+    add_test(NAME transactional_boundary_refinement COMMAND parallel_roam_transactional_boundary_refinement_tests)
+    set_tests_properties(transactional_boundary_refinement PROPERTIES TIMEOUT 60)
     set_tests_properties(transactional_flip_recovery PROPERTIES WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" TIMEOUT 60)
     add_executable(parallel_roam_transactional_adapter_tests TransactionalTerrainLodAlgorithmTests.cpp)
     target_link_libraries(parallel_roam_transactional_adapter_tests PRIVATE

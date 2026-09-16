@@ -19,6 +19,8 @@ struct TransactionalLodSettings
     bool PreserveSurvivingHeights{};
     // 原目录全形状失败时尝试净零翻边，仍采用当前视图的进展认证
     bool EnableFlipRecovery{};
+    // 开启后按实际面数预留边界细分，旧点仍固定且不回收边界点
+    bool EnableBoundaryRefinement{};
     bool operator==(const TransactionalLodSettings&) const = default;
 };
 }

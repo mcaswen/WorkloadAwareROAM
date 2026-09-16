@@ -91,6 +91,10 @@ public:
     double PrioritySquared(Slot face) const { return _priority.at(face); }
     std::vector<Slot> VisibleSupport(const std::vector<Slot>& support) const;
     double SourceHeight(std::uint32_t x, std::uint32_t y, double scale) const;
+    /// <summary>
+    /// 查询未必落在公共样本格上的参数点，源数据由调用者只读借用
+    /// </summary>
+    static double SourceHeightAt(const HeightSource& source, double u, double v, double scale);
     static std::array<double, 4> Clip(const Configuration& config, double u, double v, double height);
     bool Weights(Slot sample, const Point& a, const Point& b, const Point& c, std::array<double,3>& weights) const;
     bool StrictlyInside(Slot sample,const Point& a,const Point& b,const Point& c) const;

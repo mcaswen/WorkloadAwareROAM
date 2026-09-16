@@ -44,6 +44,7 @@ public:
 private:
     std::ofstream _stream;
     std::ofstream _flip;
+    std::ofstream _boundary;
 };
 std::uint64_t ValidateReplayMesh(const Terrain::TerrainMeshData& mesh, const ReplayInput& input);
 int RunExperimentPlatform(int argc,char** argv);

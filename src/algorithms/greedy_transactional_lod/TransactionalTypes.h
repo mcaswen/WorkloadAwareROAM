@@ -57,6 +57,8 @@ struct Configuration
     bool PreserveSurvivingHeights{};
     // 净零恢复只在固定旧点政策下开放，切换需要重新建立种子
     bool EnableFlipRecovery{};
+    // 单侧中点只创建源高新点，子边不短于源栅格间隔
+    bool EnableBoundaryRefinement{};
     bool UsesZeroToOneDepth{};
 };
 
@@ -97,6 +99,7 @@ struct WorkLedger
     std::uint64_t ReceiverConstructed{},EvidenceLookups{},EvidenceHits{},EvidenceBuilds{},EvidenceBytes{},EvidenceFaceTests{};
     std::uint64_t FootprintBuilds{},DonorTouched{},DonorCertified{};
     std::uint64_t FlipTriggered{}, FlipAttempts{}, FlipCertified{}, FlipConflicts{};
+    std::uint64_t BoundaryAttempts{}, BoundaryCertified{}, BoundaryResolutionRejected{}, BoundaryConflicts{};
     std::uint64_t CandidateUpdates{}, DonorIndexUpdates{}, ReceiverCacheHits{}, DonorCacheHits{}, CacheInvalidations{}, RootObservations{};
     std::map<std::string, std::uint64_t> Reasons;
     std::map<std::string, double> Seconds;
@@ -145,7 +148,21 @@ struct Proposal
 /// <summary>
 /// 净零连接修复不占细分额度，不能用是否携带 donor 推断事务种类
 /// </summary>
-enum class ExchangeKind { Refinement, ConnectivityRepair };
+enum class ExchangeKind { Refinement, ConnectivityRepair, BoundaryRefinement };
+
+/// <summary>
+/// 每项意图的冻结资金来源，混合面数时获空额项不一定构成连续前缀
+/// </summary>
+enum class BudgetFunding { None, Free, Donor, ZeroCost };
+
+/// <summary>
+/// 接收方成本按面计，失败后的命名额度仍归原意图所有
+/// </summary>
+struct IntentBudget
+{
+    std::size_t Faces{};
+    BudgetFunding Funding{BudgetFunding::None};
+};
 
 /// <summary>
 /// 认证后的接收方与可选回收方组成不可拆分事务
@@ -169,6 +186,10 @@ struct CertifiedBatch
     std::size_t Raw{}, Examined{}, Receivers{}, Need{}, Feasible{}, Executed{}, FreeExecuted{};
     std::size_t AssignedCredits{}, UnusedCredits{};
     std::size_t FlipExecuted{};
+    std::size_t AssignedFaces{}, ConsumedFreeFaces{}, UnusedFaces{}, ReleasedFaces{};
+    std::size_t BoundaryFreeExecuted{}, BoundaryPairedExecuted{};
+    std::int64_t NetFaceChange{};
+    std::vector<IntentBudget> IntentBudgets;
     std::vector<Identity> IntentIds, PoolIds;
     std::vector<std::string> IntentResults;
     std::vector<std::vector<std::pair<char,std::string>>> Attempts;

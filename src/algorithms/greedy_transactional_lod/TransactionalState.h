@@ -15,7 +15,7 @@ struct VertexRecord
     Point Geometry;
     std::vector<Slot> Incident;
     bool Active{true};
-    // 由边关联初建，固定外接口的事务保留；新增点只来自内部细分
+    // 由边关联初建；单侧细分的新点在准备发布时显式恢复
     bool Boundary{};
 };
 

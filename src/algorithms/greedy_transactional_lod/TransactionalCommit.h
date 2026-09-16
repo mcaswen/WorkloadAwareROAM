@@ -35,7 +35,7 @@ class TransactionalCommit
 {
 public:
     static PreparedTopology Prepare(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work,
-        const TransactionalExecution& execution={});
+        const TransactionalExecution& execution={}, const HeightSource* source=nullptr);
     static void Publish(TransactionalState& state,PreparedTopology&& prepared,WorkLedger& work);
     static void Apply(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work);
 };

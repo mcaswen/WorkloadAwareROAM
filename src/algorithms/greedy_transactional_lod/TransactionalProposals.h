@@ -6,8 +6,8 @@
 namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 /// <summary>
-/// 冻结快照上的 E/F/H 目录游标，仅在请求下一项时构造几何与样本。
-/// ordinal 与完整目录一致；本游标存活期间不得发布新状态。
+/// 冻结快照上的 E/B/F/H 目录游标，仅在请求下一项时构造几何与样本
+/// ordinal 与完整目录一致；本游标存活期间不得发布新状态
 /// </summary>
 class ReceiverCursor
 {
@@ -39,6 +39,9 @@ public:
         const TransactionalSamples& samples, Slot root);
     static Proposal Donor(const TransactionalState& state, const TransactionalSamples& samples,
         Identity center, WorkLedger& work);
+    static std::string CertifyReceiver(const TransactionalState& state, const TransactionalSamples& samples,
+        Proposal& proposal, WorkLedger& work);
+    static bool NeedsFlipRecovery(const std::vector<std::pair<char, std::string>>& attempts);
     static std::vector<Identity> Ring(const TransactionalState& state, Identity center);
 };
 }

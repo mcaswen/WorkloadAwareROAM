@@ -42,7 +42,7 @@ void TransactionalPipeline::Apply(const CertifiedBatch& batch,WorkLedger& work)
     if (batch.Version!=_state.Version()) throw std::runtime_error("批次快照已过期");
     if (batch.Exchanges.empty()) return;
     // 拓扑、样本和 mesh 共享同一个目标代际，发布之间不插入失败点
-    auto topology=TransactionalCommit::Prepare(_state,batch,work,_execution);
+    auto topology=TransactionalCommit::Prepare(_state,batch,work,_execution,&_samples.Source());
     auto start=std::chrono::steady_clock::now();
     auto samples=_samples.Prepare(_state,topology,work);
     work.Seconds["sample_repair"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
@@ -66,6 +66,7 @@ void TransactionalPipeline::SetView(const Configuration& view,WorkLedger& work)
         view.SplitPixels!=old.SplitPixels || view.HeightGuard!=old.HeightGuard || view.SampleVisitLimit!=old.SampleVisitLimit ||
         view.PreserveSurvivingHeights!=old.PreserveSurvivingHeights ||
         view.EnableFlipRecovery!=old.EnableFlipRecovery ||
+        view.EnableBoundaryRefinement!=old.EnableBoundaryRefinement ||
         !view.Width || !view.Height ||
         !std::all_of(view.Matrix.begin(),view.Matrix.end(),[](double value) { return std::isfinite(value); }))
         throw std::runtime_error("视图刷新不能改变几何、预算或质量规则");

@@ -65,6 +65,28 @@ double TransactionalSamples::SourceHeight(std::uint32_t ix, std::uint32_t iy, do
     return ((1-ty)*bottom+ty*top)*scale;
 }
 
+double TransactionalSamples::SourceHeightAt(const HeightSource& source, double u, double v, double scale)
+{
+    if (source.Width < 2 || source.Height < 2 ||
+        source.Values.size() != static_cast<std::size_t>(source.Width) * source.Height ||
+        !std::isfinite(u) || !std::isfinite(v) || u < 0 || u > 1 || v < 0 || v > 1 ||
+        !std::isfinite(scale) || scale <= 0)
+    {
+        throw std::invalid_argument("连续源高度查询输入非法");
+    }
+    const double x = u * (source.Width - 1);
+    const double y = v * (source.Height - 1);
+    const auto ix = std::min(static_cast<std::uint32_t>(x), source.Width - 2);
+    const auto iy = std::min(static_cast<std::uint32_t>(y), source.Height - 2);
+    const auto base = static_cast<std::size_t>(iy) * source.Width + ix;
+    const double tx = x - ix;
+    const double ty = y - iy;
+    // 外边界使用末单元，参数可以恰为一；不吸附到六分格样本
+    const double lower = source.Values[base] * (1 - tx) + source.Values[base + 1] * tx;
+    const double upper = source.Values[base + source.Width] * (1 - tx) + source.Values[base + source.Width + 1] * tx;
+    return ((1 - ty) * lower + ty * upper) * scale / 65535;
+}
+
 std::array<double,4> TransactionalSamples::Clip(const Configuration& config, double u, double v, double height)
 {
     const double x=(u-.5)*config.TerrainSize, z=(v-.5)*config.TerrainSize;

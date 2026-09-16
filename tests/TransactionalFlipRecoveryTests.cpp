@@ -177,6 +177,9 @@ void PublicLifecycle()
     Require(adapter.Stats().Transactional->ColdStart,"切换政策沿用了旧生命周期");
     Require(adapter.BuildRenderData(input,packet,&error),error.c_str());
     Require(!adapter.Stats().Transactional->ColdStart,"固定政策每轮重复初建");
+    settings.EnableBoundaryRefinement = true;
+    Require(adapter.BuildRenderData(input, packet, &error), error.c_str());
+    Require(adapter.Stats().Transactional->ColdStart, "切换边界政策沿用了旧生命周期");
     input.View.DrawableWidth=0;Require(adapter.BuildRenderData(input,packet,&error),error.c_str());
     Require(!adapter.Stats().Transactional->Updated,"暂停状态推进了事务");
     input.View.DrawableWidth=128;adapter.Reset();Require(adapter.BuildRenderData(input,packet,&error),error.c_str());

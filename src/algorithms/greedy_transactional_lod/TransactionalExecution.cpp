@@ -25,6 +25,7 @@ void Merge(WorkLedger& target,const WorkLedger& source)
         &WorkLedger::EvidenceBytes,&WorkLedger::EvidenceFaceTests,&WorkLedger::FootprintBuilds,
         &WorkLedger::DonorTouched,&WorkLedger::DonorCertified,
         &WorkLedger::FlipTriggered,&WorkLedger::FlipAttempts,&WorkLedger::FlipCertified,&WorkLedger::FlipConflicts,
+        &WorkLedger::BoundaryAttempts,&WorkLedger::BoundaryCertified,&WorkLedger::BoundaryResolutionRejected,&WorkLedger::BoundaryConflicts,
         &WorkLedger::IndexBlocks,&WorkLedger::IndexSlots,&WorkLedger::IndexComparisons,&WorkLedger::IndexQueryBlocks,
         &WorkLedger::CandidateUpdates,&WorkLedger::DonorIndexUpdates,&WorkLedger::ReceiverCacheHits,&WorkLedger::DonorCacheHits,
         &WorkLedger::CacheInvalidations,&WorkLedger::RootObservations});

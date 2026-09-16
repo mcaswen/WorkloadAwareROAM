@@ -29,6 +29,7 @@ add_library(parallel_roam_transactional_lod_core STATIC
     "${transactional_core_dir}/TransactionalPredicates.cpp" "${transactional_core_dir}/TransactionalCertification.cpp"
     "${transactional_core_dir}/TransactionalProposals.cpp" "${transactional_core_dir}/TransactionalReservation.cpp"
     "${transactional_core_dir}/TransactionalFlipRecovery.cpp"
+    "${transactional_core_dir}/TransactionalBoundaryRefinement.cpp"
     "${transactional_core_dir}/TransactionalCommit.cpp" "${transactional_core_dir}/TransactionalPipeline.cpp"
     "${transactional_core_dir}/TransactionalMesh.cpp" "${transactional_core_dir}/TransactionalExecution.cpp")
 target_include_directories(parallel_roam_transactional_lod_core PUBLIC "${PROJECT_SOURCE_DIR}/src")

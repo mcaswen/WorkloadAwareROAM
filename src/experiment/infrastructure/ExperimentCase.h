@@ -20,6 +20,7 @@ struct ExperimentCase
     std::string Algorithm;
     std::string HeightPolicy;
     bool FlipRecovery{};
+    bool BoundaryRefinement{};
     std::string Camera;
     std::string Material;
     std::string Mode;

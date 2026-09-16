@@ -2,6 +2,7 @@
 #include "profiling/CpuProfiling.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 #include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
+#include "algorithms/greedy_transactional_lod/TransactionalBoundaryRefinement.h"
 
 #include <algorithm>
 #include <stdexcept>
@@ -12,6 +13,20 @@ namespace
 {
 using Predicates=TransactionalPredicates;
 
+Identity ProposalIdentity(const TransactionalState& state, Slot root, std::size_t ordinal)
+{
+    if (ordinal >= 8)
+    {
+        throw std::runtime_error("接收目录超过冻结上限");
+    }
+    const auto offset = static_cast<Identity>(root) * 8 + static_cast<Identity>(ordinal);
+    if (state.NextVertexId() <= std::numeric_limits<Identity>::min() + offset)
+    {
+        throw std::runtime_error("接收提案身份空间用尽");
+    }
+    return state.NextVertexId() - offset;
+}
+
 Proposal Prepare(const TransactionalState& state,const TransactionalSamples& samples,Slot root,
     char kind,std::vector<Slot> support,const Point& location,Identity oldCenter,std::size_t ordinal)
 {
@@ -21,7 +36,7 @@ Proposal Prepare(const TransactionalState& state,const TransactionalSamples& sam
     // 仅复制有界补丁几何供私有拟合，不复制当前活动网格
     for (auto slot : result.Support) for (auto id : state.Face(slot).Vertices)
         result.Points.emplace(id,state.Vertex(id).Geometry);
-    result.NewVertex=state.NextVertexId()-static_cast<Identity>(root)*8-static_cast<Identity>(ordinal);
+    result.NewVertex=ProposalIdentity(state,root,ordinal);
     // 所有提案的临时身份互异，失败提案不改变存活身份分配器
     const auto& original=state.Face(root).Vertices;
     const auto weights=Predicates::Barycentric(location,result.Points.at(original[0]),result.Points.at(original[1]),result.Points.at(original[2]));
@@ -73,6 +88,15 @@ std::optional<Proposal> ReceiverCursor::Next(WorkLedger* work)
     {
         if (_position==_edges.size()) { _phase=1;_position=0;break; }
         const auto& edge=_edges[_position++];const auto& uses=_state.Edges().at(edge);
+        if (uses.Count == 1 && _state.Config().EnableBoundaryRefinement)
+        {
+            const auto identity = ProposalIdentity(_state, _root, _ordinal++);
+            if (work)
+            {
+                ++work->ReceiverConstructed;
+            }
+            return TransactionalBoundaryRefinement::Construct(_state, _samples.Source(), _root, edge, identity);
+        }
         if (uses.Count!=2) continue;
         const auto a=_state.Vertex(edge[0]).Geometry,b=_state.Vertex(edge[1]).Geometry;
         return prepare('E',{uses.Faces[0],uses.Faces[1]},{(a.U+b.U)*.5,(a.V+b.V)*.5,0},0);
@@ -113,6 +137,33 @@ std::vector<Proposal> TransactionalProposals::Receivers(const TransactionalState
     std::vector<Proposal> result;ReceiverCursor cursor(state,samples,root);
     while (auto proposal=cursor.Next()) result.push_back(std::move(*proposal));
     return result;
+}
+
+std::string TransactionalProposals::CertifyReceiver(const TransactionalState& state,
+    const TransactionalSamples& samples, Proposal& proposal, WorkLedger& work)
+{
+    if (proposal.Kind == 'B')
+    {
+        return TransactionalBoundaryRefinement::Certify(state, samples, proposal, work);
+    }
+    return TransactionalCertification::Fit(state, samples, proposal, work);
+}
+
+bool TransactionalProposals::NeedsFlipRecovery(const std::vector<std::pair<char, std::string>>& attempts)
+{
+    bool hasOriginal = false;
+    for (const auto& [kind, reason] : attempts)
+    {
+        if (kind == 'E' || kind == 'F' || kind == 'H')
+        {
+            hasOriginal = true;
+            if (reason != "shape_infeasible")
+            {
+                return false;
+            }
+        }
+    }
+    return hasOriginal;
 }
 
 std::vector<Identity> TransactionalProposals::Ring(const TransactionalState& state,Identity center)

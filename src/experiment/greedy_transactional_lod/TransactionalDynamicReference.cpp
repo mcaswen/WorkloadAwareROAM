@@ -74,6 +74,10 @@ void TransactionalDynamicReference::Invalidate(WorkLedger& work)
 
 DynamicResult TransactionalDynamicReference::Update(WorkLedger& work,bool cacheEvidence)
 {
+    if (_pipeline.State().Config().EnableBoundaryRefinement)
+    {
+        throw std::runtime_error("动态参考尚未定义一面边界事务，不支持该政策");
+    }
     const auto started=Clock::now();_pipeline.Initialize(work);_receivers.clear();_donors.clear();
     // 外部新轮清除证据，避免相机或批次资源变化依赖隐含的旧失败记录
     work.Seconds.try_emplace("update",0);

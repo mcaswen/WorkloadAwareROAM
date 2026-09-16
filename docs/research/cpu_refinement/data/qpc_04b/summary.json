@@ -1,0 +1,3800 @@
+{
+  "protocol": "qpc04b-source-midpoint-v1",
+  "freeze": {
+    "protocol": "qpc04b-source-midpoint-v1",
+    "app": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+      "bytes": 6472704,
+      "sha256": "e0150ace4a83cb03ecdd2e258a2b09e8dfdf1257ac7fe985f7330aba777e8627"
+    },
+    "probe": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+      "bytes": 1469440,
+      "sha256": "9ccecab0808fcbb93fcf2a371217595c5083b03e6840574e195032078f8c3041"
+    },
+    "cases": {
+      "peking547-b50000-transactional-t8": {
+        "oldResolved": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b50000-transactional-t8/inputs/resolved.json",
+          "bytes": 1539,
+          "sha256": "6e4bf04d1343febe85f7bc5138112f9d01af653cce09042fc3727669146f698c"
+        },
+        "config": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8.json",
+          "bytes": 525,
+          "sha256": "a3aefdfe3aeb1e688448b7e546c8ed730736fd4eecc95e8aecc7d11ae80699fa"
+        },
+        "witnessTable": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8.txt",
+          "bytes": 120,
+          "sha256": "084451d6cb0121aad1be419385d45816209701ed7409198b236916f77e8bb375"
+        },
+        "witnesses": [
+          {
+            "frame": 15,
+            "returnFrame": 16,
+            "ordinal": 1790794,
+            "u": 0.9743589758872986,
+            "v": 1.0,
+            "roles": [
+              "screen_max"
+            ],
+            "actualPx": 1.9965571109865088,
+            "dodPx": 0.020611509775499484,
+            "excessPx": 1.9759456012110093
+          },
+          {
+            "frame": 15,
+            "returnFrame": 16,
+            "ordinal": 1790800,
+            "u": 0.976190447807312,
+            "v": 1.0,
+            "roles": [
+              "largest_component",
+              "maximum_excess_component"
+            ],
+            "actualPx": 1.9808580779439462,
+            "dodPx": 0.0034887595707041833,
+            "excessPx": 1.977369318373242
+          },
+          {
+            "frame": 15,
+            "returnFrame": 16,
+            "ordinal": 0,
+            "u": 0.9404761904761905,
+            "v": 0.9981684981684982,
+            "roles": [
+              "04a-added-degradation"
+            ]
+          }
+        ],
+        "qualityFrames": [
+          2,
+          15,
+          16,
+          23
+        ]
+      },
+      "peking547-b200000-transactional-t8": {
+        "oldResolved": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b200000-transactional-t8/inputs/resolved.json",
+          "bytes": 1544,
+          "sha256": "d7c8fb15d0cea5500c45a541a761f8f11de3c662b7751e43bed6e1125fa9253f"
+        },
+        "config": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8.json",
+          "bytes": 527,
+          "sha256": "1ee9306f75d0b788beed9adb5a8aba565f8bfdd29fbb188c5641c9804b65aa6d"
+        },
+        "witnessTable": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8.txt",
+          "bytes": 84,
+          "sha256": "ed206992751aa0edd6a5a4165b75450818905144cf249fafbf28a323ab6e7ddb"
+        },
+        "witnesses": [
+          {
+            "frame": 15,
+            "returnFrame": 16,
+            "ordinal": 1790794,
+            "u": 0.9743589758872986,
+            "v": 1.0,
+            "roles": [
+              "screen_max",
+              "largest_component",
+              "maximum_excess_component"
+            ],
+            "actualPx": 1.9965571109865088,
+            "dodPx": 0.004685191110353975,
+            "excessPx": 1.9918719198761548
+          },
+          {
+            "frame": 15,
+            "returnFrame": 16,
+            "ordinal": 0,
+            "u": 0.9404761904761905,
+            "v": 0.9981684981684982,
+            "roles": [
+              "04a-added-degradation"
+            ]
+          }
+        ],
+        "qualityFrames": [
+          2,
+          15,
+          16,
+          23
+        ]
+      },
+      "dem-canyon-b50000-transactional-t8": {
+        "oldResolved": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-canyon-b50000-transactional-t8/inputs/resolved.json",
+          "bytes": 1555,
+          "sha256": "b6e5a6ce14d425bd66566f7db18a1bc080141a33d4758ef5d60a30e407f9ab1c"
+        },
+        "config": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8.json",
+          "bytes": 524,
+          "sha256": "8f51cf904714774a9c1797fb4517cb266a45f2a018989d758de2d028c3ec3514"
+        },
+        "witnessTable": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8.txt",
+          "bytes": 113,
+          "sha256": "9a964c15452d9bed5cce2d7bed81833168a44c2536b0f5ca449972e6803652aa"
+        },
+        "witnesses": [
+          {
+            "frame": 48,
+            "returnFrame": 80,
+            "ordinal": 1574412,
+            "u": 0.837890625,
+            "v": 1.0,
+            "roles": [
+              "screen_max"
+            ],
+            "actualPx": 9.274476736648769,
+            "dodPx": 0.48755767057010524,
+            "excessPx": 8.786919066078664
+          },
+          {
+            "frame": 48,
+            "returnFrame": 80,
+            "ordinal": 1574406,
+            "u": 0.8359375,
+            "v": 1.0,
+            "roles": [
+              "largest_component"
+            ],
+            "actualPx": 8.889741297571057,
+            "dodPx": 2.105403356421619e-07,
+            "excessPx": 8.889741087030721
+          },
+          {
+            "frame": 48,
+            "returnFrame": 80,
+            "ordinal": 1574874,
+            "u": 0.98828125,
+            "v": 1.0,
+            "roles": [
+              "maximum_excess_component"
+            ],
+            "actualPx": 8.972328616363596,
+            "dodPx": 1.7128578219975206e-06,
+            "excessPx": 8.972326903505774
+          },
+          {
+            "frame": 48,
+            "returnFrame": 80,
+            "ordinal": 0,
+            "u": 0.86328125,
+            "v": 0.9990234375,
+            "roles": [
+              "04a-added-degradation"
+            ]
+          }
+        ],
+        "qualityFrames": [
+          2,
+          48,
+          80,
+          95
+        ]
+      }
+    }
+  },
+  "performance": {
+    "platform-before": {
+      "cpuMs": {
+        "mean": 42.90293334779285,
+        "median": 34.56529998779297,
+        "p95": 151.0388946533203,
+        "max": 157.84030151367188
+      },
+      "uploadMs": {
+        "mean": 0.011395238062721632,
+        "median": 0.00800000037997961,
+        "p95": 0.025800000876188278,
+        "max": 0.05130000039935112
+      },
+      "frameMs": {
+        "mean": 43.419,
+        "median": 35.1445,
+        "p95": 151.7121,
+        "max": 158.3886
+      },
+      "viewMs": {
+        "mean": 14.263904761904762,
+        "median": 20.5807,
+        "p95": 22.8397,
+        "max": 25.7604
+      },
+      "receiverMs": {
+        "mean": 9.3336,
+        "median": 4.2634,
+        "p95": 25.1245,
+        "max": 27.645699999999998
+      },
+      "donorMs": {
+        "mean": 1.8918571428571427,
+        "median": 1.1583999999999999,
+        "p95": 3.2881,
+        "max": 18.7278
+      },
+      "reservationMs": {
+        "mean": 12.390319047619048,
+        "median": 0.8004,
+        "p95": 81.4802,
+        "max": 82.7887
+      },
+      "topologyPrepareMs": {
+        "mean": 0.5615190476190476,
+        "median": 0.0697,
+        "p95": 3.1528,
+        "max": 3.5743
+      },
+      "topologyPublishMs": {
+        "mean": 0.0784904761904762,
+        "median": 0.014199999999999999,
+        "p95": 0.437,
+        "max": 0.4435
+      },
+      "sampleRepairMs": {
+        "mean": 3.7807809523809524,
+        "median": 1.4449,
+        "p95": 15.2419,
+        "max": 20.067
+      },
+      "meshPrepareMs": {
+        "mean": 0.026485714285714286,
+        "median": 0.0224,
+        "p95": 0.0889,
+        "max": 0.0903
+      },
+      "continuationMs": {
+        "mean": 0.1147857142857143,
+        "median": 0.0507,
+        "p95": 0.5548000000000001,
+        "max": 0.5946
+      }
+    },
+    "platform-after-off": {
+      "cpuMs": {
+        "mean": 37.08622362500145,
+        "median": 29.77790069580078,
+        "p95": 125.77149963378906,
+        "max": 136.7606964111328
+      },
+      "uploadMs": {
+        "mean": 0.01310476176773331,
+        "median": 0.008100000210106373,
+        "p95": 0.04899999871850014,
+        "max": 0.0640999972820282
+      },
+      "frameMs": {
+        "mean": 37.7248380952381,
+        "median": 30.5267,
+        "p95": 126.276,
+        "max": 137.613
+      },
+      "viewMs": {
+        "mean": 12.758838095238096,
+        "median": 16.6616,
+        "p95": 25.0196,
+        "max": 26.036199999999997
+      },
+      "receiverMs": {
+        "mean": 7.580295238095238,
+        "median": 3.2489,
+        "p95": 20.358,
+        "max": 23.1584
+      },
+      "donorMs": {
+        "mean": 1.592747619047619,
+        "median": 1.0715,
+        "p95": 2.8671,
+        "max": 15.2382
+      },
+      "reservationMs": {
+        "mean": 10.504680952380951,
+        "median": 0.7356,
+        "p95": 67.5395,
+        "max": 68.75779999999999
+      },
+      "topologyPrepareMs": {
+        "mean": 0.4876238095238095,
+        "median": 0.08670000000000001,
+        "p95": 2.7544,
+        "max": 2.8682
+      },
+      "topologyPublishMs": {
+        "mean": 0.08915714285714285,
+        "median": 0.0222,
+        "p95": 0.3649,
+        "max": 0.6356
+      },
+      "sampleRepairMs": {
+        "mean": 3.459657142857143,
+        "median": 1.3877,
+        "p95": 14.7855,
+        "max": 16.808400000000002
+      },
+      "meshPrepareMs": {
+        "mean": 0.03354761904761905,
+        "median": 0.028900000000000002,
+        "p95": 0.0863,
+        "max": 0.1844
+      },
+      "continuationMs": {
+        "mean": 0.11876190476190476,
+        "median": 0.045399999999999996,
+        "p95": 0.3035,
+        "max": 0.8869
+      }
+    }
+  },
+  "collection": {
+    "seconds": 260.346554583,
+    "serialCases": [
+      "peking547-b50000-transactional-t8"
+    ],
+    "boundaryExecuted": {
+      "peking547-b50000-transactional-t8": 2,
+      "peking547-b200000-transactional-t8": 11,
+      "dem-canyon-b50000-transactional-t8": 5
+    }
+  },
+  "cases": {
+    "peking547-b50000-transactional-t8": {
+      "quality": [
+        {
+          "frame": 2,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "18435347681902994536",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.0358324237514829,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 913.196643
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "18435347681902994536",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.0358324237514829,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 907.699425
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "3504792134666985163",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.0358324237514829,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 876.940937
+          },
+          "above": {
+            "on": {
+              "0.1": 44040,
+              "0.25": 2261,
+              "0.5": 0,
+              "1": 0
+            },
+            "off": {
+              "0.1": 44040,
+              "0.25": 2261,
+              "0.5": 0,
+              "1": 0
+            },
+            "dod": {
+              "0.1": 44040,
+              "0.25": 2261,
+              "0.5": 0,
+              "1": 0
+            }
+          },
+          "Dmax": {
+            "off": 0.0,
+            "dod": 2.4045695989904914e-13
+          }
+        },
+        {
+          "frame": 15,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "1295375873371744311",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1712379,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.9965571109865088,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.11210595739165931,
+            "screenWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 894.031198
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "10475014748678183350",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1712379,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.9965571109865088,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.11532652990377568,
+            "screenWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 878.721198
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "18334981271927936407",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1712379,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.418727498700991,
+            "heightMax": 0.281968581366959,
+            "terrainSampleRms": 0.03405166256535189,
+            "screenWitness": [
+              852488,
+              0.7307692170143127,
+              0.4761904776096344
+            ],
+            "heightWitness": [
+              119098,
+              1,
+              0.06593406945466995
+            ],
+            "offlineMs": 876.768757
+          },
+          "above": {
+            "on": {
+              "0.1": 128756,
+              "0.25": 39020,
+              "0.5": 15454,
+              "1": 4983
+            },
+            "off": {
+              "0.1": 128792,
+              "0.25": 39496,
+              "0.5": 16699,
+              "1": 5332
+            },
+            "dod": {
+              "0.1": 37433,
+              "0.25": 675,
+              "0.5": 0,
+              "1": 0
+            }
+          },
+          "Dmax": {
+            "off": 0.8765918934586087,
+            "dod": 1.977369318373242
+          }
+        },
+        {
+          "frame": 16,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "1295375873371744311",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.03562219810256677,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 895.862928
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "10475014748678183350",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.03562219810256677,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 880.309557
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "7203336847110121610",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.0358324237514829,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 863.314718
+          },
+          "above": {
+            "on": {
+              "0.1": 43468,
+              "0.25": 2190,
+              "0.5": 0,
+              "1": 0
+            },
+            "off": {
+              "0.1": 43468,
+              "0.25": 2190,
+              "0.5": 0,
+              "1": 0
+            },
+            "dod": {
+              "0.1": 44040,
+              "0.25": 2261,
+              "0.5": 0,
+              "1": 0
+            }
+          },
+          "Dmax": {
+            "off": 0.0,
+            "dod": 0.10112523828974931
+          }
+        },
+        {
+          "frame": 23,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "1295375873371744311",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.03562219810256677,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 891.851878
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "10475014748678183350",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.03562219810256677,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 894.912532
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "2147019052593932915",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.0358324237514829,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 892.824261
+          },
+          "above": {
+            "on": {
+              "0.1": 43468,
+              "0.25": 2190,
+              "0.5": 0,
+              "1": 0
+            },
+            "off": {
+              "0.1": 43468,
+              "0.25": 2190,
+              "0.5": 0,
+              "1": 0
+            },
+            "dod": {
+              "0.1": 44040,
+              "0.25": 2261,
+              "0.5": 0,
+              "1": 0
+            }
+          },
+          "Dmax": {
+            "off": 0.0,
+            "dod": 0.10112523828974931
+          }
+        }
+      ],
+      "counts": {
+        "off": {
+          "exchanges": 145,
+          "free": 0,
+          "flips": 1,
+          "pairs": 28580,
+          "conflicts": 23551
+        },
+        "on": {
+          "exchanges": 145,
+          "free": 1,
+          "flips": 1,
+          "pairs": 28618,
+          "conflicts": 23531
+        },
+        "boundary": {
+          "attempts": 528,
+          "certified": 4,
+          "resolutionRejected": 0,
+          "conflicts": 154,
+          "freeExecuted": 1,
+          "pairedExecuted": 1,
+          "releasedFaces": 1,
+          "initialVertices": 401,
+          "finalVertices": 403
+        }
+      },
+      "performance": {
+        "cpuMs": {
+          "mean": 37.336162408192955,
+          "median": 28.62649917602539,
+          "p95": 131.172607421875,
+          "max": 133.19760131835938
+        },
+        "uploadMs": {
+          "mean": 0.4816381061128119,
+          "median": 0.008700000122189522,
+          "p95": 4.638500213623047,
+          "max": 5.293900012969971
+        },
+        "frameMs": {
+          "mean": 38.34788571428572,
+          "median": 29.1216,
+          "p95": 131.7344,
+          "max": 133.7212
+        },
+        "viewMs": {
+          "mean": 11.923471428571428,
+          "median": 16.299999999999997,
+          "p95": 20.4008,
+          "max": 20.4489
+        },
+        "receiverMs": {
+          "mean": 8.388942857142856,
+          "median": 3.5726,
+          "p95": 23.2661,
+          "max": 27.3664
+        },
+        "donorMs": {
+          "mean": 1.6031142857142857,
+          "median": 1.0621999999999998,
+          "p95": 2.6894,
+          "max": 15.1709
+        },
+        "reservationMs": {
+          "mean": 10.691714285714285,
+          "median": 0.7592,
+          "p95": 68.1751,
+          "max": 71.461
+        },
+        "topologyPrepareMs": {
+          "mean": 0.5031571428571429,
+          "median": 0.0877,
+          "p95": 2.6981,
+          "max": 2.8925
+        },
+        "topologyPublishMs": {
+          "mean": 0.09666190476190477,
+          "median": 0.0126,
+          "p95": 0.4145,
+          "max": 0.49010000000000004
+        },
+        "sampleRepairMs": {
+          "mean": 3.4850333333333334,
+          "median": 1.8193000000000001,
+          "p95": 13.7357,
+          "max": 15.362300000000001
+        },
+        "meshPrepareMs": {
+          "mean": 0.08627142857142858,
+          "median": 0.0218,
+          "p95": 0.1376,
+          "max": 1.1665
+        },
+        "continuationMs": {
+          "mean": 0.12166190476190476,
+          "median": 0.0484,
+          "p95": 0.4776,
+          "max": 0.48410000000000003
+        }
+      },
+      "currentOffPerformance": {
+        "cpuMs": {
+          "mean": 37.08622362500145,
+          "median": 29.77790069580078,
+          "p95": 125.77149963378906,
+          "max": 136.7606964111328
+        },
+        "uploadMs": {
+          "mean": 0.01310476176773331,
+          "median": 0.008100000210106373,
+          "p95": 0.04899999871850014,
+          "max": 0.0640999972820282
+        },
+        "frameMs": {
+          "mean": 37.7248380952381,
+          "median": 30.5267,
+          "p95": 126.276,
+          "max": 137.613
+        },
+        "viewMs": {
+          "mean": 12.758838095238096,
+          "median": 16.6616,
+          "p95": 25.0196,
+          "max": 26.036199999999997
+        },
+        "receiverMs": {
+          "mean": 7.580295238095238,
+          "median": 3.2489,
+          "p95": 20.358,
+          "max": 23.1584
+        },
+        "donorMs": {
+          "mean": 1.592747619047619,
+          "median": 1.0715,
+          "p95": 2.8671,
+          "max": 15.2382
+        },
+        "reservationMs": {
+          "mean": 10.504680952380951,
+          "median": 0.7356,
+          "p95": 67.5395,
+          "max": 68.75779999999999
+        },
+        "topologyPrepareMs": {
+          "mean": 0.4876238095238095,
+          "median": 0.08670000000000001,
+          "p95": 2.7544,
+          "max": 2.8682
+        },
+        "topologyPublishMs": {
+          "mean": 0.08915714285714285,
+          "median": 0.0222,
+          "p95": 0.3649,
+          "max": 0.6356
+        },
+        "sampleRepairMs": {
+          "mean": 3.459657142857143,
+          "median": 1.3877,
+          "p95": 14.7855,
+          "max": 16.808400000000002
+        },
+        "meshPrepareMs": {
+          "mean": 0.03354761904761905,
+          "median": 0.028900000000000002,
+          "p95": 0.0863,
+          "max": 0.1844
+        },
+        "continuationMs": {
+          "mean": 0.11876190476190476,
+          "median": 0.045399999999999996,
+          "p95": 0.3035,
+          "max": 0.8869
+        }
+      },
+      "serialPerformance": {
+        "cpuMs": {
+          "mean": 137.76670346941268,
+          "median": 145.3928985595703,
+          "p95": 330.79949951171875,
+          "max": 367.966796875
+        },
+        "uploadMs": {
+          "mean": 0.5699190380151516,
+          "median": 0.01209999993443489,
+          "p95": 5.677299976348877,
+          "max": 6.009699821472168
+        },
+        "frameMs": {
+          "mean": 139.02205238095237,
+          "median": 146.1083,
+          "p95": 331.6982,
+          "max": 368.7642
+        },
+        "viewMs": {
+          "mean": 69.98262857142858,
+          "median": 101.0838,
+          "p95": 115.1121,
+          "max": 118.6098
+        },
+        "receiverMs": {
+          "mean": 39.04012857142857,
+          "median": 19.8961,
+          "p95": 92.7152,
+          "max": 130.0982
+        },
+        "donorMs": {
+          "mean": 9.386971428571428,
+          "median": 6.4121,
+          "p95": 16.4068,
+          "max": 84.8381
+        },
+        "reservationMs": {
+          "mean": 13.919814285714285,
+          "median": 0.9448,
+          "p95": 94.46839999999999,
+          "max": 99.5433
+        },
+        "topologyPrepareMs": {
+          "mean": 0.5750380952380952,
+          "median": 0.06499999999999999,
+          "p95": 3.0768,
+          "max": 4.248
+        },
+        "topologyPublishMs": {
+          "mean": 0.06565714285714286,
+          "median": 0.0148,
+          "p95": 0.2457,
+          "max": 0.4021
+        },
+        "sampleRepairMs": {
+          "mean": 4.219414285714286,
+          "median": 1.908,
+          "p95": 16.8321,
+          "max": 22.7572
+        },
+        "meshPrepareMs": {
+          "mean": 0.0720047619047619,
+          "median": 0.0087,
+          "p95": 0.0761,
+          "max": 1.2273
+        },
+        "continuationMs": {
+          "mean": 0.12572857142857144,
+          "median": 0.06430000000000001,
+          "p95": 0.46040000000000003,
+          "max": 0.5314
+        }
+      },
+      "coldPerformance": {
+        "cpuMs": 1628.0340576171875,
+        "uploadMs": 3.635499954223633,
+        "frameMs": 1633.367,
+        "viewMs": 0.0,
+        "receiverMs": 2.8126,
+        "donorMs": 0.0,
+        "reservationMs": 0.0018,
+        "topologyPrepareMs": 0.0,
+        "topologyPublishMs": 0.0,
+        "sampleRepairMs": 0.0,
+        "meshPrepareMs": 0.0,
+        "continuationMs": 0.0,
+        "seedMs": 249.1564,
+        "initializeMs": 1375.8391
+      },
+      "faceRange": [
+        49999,
+        50000
+      ],
+      "finalFaces": 49999,
+      "witnesses": {
+        "off": {
+          "frame-15": [
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "0",
+              "error": "6.6811463661772326",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "599",
+              "priority": "122.12060242830425",
+              "rank": "2"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.97619044780731201",
+              "v": "1",
+              "reference": "1.9023117645186836",
+              "height": "1.7364330595446518",
+              "heightResidual": "-0.16587870497403179",
+              "visible": "0",
+              "error": "6.6522773242829096",
+              "futureError": "1.9808580779439462",
+              "returnError": "6.6522773242829096",
+              "face": "599",
+              "priority": "122.12060242830425",
+              "rank": "2"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7262189737606399",
+              "heightResidual": "-0.0014990395147091995",
+              "visible": "0",
+              "error": "0.053194166033101724",
+              "futureError": "0.017133449446579241",
+              "returnError": "0.053194166033101724",
+              "face": "599",
+              "priority": "122.12060242830425",
+              "rank": "2"
+            },
+            {
+              "frame": "15",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "1",
+              "error": "1.9965571109865088",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "-112",
+              "priority": "15.972323772634594",
+              "rank": "192"
+            },
+            {
+              "frame": "15",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.97619044780731201",
+              "v": "1",
+              "reference": "1.9023117645186836",
+              "height": "1.7364330595446518",
+              "heightResidual": "-0.16587870497403179",
+              "visible": "1",
+              "error": "1.9808580779439462",
+              "futureError": "1.9808580779439462",
+              "returnError": "6.6522773242829096",
+              "face": "-112",
+              "priority": "15.972323772634594",
+              "rank": "192"
+            },
+            {
+              "frame": "15",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7266571538488225",
+              "heightResidual": "-0.0010608594265266724",
+              "visible": "1",
+              "error": "0.012125244202504753",
+              "futureError": "0.012125244202504753",
+              "returnError": "0.037645474128104303",
+              "face": "-112",
+              "priority": "15.972323772634594",
+              "rank": "192"
+            },
+            {
+              "frame": "16",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "0",
+              "error": "6.6811463661772326",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "-112",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "16",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.97619044780731201",
+              "v": "1",
+              "reference": "1.9023117645186836",
+              "height": "1.7364330595446518",
+              "heightResidual": "-0.16587870497403179",
+              "visible": "0",
+              "error": "6.6522773242829096",
+              "futureError": "1.9808580779439462",
+              "returnError": "6.6522773242829096",
+              "face": "-112",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "16",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7266571538488225",
+              "heightResidual": "-0.0010608594265266724",
+              "visible": "0",
+              "error": "0.037645474128104303",
+              "futureError": "0.012125244202504753",
+              "returnError": "0.037645474128104303",
+              "face": "-112",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "23",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "0",
+              "error": "6.6811463661772326",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "-112",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "23",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.97619044780731201",
+              "v": "1",
+              "reference": "1.9023117645186836",
+              "height": "1.7364330595446518",
+              "heightResidual": "-0.16587870497403179",
+              "visible": "0",
+              "error": "6.6522773242829096",
+              "futureError": "1.9808580779439462",
+              "returnError": "6.6522773242829096",
+              "face": "-112",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "23",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7266571538488225",
+              "heightResidual": "-0.0010608594265266724",
+              "visible": "0",
+              "error": "0.037645474128104303",
+              "futureError": "0.012125244202504753",
+              "returnError": "0.037645474128104303",
+              "face": "-112",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            }
+          ]
+        },
+        "on": {
+          "frame-15": [
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "0",
+              "error": "6.6811463661772326",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "599",
+              "priority": "122.12060242830425",
+              "rank": "2"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.97619044780731201",
+              "v": "1",
+              "reference": "1.9023117645186836",
+              "height": "1.7364330595446518",
+              "heightResidual": "-0.16587870497403179",
+              "visible": "0",
+              "error": "6.6522773242829096",
+              "futureError": "1.9808580779439462",
+              "returnError": "6.6522773242829096",
+              "face": "599",
+              "priority": "122.12060242830425",
+              "rank": "2"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7262189737606399",
+              "heightResidual": "-0.0014990395147091995",
+              "visible": "0",
+              "error": "0.053194166033101724",
+              "futureError": "0.017133449446579241",
+              "returnError": "0.053194166033101724",
+              "face": "599",
+              "priority": "122.12060242830425",
+              "rank": "2"
+            },
+            {
+              "frame": "15",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "1",
+              "error": "1.9965571109865088",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "-114",
+              "priority": "15.972323772634594",
+              "rank": "194"
+            },
+            {
+              "frame": "15",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.97619044780731201",
+              "v": "1",
+              "reference": "1.9023117645186836",
+              "height": "1.7364330595446518",
+              "heightResidual": "-0.16587870497403179",
+              "visible": "1",
+              "error": "1.9808580779439462",
+              "futureError": "1.9808580779439462",
+              "returnError": "6.6522773242829096",
+              "face": "-114",
+              "priority": "15.972323772634594",
+              "rank": "194"
+            },
+            {
+              "frame": "15",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7266571538488225",
+              "heightResidual": "-0.0010608594265266724",
+              "visible": "1",
+              "error": "0.012125244202504753",
+              "futureError": "0.012125244202504753",
+              "returnError": "0.037645474128104303",
+              "face": "-114",
+              "priority": "15.972323772634594",
+              "rank": "194"
+            },
+            {
+              "frame": "16",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "0",
+              "error": "6.6811463661772326",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "-114",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "16",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.97619044780731201",
+              "v": "1",
+              "reference": "1.9023117645186836",
+              "height": "1.7364330595446518",
+              "heightResidual": "-0.16587870497403179",
+              "visible": "0",
+              "error": "6.6522773242829096",
+              "futureError": "1.9808580779439462",
+              "returnError": "6.6522773242829096",
+              "face": "-114",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "16",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7266571538488225",
+              "heightResidual": "-0.0010608594265266724",
+              "visible": "0",
+              "error": "0.037645474128104303",
+              "futureError": "0.012125244202504753",
+              "returnError": "0.037645474128104303",
+              "face": "-114",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "23",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "0",
+              "error": "6.6811463661772326",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "-114",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "23",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.97619044780731201",
+              "v": "1",
+              "reference": "1.9023117645186836",
+              "height": "1.7364330595446518",
+              "heightResidual": "-0.16587870497403179",
+              "visible": "0",
+              "error": "6.6522773242829096",
+              "futureError": "1.9808580779439462",
+              "returnError": "6.6522773242829096",
+              "face": "-114",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "23",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7266571538488225",
+              "heightResidual": "-0.0010608594265266724",
+              "visible": "0",
+              "error": "0.037645474128104303",
+              "futureError": "0.012125244202504753",
+              "returnError": "0.037645474128104303",
+              "face": "-114",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            }
+          ]
+        }
+      }
+    },
+    "peking547-b200000-transactional-t8": {
+      "quality": [
+        {
+          "frame": 2,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "7457631040611022267",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.20915012134511052,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.011188298892161082,
+            "screenWitness": [
+              176837,
+              0.6135531067848206,
+              0.09798534959554672
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 1107.833077
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "7457631040611022267",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.20915012134511052,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.011188298892161082,
+            "screenWitness": [
+              176837,
+              0.6135531067848206,
+              0.09798534959554672
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 1096.121223
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "6655352339049424715",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.20915012134511052,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.011188298892161089,
+            "screenWitness": [
+              176837,
+              0.6135531067848206,
+              0.09798534959554672
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 1117.668272
+          },
+          "above": {
+            "on": {
+              "0.1": 1520,
+              "0.25": 0,
+              "0.5": 0,
+              "1": 0
+            },
+            "off": {
+              "0.1": 1520,
+              "0.25": 0,
+              "0.5": 0,
+              "1": 0
+            },
+            "dod": {
+              "0.1": 1520,
+              "0.25": 0,
+              "0.5": 0,
+              "1": 0
+            }
+          },
+          "Dmax": {
+            "off": 0.0,
+            "dod": 2.4158508920017925e-13
+          }
+        },
+        {
+          "frame": 15,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "13258218171301545841",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1712379,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.8727696946551888,
+            "heightMax": 0.1529257389583658,
+            "terrainSampleRms": 0.08822077504644515,
+            "screenWitness": [
+              1708862,
+              0.9798534512519836,
+              0.9542124271392822
+            ],
+            "heightWitness": [
+              1754754,
+              0.9798534512519836,
+              0.9798534512519836
+            ],
+            "offlineMs": 1120.546038
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "13058053244743975573",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1712379,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.9965571109865088,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.0995989540610598,
+            "screenWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 1124.035208
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "6873051146041761150",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1712379,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.19377242496389396,
+            "heightMax": 0.281968581366959,
+            "terrainSampleRms": 0.010453214829506351,
+            "screenWitness": [
+              855772,
+              0.732600748538971,
+              0.4780219793319702
+            ],
+            "heightWitness": [
+              119098,
+              1,
+              0.06593406945466995
+            ],
+            "offlineMs": 1106.051743
+          },
+          "above": {
+            "on": {
+              "0.1": 45000,
+              "0.25": 22568,
+              "0.5": 12271,
+              "1": 3529
+            },
+            "off": {
+              "0.1": 44919,
+              "0.25": 22880,
+              "0.5": 13545,
+              "1": 4985
+            },
+            "dod": {
+              "0.1": 326,
+              "0.25": 0,
+              "0.5": 0,
+              "1": 0
+            }
+          },
+          "Dmax": {
+            "off": 0.7079509490811635,
+            "dod": 1.831134539173406
+          }
+        },
+        {
+          "frame": 16,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "13258218171301545841",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.20915012134511052,
+            "heightMax": 0.1529257389583658,
+            "terrainSampleRms": 0.011030375571995946,
+            "screenWitness": [
+              176837,
+              0.6135531067848206,
+              0.09798534959554672
+            ],
+            "heightWitness": [
+              1754754,
+              0.9798534512519836,
+              0.9798534512519836
+            ],
+            "offlineMs": 1113.394527
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "13058053244743975573",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.20915012134511052,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.011030719324344596,
+            "screenWitness": [
+              176837,
+              0.6135531067848206,
+              0.09798534959554672
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 1093.602712
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "12123532629016581379",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.20915012134511052,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.011188298892161089,
+            "screenWitness": [
+              176837,
+              0.6135531067848206,
+              0.09798534959554672
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 1120.144652
+          },
+          "above": {
+            "on": {
+              "0.1": 1445,
+              "0.25": 0,
+              "0.5": 0,
+              "1": 0
+            },
+            "off": {
+              "0.1": 1445,
+              "0.25": 0,
+              "0.5": 0,
+              "1": 0
+            },
+            "dod": {
+              "0.1": 1520,
+              "0.25": 0,
+              "0.5": 0,
+              "1": 0
+            }
+          },
+          "Dmax": {
+            "off": 0.014446165530229748,
+            "dod": 0.07487790280796558
+          }
+        },
+        {
+          "frame": 23,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "13258218171301545841",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.20915012134511052,
+            "heightMax": 0.1529257389583658,
+            "terrainSampleRms": 0.011030375571995946,
+            "screenWitness": [
+              176837,
+              0.6135531067848206,
+              0.09798534959554672
+            ],
+            "heightWitness": [
+              1754754,
+              0.9798534512519836,
+              0.9798534512519836
+            ],
+            "offlineMs": 1111.435551
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "13058053244743975573",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.20915012134511052,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.011030719324344596,
+            "screenWitness": [
+              176837,
+              0.6135531067848206,
+              0.09798534959554672
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 1088.102016
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "8757541173156340851",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.20915012134511052,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.011188298892161089,
+            "screenWitness": [
+              176837,
+              0.6135531067848206,
+              0.09798534959554672
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 1101.236324
+          },
+          "above": {
+            "on": {
+              "0.1": 1445,
+              "0.25": 0,
+              "0.5": 0,
+              "1": 0
+            },
+            "off": {
+              "0.1": 1445,
+              "0.25": 0,
+              "0.5": 0,
+              "1": 0
+            },
+            "dod": {
+              "0.1": 1520,
+              "0.25": 0,
+              "0.5": 0,
+              "1": 0
+            }
+          },
+          "Dmax": {
+            "off": 0.014446165530229748,
+            "dod": 0.07487790280796558
+          }
+        }
+      ],
+      "counts": {
+        "off": {
+          "exchanges": 522,
+          "free": 0,
+          "flips": 1,
+          "pairs": 412142,
+          "conflicts": 355191
+        },
+        "on": {
+          "exchanges": 535,
+          "free": 5,
+          "flips": 1,
+          "pairs": 415822,
+          "conflicts": 357708
+        },
+        "boundary": {
+          "attempts": 981,
+          "certified": 16,
+          "resolutionRejected": 20,
+          "conflicts": 3240,
+          "freeExecuted": 5,
+          "pairedExecuted": 6,
+          "releasedFaces": 6,
+          "initialVertices": 766,
+          "finalVertices": 777
+        }
+      },
+      "performance": {
+        "cpuMs": {
+          "mean": 641.1302512032645,
+          "median": 133.048095703125,
+          "p95": 4055.4892578125,
+          "max": 4634.7353515625
+        },
+        "uploadMs": {
+          "mean": 0.035933333138624825,
+          "median": 0.021700000390410423,
+          "p95": 0.13920000195503235,
+          "max": 0.1597999930381775
+        },
+        "frameMs": {
+          "mean": 641.9137142857143,
+          "median": 134.0411,
+          "p95": 4056.2531,
+          "max": 4635.836
+        },
+        "viewMs": {
+          "mean": 35.26680952380952,
+          "median": 46.957899999999995,
+          "p95": 66.8428,
+          "max": 86.4428
+        },
+        "receiverMs": {
+          "mean": 28.392661904761905,
+          "median": 19.667,
+          "p95": 72.13980000000001,
+          "max": 75.8865
+        },
+        "donorMs": {
+          "mean": 3.474795238095238,
+          "median": 2.7423,
+          "p95": 5.8625,
+          "max": 25.023799999999998
+        },
+        "reservationMs": {
+          "mean": 559.9154904761905,
+          "median": 22.912,
+          "p95": 3907.6589,
+          "max": 4443.9933
+        },
+        "topologyPrepareMs": {
+          "mean": 3.173095238095238,
+          "median": 0.4436,
+          "p95": 18.169600000000003,
+          "max": 22.759999999999998
+        },
+        "topologyPublishMs": {
+          "mean": 0.3049,
+          "median": 0.11610000000000001,
+          "p95": 1.2323,
+          "max": 2.6233
+        },
+        "sampleRepairMs": {
+          "mean": 8.246719047619047,
+          "median": 5.5219,
+          "p95": 30.0627,
+          "max": 34.414899999999996
+        },
+        "meshPrepareMs": {
+          "mean": 0.07269523809523809,
+          "median": 0.0727,
+          "p95": 0.2268,
+          "max": 0.2557
+        },
+        "continuationMs": {
+          "mean": 0.3036142857142857,
+          "median": 0.1447,
+          "p95": 1.1684,
+          "max": 1.2248
+        }
+      },
+      "currentOffPerformance": {
+        "cpuMs": {
+          "mean": 637.8835532324655,
+          "median": 112.7876968383789,
+          "p95": 4044.867431640625,
+          "max": 4607.88330078125
+        },
+        "uploadMs": {
+          "mean": 0.028514285377847653,
+          "median": 0.019700000062584877,
+          "p95": 0.08129999786615372,
+          "max": 0.10849999636411667
+        },
+        "frameMs": {
+          "mean": 638.5393238095238,
+          "median": 113.4882,
+          "p95": 4045.5096,
+          "max": 4608.508
+        },
+        "viewMs": {
+          "mean": 31.66264761904762,
+          "median": 44.2897,
+          "p95": 54.4553,
+          "max": 55.1318
+        },
+        "receiverMs": {
+          "mean": 31.026685714285716,
+          "median": 22.6323,
+          "p95": 67.24900000000001,
+          "max": 68.8101
+        },
+        "donorMs": {
+          "mean": 3.2381285714285717,
+          "median": 2.6201000000000003,
+          "p95": 6.344200000000001,
+          "max": 23.0625
+        },
+        "reservationMs": {
+          "mean": 558.8826619047619,
+          "median": 19.9756,
+          "p95": 3899.1544999999996,
+          "max": 4426.5223000000005
+        },
+        "topologyPrepareMs": {
+          "mean": 2.957133333333333,
+          "median": 0.4017,
+          "p95": 17.4742,
+          "max": 22.6102
+        },
+        "topologyPublishMs": {
+          "mean": 0.2888952380952381,
+          "median": 0.0564,
+          "p95": 1.4857,
+          "max": 1.4871999999999999
+        },
+        "sampleRepairMs": {
+          "mean": 7.796171428571428,
+          "median": 4.0291,
+          "p95": 28.9195,
+          "max": 36.835
+        },
+        "meshPrepareMs": {
+          "mean": 0.07123809523809524,
+          "median": 0.0648,
+          "p95": 0.2536,
+          "max": 0.2633
+        },
+        "continuationMs": {
+          "mean": 0.22252857142857144,
+          "median": 0.18239999999999998,
+          "p95": 0.8662,
+          "max": 1.0153
+        }
+      },
+      "coldPerformance": {
+        "cpuMs": 5485.67626953125,
+        "uploadMs": 12.113699913024902,
+        "frameMs": 5499.7781,
+        "viewMs": 0.0,
+        "receiverMs": 17.9806,
+        "donorMs": 0.0,
+        "reservationMs": 0.0025,
+        "topologyPrepareMs": 0.0,
+        "topologyPublishMs": 0.0,
+        "sampleRepairMs": 0.0,
+        "meshPrepareMs": 0.0,
+        "continuationMs": 0.0,
+        "seedMs": 887.2388,
+        "initializeMs": 4579.2519
+      },
+      "faceRange": [
+        199998,
+        200000
+      ],
+      "finalFaces": 199999,
+      "witnesses": {
+        "off": {
+          "frame-15": [
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "0",
+              "error": "6.6811463661772326",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "599",
+              "priority": "122.12060242830425",
+              "rank": "2"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7262189737606399",
+              "heightResidual": "-0.0014990395147091995",
+              "visible": "0",
+              "error": "0.053194166033101724",
+              "futureError": "0.017133449446579241",
+              "returnError": "0.053194166033101724",
+              "face": "599",
+              "priority": "122.12060242830425",
+              "rank": "2"
+            },
+            {
+              "frame": "15",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "1",
+              "error": "1.9965571109865088",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "-461",
+              "priority": "15.972323772634594",
+              "rank": "104"
+            },
+            {
+              "frame": "15",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7266571538488225",
+              "heightResidual": "-0.0010608594265266724",
+              "visible": "1",
+              "error": "0.012125244202504753",
+              "futureError": "0.012125244202504753",
+              "returnError": "0.037645474128104303",
+              "face": "-461",
+              "priority": "15.972323772634594",
+              "rank": "104"
+            },
+            {
+              "frame": "16",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "0",
+              "error": "6.6811463661772326",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "-461",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "16",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7266571538488225",
+              "heightResidual": "-0.0010608594265266724",
+              "visible": "0",
+              "error": "0.037645474128104303",
+              "futureError": "0.012125244202504753",
+              "returnError": "0.037645474128104303",
+              "face": "-461",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "23",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "0",
+              "error": "6.6811463661772326",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "-461",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            },
+            {
+              "frame": "23",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7266571538488225",
+              "heightResidual": "-0.0010608594265266724",
+              "visible": "0",
+              "error": "0.037645474128104303",
+              "futureError": "0.012125244202504753",
+              "returnError": "0.037645474128104303",
+              "face": "-461",
+              "priority": "71.703627117365869",
+              "rank": "2"
+            }
+          ]
+        },
+        "on": {
+          "frame-15": [
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.736194959252316",
+              "heightResidual": "-0.16758164744473669",
+              "visible": "0",
+              "error": "6.6811463661772326",
+              "futureError": "1.9965571109865088",
+              "returnError": "6.6811463661772326",
+              "face": "599",
+              "priority": "122.12060242830425",
+              "rank": "2"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7262189737606399",
+              "heightResidual": "-0.0014990395147091995",
+              "visible": "0",
+              "error": "0.053194166033101724",
+              "futureError": "0.017133449446579241",
+              "returnError": "0.053194166033101724",
+              "face": "599",
+              "priority": "122.12060242830425",
+              "rank": "2"
+            },
+            {
+              "frame": "15",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.8621077190118298",
+              "heightResidual": "-0.041668887685222922",
+              "visible": "1",
+              "error": "0.49675771304186023",
+              "futureError": "0.49675771304186023",
+              "returnError": "1.6659302641431981",
+              "face": "-3234",
+              "priority": "8.2776375678632821",
+              "rank": "683"
+            },
+            {
+              "frame": "15",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7322782595302733",
+              "heightResidual": "0.0045602462549241274",
+              "visible": "1",
+              "error": "0.052123413810466347",
+              "futureError": "0.052123413810466347",
+              "returnError": "0.16184327048465388",
+              "face": "-2800",
+              "priority": "7.7111408096347658",
+              "rank": "818"
+            },
+            {
+              "frame": "16",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.8621077190118298",
+              "heightResidual": "-0.041668887685222922",
+              "visible": "0",
+              "error": "1.6659302641431981",
+              "futureError": "0.49675771304186023",
+              "returnError": "1.6659302641431981",
+              "face": "-3234",
+              "priority": "39.274074860834901",
+              "rank": "12"
+            },
+            {
+              "frame": "16",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7322782595302733",
+              "heightResidual": "0.0045602462549241274",
+              "visible": "0",
+              "error": "0.16184327048465388",
+              "futureError": "0.052123413810466347",
+              "returnError": "0.16184327048465388",
+              "face": "-2800",
+              "priority": "38.701232480281703",
+              "rank": "14"
+            },
+            {
+              "frame": "23",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.97435897588729858",
+              "v": "1",
+              "reference": "1.9037766066970527",
+              "height": "1.8621077190118298",
+              "heightResidual": "-0.041668887685222922",
+              "visible": "0",
+              "error": "1.6659302641431981",
+              "futureError": "0.49675771304186023",
+              "returnError": "1.6659302641431981",
+              "face": "-3234",
+              "priority": "39.274074860834901",
+              "rank": "12"
+            },
+            {
+              "frame": "23",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.94047619047619047",
+              "v": "0.99816849816849818",
+              "reference": "1.7277180132753491",
+              "height": "1.7322782595302733",
+              "heightResidual": "0.0045602462549241274",
+              "visible": "0",
+              "error": "0.16184327048465388",
+              "futureError": "0.052123413810466347",
+              "returnError": "0.16184327048465388",
+              "face": "-2800",
+              "priority": "38.701232480281703",
+              "rank": "14"
+            }
+          ]
+        }
+      }
+    },
+    "dem-canyon-b50000-transactional-t8": {
+      "quality": [
+        {
+          "frame": 2,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "18382944899644861613",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1452205,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 4.63692509577418,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.30282059154741237,
+            "screenWitness": [
+              1501038,
+              0.96875,
+              0.953125
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 831.953701
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "18382944899644861613",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1452205,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 4.63692509577418,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.30282059154741237,
+            "screenWitness": [
+              1501038,
+              0.96875,
+              0.953125
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 848.587001
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "14389074011157899099",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1452205,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.3156938104516644,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2981173392036623,
+            "screenWitness": [
+              1325460,
+              0.8515625,
+              0.841796875
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 857.046335
+          },
+          "above": {
+            "on": {
+              "0.1": 920625,
+              "0.25": 489093,
+              "0.5": 154117,
+              "1": 6753
+            },
+            "off": {
+              "0.1": 920625,
+              "0.25": 489093,
+              "0.5": 154117,
+              "1": 6753
+            },
+            "dod": {
+              "0.1": 918173,
+              "0.25": 485480,
+              "0.5": 150864,
+              "1": 5755
+            }
+          },
+          "Dmax": {
+            "off": 0.0,
+            "dod": 4.636922599457437
+          }
+        },
+        {
+          "frame": 48,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "79905008212085641",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1114577,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 7.626983864313568,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.4462752778660044,
+            "screenWitness": [
+              1565175,
+              0.8330078125,
+              0.9931640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 847.653696
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "11488816544551648613",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1114577,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 9.274476736648769,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.47920022881296753,
+            "screenWitness": [
+              1574412,
+              0.837890625,
+              1
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 817.732486
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "2957331639505755403",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1114577,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.839557369258571,
+            "heightMax": 6.259914564360576,
+            "terrainSampleRms": 0.24567629773537125,
+            "screenWitness": [
+              343060,
+              0.267578125,
+              0.21875
+            ],
+            "heightWitness": [
+              1507806,
+              0.169921875,
+              0.958984375
+            ],
+            "offlineMs": 861.29134
+          },
+          "above": {
+            "on": {
+              "0.1": 737903,
+              "0.25": 420952,
+              "0.5": 160959,
+              "1": 23386
+            },
+            "off": {
+              "0.1": 737846,
+              "0.25": 420983,
+              "0.5": 161110,
+              "1": 23728
+            },
+            "dod": {
+              "0.1": 646144,
+              "0.25": 296082,
+              "0.5": 62347,
+              "1": 1616
+            }
+          },
+          "Dmax": {
+            "off": 2.852345263869267,
+            "dod": 7.517890515109631
+          },
+          "clusters": {
+            "off": {
+              "samples": 131219,
+              "visible": 1114577,
+              "components": 1988,
+              "largest": 20454
+            },
+            "on": {
+              "samples": 131134,
+              "visible": 1114577,
+              "components": 1989,
+              "largest": 20361
+            }
+          }
+        },
+        {
+          "frame": 80,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "16205891462204131153",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.348192641609855,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2991685118868482,
+            "screenWitness": [
+              1073620,
+              0.92578125,
+              0.681640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 870.900565
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "14141856504628337756",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.348192641609855,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2991600830810882,
+            "screenWitness": [
+              1073620,
+              0.92578125,
+              0.681640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 839.083952
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "6910887810557670167",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.348192641609855,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2990287537793469,
+            "screenWitness": [
+              1073620,
+              0.92578125,
+              0.681640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 849.903048
+          },
+          "above": {
+            "on": {
+              "0.1": 922624,
+              "0.25": 488736,
+              "0.5": 152446,
+              "1": 6021
+            },
+            "off": {
+              "0.1": 922570,
+              "0.25": 488716,
+              "0.5": 152438,
+              "1": 6020
+            },
+            "dod": {
+              "0.1": 921804,
+              "0.25": 488458,
+              "0.5": 152317,
+              "1": 5996
+            }
+          },
+          "Dmax": {
+            "off": 1.1108046910022433,
+            "dod": 1.7298481579334128
+          }
+        },
+        {
+          "frame": 95,
+          "on": {
+            "status": "sampled_only",
+            "meshHash": "16205891462204131153",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.348192641609855,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2991685118868482,
+            "screenWitness": [
+              1073620,
+              0.92578125,
+              0.681640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 847.518422
+          },
+          "off": {
+            "status": "sampled_only",
+            "meshHash": "14141856504628337756",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.348192641609855,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2991600830810882,
+            "screenWitness": [
+              1073620,
+              0.92578125,
+              0.681640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 837.717937
+          },
+          "dod": {
+            "status": "sampled_only",
+            "meshHash": "6910887810557670167",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.348192641609855,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2990287537793469,
+            "screenWitness": [
+              1073620,
+              0.92578125,
+              0.681640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 828.853305
+          },
+          "above": {
+            "on": {
+              "0.1": 922624,
+              "0.25": 488736,
+              "0.5": 152446,
+              "1": 6021
+            },
+            "off": {
+              "0.1": 922570,
+              "0.25": 488716,
+              "0.5": 152438,
+              "1": 6020
+            },
+            "dod": {
+              "0.1": 921804,
+              "0.25": 488458,
+              "0.5": 152317,
+              "1": 5996
+            }
+          },
+          "Dmax": {
+            "off": 1.1108046910022433,
+            "dod": 1.7298481579334128
+          }
+        }
+      ],
+      "counts": {
+        "off": {
+          "exchanges": 77,
+          "free": 0,
+          "flips": 1,
+          "pairs": 15154,
+          "conflicts": 8843
+        },
+        "on": {
+          "exchanges": 83,
+          "free": 2,
+          "flips": 1,
+          "pairs": 17506,
+          "conflicts": 10441
+        },
+        "boundary": {
+          "attempts": 2429,
+          "certified": 7,
+          "resolutionRejected": 0,
+          "conflicts": 242,
+          "freeExecuted": 1,
+          "pairedExecuted": 4,
+          "releasedFaces": 4,
+          "initialVertices": 316,
+          "finalVertices": 321
+        }
+      },
+      "performance": {
+        "cpuMs": {
+          "mean": 22.517751573234477,
+          "median": 23.362499237060547,
+          "p95": 51.79910049438471,
+          "max": 77.57489776611328
+        },
+        "uploadMs": {
+          "mean": 0.005103225798486302,
+          "median": 0.002899999963119626,
+          "p95": 0.014719999767839867,
+          "max": 0.03579999879002571
+        },
+        "frameMs": {
+          "mean": 22.993019354838708,
+          "median": 23.8726,
+          "p95": 52.39851999999995,
+          "max": 78.2116
+        },
+        "viewMs": {
+          "mean": 13.17706129032258,
+          "median": 18.7942,
+          "p95": 23.068479999999997,
+          "max": 28.1187
+        },
+        "receiverMs": {
+          "mean": 6.007637634408602,
+          "median": 4.229100000000001,
+          "p95": 13.23176,
+          "max": 20.622
+        },
+        "donorMs": {
+          "mean": 1.2522924731182796,
+          "median": 0.0,
+          "p95": 7.15928,
+          "max": 7.9649
+        },
+        "reservationMs": {
+          "mean": 0.6816688172043011,
+          "median": 0.00019999999999999998,
+          "p95": 3.104279999999992,
+          "max": 17.136499999999998
+        },
+        "topologyPrepareMs": {
+          "mean": 0.07231935483870967,
+          "median": 0.0,
+          "p95": 0.43649999999999994,
+          "max": 1.5012999999999999
+        },
+        "topologyPublishMs": {
+          "mean": 0.013906451612903227,
+          "median": 0.0,
+          "p95": 0.08741999999999976,
+          "max": 0.3546
+        },
+        "sampleRepairMs": {
+          "mean": 1.040751612903226,
+          "median": 0.0,
+          "p95": 7.0078399999999865,
+          "max": 17.363
+        },
+        "meshPrepareMs": {
+          "mean": 0.009738709677419355,
+          "median": 0.0,
+          "p95": 0.058719999999999946,
+          "max": 0.1044
+        },
+        "continuationMs": {
+          "mean": 0.019787096774193547,
+          "median": 0.0,
+          "p95": 0.11429999999999974,
+          "max": 0.32670000000000005
+        }
+      },
+      "currentOffPerformance": {
+        "cpuMs": {
+          "mean": 20.86920653107346,
+          "median": 23.3341007232666,
+          "p95": 50.917499542236214,
+          "max": 70.81580352783203
+        },
+        "uploadMs": {
+          "mean": 0.006229032281666032,
+          "median": 0.004399999976158142,
+          "p95": 0.015540000051259963,
+          "max": 0.05990000069141388
+        },
+        "frameMs": {
+          "mean": 21.619018279569893,
+          "median": 24.216,
+          "p95": 51.57903999999989,
+          "max": 71.5592
+        },
+        "viewMs": {
+          "mean": 12.4493311827957,
+          "median": 16.802899999999998,
+          "p95": 23.4411,
+          "max": 25.3242
+        },
+        "receiverMs": {
+          "mean": 5.307712903225807,
+          "median": 4.1239,
+          "p95": 13.370519999999996,
+          "max": 18.7891
+        },
+        "donorMs": {
+          "mean": 1.129101075268817,
+          "median": 0.0,
+          "p95": 7.155919999999997,
+          "max": 7.8042
+        },
+        "reservationMs": {
+          "mean": 0.5842483870967742,
+          "median": 0.00019999999999999998,
+          "p95": 3.771759999999976,
+          "max": 14.196200000000001
+        },
+        "topologyPrepareMs": {
+          "mean": 0.06768924731182796,
+          "median": 0.0,
+          "p95": 0.4336999999999998,
+          "max": 1.177
+        },
+        "topologyPublishMs": {
+          "mean": 0.016738709677419354,
+          "median": 0.0,
+          "p95": 0.0977999999999997,
+          "max": 0.38020000000000004
+        },
+        "sampleRepairMs": {
+          "mean": 0.9906612903225807,
+          "median": 0.0,
+          "p95": 6.315359999999996,
+          "max": 14.7213
+        },
+        "meshPrepareMs": {
+          "mean": 0.009703225806451613,
+          "median": 0.0,
+          "p95": 0.06037999999999998,
+          "max": 0.1441
+        },
+        "continuationMs": {
+          "mean": 0.03013440860215054,
+          "median": 0.0,
+          "p95": 0.14629999999999993,
+          "max": 0.9254
+        }
+      },
+      "coldPerformance": {
+        "cpuMs": 4515.67529296875,
+        "uploadMs": 4.1753997802734375,
+        "frameMs": 4522.0785,
+        "viewMs": 0.0,
+        "receiverMs": 6.9039,
+        "donorMs": 7.4831,
+        "reservationMs": 0.0632,
+        "topologyPrepareMs": 0.1538,
+        "topologyPublishMs": 0.0258,
+        "sampleRepairMs": 1.4851,
+        "meshPrepareMs": 0.0376,
+        "continuationMs": 0.0219,
+        "seedMs": 250.3174,
+        "initializeMs": 4248.6752
+      },
+      "faceRange": [
+        49998,
+        50000
+      ],
+      "finalFaces": 49999,
+      "witnesses": {
+        "off": {
+          "frame-48": [
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.837890625",
+              "v": "1",
+              "reference": "2.4800869703129136",
+              "height": "3.612383708357811",
+              "heightResidual": "1.1322967380448974",
+              "visible": "0",
+              "error": "10.246882143603909",
+              "futureError": "9.2744767366487686",
+              "returnError": "10.546485699245519",
+              "face": "803",
+              "priority": "13.247827076493897",
+              "rank": "7"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.8359375",
+              "v": "1",
+              "reference": "2.4862990637997737",
+              "height": "3.571017324924469",
+              "heightResidual": "1.0847182611246953",
+              "visible": "0",
+              "error": "9.8112570914677306",
+              "futureError": "8.8897412975710566",
+              "returnError": "10.095836162809952",
+              "face": "803",
+              "priority": "13.247827076493897",
+              "rank": "7"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.98828125",
+              "v": "1",
+              "reference": "6.4497974170484866",
+              "height": "7.559752345085144",
+              "heightResidual": "1.1099549280366574",
+              "visible": "0",
+              "error": "10.895728331440665",
+              "futureError": "8.9723286163635958",
+              "returnError": "11.464675731630287",
+              "face": "624",
+              "priority": "6.9010294968371992",
+              "rank": "58"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "3",
+              "u": "0.86328125",
+              "v": "0.9990234375",
+              "reference": "4.1402689546762765",
+              "height": "4.1317930445075035",
+              "heightResidual": "-0.0084759101687730265",
+              "visible": "0",
+              "error": "0.078127681293895246",
+              "futureError": "0.06961785689692751",
+              "returnError": "0.080696038068503756",
+              "face": "803",
+              "priority": "13.247827076493897",
+              "rank": "7"
+            },
+            {
+              "frame": "48",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.837890625",
+              "v": "1",
+              "reference": "2.4800869703129136",
+              "height": "3.612383708357811",
+              "heightResidual": "1.1322967380448974",
+              "visible": "1",
+              "error": "9.2744767366487686",
+              "futureError": "9.2744767366487686",
+              "returnError": "10.546485699245519",
+              "face": "-319",
+              "priority": "11.550127752746544",
+              "rank": "65"
+            },
+            {
+              "frame": "48",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.8359375",
+              "v": "1",
+              "reference": "2.4862990637997737",
+              "height": "3.571017324924469",
+              "heightResidual": "1.0847182611246953",
+              "visible": "1",
+              "error": "8.8897412975710566",
+              "futureError": "8.8897412975710566",
+              "returnError": "10.095836162809952",
+              "face": "-319",
+              "priority": "11.550127752746544",
+              "rank": "65"
+            },
+            {
+              "frame": "48",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.98828125",
+              "v": "1",
+              "reference": "6.4497974170484866",
+              "height": "7.559752345085144",
+              "heightResidual": "1.1099549280366574",
+              "visible": "1",
+              "error": "8.9723286163635958",
+              "futureError": "8.9723286163635958",
+              "returnError": "11.464675731630287",
+              "face": "624",
+              "priority": "8.9723286163635958",
+              "rank": "223"
+            },
+            {
+              "frame": "48",
+              "phase": "after",
+              "witness": "3",
+              "u": "0.86328125",
+              "v": "0.9990234375",
+              "reference": "4.1402689546762765",
+              "height": "4.1319099819411544",
+              "heightResidual": "-0.0083589727351220944",
+              "visible": "1",
+              "error": "0.06865742785695772",
+              "futureError": "0.06865742785695772",
+              "returnError": "0.079582789932205397",
+              "face": "-319",
+              "priority": "11.550127752746544",
+              "rank": "65"
+            },
+            {
+              "frame": "80",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.837890625",
+              "v": "1",
+              "reference": "2.4800869703129136",
+              "height": "3.612383708357811",
+              "heightResidual": "1.1322967380448974",
+              "visible": "0",
+              "error": "10.546485699245519",
+              "futureError": "9.2744767366487686",
+              "returnError": "10.546485699245519",
+              "face": "-319",
+              "priority": "14.184362480618574",
+              "rank": "3"
+            },
+            {
+              "frame": "80",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.8359375",
+              "v": "1",
+              "reference": "2.4862990637997737",
+              "height": "3.571017324924469",
+              "heightResidual": "1.0847182611246953",
+              "visible": "0",
+              "error": "10.095836162809952",
+              "futureError": "8.8897412975710566",
+              "returnError": "10.095836162809952",
+              "face": "-319",
+              "priority": "14.184362480618574",
+              "rank": "3"
+            },
+            {
+              "frame": "80",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.98828125",
+              "v": "1",
+              "reference": "6.4497974170484866",
+              "height": "7.559752345085144",
+              "heightResidual": "1.1099549280366574",
+              "visible": "0",
+              "error": "11.464675731630287",
+              "futureError": "8.9723286163635958",
+              "returnError": "11.464675731630287",
+              "face": "-530",
+              "priority": "7.1790395644683818",
+              "rank": "42"
+            },
+            {
+              "frame": "80",
+              "phase": "after",
+              "witness": "3",
+              "u": "0.86328125",
+              "v": "0.9990234375",
+              "reference": "4.1402689546762765",
+              "height": "4.1319099819411544",
+              "heightResidual": "-0.0083589727351220944",
+              "visible": "0",
+              "error": "0.079582789932205397",
+              "futureError": "0.06865742785695772",
+              "returnError": "0.079582789932205397",
+              "face": "-319",
+              "priority": "14.184362480618574",
+              "rank": "3"
+            },
+            {
+              "frame": "95",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.837890625",
+              "v": "1",
+              "reference": "2.4800869703129136",
+              "height": "3.612383708357811",
+              "heightResidual": "1.1322967380448974",
+              "visible": "0",
+              "error": "10.546485699245519",
+              "futureError": "9.2744767366487686",
+              "returnError": "10.546485699245519",
+              "face": "-319",
+              "priority": "14.184362480618574",
+              "rank": "3"
+            },
+            {
+              "frame": "95",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.8359375",
+              "v": "1",
+              "reference": "2.4862990637997737",
+              "height": "3.571017324924469",
+              "heightResidual": "1.0847182611246953",
+              "visible": "0",
+              "error": "10.095836162809952",
+              "futureError": "8.8897412975710566",
+              "returnError": "10.095836162809952",
+              "face": "-319",
+              "priority": "14.184362480618574",
+              "rank": "3"
+            },
+            {
+              "frame": "95",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.98828125",
+              "v": "1",
+              "reference": "6.4497974170484866",
+              "height": "7.559752345085144",
+              "heightResidual": "1.1099549280366574",
+              "visible": "0",
+              "error": "11.464675731630287",
+              "futureError": "8.9723286163635958",
+              "returnError": "11.464675731630287",
+              "face": "-530",
+              "priority": "7.1790395644683818",
+              "rank": "42"
+            },
+            {
+              "frame": "95",
+              "phase": "after",
+              "witness": "3",
+              "u": "0.86328125",
+              "v": "0.9990234375",
+              "reference": "4.1402689546762765",
+              "height": "4.1319099819411544",
+              "heightResidual": "-0.0083589727351220944",
+              "visible": "0",
+              "error": "0.079582789932205397",
+              "futureError": "0.06865742785695772",
+              "returnError": "0.079582789932205397",
+              "face": "-319",
+              "priority": "14.184362480618574",
+              "rank": "3"
+            }
+          ]
+        },
+        "on": {
+          "frame-48": [
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.837890625",
+              "v": "1",
+              "reference": "2.4800869703129136",
+              "height": "3.612383708357811",
+              "heightResidual": "1.1322967380448974",
+              "visible": "0",
+              "error": "10.246882143603909",
+              "futureError": "9.2744767366487686",
+              "returnError": "10.546485699245519",
+              "face": "803",
+              "priority": "13.247827076493897",
+              "rank": "7"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.8359375",
+              "v": "1",
+              "reference": "2.4862990637997737",
+              "height": "3.571017324924469",
+              "heightResidual": "1.0847182611246953",
+              "visible": "0",
+              "error": "9.8112570914677306",
+              "futureError": "8.8897412975710566",
+              "returnError": "10.095836162809952",
+              "face": "803",
+              "priority": "13.247827076493897",
+              "rank": "7"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.98828125",
+              "v": "1",
+              "reference": "6.4497974170484866",
+              "height": "7.559752345085144",
+              "heightResidual": "1.1099549280366574",
+              "visible": "0",
+              "error": "10.895728331440665",
+              "futureError": "8.9723286163635958",
+              "returnError": "11.464675731630287",
+              "face": "624",
+              "priority": "6.9010294968371992",
+              "rank": "58"
+            },
+            {
+              "frame": "2",
+              "phase": "after",
+              "witness": "3",
+              "u": "0.86328125",
+              "v": "0.9990234375",
+              "reference": "4.1402689546762765",
+              "height": "4.1317930445075035",
+              "heightResidual": "-0.0084759101687730265",
+              "visible": "0",
+              "error": "0.078127681293895246",
+              "futureError": "0.06961785689692751",
+              "returnError": "0.080696038068503756",
+              "face": "803",
+              "priority": "13.247827076493897",
+              "rank": "7"
+            },
+            {
+              "frame": "48",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.837890625",
+              "v": "1",
+              "reference": "2.4800869703129136",
+              "height": "2.7711874728796002",
+              "heightResidual": "0.29110050256668663",
+              "visible": "1",
+              "error": "2.3717412639530431",
+              "futureError": "2.3717412639530431",
+              "returnError": "2.6942847048940841",
+              "face": "-421",
+              "priority": "7.626983052075615",
+              "rank": "344"
+            },
+            {
+              "frame": "48",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.8359375",
+              "v": "1",
+              "reference": "2.4862990637997737",
+              "height": "2.7945284921753513",
+              "heightResidual": "0.30822942837557754",
+              "visible": "1",
+              "error": "2.51371326124054",
+              "futureError": "2.51371326124054",
+              "returnError": "2.8520946986309985",
+              "face": "-421",
+              "priority": "7.626983052075615",
+              "rank": "344"
+            },
+            {
+              "frame": "48",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.98828125",
+              "v": "1",
+              "reference": "6.4497974170484866",
+              "height": "6.7875800413789618",
+              "heightResidual": "0.33778262433047512",
+              "visible": "1",
+              "error": "2.7182757916563172",
+              "futureError": "2.7182757916563172",
+              "returnError": "3.4681217177685033",
+              "face": "-289",
+              "priority": "6.7836673092148532",
+              "rank": "440"
+            },
+            {
+              "frame": "48",
+              "phase": "after",
+              "witness": "3",
+              "u": "0.86328125",
+              "v": "0.9990234375",
+              "reference": "4.1402689546762765",
+              "height": "3.7838699953707553",
+              "heightResidual": "-0.35639895930552123",
+              "visible": "1",
+              "error": "2.9210025239660218",
+              "futureError": "2.9210025239660218",
+              "returnError": "3.3842413227304182",
+              "face": "-449",
+              "priority": "3.8921952945167653",
+              "rank": "0"
+            },
+            {
+              "frame": "80",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.837890625",
+              "v": "1",
+              "reference": "2.4800869703129136",
+              "height": "2.7711874728796002",
+              "heightResidual": "0.29110050256668663",
+              "visible": "0",
+              "error": "2.6942847048940841",
+              "futureError": "2.3717412639530431",
+              "returnError": "2.6942847048940841",
+              "face": "-421",
+              "priority": "6.4252471957115347",
+              "rank": "59"
+            },
+            {
+              "frame": "80",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.8359375",
+              "v": "1",
+              "reference": "2.4862990637997737",
+              "height": "2.7945284921753513",
+              "heightResidual": "0.30822942837557754",
+              "visible": "0",
+              "error": "2.8520946986309985",
+              "futureError": "2.51371326124054",
+              "returnError": "2.8520946986309985",
+              "face": "-421",
+              "priority": "6.4252471957115347",
+              "rank": "59"
+            },
+            {
+              "frame": "80",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.98828125",
+              "v": "1",
+              "reference": "6.4497974170484866",
+              "height": "6.7875800413789618",
+              "heightResidual": "0.33778262433047512",
+              "visible": "0",
+              "error": "3.4681217177685033",
+              "futureError": "2.7182757916563172",
+              "returnError": "3.4681217177685033",
+              "face": "-289",
+              "priority": "4.9887308525701712",
+              "rank": "161"
+            },
+            {
+              "frame": "80",
+              "phase": "after",
+              "witness": "3",
+              "u": "0.86328125",
+              "v": "0.9990234375",
+              "reference": "4.1402689546762765",
+              "height": "3.7842184797495007",
+              "heightResidual": "-0.35605047492677588",
+              "visible": "0",
+              "error": "3.3809411205306259",
+              "futureError": "2.918152699806738",
+              "returnError": "3.3809411205306259",
+              "face": "-509",
+              "priority": "4.6979705053000709",
+              "rank": "192"
+            },
+            {
+              "frame": "95",
+              "phase": "after",
+              "witness": "0",
+              "u": "0.837890625",
+              "v": "1",
+              "reference": "2.4800869703129136",
+              "height": "2.7711874728796002",
+              "heightResidual": "0.29110050256668663",
+              "visible": "0",
+              "error": "2.6942847048940841",
+              "futureError": "2.3717412639530431",
+              "returnError": "2.6942847048940841",
+              "face": "-421",
+              "priority": "6.4252471957115347",
+              "rank": "59"
+            },
+            {
+              "frame": "95",
+              "phase": "after",
+              "witness": "1",
+              "u": "0.8359375",
+              "v": "1",
+              "reference": "2.4862990637997737",
+              "height": "2.7945284921753513",
+              "heightResidual": "0.30822942837557754",
+              "visible": "0",
+              "error": "2.8520946986309985",
+              "futureError": "2.51371326124054",
+              "returnError": "2.8520946986309985",
+              "face": "-421",
+              "priority": "6.4252471957115347",
+              "rank": "59"
+            },
+            {
+              "frame": "95",
+              "phase": "after",
+              "witness": "2",
+              "u": "0.98828125",
+              "v": "1",
+              "reference": "6.4497974170484866",
+              "height": "6.7875800413789618",
+              "heightResidual": "0.33778262433047512",
+              "visible": "0",
+              "error": "3.4681217177685033",
+              "futureError": "2.7182757916563172",
+              "returnError": "3.4681217177685033",
+              "face": "-289",
+              "priority": "4.9887308525701712",
+              "rank": "161"
+            },
+            {
+              "frame": "95",
+              "phase": "after",
+              "witness": "3",
+              "u": "0.86328125",
+              "v": "0.9990234375",
+              "reference": "4.1402689546762765",
+              "height": "3.7842184797495007",
+              "heightResidual": "-0.35605047492677588",
+              "visible": "0",
+              "error": "3.3809411205306259",
+              "futureError": "2.918152699806738",
+              "returnError": "3.3809411205306259",
+              "face": "-509",
+              "priority": "4.6979705053000709",
+              "rank": "192"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "evidence": {
+    "peking547-b50000-transactional-t8-timing/manifest.json": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-timing/manifest.json",
+      "bytes": 59310,
+      "sha256": "68501dd5ee02c6f662c8321a4da52581a56ba5c8ff9c4d16175804b866b8758c"
+    },
+    "peking547-b50000-transactional-t8-visual/manifest.json": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-visual/manifest.json",
+      "bytes": 61811,
+      "sha256": "f9611d9f4ab4dcc02fdafd2b8d36f284dd11aa6d229520fd8befb8b83534588c"
+    },
+    "quality-peking547-b50000-transactional-t8/quality-index.json": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/quality-peking547-b50000-transactional-t8/quality-index.json",
+      "bytes": 6990,
+      "sha256": "747eb699498a6837c95a938567705c3966f75f9cf4430207583ed333a9141965"
+    },
+    "peking547-b50000-transactional-t8-trace-on/frames.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-on/frames.csv",
+      "bytes": 2016,
+      "sha256": "1d5ac03d7836dc7f0101e6cbb7f6d8f7569dc6e539aed10b5727f30e68d91787"
+    },
+    "peking547-b50000-transactional-t8-trace-on/boundary-refinement.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-on/boundary-refinement.csv",
+      "bytes": 909,
+      "sha256": "40f1e0f8b43fd35431bf387780aa3c5cce2c1a21a678dd4a4dc0e1ccc62d98c6"
+    },
+    "peking547-b50000-transactional-t8-trace-off/frames.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-off/frames.csv",
+      "bytes": 2028,
+      "sha256": "dadc2dc57848398ff52cfff0f2b9f69fea099f96f1e0a69217e9fdd8fc1db079"
+    },
+    "peking547-b200000-transactional-t8-timing/manifest.json": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-timing/manifest.json",
+      "bytes": 59318,
+      "sha256": "7c3c56afd85341cf9520dc8e5507b9d3954ef657fe79d1930401cf31750eb688"
+    },
+    "peking547-b200000-transactional-t8-visual/manifest.json": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-visual/manifest.json",
+      "bytes": 61832,
+      "sha256": "ea544a8f7c953125047a00025d11ef19588c47815fd81bc822c6b00c7dedde70"
+    },
+    "quality-peking547-b200000-transactional-t8/quality-index.json": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/quality-peking547-b200000-transactional-t8/quality-index.json",
+      "bytes": 7011,
+      "sha256": "3743f17f5aa36b34c5df07389e6dacfc1afd459fdee81e945a5a80eaea0fe72c"
+    },
+    "peking547-b200000-transactional-t8-trace-on/frames.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-on/frames.csv",
+      "bytes": 2163,
+      "sha256": "8507cd7a73d7703c1aecffc13efee19b611d6f9ab7734cf0b1132b068d0d6ad3"
+    },
+    "peking547-b200000-transactional-t8-trace-on/boundary-refinement.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-on/boundary-refinement.csv",
+      "bytes": 919,
+      "sha256": "5721eb242346a656ea4f6d6ab13ea243419bbebe6f42028621a57e32027494bf"
+    },
+    "peking547-b200000-transactional-t8-trace-off/frames.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-off/frames.csv",
+      "bytes": 2163,
+      "sha256": "772ee63751e6d29e02b9651457172d50cd8b20d8ac14784623ebf6b2780260c7"
+    },
+    "dem-canyon-b50000-transactional-t8-timing/manifest.json": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-timing/manifest.json",
+      "bytes": 59330,
+      "sha256": "0041c8f8a8eca7a7842778d0826c090b359932e98f7dadb702fb7e733358e1df"
+    },
+    "dem-canyon-b50000-transactional-t8-visual/manifest.json": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-visual/manifest.json",
+      "bytes": 65589,
+      "sha256": "265ee399148350950041c96eea82a008db69d2a69270420ec2750d2a16ee7cd2"
+    },
+    "quality-dem-canyon-b50000-transactional-t8/quality-index.json": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/quality-dem-canyon-b50000-transactional-t8/quality-index.json",
+      "bytes": 6997,
+      "sha256": "a9f839816f71240352b1162085458a2329f9912c0a90b94bcef9d4dff1353f78"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-on/frames.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-on/frames.csv",
+      "bytes": 7024,
+      "sha256": "7348bd09cc53fa4a0768fee72fe80d81412693c4b6511beaccd5eeae25afd7e4"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-on/boundary-refinement.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-on/boundary-refinement.csv",
+      "bytes": 3141,
+      "sha256": "7e697b33bab0e9a641bcdf298146f7df89bbcb60e5c8a343d538da1c087021ce"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-off/frames.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-off/frames.csv",
+      "bytes": 7203,
+      "sha256": "21411c549d913149b26a833e06a9b4dafa4d1e8636f0b25f8ae01eb555f9e860"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-off/frame-48/recovery.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-off/frame-48/recovery.jsonl",
+      "bytes": 78976,
+      "sha256": "aa3801dfaf5693b32fc8a1c890262629106f04fff1f10f293bfc960d29341a16"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-off/frame-48/roots.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-off/frame-48/roots.jsonl",
+      "bytes": 230496,
+      "sha256": "1e834c50d5b3abb9968767648181311a50460951f6d9172195631383f39a94f1"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-off/frame-48/transactions.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-off/frame-48/transactions.jsonl",
+      "bytes": 104239,
+      "sha256": "3718ce6184e3342673c5e56dc530c6058f602492347641a6bf5d95d84d32582c"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-off/frame-48/witnesses.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-off/frame-48/witnesses.csv",
+      "bytes": 133278,
+      "sha256": "796399074858d59049551ca97a2cc39beb0fa4f2eaaa62d41e6ddebfe4543e94"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-on/frame-48/recovery.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-on/frame-48/recovery.jsonl",
+      "bytes": 58370,
+      "sha256": "dbac155fc7366cafef8b2cc608ef2b982e36eb2623840f584d38cc36d524fe8f"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-on/frame-48/roots.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-on/frame-48/roots.jsonl",
+      "bytes": 237428,
+      "sha256": "53e098e5db3f702febd2d0cb2d8f71acda67515a633096e9bb55a292feddc9ce"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-on/frame-48/transactions.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-on/frame-48/transactions.jsonl",
+      "bytes": 120871,
+      "sha256": "39030642bec70ba0b9e8bdb0c54e420fcdc25f8ba547ba2666150065a1d11a98"
+    },
+    "dem-canyon-b50000-transactional-t8-trace-on/frame-48/witnesses.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-trace-on/frame-48/witnesses.csv",
+      "bytes": 133283,
+      "sha256": "58e81427c9970f89dd0abd0092c6638f16692e0fdc806f735dc952da9a15c3e7"
+    },
+    "peking547-b200000-transactional-t8-trace-off/frame-15/recovery.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-off/frame-15/recovery.jsonl",
+      "bytes": 8314,
+      "sha256": "70dee0fef922293c8a679131806228a2c0d470dfa0cd37f89cc9867f1fbae01a"
+    },
+    "peking547-b200000-transactional-t8-trace-off/frame-15/roots.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-off/frame-15/roots.jsonl",
+      "bytes": 28420,
+      "sha256": "0837fc542689680163069c4f176ed0558c92a2dabfdec83d8faa472ccfff6393"
+    },
+    "peking547-b200000-transactional-t8-trace-off/frame-15/transactions.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-off/frame-15/transactions.jsonl",
+      "bytes": 658232,
+      "sha256": "e08bb01d87a4bb8a6403b588a3568c4b1381123da9f915a1aa1bb68b06400269"
+    },
+    "peking547-b200000-transactional-t8-trace-off/frame-15/witnesses.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-off/frame-15/witnesses.csv",
+      "bytes": 18847,
+      "sha256": "571ea3fec119b8efd4def0a855ad8b34d3c9ca9b9b266bc71a26b8672f240305"
+    },
+    "peking547-b200000-transactional-t8-trace-on/frame-15/recovery.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-on/frame-15/recovery.jsonl",
+      "bytes": 8758,
+      "sha256": "b72c6fae9c150246386e415fbd5996dab1ef0cad06d3cf4bd3e4efb18c254e01"
+    },
+    "peking547-b200000-transactional-t8-trace-on/frame-15/roots.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-on/frame-15/roots.jsonl",
+      "bytes": 28991,
+      "sha256": "0fed614f49f465f0fa427b964cf9df029953d3d19a862f831b7560eb684ceb9f"
+    },
+    "peking547-b200000-transactional-t8-trace-on/frame-15/transactions.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-on/frame-15/transactions.jsonl",
+      "bytes": 679380,
+      "sha256": "7cf80132da86bfc0167b21742858802567082ff3462f4196594f6c674df8235b"
+    },
+    "peking547-b200000-transactional-t8-trace-on/frame-15/witnesses.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b200000-transactional-t8-trace-on/frame-15/witnesses.csv",
+      "bytes": 18936,
+      "sha256": "3817cd75e8a21fd577407117655ca43380e4bdd677d9bb357046f99f58b2dfe3"
+    },
+    "peking547-b50000-transactional-t8-trace-off/frame-15/recovery.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-off/frame-15/recovery.jsonl",
+      "bytes": 10887,
+      "sha256": "1ec24ccc0fa67dd29f96cf3a5c25b58d9d0a8374c4bf67abc6e9e00a01c56930"
+    },
+    "peking547-b50000-transactional-t8-trace-off/frame-15/roots.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-off/frame-15/roots.jsonl",
+      "bytes": 42549,
+      "sha256": "d1590a697be90a1c78ce424b9baa3be50357bdce3cfd448389d9f750f824aef4"
+    },
+    "peking547-b50000-transactional-t8-trace-off/frame-15/transactions.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-off/frame-15/transactions.jsonl",
+      "bytes": 180920,
+      "sha256": "999c81133040ba847c606ff2c36638423d96682bd6c5df7c46e008c36069d9da"
+    },
+    "peking547-b50000-transactional-t8-trace-off/frame-15/witnesses.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-off/frame-15/witnesses.csv",
+      "bytes": 27610,
+      "sha256": "769015208bc230fc7841fb1fdfd5a565f1b73c2d00a8079303203c0698ea0537"
+    },
+    "peking547-b50000-transactional-t8-trace-on/frame-15/recovery.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-on/frame-15/recovery.jsonl",
+      "bytes": 12081,
+      "sha256": "2f3737ac9cd207359be51469d95cf1e5aba91e83f6f77a62945be77d40ac2d27"
+    },
+    "peking547-b50000-transactional-t8-trace-on/frame-15/roots.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-on/frame-15/roots.jsonl",
+      "bytes": 42549,
+      "sha256": "e624d1a234985b21e1e3108c85c638833f340b8e4834add4037702343a3f54f8"
+    },
+    "peking547-b50000-transactional-t8-trace-on/frame-15/transactions.jsonl": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-on/frame-15/transactions.jsonl",
+      "bytes": 181398,
+      "sha256": "bd4d3e084ddf57eef97da59dc64ee8afb9a9ff70645c362d46baa5b22866ea69"
+    },
+    "peking547-b50000-transactional-t8-trace-on/frame-15/witnesses.csv": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-trace-on/frame-15/witnesses.csv",
+      "bytes": 27610,
+      "sha256": "3b2f05ed05c0887194e973565309d2599aa4cb886eda38107da5af06d014bc0e"
+    }
+  },
+  "visualChecks": {
+    "agent": "reviewed 12 paired actual frames, fixed-view witnesses and Canyon full error maps; no apparent new holes/cracks/inverted normals",
+    "userAcceptance": "pending"
+  },
+  "validation": {
+    "cpp": [
+      "transactional_boundary_refinement",
+      "transactional_flip_recovery",
+      "transactional_adapter"
+    ],
+    "input": "schema/default/suite and native boundary-only rejection",
+    "commentCoverage": "src 5116/33669 = 15.2%",
+    "oldTrajectoryFrames": 144,
+    "samePolicyWorkers": [
+      1,
+      8
+    ],
+    "samePolicyCase": "peking547-b50000-transactional-t8"
+  }
+}

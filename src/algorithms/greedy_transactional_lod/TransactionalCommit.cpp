@@ -3,6 +3,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 #include "algorithms/greedy_transactional_lod/TransactionalFlipRecovery.h"
+#include "algorithms/greedy_transactional_lod/TransactionalBoundaryRefinement.h"
 
 #include <algorithm>
 #include <set>
@@ -18,13 +19,14 @@ const Point& PreparedTopology::Geometry(const TransactionalState& old,Identity i
 }
 
 PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const CertifiedBatch& batch,WorkLedger& work,
-    const TransactionalExecution& execution)
+    const TransactionalExecution& execution, const HeightSource* source)
 {
     ROAM_CPU_ZONE("gtp.commit.prepare");
     const auto started=std::chrono::steady_clock::now();
     if (batch.Version!=state.Version()) throw std::runtime_error("批次快照已过期");
     std::set<Slot> removed;
     std::set<Identity> deletedVertices;
+    std::set<Identity> boundaryVertices;
     std::map<Identity,Point> geometry;
     std::vector<std::array<Identity,3>> newFaces;
     std::vector<TransactionFootprint> footprints;
@@ -64,12 +66,25 @@ PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const Ce
                 !TransactionalFlipRecovery::IsUnchangedGeometryFlip(state,exchange.Receiver))
                 throw std::runtime_error("净零翻边的类型或固定几何证书不一致");
         }
-        else if (exchange.Kind!=ExchangeKind::Refinement || exchange.Receiver.Kind=='R' ||
+        else if (exchange.Kind == ExchangeKind::BoundaryRefinement)
+        {
+            if (!source || !state.Config().EnableBoundaryRefinement ||
+                !TransactionalBoundaryRefinement::IsSourceMidpointSplit(state, *source, exchange.Receiver))
+            {
+                throw std::runtime_error("单侧细分缺少源高或结构证书");
+            }
+            boundaryVertices.insert(exchange.Receiver.NewVertex);
+        }
+        else if (exchange.Kind!=ExchangeKind::Refinement || exchange.Receiver.Kind=='R' || exchange.Receiver.Kind=='B' ||
             exchange.Receiver.Faces.size()!=exchange.Receiver.Support.size()+2)
             throw std::runtime_error("接收方预算证书不一致");
         collect(exchange.Receiver,false);
         if (exchange.HasDonor)
         {
+            if (state.IsBoundary(exchange.Donor.Center))
+            {
+                throw std::runtime_error("回收方不能删除外边界点");
+            }
             if (exchange.Donor.Support.size()!=exchange.Donor.Faces.size()+2)
                 throw std::runtime_error("回收方预算证书不一致");
             collect(exchange.Donor,true);
@@ -77,6 +92,11 @@ PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const Ce
     }
     if (state.FaceCount()-removed.size()+newFaces.size()>state.Config().Budget)
         throw std::runtime_error("活动三角形预算不足");
+    if (!batch.IntentBudgets.empty() &&
+        static_cast<std::int64_t>(newFaces.size()) - static_cast<std::int64_t>(removed.size()) != batch.NetFaceChange)
+    {
+        throw std::runtime_error("实际面数差与冻结预算账本不一致");
+    }
     std::sort(newFaces.begin(),newFaces.end());
     // 逻辑连接决定新面身份，输入事务的枚举顺序不能泄漏到下一轮同分选择
     if (std::adjacent_find(newFaces.begin(),newFaces.end())!=newFaces.end()) throw std::runtime_error("新面重复");
@@ -113,7 +133,10 @@ PreparedTopology TransactionalCommit::Prepare(TransactionalState& state,const Ce
         auto it=vertices.find(id);
         if (it!=vertices.end()) return it->second;
         const auto old=state._vertexIndex.find(id);
-        if (old==state._vertexIndex.end()) return vertices.emplace(id,VertexRecord{id,geometry.at(id),{},true}).first->second;
+        if (old==state._vertexIndex.end())
+        {
+            return vertices.emplace(id,VertexRecord{id,geometry.at(id),{},true,boundaryVertices.contains(id)}).first->second;
+        }
         return vertices.emplace(id,state._vertices[old->second]).first->second;
     };
     std::map<Edge,EdgeRecord> edges;

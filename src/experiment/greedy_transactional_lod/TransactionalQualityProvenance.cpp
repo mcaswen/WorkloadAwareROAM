@@ -271,7 +271,7 @@ void Recovery(std::ostream& out,std::size_t frame,std::size_t witness,const Tran
     work.Deadline=std::chrono::steady_clock::now()+std::chrono::seconds(60);
     ReceiverCursor cursor(state,samples,root);std::optional<Proposal> receiver;
     while (auto next=cursor.Next(&work))
-        if (TransactionalCertification::Fit(state,samples,*next,work)=="certified") { receiver=std::move(next);break; }
+        if (TransactionalProposals::CertifyReceiver(state,samples,*next,work)=="certified") { receiver=std::move(next);break; }
     if (!receiver) throw std::runtime_error("见证根独立认证与正常决策不同");
     // 仅较高优先级的已批准成员占用资源，较低成员不能反过来解释本根被拒绝
     std::vector<TransactionFootprint> prior;std::set<Identity> used;
@@ -286,9 +286,7 @@ void Recovery(std::ostream& out,std::size_t frame,std::size_t witness,const Tran
     const auto blocked=[&](const TransactionFootprint& f) {
         return std::any_of(prior.begin(),prior.end(),[&](const auto& p) { return TransactionalReservation::Conflict(f,p); });
     };
-    std::size_t ordinal=0;
-    for (std::size_t i=0;i<index;++i) if (batch.IntentResults[i]=="certified") ++ordinal;
-    if (ordinal<batch.AssignedCredits)
+    if (batch.IntentBudgets.at(index).Funding == BudgetFunding::Free)
     { out<<",\"assignedCredit\":true,\"priorConflict\":"<<blocked(rf)<<"}\n";return; }
     // 本协议不开 HeightGuard；共同回收池的额外检查只用于解释已发生的拒绝
     std::size_t certified=0,quality=0,feasible=0,unused=0,available=0;

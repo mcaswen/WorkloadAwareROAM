@@ -20,6 +20,9 @@
     "splitPixels"
   ],
   "properties": {
+    "boundaryRefinement": {
+      "type": "boolean"
+    },
     "flipRecovery": {
       "type": "boolean"
     },

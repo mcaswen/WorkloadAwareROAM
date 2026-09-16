@@ -25,5 +25,9 @@ public:
         const TransactionalExecution& execution={});
     static TransactionFootprint Footprint(const TransactionalState& state,const Proposal& proposal);
     static bool Conflict(const TransactionFootprint& first,const TransactionFootprint& second);
+    /// <summary>
+    /// 仅按冻结意图顺序命名完整面数，后续失败或配对盈余不会回流
+    /// </summary>
+    static void AssignFreeFaces(std::size_t availableFaces, CertifiedBatch& batch);
 };
 }

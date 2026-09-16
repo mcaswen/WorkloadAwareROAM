@@ -93,11 +93,14 @@ struct TransactionalTerrainLodAlgorithm::Impl
         stats.RequestedWorkers=key.Settings.WorkerCount;stats.PrefixLimit=key.Settings.PrefixLimit;
         stats.DonorLimit=key.Settings.DonorLimit;stats.SeedTriangles=SeedTriangles;
         PublicStats.TriangleBudget=key.Budget;PublicStats.BuildSequence=++Sequence;
-        WorkLedger work;work.VisitLimit=key.Settings.SampleVisitLimit;
-        work.Deadline=Clock::now()+std::chrono::seconds(180);
+        // 有序容器的空构造也可能分配，账本必须在失败保护范围内建立
+        std::optional<WorkLedger> workStorage;
         TransactionalLodStatus phase=TransactionalLodStatus::InputRejected;
         try
         {
+            auto& work = workStorage.emplace();
+            work.VisitLimit = key.Settings.SampleVisitLimit;
+            work.Deadline = Clock::now() + std::chrono::seconds(180);
             if (!input.View.DrawableWidth || !input.View.DrawableHeight)
             {
                 stats.Status=TransactionalLodStatus::Paused;DescribeMesh(packet);
@@ -152,7 +155,8 @@ struct TransactionalTerrainLodAlgorithm::Impl
         catch (const std::exception& error)
         {
             stats.Status=Executor && Executor->IsStopped() ? TransactionalLodStatus::ExecutorStopped :
-                (work.SampleTouches>work.VisitLimit || Clock::now()>work.Deadline ? TransactionalLodStatus::QuotaExceeded : phase);
+                (workStorage && (workStorage->SampleTouches > workStorage->VisitLimit || Clock::now() > workStorage->Deadline)
+                    ? TransactionalLodStatus::QuotaExceeded : phase);
             Error=error.what();
         }
         Blocked=true;FailedView=viewKey;ForceFull=true;stats.HasPublishedMesh=HasMesh;

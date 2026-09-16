@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <optional>
+#include <stdexcept>
 
 namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
@@ -48,15 +49,47 @@ bool TransactionalReservation::Conflict(const TransactionFootprint& a,const Tran
     return false;
 }
 
+void TransactionalReservation::AssignFreeFaces(std::size_t availableFaces, CertifiedBatch& batch)
+{
+    batch.AssignedCredits = 0;
+    batch.AssignedFaces = 0;
+    batch.Need = 0;
+    for (auto& intent : batch.IntentBudgets)
+    {
+        if (intent.Faces == 0)
+        {
+            continue;
+        }
+        if (intent.Faces > 2)
+        {
+            throw std::runtime_error("接收成本超出一面或两面契约");
+        }
+        if (availableFaces >= intent.Faces)
+        {
+            intent.Funding = BudgetFunding::Free;
+            availableFaces -= intent.Faces;
+            ++batch.AssignedCredits;
+            batch.AssignedFaces += intent.Faces;
+        }
+        else
+        {
+            intent.Funding = BudgetFunding::Donor;
+            ++batch.Need;
+        }
+    }
+}
+
 CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,const TransactionalSamples& samples,WorkLedger& work,
     const TransactionalExecution& execution)
 {
     ROAM_CPU_ZONE("gtp.plan");
     CertifiedBatch batch;batch.Version=state.Version();batch.Raw=samples.RawCount();batch.PairAuditComplete=execution.Diagnostics;
     std::vector<Proposal> receivers;
+    std::vector<std::size_t> receiverIntents;
     const auto prefix=samples.Prefix(state.Config().PrefixLimit,&work);
     // 前缀是精确全局查询，分母始终保留全域资格数量
     batch.IntentIds.resize(prefix.size());batch.IntentResults.resize(prefix.size());batch.Attempts.resize(prefix.size());
+    batch.IntentBudgets.resize(prefix.size());
     std::vector<std::optional<Proposal>> certified(prefix.size());
     execution.Run("receiver_stage",prefix.size(),work,[&](auto first,auto last,WorkLedger& local) {
         for (auto index=first;index<last;++index)
@@ -69,15 +102,15 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
             {
                 start=Clock::now();auto next=cursor.Next(&local);local.Seconds["proposal"]+=Seconds(start);
                 if (!next) break;
-                auto& proposal=*next;start=Clock::now();reason=TransactionalCertification::Fit(state,samples,proposal,local);
+                auto& proposal=*next;start=Clock::now();reason=TransactionalProposals::CertifyReceiver(state,samples,proposal,local);
                 local.Seconds["receiver_certification"]+=Seconds(start);++local.Reasons[reason];
                 batch.Attempts[index].emplace_back(proposal.Kind,reason);
                 if (reason=="certified") { proposal.Reason=reason;certified[index]=std::move(proposal);break; }
             }
             // 只处理目录能力的形状死端；认证、预算或冲突失败不能借此换策略
             const auto& attempts=batch.Attempts[index];
-            if (!certified[index] && state.Config().EnableFlipRecovery && !attempts.empty() &&
-                std::all_of(attempts.begin(),attempts.end(),[](const auto& item) { return item.second=="shape_infeasible"; }))
+            if (!certified[index] && state.Config().EnableFlipRecovery &&
+                TransactionalProposals::NeedsFlipRecovery(attempts))
             {
                 certified[index]=TransactionalFlipRecovery::FirstCertified(state,samples,root,local,batch.Attempts[index]);
                 reason=certified[index] ? "flip_certified" : "flip_exhausted";
@@ -85,12 +118,29 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
         }
     });
     // 完成顺序不参与优先预留，仍按同一全局前缀收集成功项
-    for (auto& proposal : certified) if (proposal) receivers.push_back(std::move(*proposal));
+    for (std::size_t index = 0; index < certified.size(); ++index)
+    {
+        auto& proposal = certified[index];
+        if (!proposal)
+        {
+            continue;
+        }
+        auto& intent = batch.IntentBudgets[index];
+        if (proposal->Kind == 'R')
+        {
+            intent.Funding = BudgetFunding::ZeroCost;
+        }
+        else
+        {
+            intent.Faces = proposal->Kind == 'B' ? 1U : 2U;
+        }
+        receiverIntents.push_back(index);
+        receivers.push_back(std::move(*proposal));
+    }
     batch.Examined=prefix.size();
     batch.Receivers=static_cast<std::size_t>(std::count_if(receivers.begin(),receivers.end(),[](const auto& p) { return p.Kind!='R'; }));
     // 共同接收集合先完成，预算与 donor 不能改变前端需求的人口
-    const auto credits=(state.Config().Budget-state.FaceCount())/2;
-    batch.AssignedCredits=std::min(credits,batch.Receivers);batch.Need=batch.Receivers-batch.AssignedCredits;
+    AssignFreeFaces(state.Config().Budget - state.FaceCount(), batch);
     auto start=Clock::now();batch.PoolIds=samples.DonorPool(state.Config().DonorLimit,&work);
     work.Seconds["donor_order"]+=Seconds(start);
     std::vector<Proposal> cache(batch.Need ? batch.PoolIds.size() : 0);
@@ -105,10 +155,11 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
     start=Clock::now();
     {
         ROAM_CPU_ZONE("gtp.reservation");
-        std::size_t refinementOrdinal=0;
         for (std::size_t i=0;i<receivers.size();++i)
         {
             const auto& receiver=receivers[i];const auto rf=Footprint(state,receiver);++work.FootprintBuilds;
+            const auto& funding = batch.IntentBudgets[receiverIntents[i]];
+            const auto kind = receiver.Kind == 'B' ? ExchangeKind::BoundaryRefinement : ExchangeKind::Refinement;
             const auto blocked=[&](const TransactionFootprint& footprint) {
                 return std::any_of(reserved.begin(),reserved.end(),[&](const auto& other) { return Conflict(footprint,other); });
             };
@@ -123,13 +174,30 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
                 else ++work.FlipConflicts;
                 continue;
             }
-            if (refinementOrdinal++<batch.AssignedCredits)
+            if (funding.Funding == BudgetFunding::Free)
             {
                 if (state.Config().HeightGuard && !TransactionalCertification::PreservesHeight(state,samples,receiver,nullptr,work))
                     continue;
                 // 本批失败额度保持闲置；下一批仅凭实际 N 重新生成命名
-                if (!blocked(rf)) { batch.Exchanges.push_back({receiver,{},false});reserved.push_back(rf);++batch.FreeExecuted; }
-                else ++work.Conflicts;
+                if (!blocked(rf))
+                {
+                    batch.Exchanges.push_back({receiver, {}, false, kind});
+                    reserved.push_back(rf);
+                    ++batch.FreeExecuted;
+                    batch.ConsumedFreeFaces += funding.Faces;
+                    if (receiver.Kind == 'B')
+                    {
+                        ++batch.BoundaryFreeExecuted;
+                    }
+                }
+                else
+                {
+                    ++work.Conflicts;
+                    if (receiver.Kind == 'B')
+                    {
+                        ++work.BoundaryConflicts;
+                    }
+                }
                 continue;
             }
             bool feasible=false,accepted=false;
@@ -152,15 +220,31 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
                 ++work.ReservationChecks;
                 if (used.contains(center)) { ++work.DonorReuse;continue; }
                 const auto combined=Unite(rf,df);
-                if (blocked(combined)) { ++work.Conflicts;continue; }
-                reserved.push_back(combined);used.insert(center);batch.Exchanges.push_back({receiver,donor,true});
+                if (blocked(combined))
+                {
+                    ++work.Conflicts;
+                    if (receiver.Kind == 'B')
+                    {
+                        ++work.BoundaryConflicts;
+                    }
+                    continue;
+                }
+                reserved.push_back(combined);used.insert(center);batch.Exchanges.push_back({receiver,donor,true,kind});
                 accepted=true;++batch.Executed;
+                batch.ReleasedFaces += 2 - funding.Faces;
+                if (receiver.Kind == 'B')
+                {
+                    ++batch.BoundaryPairedExecuted;
+                }
                 if (!execution.Diagnostics) break;
             }
             if (feasible) ++batch.Feasible;
         }
     }
     batch.UnusedCredits=batch.AssignedCredits-batch.FreeExecuted;
+    batch.UnusedFaces = batch.AssignedFaces - batch.ConsumedFreeFaces;
+    batch.NetFaceChange = static_cast<std::int64_t>(batch.ConsumedFreeFaces) -
+        static_cast<std::int64_t>(batch.ReleasedFaces);
     // 账本随返回结果完成生命周期，存活状态只由发布后的面数量代表预算占用
     work.Seconds["reservation"]+=Seconds(start);
     return batch;
