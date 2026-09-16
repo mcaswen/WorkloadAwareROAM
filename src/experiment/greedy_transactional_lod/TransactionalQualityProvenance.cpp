@@ -91,6 +91,13 @@ std::size_t Rank(const TransactionalState& state,const TransactionalSamples& sam
 {
     const double p=samples.PrioritySquared(slot),threshold=state.Config().SplitPixels*state.Config().SplitPixels;
     if (!std::isfinite(p) || p<=threshold) return 0;
+    if (state.Config().ReceiverOrder == Algorithms::TransactionalReceiverOrder::ErrorFirst)
+    {
+        // 只读诊断使用实际接收全序；旧 priority 字段仍保持复合分数含义
+        const auto ordered = samples.Raw();
+        const auto found = std::find(ordered.begin(), ordered.end(), slot);
+        return found == ordered.end() ? 0 : static_cast<std::size_t>(found - ordered.begin()) + 1;
+    }
     // 沿用生产全序，诊断全扫只求这个覆盖面的排名，不改排序索引
     const PriorityKey key{-p,state.Face(slot).Id,slot};std::size_t rank=1;
     for (auto other : state.ActiveFaces())

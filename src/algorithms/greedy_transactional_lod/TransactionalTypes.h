@@ -1,5 +1,7 @@
 #pragma once
 
+#include "algorithms/TransactionalLodSettings.h"
+
 #include <array>
 #include <algorithm>
 #include <chrono>
@@ -59,6 +61,7 @@ struct Configuration
     bool EnableFlipRecovery{};
     // 单侧中点只创建源高新点，子边不短于源栅格间隔
     bool EnableBoundaryRefinement{};
+    TransactionalReceiverOrder ReceiverOrder{TransactionalReceiverOrder::Composite};
     bool UsesZeroToOneDepth{};
 };
 

@@ -46,6 +46,27 @@ int main(int argc, char** argv)
         // 直接构造损坏配置，检查解析器确实拒绝而不是静默修正
         boost::property_tree::ptree tree;
         boost::property_tree::read_json(input.string(), tree);
+        // 缺省与显式默认含义一致，新策略只允许事务算法读取
+        const auto orderPath = output / "order.json";
+        auto order = tree;
+        order.erase("receiverOrder");
+        boost::property_tree::write_json(orderPath.string(), order);
+        Require(ExperimentCase::LoadResolved(orderPath).ReceiverOrder == "composite", "缺省排序改变");
+        order.put("algorithm", "transactional");
+        order.put("receiverOrder", "error-first");
+        boost::property_tree::write_json(orderPath.string(), order);
+        Require(ExperimentCase::LoadResolved(orderPath).ReceiverOrder == "error-first", "排序设置丢失");
+        for (const auto& algorithm : {"transactional", "dod"})
+        {
+            auto invalid = order;
+            invalid.put("algorithm", algorithm);
+            invalid.put("receiverOrder", std::string(algorithm) == "dod" ? "error-first" : "unknown");
+            boost::property_tree::write_json(orderPath.string(), invalid);
+            rejected = false;
+            try { (void)ExperimentCase::LoadResolved(orderPath); }
+            catch (const std::exception&) { rejected = true; }
+            Require(rejected, "非法排序或算法组合未拒绝");
+        }
         auto cbt = tree;
         cbt.put("algorithm", "cbt");
         cbt.put("heightPolicy", "fit");

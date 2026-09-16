@@ -66,6 +66,12 @@ if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
     target_link_libraries(parallel_roam_transactional_boundary_refinement_tests PRIVATE
         parallel_roam_transactional_lod_core parallel_roam_project_warnings)
     add_test(NAME transactional_boundary_refinement COMMAND parallel_roam_transactional_boundary_refinement_tests)
+    add_executable(parallel_roam_transactional_receiver_ordering_tests TransactionalReceiverOrderingTests.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalValidation.cpp)
+    target_link_libraries(parallel_roam_transactional_receiver_ordering_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_cpu_execution parallel_roam_project_warnings)
+    add_test(NAME transactional_receiver_ordering COMMAND parallel_roam_transactional_receiver_ordering_tests)
+    set_tests_properties(transactional_receiver_ordering PROPERTIES TIMEOUT 60)
     set_tests_properties(transactional_boundary_refinement PROPERTIES TIMEOUT 60)
     set_tests_properties(transactional_flip_recovery PROPERTIES WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" TIMEOUT 60)
     add_executable(parallel_roam_transactional_adapter_tests TransactionalTerrainLodAlgorithmTests.cpp)

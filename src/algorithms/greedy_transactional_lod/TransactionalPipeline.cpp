@@ -67,6 +67,7 @@ void TransactionalPipeline::SetView(const Configuration& view,WorkLedger& work)
         view.PreserveSurvivingHeights!=old.PreserveSurvivingHeights ||
         view.EnableFlipRecovery!=old.EnableFlipRecovery ||
         view.EnableBoundaryRefinement!=old.EnableBoundaryRefinement ||
+        view.ReceiverOrder != old.ReceiverOrder ||
         !view.Width || !view.Height ||
         !std::all_of(view.Matrix.begin(),view.Matrix.end(),[](double value) { return std::isfinite(value); }))
         throw std::runtime_error("视图刷新不能改变几何、预算或质量规则");

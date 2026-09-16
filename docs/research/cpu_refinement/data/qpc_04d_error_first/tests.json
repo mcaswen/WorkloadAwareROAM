@@ -1,0 +1,22 @@
+[
+  {
+    "name": "transactional_receiver_ordering",
+    "returncode": 0
+  },
+  {
+    "name": "transactional_boundary_refinement",
+    "returncode": 0
+  },
+  {
+    "name": "transactional_adapter",
+    "returncode": 0
+  },
+  {
+    "name": "experiment_infrastructure",
+    "returncode": 0
+  },
+  {
+    "name": "transactional_lod",
+    "returncode": 0
+  }
+]

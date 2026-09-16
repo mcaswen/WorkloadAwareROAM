@@ -7,7 +7,7 @@
 
 namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
-// 负 priority 使首项就是全局最高紧迫性，稳定身份提供唯一同分顺序
+// 负排序值选择最高复合紧迫性或几何误差，稳定身份提供唯一同分顺序
 using PriorityKey=std::tuple<double,Identity,Slot>;
 using DonorKey=std::pair<double,Identity>;
 using ReceiverIndex=TransactionalPriorityIndex<PriorityKey>;
@@ -105,9 +105,14 @@ private:
     SampleValue Evaluate(const Configuration& config,Slot sample,Slot owner,double height,WorkLedger& work) const;
     SampleValue Project(const Configuration& config,Slot sample,SampleValue value,WorkLedger& work) const;
     static double Priority(const Configuration& config,const std::array<Point,3>& points,double maximum);
+    /// <summary>
+    /// 先以复合分数判断资格，再选择排序分量；空误差支持不改变候选人口
+    /// </summary>
+    static std::optional<PriorityKey> ReceiverKey(const Configuration& config, double priority,
+        double maximum, Identity id, Slot slot);
     std::array<double,3> StoredWeights(Slot sample,const Point& a,const Point& b,const Point& c) const;
     static void BuildOrders(const TransactionalState& state,const std::vector<double>& priority,
-        ReceiverIndex& order,DonorIndex& donors,WorkLedger& work);
+        std::vector<std::optional<PriorityKey>> faces, ReceiverIndex& order,DonorIndex& donors,WorkLedger& work);
     // 各组用连续身份区间编码栅格偏移，避免为每个 Q 保存一份坐标
     struct Group { std::uint32_t X, Y, Columns, Rows; Slot Start; };
     HeightSource _source;

@@ -12,6 +12,11 @@ namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 void TransactionalSeedBuilder::ValidateInput(const TerrainLodBuildInput& input)
 {
     const auto* height=input.HeightMap;const auto& s=input.Settings;const auto& t=s.Transactional;
+    if (t.ReceiverOrder != TransactionalReceiverOrder::Composite &&
+        t.ReceiverOrder != TransactionalReceiverOrder::ErrorFirst)
+    {
+        throw std::invalid_argument("未知接收方排序政策");
+    }
     if (!height || !height->IsValid() || height->Width()<2 || height->Width()!=height->Height() || height->Width()>1025 ||
         height->RawSamples().size()!=static_cast<std::size_t>(height->Width())*static_cast<std::size_t>(height->Height()))
         throw std::invalid_argument("事务化输入需要 2..1025 的方形原始高度图");
@@ -46,6 +51,7 @@ Configuration TransactionalSeedBuilder::ConfigurationFor(const TerrainLodBuildIn
     c.PreserveSurvivingHeights=s.Transactional.PreserveSurvivingHeights;
     c.EnableFlipRecovery=s.Transactional.EnableFlipRecovery;
     c.EnableBoundaryRefinement=s.Transactional.EnableBoundaryRefinement;
+    c.ReceiverOrder = s.Transactional.ReceiverOrder;
     c.Width=v.DrawableWidth;c.Height=v.DrawableHeight;c.UsesZeroToOneDepth=v.UsesZeroToOneDepth;
     for (int row=0;row<4;++row) for (int col=0;col<4;++col)
         c.Matrix[static_cast<std::size_t>(row*4+col)]=v.ViewProjection[col][row];

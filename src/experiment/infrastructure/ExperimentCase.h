@@ -21,6 +21,7 @@ struct ExperimentCase
     std::string HeightPolicy;
     bool FlipRecovery{};
     bool BoundaryRefinement{};
+    std::string ReceiverOrder{"composite"};
     std::string Camera;
     std::string Material;
     std::string Mode;

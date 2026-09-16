@@ -119,6 +119,12 @@ def resolve_case(path: Path, root: Path = ROOT) -> dict:
     if case.get("boundaryRefinement", False) and (case["algorithm"] != "transactional" or case["heightPolicy"] != "immutable"):
         raise ValueError("边界细化要求Transactional固定旧点策略")
     result["boundaryRefinement"] = case.get("boundaryRefinement", False)
+    order = case.get("receiverOrder", "composite")
+    if order not in ("composite", "error-first"):
+        raise ValueError("未知接收方排序政策")
+    if order != "composite" and case["algorithm"] != "transactional":
+        raise ValueError("误差优先排序仅适用于Transactional")
+    result["receiverOrder"] = order
     result.update(cameraFile=str(camera_file), cameraSha256=camera["sha256"],
         cameraFnv64=fnv64(camera_file.read_bytes()), sampleFnv64=fnv64(source_samples(local_path(root,asset["path"])).tobytes()),
         materialFile=str(material_file), materialSha256=material["sha256"],

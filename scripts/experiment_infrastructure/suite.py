@@ -12,7 +12,8 @@ def case_variants(original, budgets, workers, algorithms, prefixes, cbt_areas, c
     result = []
     for algorithm in algorithms:
         base = {key: value for key, value in original.items() if not key.startswith("cbt")}
-        base.update(algorithm=algorithm, heightPolicy="fit", flipRecovery=False, boundaryRefinement=False)
+        base.update(algorithm=algorithm, heightPolicy="fit", flipRecovery=False, boundaryRefinement=False,
+                    receiverOrder="composite")
         if algorithm == "cbt":
             for area, capacity in product(cbt_areas, cbt_capacities):
                 result.append({**base,
@@ -29,6 +30,7 @@ def case_variants(original, budgets, workers, algorithms, prefixes, cbt_areas, c
             base["heightPolicy"] = original["heightPolicy"]
             base["flipRecovery"] = original.get("flipRecovery", False)
             base["boundaryRefinement"] = original.get("boundaryRefinement", False)
+            base["receiverOrder"] = original.get("receiverOrder", "composite")
         for budget, worker, prefix in product(budgets, selected_workers, selected_prefixes):
             result.append({**base,
                 "id": f"{original['id']}-b{budget}-{algorithm}-t{worker}-{prefix}",

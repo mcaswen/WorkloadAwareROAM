@@ -226,6 +226,17 @@ double TransactionalSamples::Priority(const Configuration& config,const std::arr
     return std::max(maximum,.04*longest);
 }
 
+std::optional<PriorityKey> TransactionalSamples::ReceiverKey(const Configuration& config,
+    double priority, double maximum, Identity id, Slot slot)
+{
+    if (!std::isfinite(priority) || priority <= config.SplitPixels * config.SplitPixels)
+    {
+        return std::nullopt;
+    }
+    const double value = config.ReceiverOrder == TransactionalReceiverOrder::ErrorFirst ? maximum : priority;
+    return PriorityKey{-value, id, slot};
+}
+
 void TransactionalSamples::Refresh(const TransactionalState& state,WorkLedger& work)
 {
     ROAM_CPU_ZONE("gtp.samples.initialize");
@@ -233,6 +244,7 @@ void TransactionalSamples::Refresh(const TransactionalState& state,WorkLedger& w
     std::fill(_values.begin(),_values.end(),SampleGeometry{});
     _faceSamples.assign(state.Faces().size(),{});
     _priority.assign(state.Faces().size(),std::numeric_limits<double>::infinity());
+    std::vector<std::optional<PriorityKey>> receivers(state.Faces().size());
     auto order=state.ActiveFaces();
     // 全量入口仅用于初建或独立 oracle，稳定身份先序确定共享边 owner
     std::sort(order.begin(),order.end(),[&](Slot a,Slot b) { return state.Face(a).Id<state.Face(b).Id; });
@@ -253,8 +265,9 @@ void TransactionalSamples::Refresh(const TransactionalState& state,WorkLedger& w
             if (projection.Visible) maximum=std::max(maximum,projection.ErrorSquared);
         }
         _priority[slot]=Priority(state.Config(),p,maximum);
+        receivers[slot] = ReceiverKey(state.Config(), _priority[slot], maximum, state.Face(slot).Id, slot);
     }
-    BuildOrders(state,_priority,_order,_donors,work);
+    BuildOrders(state,_priority,std::move(receivers),_order,_donors,work);
     if (std::any_of(_values.begin(),_values.end(),[](const auto& v) { return v.Owner==InvalidSlot; }))
         throw std::runtime_error("公共样本存在覆盖缺失");
 }
@@ -263,12 +276,14 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
 {
     ROAM_CPU_ZONE("gtp.samples.prepare");
     PreparedSamples result;result.FaceSlots=target.FinalFaceSlots;
+    ReceiverIndex::Writes orderWrites;
     std::set<Slot> exterior;
     for (auto slot : target.Removed)
     {
         // 同一物理槽可能立刻复用，先按旧语义移除 owner 再参与目标同分
         result.Faces.emplace(slot,std::vector<Slot>{});
         result.Priorities.emplace(slot,std::numeric_limits<double>::infinity());
+        orderWrites[slot] = std::nullopt;
         for (auto sid : _faceSamples.at(slot))
         {
             auto value=Value(sid);
@@ -323,14 +338,15 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
             if (value.Visible) maximum=std::max(maximum,value.ErrorSquared);
         }
         result.Priorities[slot]=Priority(state.Config(),p,maximum);
+        // 密度主导时 P 可能不变，纯误差键仍须随本次样本修复更新
+        orderWrites[slot] = ReceiverKey(state.Config(), result.Priorities[slot], maximum, faceAt(slot).Id, slot);
     }
     work.RepairSamples+=result.Values.size();work.RepairFaces+=exterior.size();
     const auto ordered=std::chrono::steady_clock::now();
     const auto priority=[&](Slot slot) {
         const auto it=result.Priorities.find(slot);return it==result.Priorities.end() ? _priority[slot] : it->second;
     };
-    const double threshold=state.Config().SplitPixels*state.Config().SplitPixels;
-    ReceiverIndex::Writes orderWrites;DonorIndex::Writes donorWrites;
+    DonorIndex::Writes donorWrites;
     std::set<Identity> donorIds=target.DeletedVertices;
     // 新点、保留点邻接和改高都会影响 donor 代理，删除点也必须退出索引
     for (const auto& [id,record] : target.Vertices) { static_cast<void>(record);donorIds.insert(id); }
@@ -344,11 +360,9 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
             result.InvalidatedRoots.insert(state.Face(slot).Id);
 
         }
-        orderWrites[slot]=std::nullopt;
         const bool active=newFaces.contains(slot) || !target.Removed.contains(slot);
         if (!active) continue;
         for (auto id : faceAt(slot).Vertices) donorIds.insert(id);
-        if (std::isfinite(value) && value>threshold) orderWrites[slot]=PriorityKey{-value,faceAt(slot).Id,slot};
     }
     for (auto id : target.DeletedVertices) donorWrites[state.VertexSlot(id)]=std::nullopt;
     for (auto id : donorIds)
@@ -388,14 +402,10 @@ void TransactionalSamples::Publish(PreparedSamples&& prepared) noexcept
 }
 
 void TransactionalSamples::BuildOrders(const TransactionalState& state,const std::vector<double>& priority,
-    ReceiverIndex& order,DonorIndex& donors,WorkLedger& work)
+    std::vector<std::optional<PriorityKey>> faces, ReceiverIndex& order,DonorIndex& donors,WorkLedger& work)
 {
     ROAM_CPU_ZONE("gtp.samples.orders");
-    std::vector<std::optional<PriorityKey>> faces(state.Faces().size());
     std::vector<std::optional<DonorKey>> vertices(state.Vertices().size());
-    for (auto slot : state.ActiveFaces())
-        if (std::isfinite(priority[slot]) && priority[slot]>state.Config().SplitPixels*state.Config().SplitPixels)
-            faces[slot]=PriorityKey{-priority[slot],state.Face(slot).Id,slot};
     for (std::size_t slot=0;slot<state.Vertices().size();++slot)
     {
         const auto& vertex=state.Vertices()[slot];
@@ -434,6 +444,7 @@ PreparedView TransactionalSamples::PrepareView(const TransactionalState& state,c
 {
     ROAM_CPU_ZONE("gtp.samples.prepare_view");
     PreparedView result;const auto projection=_view.Prepare(work);result.Priority.resize(_priority.size());
+    std::vector<std::optional<PriorityKey>> receivers(_priority.size());
     // 投影暂存不保存第二份参考高度或 owner，保持视图工作与拓扑状态分离
     execution.Run("view_projection",_values.size(),work,[&](auto first,auto last,WorkLedger& local) {
         for (auto index=first;index<last;++index)
@@ -457,10 +468,12 @@ PreparedView TransactionalSamples::PrepareView(const TransactionalState& state,c
             }
             const auto& f=state.Face(slot).Vertices;
             result.Priority[slot]=Priority(view,{state.Vertex(f[0]).Geometry,state.Vertex(f[1]).Geometry,state.Vertex(f[2]).Geometry},maximum);
+            // 每个任务拥有唯一面槽，复用本次归约而不再次读取样本
+            receivers[slot] = ReceiverKey(view, result.Priority[slot], maximum, state.Face(slot).Id, slot);
         }
     });
     const auto started=std::chrono::steady_clock::now();
-    BuildOrders(state,result.Priority,result.Order,result.Donors,work);
+    BuildOrders(state,result.Priority,std::move(receivers),result.Order,result.Donors,work);
     work.OrderVisits+=state.FaceCount();
     work.Seconds["view_order"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
     return result;

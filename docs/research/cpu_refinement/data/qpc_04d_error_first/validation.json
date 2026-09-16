@@ -1,0 +1,99 @@
+{
+  "protocol": "qpc04d-receiver-error-first-v1",
+  "baseline": {
+    "head": "644bbf7",
+    "app": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/baseline/bin/ParallelROAM.exe",
+      "bytes": 6472704,
+      "sha256": "e0150ace4a83cb03ecdd2e258a2b09e8dfdf1257ac7fe985f7330aba777e8627"
+    },
+    "probe": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/baseline/tests/parallel_roam_experiment_cpu.exe",
+      "bytes": 1475584,
+      "sha256": "fe50e6b74ed699fb9699f7c347d2272e954a17970b0fe003581ceed382a02ef2"
+    },
+    "resolved": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b50000-transactional-t8/inputs/resolved.json",
+      "bytes": 1539,
+      "sha256": "6e4bf04d1343febe85f7bc5138112f9d01af653cce09042fc3727669146f698c"
+    }
+  },
+  "tests": [
+    {
+      "name": "transactional_receiver_ordering",
+      "returncode": 0
+    },
+    {
+      "name": "transactional_boundary_refinement",
+      "returncode": 0
+    },
+    {
+      "name": "transactional_adapter",
+      "returncode": 0
+    },
+    {
+      "name": "experiment_infrastructure",
+      "returncode": 0
+    },
+    {
+      "name": "transactional_lod",
+      "returncode": 0
+    }
+  ],
+  "logs": {
+    "transactional_receiver_ordering": {
+      "path": "benchmark-output/cpu-refinement/qpc-04d/run-01/transactional_receiver_ordering.log",
+      "sha256": "7beba0230420afe40d33adeee20a6cbc26675c5d5ef3973a899b37dcfc379835",
+      "text": "接收资格、纯误差全序和局部续接核查完成"
+    },
+    "transactional_boundary_refinement": {
+      "path": "benchmark-output/cpu-refinement/qpc-04d/run-01/transactional_boundary_refinement.log",
+      "sha256": "3d3b2b341a0f7dd32a521cb80bbb4d8930fb30e7db75dc13eb307e60504e835d",
+      "text": "单侧源高细化、混合预算和局部续接完成"
+    },
+    "transactional_adapter": {
+      "path": "benchmark-output/cpu-refinement/qpc-04d/run-01/transactional_adapter.log",
+      "sha256": "2304d34a4e7781fb3986810d3d38df05d3715750507b6cb22711d4eaa7629b56",
+      "text": "test129 seed=3619\r\nworkers=1, round=0, directMs=220.826, adapterMs=253.327, coldMs=253.302\r\nworkers=1, round=1, directMs=0.0101, adapterMs=0.0071, coldMs=0\r\nworkers=1, round=2, directMs=0.006, adapterMs=0.0035, coldMs=0\r\nworkers=1, round=3, directMs=0.0034, adapterMs=0.0032, coldMs=0\r\nworkers=4, round=0, directMs=219.33, adapterMs=251.61, coldMs=251.586\r\nworkers=4, round=1, directMs=0.0051, adapterMs=0.0071, coldMs=0\r\nworkers=4, round=2, directMs=0.0028, adapterMs=0.0029, coldMs=0\r\nworkers=4, round=3, directMs=0.0022, adapterMs=0.0028, coldMs=0\r\nPeking seed=3233\r\n公共种子、逐批续接、同源对照与生命周期核查完成"
+    },
+    "experiment_infrastructure": {
+      "path": "benchmark-output/cpu-refinement/qpc-04d/run-01/experiment_infrastructure.log",
+      "sha256": "074e3c1ede283a84b9884ca57259eee2ec6cbd44079ee4a943695f1e9ce115e4",
+      "text": "peking547-b50000-transactional-t8 299209 loadMs=0.9729"
+    },
+    "transactional_lod": {
+      "path": "benchmark-output/cpu-refinement/qpc-04d/run-01/transactional_lod.log",
+      "sha256": "4d0c59fcaf895ae9a02415a76fd63744e1dbc270ec7d396b9bcb22b6eed7b9d0",
+      "text": "数值、持续状态、动态证据缓存与视图验证完成"
+    },
+    "python-tests": {
+      "path": "benchmark-output/cpu-refinement/qpc-04d/run-01/python-tests.log",
+      "sha256": "325e4e06bddb230c55255bb612f5334976ccf3911c4f88b7db481e0c1dd5f90e",
+      "text": "..\n----------------------------------------------------------------------\nRan 2 tests in 1.235s\n\nOK"
+    },
+    "comment-coverage": {
+      "path": "benchmark-output/cpu-refinement/qpc-04d/run-01/comment-coverage.log",
+      "sha256": "2d5a20e17c49c386d078929d487046318c0f8ca743e563a3f806622ced343391",
+      "text": "src: 5133/33773 = 15.2% (required 15.0%)\nsrc/render: 494/4033 = 12.2% (required 12.0%)\nsrc/algorithms/data_oriented_roam: 1343/6712 = 20.0% (required 20.0%)\nsrc/algorithms/classic_roam: 360/1798 = 20.0% (required 20.0%)\nsrc/platform: 17/85 = 20.0% (required 12.0%)"
+    }
+  },
+  "evidence": {
+    "historicalAFrames": 216,
+    "newPolicyNormalVisualTraceFrames": 216,
+    "defaultBeforeAfterFrames": 24,
+    "samePolicy1vs8Frames": 24,
+    "qualityFrames": 12,
+    "independentFullPrefixSnapshots": 6,
+    "agentViewedPages": 6,
+    "naturalFullSeedHashExported": false,
+    "fixtureCompleteSeedEqual": true,
+    "naturalSeedWitnessesEqual": true,
+    "fullNativeDecisionTraceCompared": false,
+    "userVisualAcceptance": "pending"
+  },
+  "buildCacheRestored": {
+    "PARALLEL_ROAM_BUILD_TESTS": "OFF",
+    "PARALLEL_ROAM_ENABLE_CBT_2024": "ON",
+    "PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD": "ON"
+  }
+}

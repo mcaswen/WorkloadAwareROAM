@@ -5,6 +5,15 @@
 namespace ParallelRoam::Algorithms
 {
 /// <summary>
+/// 接收方全局前缀的排序政策；候选资格与捐赠评分仍使用复合紧迫性
+/// </summary>
+enum class TransactionalReceiverOrder
+{
+    Composite,
+    ErrorFirst
+};
+
+/// <summary>
 /// 事务化算法的持续配置；任一字段变化都重新初始化独立状态
 /// 旧 DOD 阶段动作不映射到这些设置
 /// </summary>
@@ -21,6 +30,7 @@ struct TransactionalLodSettings
     bool EnableFlipRecovery{};
     // 开启后按实际面数预留边界细分，旧点仍固定且不回收边界点
     bool EnableBoundaryRefinement{};
+    TransactionalReceiverOrder ReceiverOrder{TransactionalReceiverOrder::Composite};
     bool operator==(const TransactionalLodSettings&) const = default;
 };
 }

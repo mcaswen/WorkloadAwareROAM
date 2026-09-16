@@ -74,6 +74,10 @@ void TransactionalDynamicReference::Invalidate(WorkLedger& work)
 
 DynamicResult TransactionalDynamicReference::Update(WorkLedger& work,bool cacheEvidence)
 {
+    if (_pipeline.State().Config().ReceiverOrder != Algorithms::TransactionalReceiverOrder::Composite)
+    {
+        throw std::runtime_error("动态参考尚未定义误差优先政策");
+    }
     if (_pipeline.State().Config().EnableBoundaryRefinement)
     {
         throw std::runtime_error("动态参考尚未定义一面边界事务，不支持该政策");

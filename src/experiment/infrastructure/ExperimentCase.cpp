@@ -41,6 +41,7 @@ ExperimentCase ExperimentCase::LoadResolved(const std::filesystem::path& path)
     value.HeightPolicy = data.get<std::string>("heightPolicy");
     value.FlipRecovery = data.get<bool>("flipRecovery", false);
     value.BoundaryRefinement = data.get<bool>("boundaryRefinement", false);
+    value.ReceiverOrder = data.get<std::string>("receiverOrder", "composite");
     value.Camera = data.get<std::string>("camera");
     value.Material = data.get<std::string>("material");
     value.Backend = data.get<std::string>("backend","opengl");
@@ -90,6 +91,9 @@ ExperimentCase ExperimentCase::LoadResolved(const std::filesystem::path& path)
         Require(OneOf(value.CbtGeometry, {"modified", "full"}), "未知CBT几何模式");
     }
     Require(OneOf(value.HeightPolicy, {"fit", "immutable"}), "未知高度策略");
+    Require(OneOf(value.ReceiverOrder, {"composite", "error-first"}), "未知接收方排序政策");
+    Require(value.ReceiverOrder == "composite" || value.Algorithm == "transactional",
+        "误差优先排序仅适用于Transactional");
     Require(!value.FlipRecovery || (value.Algorithm=="transactional" && value.HeightPolicy=="immutable"),
         "翻边恢复要求Transactional固定旧点策略");
     Require(!value.BoundaryRefinement || (value.Algorithm == "transactional" && value.HeightPolicy == "immutable"),

@@ -175,6 +175,13 @@ void DynamicEvidenceAndView()
         input.Faces.push_back({static_cast<Identity>(input.Faces.size()),{a,b,c}});
         input.Faces.push_back({static_cast<Identity>(input.Faces.size()),{a,c,d}});
     }
+    // 新排序只定义快照批次政策，动态参考不能静默沿用旧选择控制器
+    auto unsupported = input;
+    unsupported.Config.ReceiverOrder = ParallelRoam::Algorithms::TransactionalReceiverOrder::ErrorFirst;
+    TransactionalDynamicReference unsupportedReference(unsupported);
+    WorkLedger unsupportedWork;
+    Throws([&] { unsupportedReference.Update(unsupportedWork); });
+
     TransactionalDynamicReference cached(input),fresh(input);WorkLedger a,b;
     cached.Pipeline().Initialize(a);fresh.Pipeline().Initialize(b);
     a=WorkLedger{};b=WorkLedger{};

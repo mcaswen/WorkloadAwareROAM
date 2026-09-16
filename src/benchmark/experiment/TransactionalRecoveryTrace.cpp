@@ -163,10 +163,11 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
     try
     {
         const bool boundaryAudit = argc == 6 && std::string_view(argv[5]) == "--boundary-audit";
-        const bool priorityAudit = argc == 6 && std::string_view(argv[5]) == "--priority-audit";
+        const bool selectedPriorities = argc == 7 && std::string_view(argv[5]) == "--priority-frames";
+        const bool priorityAudit = selectedPriorities || (argc == 6 && std::string_view(argv[5]) == "--priority-audit");
         if (argc != 5 && !boundaryAudit && !priorityAudit)
         {
-            throw std::runtime_error("用法: --recovery-trace RESOLVED WITNESSES OUTPUT [--boundary-audit|--priority-audit]");
+            throw std::runtime_error("用法: --recovery-trace RESOLVED WITNESSES OUTPUT [--boundary-audit|--priority-audit|--priority-frames I,J]");
         }
         const auto input = LoadReplayInput(argv[2]);
         const auto& settings = input.Settings;
@@ -176,12 +177,44 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
             throw std::runtime_error("本追溯只接受冻结旧点且启用翻边恢复的 Transactional 输入");
         }
         const auto groups = ReadWitnesses(argv[3], input.Cameras.size());
+        std::set<std::size_t> priorityFrames;
+        if (selectedPriorities)
+        {
+            // 全根快照显式限为两帧，避免诊断意外扩成逐帧全量记录
+            std::istringstream list(argv[6]);
+            std::string token;
+            while (std::getline(list, token, ','))
+            {
+                if (token.empty() || token.find_first_not_of("0123456789") != std::string::npos)
+                {
+                    throw std::invalid_argument("诊断帧列表无效");
+                }
+                const auto frame = std::stoull(token);
+                if (frame >= input.Cameras.size() || !priorityFrames.insert(frame).second || priorityFrames.size() > 2)
+                {
+                    throw std::invalid_argument("诊断帧超出范围或重复");
+                }
+            }
+            if (priorityFrames.empty())
+            {
+                throw std::invalid_argument("诊断帧列表为空");
+            }
+        }
+        else
+        {
+            for (const auto& group : groups)
+            {
+                priorityFrames.insert(group.SourceFrame);
+            }
+        }
         const std::filesystem::path output(argv[4]);
         if (std::filesystem::exists(output))
         {
             throw std::runtime_error("拒绝覆盖质量追溯输出");
         }
         std::filesystem::create_directories(output);
+        std::ofstream metadata(output / "policy.json");
+        metadata << "{\"receiverOrder\":\"" << input.Case.ReceiverOrder << "\",\"priorityField\":\"composite\"}\n";
         Algorithms::TerrainLodBuildInput task;
         task.HeightMap = &input.Source;
         task.Settings = settings;
@@ -239,20 +272,14 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
             work.Deadline = std::chrono::steady_clock::now() + std::chrono::seconds(180);
             task.View = View(input, frame);
             pipeline.SetView(TransactionalSeedBuilder::ConfigurationFor(task), work);
-            if (priorityAudit)
+            if (priorityAudit && priorityFrames.contains(frame))
             {
-                for (const auto& group : groups)
-                {
-                    if (frame == group.SourceFrame)
-                    {
-                        // 诊断快照取当前视图发布后、批次决策前，费用独立于生产账本
-                        const auto started = std::chrono::steady_clock::now();
-                        Audit::WritePrioritySnapshot(output / ("priority-" + std::to_string(frame) + ".csv"),
-                            pipeline.State(), pipeline.Samples());
-                        priorityTimes << frame << ',' <<
-                            std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count() << '\n';
-                    }
-                }
+                // 诊断快照取当前视图发布后、批次决策前，费用独立于生产账本
+                const auto started = std::chrono::steady_clock::now();
+                Audit::WritePrioritySnapshot(output / ("priority-" + std::to_string(frame) + ".csv"),
+                    pipeline.State(), pipeline.Samples());
+                priorityTimes << frame << ',' <<
+                    std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count() << '\n';
             }
             // 私有边界提案只读取机会开始状态，不改变原批次及边界保持断言
             if (boundaryAudit)

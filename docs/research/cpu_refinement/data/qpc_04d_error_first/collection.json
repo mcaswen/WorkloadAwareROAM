@@ -1,0 +1,11 @@
+{
+  "seconds": 232.77689465900002,
+  "scope": "six normal, three visual, three trace, one serial; historical A quality reused",
+  "qualityProbe": {
+    "path": "/home/mcaswen/.cache/roam-profiling/build/cbi-01/tests/parallel_roam_transactional_platform_quality_probe",
+    "bytes": 254080,
+    "sha256": "3bbc626c16199fb6c7a9a0a75507dbd345e247b17d2ca2f293118efdf86029a1"
+  },
+  "defaultMeshWorkEqual": true,
+  "samePolicyThreadsEqual": true
+}

@@ -1,0 +1,125 @@
+{
+  "captures": [
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "frame": 15,
+      "policy": "A",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-visual/run/frame-15.png",
+        "bytes": 128839,
+        "sha256": "a6e0d7cd2a18cd37e65515bf970caadf15148caae66f83bc3915026736a0bb40"
+      }
+    },
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "frame": 15,
+      "policy": "B",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/peking547-b50000-transactional-t8-B-visual/run/frame-15.png",
+        "bytes": 132507,
+        "sha256": "19837f68af6e000b394231933df41a8146d74f82a0916e99a62d51c167b3989b"
+      }
+    },
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "frame": 23,
+      "policy": "A",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/peking547-b50000-transactional-t8-visual/run/frame-23.png",
+        "bytes": 144902,
+        "sha256": "62bce368fa91d604b3e10801eb6a092aa60f6eed794c150c4ccf0f2e3a111542"
+      }
+    },
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "frame": 23,
+      "policy": "B",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/peking547-b50000-transactional-t8-B-visual/run/frame-23.png",
+        "bytes": 145829,
+        "sha256": "91c0ce2375b8e885a472d45eb7b38b64570c28657e3dd23b0d7cf0f1659f99e1"
+      }
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 48,
+      "policy": "A",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-transactional-t8/run/frame-48.png",
+        "bytes": 98389,
+        "sha256": "e86c269a4e6f644fdc623dfaa2c1a4cc2760fe26534501e512ac460e72f8025b"
+      }
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 48,
+      "policy": "B",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/dem-sierra-b50000-transactional-t8-B-visual/run/frame-48.png",
+        "bytes": 104642,
+        "sha256": "e3d5a1871cf07ae64314b5f4c4ff95f8c466a2d331568e4c9d1738a26e335134"
+      }
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 95,
+      "policy": "A",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/visual-dem-sierra-b50000-transactional-t8/run/frame-95.png",
+        "bytes": 129212,
+        "sha256": "5ae9657d6c16476d4df0bf2f4a4c272363f6d5919781a98f5853f3c2d32c76c8"
+      }
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "frame": 95,
+      "policy": "B",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/dem-sierra-b50000-transactional-t8-B-visual/run/frame-95.png",
+        "bytes": 135095,
+        "sha256": "137a1733fd1d6baecdff68f9459c007dc3e0c02a1045ef6d15f544ffa7811a96"
+      }
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 48,
+      "policy": "A",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-visual/run/frame-48.png",
+        "bytes": 223576,
+        "sha256": "8c38226a7fb6350a87b4bb37c12549ae8f6b802b1fd3d548e243264fc88e8e0e"
+      }
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 48,
+      "policy": "B",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/dem-canyon-b50000-transactional-t8-B-visual/run/frame-48.png",
+        "bytes": 226373,
+        "sha256": "9391324d8e55828725965c935ca6a03d8a6948d593a45ef1439f636dc840e254"
+      }
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 95,
+      "policy": "A",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04b/run-01/dem-canyon-b50000-transactional-t8-visual/run/frame-95.png",
+        "bytes": 267723,
+        "sha256": "7ef4e2808cae33cf37b03b240be44e3bc72057bb6a497d3518a7828516796bf6"
+      }
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "frame": 95,
+      "policy": "B",
+      "image": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/dem-canyon-b50000-transactional-t8-B-visual/run/frame-95.png",
+        "bytes": 269855,
+        "sha256": "4f61dec80de175495fb244e30b6882ca307c637f34021c9abf4b64c48f09a63d"
+      }
+    }
+  ],
+  "userAcceptance": "pending"
+}

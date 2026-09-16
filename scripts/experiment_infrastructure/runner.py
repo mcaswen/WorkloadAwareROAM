@@ -68,6 +68,8 @@ def prepare(case, output, executable, mode=None, backend=None, cpu=False):
     # 未启用时保留已有任务身份；启用属于明确不同的决策策略
     if resolved.get("flipRecovery",False): task["flipRecovery"]=True
     if resolved.get("boundaryRefinement",False): task["boundaryRefinement"]=True
+    if resolved.get("receiverOrder", "composite") != "composite":
+        task["receiverOrder"] = resolved["receiverOrder"]
     if resolved["algorithm"] == "cbt":
         task["cbt"] = {key: resolved[key] for key in
             ("cbtCapacity", "cbtArea", "cbtValidation", "cbtGeometry")}

@@ -20,6 +20,9 @@
     "splitPixels"
   ],
   "properties": {
+    "receiverOrder": {
+      "enum": ["composite", "error-first"]
+    },
     "boundaryRefinement": {
       "type": "boolean"
     },

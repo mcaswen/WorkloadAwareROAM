@@ -17,6 +17,11 @@ void WorkLedger::Touch() { ++SampleTouches; CheckLimit(); }
 
 TransactionalState::TransactionalState(const InitialMesh& input) : _config(input.Config)
 {
+    if (_config.ReceiverOrder != TransactionalReceiverOrder::Composite &&
+        _config.ReceiverOrder != TransactionalReceiverOrder::ErrorFirst)
+    {
+        throw std::invalid_argument("未知接收方排序政策");
+    }
     if (_config.EnableFlipRecovery && (!_config.PreserveSurvivingHeights || _config.HeightGuard))
         throw std::runtime_error("翻边恢复需要固定旧点且关闭 HeightGuard");
     if (_config.EnableBoundaryRefinement && (!_config.PreserveSurvivingHeights || _config.HeightGuard))

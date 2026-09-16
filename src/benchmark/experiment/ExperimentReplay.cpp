@@ -65,6 +65,8 @@ ReplayInput LoadReplayInput(const std::filesystem::path& path)
     s.Transactional.PreserveSurvivingHeights=c.HeightPolicy=="immutable";
     s.Transactional.EnableFlipRecovery=c.FlipRecovery;
     s.Transactional.EnableBoundaryRefinement=c.BoundaryRefinement;
+    s.Transactional.ReceiverOrder = c.ReceiverOrder == "error-first" ?
+        Algorithms::TransactionalReceiverOrder::ErrorFirst : Algorithms::TransactionalReceiverOrder::Composite;
     s.Transactional.PrefixLimit=s.Transactional.DonorLimit=c.Prefix=="fixed64" ? 64 : 64*c.Budget/20000;
     if (s.Transactional.PrefixLimit==0) throw std::runtime_error("增长额度为零，请选择适用预算");
     auto& p=s.PassPolicy;

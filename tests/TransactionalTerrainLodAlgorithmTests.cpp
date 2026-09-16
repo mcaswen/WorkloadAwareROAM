@@ -50,6 +50,11 @@ int main()
                 "旧归一化像素计算改变");
         TerrainLodBuildInput input;input.HeightMap=&height;input.Settings.TriangleBudget=4096;input.View=View(30);
         auto seed=TransactionalSeedBuilder::Build(input);
+        input.Settings.Transactional.ReceiverOrder = TransactionalReceiverOrder::ErrorFirst;
+        const auto errorSeed = TransactionalSeedBuilder::Build(input);
+        Require(seed.Vertices == errorSeed.Vertices && seed.Faces == errorSeed.Faces &&
+            seed.Source.Values == errorSeed.Source.Values, "排序政策改变了 DOD 初始种子");
+        input.Settings.Transactional.ReceiverOrder = TransactionalReceiverOrder::Composite;
         std::cout<<"test129 seed="<<seed.Faces.size()<<'\n';
         TransactionalStateInvariant::Validate(TransactionalState(seed));
         for (std::size_t workers : {1U,4U})
@@ -91,6 +96,12 @@ int main()
             Require(!adapter.Stats().Transactional->Updated,"最小化仍推进状态");input.View=savedView;
             input.Settings.TriangleBudget=512;Require(adapter.BuildRenderData(input,packet,&error),error.c_str());
             Require(adapter.Stats().Transactional->ColdStart && packet.ActiveTriangleCount<=512,"降低预算没有重新初始化");
+            input.Settings.Transactional.ReceiverOrder = TransactionalReceiverOrder::ErrorFirst;
+            Require(adapter.BuildRenderData(input, packet, &error) && adapter.Stats().Transactional->ColdStart,
+                "排序政策切换没有重新初始化");
+            input.Settings.Transactional.ReceiverOrder = TransactionalReceiverOrder::Composite;
+            Require(adapter.BuildRenderData(input, packet, &error) && adapter.Stats().Transactional->ColdStart,
+                "恢复默认政策没有重新初始化");
             const auto revision=height.SourceRevision();Require(height.LoadFromFile(asset,&error),error.c_str());
             Require(height.SourceRevision()!=revision,"同路径重载未更新源身份");
             Require(adapter.BuildRenderData(input,packet,&error) && adapter.Stats().Transactional->ColdStart,"源版本变化未重建");

@@ -1,6 +1,6 @@
 # QPC-04C：误差目标与触发、接受口径排查小规划
 
-日期：2026-09-16。类型：小规划，隶属 [QPC-04](transactional_quality_performance_closure_major_plan.md#qpc-04有限质量修复与质量契约冻结)。状态：**用户确认后，五方向有限诊断、契约建议和实现后审查已完成，待用户阶段验收；未实施生产质量修复。** 代码基线为 `60bd106`。
+日期：2026-09-16。类型：小规划，隶属 [QPC-04](transactional_quality_performance_closure_major_plan.md#qpc-04有限质量修复与质量契约冻结)。状态：**五方向有限诊断、契约建议和实现后审查已完成并提交；用户认可诊断出口，要求进入下一步规划；未实施生产质量修复。** 代码基线为 `60bd106`。
 
 ## 1. 问题、目标与边界
 
@@ -184,3 +184,5 @@ DOD 使用层次嵌套几何误差、保守投影函数和边长项，另有可�
 完整材料：[结果报告](../../research/cpu_refinement/qpc_04c_quality_target_results.md)、[代码事实](../../codebase/cpu_refinement/qpc_04c_quality_target_facts.md)、[架构审查](../../reviews/cpu_refinement/qpc_04c_quality_target_review.md)、[数据](../../research/cpu_refinement/data/qpc_04c_quality_target/summary.json)。
 
 **阶段出口：诊断完成，质量契约仍待修复。闭环顺序：结果/事实/审查回填并单独提交 → 用户验收。** 不自动实施下一政策，不自行进入QPC-05。04B的质量混合、默认关闭和用户视觉验收状态保持。
+
+2026-09-16：已提交`644bbf7`，用户以“可以，继续下一步规划”认可本阶段诊断出口。当时编写[QPC-04D](qpc_04d_error_first_ordering_plan.md)，随后用户确认实施；实际结果由04D独立记录。此认可不等于04B质量或绝对误差目标通过。
