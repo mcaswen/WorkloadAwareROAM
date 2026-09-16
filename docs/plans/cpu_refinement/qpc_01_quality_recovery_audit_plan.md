@@ -53,7 +53,7 @@
 
 ## 6. 结果与用户验收
 
-状态：**已完成诊断闭环，等待用户验收；QPC-02未开始。** [结果报告](../../research/cpu_refinement/qpc_01_quality_recovery_results.md)、[实现事实](../../codebase/cpu_refinement/qpc_01_quality_recovery_facts.md)、[架构审查](../../reviews/cpu_refinement/qpc_01_quality_recovery_review.md)已经回填。
+状态：**已完成诊断闭环，用户认可；QPC-02未开始。** 用户随后批准按质量前移的新顺序进入QPC-04A，未授权本阶段扩大修复。[结果报告](../../research/cpu_refinement/qpc_01_quality_recovery_results.md)、[实现事实](../../codebase/cpu_refinement/qpc_01_quality_recovery_facts.md)、[架构审查](../../reviews/cpu_refinement/qpc_01_quality_recovery_review.md)已经回填。
 
 - 选样冻结2/1/3/5条见证，四轨迹共240机会；mesh hash、面数、候选/预留工作量、样本触及与flip全部对应原FER。没有生产核心修改，输入、预算、阈值、相机、prefix不变。
 - Peking/峡谷所选外边界高度从seed起始终相同；完整边界集合和几何每帧核对。已有原语外边界保持论证成立于明确前提，非Lean新证明。
@@ -65,4 +65,4 @@
 - 原生tests原先关闭；开启后暴露既有CBT-on CPU Registry链接依赖，本轮CPU构建临时使用`PARALLEL_ROAM_BUILD_TESTS=ON, PARALLEL_ROAM_ENABLE_CBT_2024=OFF`。应用未重建，诊断后恢复原缓存。该组合问题留痕，不纳入质量审计修复。
 - 原始产物在`benchmark-output/cpu-refinement/qpc-01/run-01`并沿既有规则忽略；精简表/JSON/两张必要图进入research data。采集与报告分成两个脚本，属于同一批准职责边界的文件细分。
 
-此阶段提交后停下；不因“诊断完成”启动QPC-02或提前实现QPC-04。
+此阶段提交时已停下交用户验收；随后用户认可诊断并明确要求按质量前移的新顺序实施QPC-04A，见大规划更新，不属于因“诊断完成”自动推进。

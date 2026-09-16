@@ -1,0 +1,93 @@
+{
+  "protocol": "qpc04a-boundary-midpoint-v1",
+  "binary": {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+    "bytes": 1447936,
+    "sha256": "1d046cf87c5f60bc2b114e0c0b22c9976f94b53800462d7ebc49acf2ed90951b"
+  },
+  "cases": {
+    "peking547-b50000-transactional-t8": {
+      "resolved": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b50000-transactional-t8/inputs/resolved.json",
+        "bytes": 1539,
+        "sha256": "6e4bf04d1343febe85f7bc5138112f9d01af653cce09042fc3727669146f698c"
+      },
+      "witnessTable": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04a/run-02/peking547-b50000-transactional-t8.txt",
+        "bytes": 36,
+        "sha256": "569cb2ed0a08282f0b1b147d8698d2709e2172f40c40d14ee8d033611d02d8d2"
+      },
+      "witness": {
+        "frame": 15,
+        "returnFrame": 16,
+        "ordinal": 1790794,
+        "u": 0.9743589758872986,
+        "v": 1.0,
+        "roles": [
+          "screen_max"
+        ],
+        "actualPx": 1.9965571109865088,
+        "dodPx": 0.020611509775499484,
+        "excessPx": 1.9759456012110093
+      }
+    },
+    "peking547-b200000-transactional-t8": {
+      "resolved": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-peking547-b200000-transactional-t8/inputs/resolved.json",
+        "bytes": 1544,
+        "sha256": "d7c8fb15d0cea5500c45a541a761f8f11de3c662b7751e43bed6e1125fa9253f"
+      },
+      "witnessTable": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04a/run-02/peking547-b200000-transactional-t8.txt",
+        "bytes": 36,
+        "sha256": "569cb2ed0a08282f0b1b147d8698d2709e2172f40c40d14ee8d033611d02d8d2"
+      },
+      "witness": {
+        "frame": 15,
+        "returnFrame": 16,
+        "ordinal": 1790794,
+        "u": 0.9743589758872986,
+        "v": 1.0,
+        "roles": [
+          "screen_max",
+          "largest_component",
+          "maximum_excess_component"
+        ],
+        "actualPx": 1.9965571109865088,
+        "dodPx": 0.004685191110353975,
+        "excessPx": 1.9918719198761548
+      }
+    },
+    "dem-canyon-b50000-transactional-t8": {
+      "resolved": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/experiment-infrastructure/fer-02/r1-dem-canyon-b50000-transactional-t8/inputs/resolved.json",
+        "bytes": 1555,
+        "sha256": "b6e5a6ce14d425bd66566f7db18a1bc080141a33d4758ef5d60a30e407f9ab1c"
+      },
+      "witnessTable": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04a/run-02/dem-canyon-b50000-transactional-t8.txt",
+        "bytes": 28,
+        "sha256": "677a6015cd65b7ff51326a7910f516b23b3134edd5acd4e9cb7a4af3cd81d87b"
+      },
+      "witness": {
+        "frame": 48,
+        "returnFrame": 80,
+        "ordinal": 1574412,
+        "u": 0.837890625,
+        "v": 1.0,
+        "roles": [
+          "screen_max"
+        ],
+        "actualPx": 9.274476736648769,
+        "dodPx": 0.48755767057010524,
+        "excessPx": 8.786919066078664
+      }
+    }
+  },
+  "limits": {
+    "edges": 6,
+    "variants": 2,
+    "sampleVisits": 2000000,
+    "seconds": 60
+  }
+}

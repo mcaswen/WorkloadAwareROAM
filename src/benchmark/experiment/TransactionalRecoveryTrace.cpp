@@ -5,6 +5,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalStateInvariant.h"
 #include "experiment/greedy_transactional_lod/TransactionalQualityProvenance.h"
+#include "experiment/greedy_transactional_lod/TransactionalBoundaryAudit.h"
 #include "experiment/mesh_quality/PlatformMeshArtifact.h"
 #include "tools/CpuTaskExecutor.h"
 
@@ -119,9 +120,10 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
 {
     try
     {
-        if (argc != 5)
+        const bool boundaryAudit = argc == 6 && std::string_view(argv[5]) == "--boundary-audit";
+        if (argc != 5 && !boundaryAudit)
         {
-            throw std::runtime_error("用法: --recovery-trace RESOLVED WITNESSES OUTPUT");
+            throw std::runtime_error("用法: --recovery-trace RESOLVED WITNESSES OUTPUT [--boundary-audit]");
         }
         const auto input = LoadReplayInput(argv[2]);
         const auto& settings = input.Settings;
@@ -182,6 +184,19 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
             work.Deadline = std::chrono::steady_clock::now() + std::chrono::seconds(180);
             task.View = View(input, frame);
             pipeline.SetView(TransactionalSeedBuilder::ConfigurationFor(task), work);
+            // 私有边界提案只读取机会开始状态，不改变原批次及边界保持断言
+            if (boundaryAudit)
+            {
+                for (const auto& group : groups)
+                {
+                    if (frame == group.SourceFrame)
+                    {
+                        ParallelRoam::Experiment::GreedyTransactionalLod::TransactionalBoundaryAudit::Run(
+                            pipeline.State(), pipeline.Samples(), frame, group.Points,
+                            output / ("boundary-audit-" + std::to_string(frame) + ".jsonl"));
+                    }
+                }
+            }
             const auto batch = TransactionalReservation::Plan(pipeline.State(), pipeline.Samples(), work, execution);
             for (const auto& audit : audits)
             {

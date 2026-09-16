@@ -1,0 +1,1791 @@
+{
+  "protocol": "qpc04a-boundary-midpoint-v1",
+  "cases": {
+    "peking547-b50000-transactional-t8": {
+      "variants": [
+        {
+          "frame": 15,
+          "root": -112,
+          "edge": [
+            3,
+            110
+          ],
+          "variant": "linear",
+          "reason": "quality_infeasible",
+          "rank": 194,
+          "prefix": 160,
+          "faces": 49999,
+          "budget": 50000,
+          "old": {
+            "points": [
+              [
+                -828436,
+                0.96875,
+                0.96875,
+                1.647886036568396
+              ],
+              [
+                3,
+                1,
+                1,
+                1.7395284175872803
+              ],
+              [
+                110,
+                0.9375,
+                1,
+                1.731403112411499
+              ]
+            ],
+            "faces": [
+              [
+                -828436,
+                3,
+                110
+              ]
+            ],
+            "newVertex": null
+          },
+          "target": {
+            "points": [
+              [
+                -2446793,
+                0.96875,
+                1,
+                1.7354657649993896
+              ],
+              [
+                -828436,
+                0.96875,
+                0.96875,
+                1.647886036568396
+              ],
+              [
+                3,
+                1,
+                1,
+                1.7395284175872803
+              ],
+              [
+                110,
+                0.9375,
+                1,
+                1.731403112411499
+              ]
+            ],
+            "faces": [
+              [
+                -828436,
+                3,
+                -2446793
+              ],
+              [
+                110,
+                -828436,
+                -2446793
+              ]
+            ],
+            "newVertex": -2446793
+          },
+          "samples": 1820,
+          "oldMax": 1.9965571240575115,
+          "targetMicropixels": 1986557,
+          "newMaxUpper": 1.9965571240599362,
+          "witness": [
+            0.9743589758872986,
+            1
+          ],
+          "reference": 1.9037766066970527,
+          "oldHeight": 1.736194959252316,
+          "newHeight": 1.736194959252316,
+          "oldError": 1.9965571109865088,
+          "newError": 1.9965571109865088,
+          "sampledExcessMax": 4.0190073491430667e-14,
+          "excessWitness": {
+            "sample": 293725,
+            "uv": [
+              0.9761904761904762,
+              0.9816849816849816
+            ],
+            "before": 1.8462614927179213,
+            "after": 1.8462614927179615,
+            "oldHeight": 1.6851042846669861,
+            "newHeight": 1.6851042846669861,
+            "reference": 1.8376745250629436
+          },
+          "sampleTouches": 3640,
+          "seconds": 0.0056024,
+          "geometryAudit": {
+            "structuralValid": true,
+            "shapeValid": true,
+            "errors": [],
+            "exactAngles": [
+              {
+                "face": [
+                  -828436,
+                  3,
+                  -2446793
+                ],
+                "orientation": "1/1024",
+                "angles": [
+                  {
+                    "vertex": -828436,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": 3,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -2446793,
+                    "degrees": 90.0,
+                    "allowed": true,
+                    "dot": "0",
+                    "norms": "1/1048576",
+                    "cosineSquared": "0"
+                  }
+                ]
+              },
+              {
+                "face": [
+                  110,
+                  -828436,
+                  -2446793
+                ],
+                "orientation": "1/1024",
+                "angles": [
+                  {
+                    "vertex": 110,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -828436,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -2446793,
+                    "degrees": 90.0,
+                    "allowed": true,
+                    "dot": "0",
+                    "norms": "1/1048576",
+                    "cosineSquared": "0"
+                  }
+                ]
+              }
+            ],
+            "twiceArea": "1/512",
+            "faceDelta": 1,
+            "newVertices": 1
+          }
+        },
+        {
+          "frame": 15,
+          "root": -112,
+          "edge": [
+            3,
+            110
+          ],
+          "variant": "source",
+          "reason": "certified",
+          "rank": 194,
+          "prefix": 160,
+          "faces": 49999,
+          "budget": 50000,
+          "old": {
+            "points": [
+              [
+                -828436,
+                0.96875,
+                0.96875,
+                1.647886036568396
+              ],
+              [
+                3,
+                1,
+                1,
+                1.7395284175872803
+              ],
+              [
+                110,
+                0.9375,
+                1,
+                1.731403112411499
+              ]
+            ],
+            "faces": [
+              [
+                -828436,
+                3,
+                110
+              ]
+            ],
+            "newVertex": null
+          },
+          "target": {
+            "points": [
+              [
+                -2446793,
+                0.96875,
+                1,
+                1.8889219501029983
+              ],
+              [
+                -828436,
+                0.96875,
+                0.96875,
+                1.647886036568396
+              ],
+              [
+                3,
+                1,
+                1,
+                1.7395284175872803
+              ],
+              [
+                110,
+                0.9375,
+                1,
+                1.731403112411499
+              ]
+            ],
+            "faces": [
+              [
+                -828436,
+                3,
+                -2446793
+              ],
+              [
+                110,
+                -828436,
+                -2446793
+              ]
+            ],
+            "newVertex": -2446793
+          },
+          "samples": 1820,
+          "oldMax": 1.9965571240575115,
+          "targetMicropixels": 1986557,
+          "newMaxUpper": 1.8718773961193265,
+          "witness": [
+            0.9743589758872986,
+            1
+          ],
+          "reference": 1.9037766066970527,
+          "oldHeight": 1.736194959252316,
+          "newHeight": 1.8621077190118298,
+          "oldError": 1.9965571109865088,
+          "newError": 0.4967577130418602,
+          "sampledExcessMax": 0.0399981696079616,
+          "excessWitness": {
+            "sample": 597292,
+            "uv": [
+              0.9404761904761905,
+              0.9981684981684982
+            ],
+            "before": 0.012125244202504753,
+            "after": 0.05212341381046635,
+            "oldHeight": 1.7266571538488225,
+            "newHeight": 1.7322782595302733,
+            "reference": 1.727718013275349
+          },
+          "remainingBudget": 1,
+          "budgetStatus": "free_slot",
+          "pairChecks": 0,
+          "sampleTouches": 3640,
+          "seconds": 0.005328,
+          "geometryAudit": {
+            "structuralValid": true,
+            "shapeValid": true,
+            "errors": [],
+            "exactAngles": [
+              {
+                "face": [
+                  -828436,
+                  3,
+                  -2446793
+                ],
+                "orientation": "1/1024",
+                "angles": [
+                  {
+                    "vertex": -828436,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": 3,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -2446793,
+                    "degrees": 90.0,
+                    "allowed": true,
+                    "dot": "0",
+                    "norms": "1/1048576",
+                    "cosineSquared": "0"
+                  }
+                ]
+              },
+              {
+                "face": [
+                  110,
+                  -828436,
+                  -2446793
+                ],
+                "orientation": "1/1024",
+                "angles": [
+                  {
+                    "vertex": 110,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -828436,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -2446793,
+                    "degrees": 90.0,
+                    "allowed": true,
+                    "dot": "0",
+                    "norms": "1/1048576",
+                    "cosineSquared": "0"
+                  }
+                ]
+              }
+            ],
+            "twiceArea": "1/512",
+            "faceDelta": 1,
+            "newVertices": 1
+          }
+        }
+      ],
+      "unknown": [],
+      "summary": {
+        "status": "summary",
+        "candidates": 1,
+        "sampleTouches": 7280,
+        "seconds": 0.0301441
+      },
+      "trajectoryUnchanged": true,
+      "witness": {
+        "frame": 15,
+        "returnFrame": 16,
+        "ordinal": 1790794,
+        "u": 0.9743589758872986,
+        "v": 1.0,
+        "roles": [
+          "screen_max"
+        ],
+        "actualPx": 1.9965571109865088,
+        "dodPx": 0.020611509775499484,
+        "excessPx": 1.9759456012110093
+      }
+    },
+    "peking547-b200000-transactional-t8": {
+      "variants": [
+        {
+          "frame": 15,
+          "root": -461,
+          "edge": [
+            3,
+            110
+          ],
+          "variant": "linear",
+          "reason": "quality_infeasible",
+          "rank": 104,
+          "prefix": 640,
+          "faces": 200000,
+          "budget": 200000,
+          "old": {
+            "points": [
+              [
+                -5425472,
+                0.96875,
+                0.96875,
+                1.647886036568396
+              ],
+              [
+                3,
+                1,
+                1,
+                1.7395284175872803
+              ],
+              [
+                110,
+                0.9375,
+                1,
+                1.731403112411499
+              ]
+            ],
+            "faces": [
+              [
+                -5425472,
+                3,
+                110
+              ]
+            ],
+            "newVertex": null
+          },
+          "target": {
+            "points": [
+              [
+                -12970273,
+                0.96875,
+                1,
+                1.7354657649993896
+              ],
+              [
+                -5425472,
+                0.96875,
+                0.96875,
+                1.647886036568396
+              ],
+              [
+                3,
+                1,
+                1,
+                1.7395284175872803
+              ],
+              [
+                110,
+                0.9375,
+                1,
+                1.731403112411499
+              ]
+            ],
+            "faces": [
+              [
+                -5425472,
+                3,
+                -12970273
+              ],
+              [
+                110,
+                -5425472,
+                -12970273
+              ]
+            ],
+            "newVertex": -12970273
+          },
+          "samples": 1820,
+          "oldMax": 1.9965571240575115,
+          "targetMicropixels": 1986557,
+          "newMaxUpper": 1.9965571240599362,
+          "witness": [
+            0.9743589758872986,
+            1
+          ],
+          "reference": 1.9037766066970527,
+          "oldHeight": 1.736194959252316,
+          "newHeight": 1.736194959252316,
+          "oldError": 1.9965571109865088,
+          "newError": 1.9965571109865088,
+          "sampledExcessMax": 4.0190073491430667e-14,
+          "excessWitness": {
+            "sample": 293725,
+            "uv": [
+              0.9761904761904762,
+              0.9816849816849816
+            ],
+            "before": 1.8462614927179213,
+            "after": 1.8462614927179615,
+            "oldHeight": 1.6851042846669861,
+            "newHeight": 1.6851042846669861,
+            "reference": 1.8376745250629436
+          },
+          "sampleTouches": 3640,
+          "seconds": 0.0048049,
+          "geometryAudit": {
+            "structuralValid": true,
+            "shapeValid": true,
+            "errors": [],
+            "exactAngles": [
+              {
+                "face": [
+                  -5425472,
+                  3,
+                  -12970273
+                ],
+                "orientation": "1/1024",
+                "angles": [
+                  {
+                    "vertex": -5425472,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": 3,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -12970273,
+                    "degrees": 90.0,
+                    "allowed": true,
+                    "dot": "0",
+                    "norms": "1/1048576",
+                    "cosineSquared": "0"
+                  }
+                ]
+              },
+              {
+                "face": [
+                  110,
+                  -5425472,
+                  -12970273
+                ],
+                "orientation": "1/1024",
+                "angles": [
+                  {
+                    "vertex": 110,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -5425472,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -12970273,
+                    "degrees": 90.0,
+                    "allowed": true,
+                    "dot": "0",
+                    "norms": "1/1048576",
+                    "cosineSquared": "0"
+                  }
+                ]
+              }
+            ],
+            "twiceArea": "1/512",
+            "faceDelta": 1,
+            "newVertices": 1
+          }
+        },
+        {
+          "frame": 15,
+          "root": -461,
+          "edge": [
+            3,
+            110
+          ],
+          "variant": "source",
+          "reason": "certified",
+          "rank": 104,
+          "prefix": 640,
+          "faces": 200000,
+          "budget": 200000,
+          "old": {
+            "points": [
+              [
+                -5425472,
+                0.96875,
+                0.96875,
+                1.647886036568396
+              ],
+              [
+                3,
+                1,
+                1,
+                1.7395284175872803
+              ],
+              [
+                110,
+                0.9375,
+                1,
+                1.731403112411499
+              ]
+            ],
+            "faces": [
+              [
+                -5425472,
+                3,
+                110
+              ]
+            ],
+            "newVertex": null
+          },
+          "target": {
+            "points": [
+              [
+                -12970273,
+                0.96875,
+                1,
+                1.8889219501029983
+              ],
+              [
+                -5425472,
+                0.96875,
+                0.96875,
+                1.647886036568396
+              ],
+              [
+                3,
+                1,
+                1,
+                1.7395284175872803
+              ],
+              [
+                110,
+                0.9375,
+                1,
+                1.731403112411499
+              ]
+            ],
+            "faces": [
+              [
+                -5425472,
+                3,
+                -12970273
+              ],
+              [
+                110,
+                -5425472,
+                -12970273
+              ]
+            ],
+            "newVertex": -12970273
+          },
+          "samples": 1820,
+          "oldMax": 1.9965571240575115,
+          "targetMicropixels": 1986557,
+          "newMaxUpper": 1.8718773961193265,
+          "witness": [
+            0.9743589758872986,
+            1
+          ],
+          "reference": 1.9037766066970527,
+          "oldHeight": 1.736194959252316,
+          "newHeight": 1.8621077190118298,
+          "oldError": 1.9965571109865088,
+          "newError": 0.4967577130418602,
+          "sampledExcessMax": 0.0399981696079616,
+          "excessWitness": {
+            "sample": 597292,
+            "uv": [
+              0.9404761904761905,
+              0.9981684981684982
+            ],
+            "before": 0.012125244202504753,
+            "after": 0.05212341381046635,
+            "oldHeight": 1.7266571538488225,
+            "newHeight": 1.7322782595302733,
+            "reference": 1.727718013275349
+          },
+          "remainingBudget": 0,
+          "donor": 60430,
+          "netFacesWithDonor": -1,
+          "budgetStatus": "pair_feasible",
+          "poolSize": 640,
+          "pairChecks": 1,
+          "pairReasons": {},
+          "sampleTouches": 3648,
+          "seconds": 0.0047593,
+          "geometryAudit": {
+            "structuralValid": true,
+            "shapeValid": true,
+            "errors": [],
+            "exactAngles": [
+              {
+                "face": [
+                  -5425472,
+                  3,
+                  -12970273
+                ],
+                "orientation": "1/1024",
+                "angles": [
+                  {
+                    "vertex": -5425472,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": 3,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -12970273,
+                    "degrees": 90.0,
+                    "allowed": true,
+                    "dot": "0",
+                    "norms": "1/1048576",
+                    "cosineSquared": "0"
+                  }
+                ]
+              },
+              {
+                "face": [
+                  110,
+                  -5425472,
+                  -12970273
+                ],
+                "orientation": "1/1024",
+                "angles": [
+                  {
+                    "vertex": 110,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -5425472,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "1/524288",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -12970273,
+                    "degrees": 90.0,
+                    "allowed": true,
+                    "dot": "0",
+                    "norms": "1/1048576",
+                    "cosineSquared": "0"
+                  }
+                ]
+              }
+            ],
+            "twiceArea": "1/512",
+            "faceDelta": 1,
+            "newVertices": 1
+          }
+        }
+      ],
+      "unknown": [],
+      "summary": {
+        "status": "summary",
+        "candidates": 1,
+        "sampleTouches": 7288,
+        "seconds": 0.111794
+      },
+      "trajectoryUnchanged": true,
+      "witness": {
+        "frame": 15,
+        "returnFrame": 16,
+        "ordinal": 1790794,
+        "u": 0.9743589758872986,
+        "v": 1.0,
+        "roles": [
+          "screen_max",
+          "largest_component",
+          "maximum_excess_component"
+        ],
+        "actualPx": 1.9965571109865088,
+        "dodPx": 0.004685191110353975,
+        "excessPx": 1.9918719198761548
+      }
+    },
+    "dem-canyon-b50000-transactional-t8": {
+      "variants": [
+        {
+          "frame": 48,
+          "root": -319,
+          "edge": [
+            0,
+            456
+          ],
+          "variant": "linear",
+          "reason": "quality_infeasible",
+          "rank": 65,
+          "prefix": 160,
+          "faces": 50000,
+          "budget": 50000,
+          "old": {
+            "points": [
+              [
+                -773399,
+                0.859375,
+                0.984375,
+                3.775626549322932
+              ],
+              [
+                0,
+                0.875,
+                1,
+                4.398344993591309
+              ],
+              [
+                456,
+                0.8125,
+                1,
+                3.0746207237243652
+              ]
+            ],
+            "faces": [
+              [
+                -773399,
+                0,
+                456
+              ]
+            ],
+            "newVertex": null
+          },
+          "target": {
+            "points": [
+              [
+                -1561330,
+                0.84375,
+                1,
+                3.736482858657837
+              ],
+              [
+                -773399,
+                0.859375,
+                0.984375,
+                3.775626549322932
+              ],
+              [
+                0,
+                0.875,
+                1,
+                4.398344993591309
+              ],
+              [
+                456,
+                0.8125,
+                1,
+                3.0746207237243652
+              ]
+            ],
+            "faces": [
+              [
+                -773399,
+                0,
+                -1561330
+              ],
+              [
+                456,
+                -773399,
+                -1561330
+              ]
+            ],
+            "newVertex": -1561330
+          },
+          "samples": 817,
+          "oldMax": 9.274476736648769,
+          "targetMicropixels": 9264476,
+          "newMaxUpper": 9.274476736654343,
+          "witness": [
+            0.837890625,
+            1
+          ],
+          "reference": 2.4800869703129136,
+          "oldHeight": 3.612383708357811,
+          "newHeight": 3.612383708357811,
+          "oldError": 9.274476736648769,
+          "newError": 9.274476736648769,
+          "sampledExcessMax": 7.949196856316121e-14,
+          "excessWitness": {
+            "sample": 1311155,
+            "uv": [
+              0.8489583333333334,
+              0.9928385416666666
+            ],
+            "before": 3.9436911215418426,
+            "after": 3.943691121541922,
+            "oldHeight": 3.713057333445997,
+            "newHeight": 3.713057333445997,
+            "reference": 3.229841992066892
+          },
+          "sampleTouches": 1634,
+          "seconds": 0.002674,
+          "geometryAudit": {
+            "structuralValid": true,
+            "shapeValid": true,
+            "errors": [],
+            "exactAngles": [
+              {
+                "face": [
+                  -773399,
+                  0,
+                  -1561330
+                ],
+                "orientation": "1/2048",
+                "angles": [
+                  {
+                    "vertex": -773399,
+                    "degrees": 90.0,
+                    "allowed": true,
+                    "dot": "0",
+                    "norms": "1/4194304",
+                    "cosineSquared": "0"
+                  },
+                  {
+                    "vertex": 0,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/2048",
+                    "norms": "1/2097152",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -1561330,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/2048",
+                    "norms": "1/2097152",
+                    "cosineSquared": "1/2"
+                  }
+                ]
+              },
+              {
+                "face": [
+                  456,
+                  -773399,
+                  -1561330
+                ],
+                "orientation": "1/2048",
+                "angles": [
+                  {
+                    "vertex": 456,
+                    "degrees": 18.434948822922017,
+                    "allowed": true,
+                    "dot": "3/2048",
+                    "norms": "5/2097152",
+                    "cosineSquared": "9/10"
+                  },
+                  {
+                    "vertex": -773399,
+                    "degrees": 26.565051177077994,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "5/4194304",
+                    "cosineSquared": "4/5"
+                  },
+                  {
+                    "vertex": -1561330,
+                    "degrees": 135.0,
+                    "allowed": true,
+                    "dot": "-1/2048",
+                    "norms": "1/2097152",
+                    "cosineSquared": "1/2"
+                  }
+                ]
+              }
+            ],
+            "twiceArea": "1/1024",
+            "faceDelta": 1,
+            "newVertices": 1
+          }
+        },
+        {
+          "frame": 48,
+          "root": -319,
+          "edge": [
+            0,
+            456
+          ],
+          "variant": "source",
+          "reason": "certified",
+          "rank": 65,
+          "prefix": 160,
+          "faces": 50000,
+          "budget": 50000,
+          "old": {
+            "points": [
+              [
+                -773399,
+                0.859375,
+                0.984375,
+                3.775626549322932
+              ],
+              [
+                0,
+                0.875,
+                1,
+                4.398344993591309
+              ],
+              [
+                456,
+                0.8125,
+                1,
+                3.0746207237243652
+              ]
+            ],
+            "faces": [
+              [
+                -773399,
+                0,
+                456
+              ]
+            ],
+            "newVertex": null
+          },
+          "target": {
+            "points": [
+              [
+                -1561330,
+                0.84375,
+                1,
+                2.7011644149923466
+              ],
+              [
+                -773399,
+                0.859375,
+                0.984375,
+                3.775626549322932
+              ],
+              [
+                0,
+                0.875,
+                1,
+                4.398344993591309
+              ],
+              [
+                456,
+                0.8125,
+                1,
+                3.0746207237243652
+              ]
+            ],
+            "faces": [
+              [
+                -773399,
+                0,
+                -1561330
+              ],
+              [
+                456,
+                -773399,
+                -1561330
+              ]
+            ],
+            "newVertex": -1561330
+          },
+          "samples": 817,
+          "oldMax": 9.274476736648769,
+          "targetMicropixels": 9264476,
+          "newMaxUpper": 7.644155139338294,
+          "witness": [
+            0.837890625,
+            1
+          ],
+          "reference": 2.4800869703129136,
+          "oldHeight": 3.612383708357811,
+          "newHeight": 2.7711874728796,
+          "oldError": 9.274476736648769,
+          "newError": 2.371741263953043,
+          "sampledExcessMax": 2.916543259604061,
+          "excessWitness": {
+            "sample": 788410,
+            "uv": [
+              0.86328125,
+              0.9990234375
+            ],
+            "before": 0.06865742785695772,
+            "after": 2.9852006874610186,
+            "oldHeight": 4.131909981941154,
+            "newHeight": 3.776019266931142,
+            "reference": 4.1402689546762765
+          },
+          "remainingBudget": 0,
+          "donor": 22397,
+          "netFacesWithDonor": -1,
+          "budgetStatus": "pair_feasible",
+          "poolSize": 160,
+          "pairChecks": 7,
+          "pairReasons": {
+            "fast_shape_miss": 6
+          },
+          "sampleTouches": 1667,
+          "seconds": 0.0037324,
+          "geometryAudit": {
+            "structuralValid": true,
+            "shapeValid": true,
+            "errors": [],
+            "exactAngles": [
+              {
+                "face": [
+                  -773399,
+                  0,
+                  -1561330
+                ],
+                "orientation": "1/2048",
+                "angles": [
+                  {
+                    "vertex": -773399,
+                    "degrees": 90.0,
+                    "allowed": true,
+                    "dot": "0",
+                    "norms": "1/4194304",
+                    "cosineSquared": "0"
+                  },
+                  {
+                    "vertex": 0,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/2048",
+                    "norms": "1/2097152",
+                    "cosineSquared": "1/2"
+                  },
+                  {
+                    "vertex": -1561330,
+                    "degrees": 45.00000000000001,
+                    "allowed": true,
+                    "dot": "1/2048",
+                    "norms": "1/2097152",
+                    "cosineSquared": "1/2"
+                  }
+                ]
+              },
+              {
+                "face": [
+                  456,
+                  -773399,
+                  -1561330
+                ],
+                "orientation": "1/2048",
+                "angles": [
+                  {
+                    "vertex": 456,
+                    "degrees": 18.434948822922017,
+                    "allowed": true,
+                    "dot": "3/2048",
+                    "norms": "5/2097152",
+                    "cosineSquared": "9/10"
+                  },
+                  {
+                    "vertex": -773399,
+                    "degrees": 26.565051177077994,
+                    "allowed": true,
+                    "dot": "1/1024",
+                    "norms": "5/4194304",
+                    "cosineSquared": "4/5"
+                  },
+                  {
+                    "vertex": -1561330,
+                    "degrees": 135.0,
+                    "allowed": true,
+                    "dot": "-1/2048",
+                    "norms": "1/2097152",
+                    "cosineSquared": "1/2"
+                  }
+                ]
+              }
+            ],
+            "twiceArea": "1/1024",
+            "faceDelta": 1,
+            "newVertices": 1
+          }
+        }
+      ],
+      "unknown": [],
+      "summary": {
+        "status": "summary",
+        "candidates": 1,
+        "sampleTouches": 3301,
+        "seconds": 0.0199403
+      },
+      "trajectoryUnchanged": true,
+      "witness": {
+        "frame": 48,
+        "returnFrame": 80,
+        "ordinal": 1574412,
+        "u": 0.837890625,
+        "v": 1.0,
+        "roles": [
+          "screen_max"
+        ],
+        "actualPx": 9.274476736648769,
+        "dodPx": 0.48755767057010524,
+        "excessPx": 8.786919066078664
+      }
+    }
+  },
+  "productionUnchanged": true,
+  "performance": {
+    "normal-before": {
+      "warmFrames": 21,
+      "milliseconds": {
+        "cpuMs": {
+          "mean": 38.73423785255069,
+          "median": 33.585601806640625,
+          "p95": 132.01319885253906,
+          "max": 139.3679962158203
+        },
+        "viewMs": {
+          "mean": 13.312333333333333,
+          "median": 18.723,
+          "p95": 22.5179,
+          "max": 24.0993
+        },
+        "receiverMs": {
+          "mean": 7.673519047619047,
+          "median": 3.8472,
+          "p95": 21.026699999999998,
+          "max": 22.6818
+        },
+        "donorMs": {
+          "mean": 1.5986380952380952,
+          "median": 1.1379000000000001,
+          "p95": 2.4036,
+          "max": 15.239600000000001
+        },
+        "reservationMs": {
+          "mean": 10.667876190476191,
+          "median": 1.1846,
+          "p95": 68.3661,
+          "max": 69.5248
+        },
+        "topologyPrepareMs": {
+          "mean": 0.5432571428571429,
+          "median": 0.1235,
+          "p95": 2.9364999999999997,
+          "max": 3.7346
+        },
+        "topologyPublishMs": {
+          "mean": 0.1065904761904762,
+          "median": 0.0159,
+          "p95": 0.5172,
+          "max": 0.5347000000000001
+        },
+        "sampleRepairMs": {
+          "mean": 3.9970142857142856,
+          "median": 1.9430999999999998,
+          "p95": 14.8558,
+          "max": 21.7361
+        },
+        "meshPrepareMs": {
+          "mean": 0.03576666666666667,
+          "median": 0.0233,
+          "p95": 0.1103,
+          "max": 0.11950000000000001
+        },
+        "continuationMs": {
+          "mean": 0.2447,
+          "median": 0.0562,
+          "p95": 1.0058999999999998,
+          "max": 1.2288
+        },
+        "adapterMs": {
+          "mean": 0.015009523809523553,
+          "median": 0.013100000000001444,
+          "p95": 0.028700000000014825,
+          "max": 0.033799999999999386
+        }
+      }
+    },
+    "normal-after": {
+      "warmFrames": 21,
+      "milliseconds": {
+        "cpuMs": {
+          "mean": 39.90296691939945,
+          "median": 33.20940017700195,
+          "p95": 134.12750244140625,
+          "max": 143.25160217285156
+        },
+        "viewMs": {
+          "mean": 13.668357142857143,
+          "median": 19.182399999999998,
+          "p95": 23.484399999999997,
+          "max": 23.665
+        },
+        "receiverMs": {
+          "mean": 7.89987619047619,
+          "median": 3.6706,
+          "p95": 20.8412,
+          "max": 22.5871
+        },
+        "donorMs": {
+          "mean": 1.7064952380952383,
+          "median": 0.9386000000000001,
+          "p95": 2.7945,
+          "max": 17.533900000000003
+        },
+        "reservationMs": {
+          "mean": 10.766166666666667,
+          "median": 0.8798,
+          "p95": 68.8246,
+          "max": 69.4833
+        },
+        "topologyPrepareMs": {
+          "mean": 0.5344619047619047,
+          "median": 0.0787,
+          "p95": 2.9821999999999997,
+          "max": 3.0507
+        },
+        "topologyPublishMs": {
+          "mean": 0.11553809523809523,
+          "median": 0.0159,
+          "p95": 0.5109999999999999,
+          "max": 0.7736999999999999
+        },
+        "sampleRepairMs": {
+          "mean": 4.4521,
+          "median": 1.6692,
+          "p95": 16.0212,
+          "max": 23.4871
+        },
+        "meshPrepareMs": {
+          "mean": 0.03643333333333333,
+          "median": 0.0287,
+          "p95": 0.1317,
+          "max": 0.145
+        },
+        "continuationMs": {
+          "mean": 0.21642857142857141,
+          "median": 0.1129,
+          "p95": 0.837,
+          "max": 1.5534
+        },
+        "adapterMs": {
+          "mean": 0.01331904761904665,
+          "median": 0.01290000000000191,
+          "p95": 0.019399999999990314,
+          "max": 0.03139999999999077
+        }
+      }
+    },
+    "normal-after-repeat": {
+      "warmFrames": 21,
+      "milliseconds": {
+        "cpuMs": {
+          "mean": 40.682466041474115,
+          "median": 33.74470138549805,
+          "p95": 140.06329345703125,
+          "max": 148.36099243164062
+        },
+        "viewMs": {
+          "mean": 14.149214285714287,
+          "median": 20.2596,
+          "p95": 22.4421,
+          "max": 24.2377
+        },
+        "receiverMs": {
+          "mean": 7.918242857142857,
+          "median": 3.8339,
+          "p95": 21.421499999999998,
+          "max": 24.8119
+        },
+        "donorMs": {
+          "mean": 1.6956761904761906,
+          "median": 1.0131999999999999,
+          "p95": 3.1322,
+          "max": 15.4656
+        },
+        "reservationMs": {
+          "mean": 10.74692380952381,
+          "median": 0.8139,
+          "p95": 67.7138,
+          "max": 69.7599
+        },
+        "topologyPrepareMs": {
+          "mean": 0.5072285714285714,
+          "median": 0.0825,
+          "p95": 2.8476999999999997,
+          "max": 3.0585
+        },
+        "topologyPublishMs": {
+          "mean": 0.14884285714285714,
+          "median": 0.0309,
+          "p95": 0.7622,
+          "max": 0.9222
+        },
+        "sampleRepairMs": {
+          "mean": 4.38892380952381,
+          "median": 1.5283,
+          "p95": 16.3023,
+          "max": 27.2454
+        },
+        "meshPrepareMs": {
+          "mean": 0.04820952380952381,
+          "median": 0.032499999999999994,
+          "p95": 0.1544,
+          "max": 0.16210000000000002
+        },
+        "continuationMs": {
+          "mean": 0.4025714285714286,
+          "median": 0.1118,
+          "p95": 1.9689,
+          "max": 2.022
+        },
+        "adapterMs": {
+          "mean": 0.01613809523809366,
+          "median": 0.014200000000002433,
+          "p95": 0.03020000000000067,
+          "max": 0.03159999999999741
+        }
+      }
+    },
+    "normal-before-repeat": {
+      "warmFrames": 21,
+      "milliseconds": {
+        "cpuMs": {
+          "mean": 39.62602921894619,
+          "median": 37.49290084838867,
+          "p95": 133.19810485839844,
+          "max": 141.64210510253906
+        },
+        "viewMs": {
+          "mean": 13.717219047619048,
+          "median": 18.8961,
+          "p95": 22.6247,
+          "max": 23.752100000000002
+        },
+        "receiverMs": {
+          "mean": 7.702852380952381,
+          "median": 3.4938000000000002,
+          "p95": 20.5048,
+          "max": 22.737199999999998
+        },
+        "donorMs": {
+          "mean": 1.6192285714285715,
+          "median": 0.8368,
+          "p95": 2.7966,
+          "max": 15.4103
+        },
+        "reservationMs": {
+          "mean": 10.84497619047619,
+          "median": 0.9787999999999999,
+          "p95": 68.26400000000001,
+          "max": 70.7121
+        },
+        "topologyPrepareMs": {
+          "mean": 0.5160428571428571,
+          "median": 0.0993,
+          "p95": 2.6894,
+          "max": 2.8681
+        },
+        "topologyPublishMs": {
+          "mean": 0.09652380952380953,
+          "median": 0.034999999999999996,
+          "p95": 0.4254,
+          "max": 0.4699
+        },
+        "sampleRepairMs": {
+          "mean": 4.2818523809523805,
+          "median": 2.1468,
+          "p95": 17.0312,
+          "max": 21.845
+        },
+        "meshPrepareMs": {
+          "mean": 0.03916666666666667,
+          "median": 0.0282,
+          "p95": 0.11220000000000001,
+          "max": 0.1261
+        },
+        "continuationMs": {
+          "mean": 0.21532380952380953,
+          "median": 0.06420000000000001,
+          "p95": 0.8893,
+          "max": 1.3273
+        },
+        "adapterMs": {
+          "mean": 0.01629523809523812,
+          "median": 0.01529999999999987,
+          "p95": 0.026099999999999568,
+          "max": 0.028700000000000614
+        }
+      }
+    }
+  },
+  "commands": {
+    "normal-before": {
+      "returncode": 0,
+      "elapsedSeconds": 2.6638367,
+      "peakRssBytes": 170250240,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\experiment-cpu-before.exe",
+        "--experiment-cpu",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\normal-before"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04a/run-02/experiment-cpu-before.exe",
+        "bytes": 1418752,
+        "sha256": "85f158e708d39c59e221a016a15398e2d35d110823e77551fcbd2db99e5b352b"
+      }
+    },
+    "normal-after": {
+      "returncode": 0,
+      "elapsedSeconds": 2.7326378,
+      "peakRssBytes": 170729472,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--experiment-cpu",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\normal-after"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1447936,
+        "sha256": "1d046cf87c5f60bc2b114e0c0b22c9976f94b53800462d7ebc49acf2ed90951b"
+      }
+    },
+    "normal-after-repeat": {
+      "returncode": 0,
+      "elapsedSeconds": 2.8265683,
+      "peakRssBytes": 170008576,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--experiment-cpu",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\normal-after-repeat"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1447936,
+        "sha256": "1d046cf87c5f60bc2b114e0c0b22c9976f94b53800462d7ebc49acf2ed90951b"
+      }
+    },
+    "normal-before-repeat": {
+      "returncode": 0,
+      "elapsedSeconds": 2.7533358999999997,
+      "peakRssBytes": 170754048,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\experiment-cpu-before.exe",
+        "--experiment-cpu",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\normal-before-repeat"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04a/run-02/experiment-cpu-before.exe",
+        "bytes": 1418752,
+        "sha256": "85f158e708d39c59e221a016a15398e2d35d110823e77551fcbd2db99e5b352b"
+      }
+    },
+    "peking547-b50000-transactional-t8": {
+      "returncode": 0,
+      "elapsedSeconds": 4.0571968,
+      "peakRssBytes": 187215872,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--recovery-trace",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\peking547-b50000-transactional-t8.txt",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\peking547-b50000-transactional-t8",
+        "--boundary-audit"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1447936,
+        "sha256": "1d046cf87c5f60bc2b114e0c0b22c9976f94b53800462d7ebc49acf2ed90951b"
+      }
+    },
+    "peking547-b200000-transactional-t8": {
+      "returncode": 0,
+      "elapsedSeconds": 25.8839681,
+      "peakRssBytes": 339345408,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--recovery-trace",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b200000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\peking547-b200000-transactional-t8.txt",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\peking547-b200000-transactional-t8",
+        "--boundary-audit"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1447936,
+        "sha256": "1d046cf87c5f60bc2b114e0c0b22c9976f94b53800462d7ebc49acf2ed90951b"
+      }
+    },
+    "dem-canyon-b50000-transactional-t8": {
+      "returncode": 0,
+      "elapsedSeconds": 10.9264227,
+      "peakRssBytes": 172986368,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--recovery-trace",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-dem-canyon-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\dem-canyon-b50000-transactional-t8.txt",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-02\\dem-canyon-b50000-transactional-t8",
+        "--boundary-audit"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1447936,
+        "sha256": "1d046cf87c5f60bc2b114e0c0b22c9976f94b53800462d7ebc49acf2ed90951b"
+      }
+    }
+  },
+  "reportSeconds": 0.28085516799999954,
+  "rawDirectories": [
+    "benchmark-output/cpu-refinement/qpc-04a/run-01",
+    "benchmark-output/cpu-refinement/qpc-04a/run-02"
+  ],
+  "firstVersionCommands": {
+    "normal-before": {
+      "returncode": 0,
+      "elapsedSeconds": 2.244005,
+      "peakRssBytes": 170467328,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-01\\experiment-cpu-before.exe",
+        "--experiment-cpu",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-01\\normal-before"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04a/run-01/experiment-cpu-before.exe",
+        "bytes": 1418752,
+        "sha256": "85f158e708d39c59e221a016a15398e2d35d110823e77551fcbd2db99e5b352b"
+      }
+    },
+    "normal-after": {
+      "returncode": 0,
+      "elapsedSeconds": 2.2513549999999998,
+      "peakRssBytes": 170528768,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--experiment-cpu",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-01\\normal-after"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1447936,
+        "sha256": "77699dc26f624be94e691f8dd48bf694538dad2c54028c8d4e16a48b0f83e770"
+      }
+    },
+    "peking547-b50000-transactional-t8": {
+      "returncode": 0,
+      "elapsedSeconds": 3.3149899,
+      "peakRssBytes": 187105280,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--recovery-trace",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-01\\peking547-b50000-transactional-t8.txt",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-01\\peking547-b50000-transactional-t8",
+        "--boundary-audit"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1447936,
+        "sha256": "77699dc26f624be94e691f8dd48bf694538dad2c54028c8d4e16a48b0f83e770"
+      }
+    },
+    "peking547-b200000-transactional-t8": {
+      "returncode": 0,
+      "elapsedSeconds": 25.285408,
+      "peakRssBytes": 339750912,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--recovery-trace",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-peking547-b200000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-01\\peking547-b200000-transactional-t8.txt",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-01\\peking547-b200000-transactional-t8",
+        "--boundary-audit"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1447936,
+        "sha256": "77699dc26f624be94e691f8dd48bf694538dad2c54028c8d4e16a48b0f83e770"
+      }
+    },
+    "dem-canyon-b50000-transactional-t8": {
+      "returncode": 0,
+      "elapsedSeconds": 10.006993,
+      "peakRssBytes": 173207552,
+      "status": "ok",
+      "argv": [
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+        "--recovery-trace",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\experiment-infrastructure\\fer-02\\r1-dem-canyon-b50000-transactional-t8\\inputs\\resolved.json",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-01\\dem-canyon-b50000-transactional-t8.txt",
+        "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04a\\run-01\\dem-canyon-b50000-transactional-t8",
+        "--boundary-audit"
+      ],
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+        "bytes": 1447936,
+        "sha256": "77699dc26f624be94e691f8dd48bf694538dad2c54028c8d4e16a48b0f83e770"
+      }
+    }
+  },
+  "sources": {
+    "scripts/run_transactional_boundary_audit.py": {
+      "path": "scripts/run_transactional_boundary_audit.py",
+      "bytes": 10958,
+      "sha256": "2bdb0ac48dd7b0fe620dc7804fbf62ae41ac6c62daa651b6d6fa6342f122f383"
+    },
+    "scripts/transactional_recovery_geometry.py": {
+      "path": "scripts/transactional_recovery_geometry.py",
+      "bytes": 6926,
+      "sha256": "a4a09b41cfeb32e34d834ee2b32c336a9fed14f5293d9ab258c9f5e9c3a730b8"
+    },
+    "src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.cpp": {
+      "path": "src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.cpp",
+      "bytes": 17318,
+      "sha256": "b43bef68e09d6b9799fb843bfa5e1539779392da45becae885ba5df3e7f35de7"
+    },
+    "src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.h": {
+      "path": "src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.h",
+      "bytes": 1412,
+      "sha256": "8c46f712361df738f830955276a8cb4a6c963a6da5bf126d2840c708f1240a17"
+    },
+    "src/benchmark/experiment/TransactionalRecoveryTrace.cpp": {
+      "path": "src/benchmark/experiment/TransactionalRecoveryTrace.cpp",
+      "bytes": 10618,
+      "sha256": "4ae205f774fd5a6a7e8c9f7d2a2c46e03d130916b70dde39b36924133537474c"
+    },
+    "tests/TransactionalBoundaryAuditTests.cpp": {
+      "path": "tests/TransactionalBoundaryAuditTests.cpp",
+      "bytes": 4066,
+      "sha256": "f15cbf7e0f94279271c3527498158111015e645ae87ebca648b084498e9c4443"
+    }
+  }
+}

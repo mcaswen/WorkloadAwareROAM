@@ -34,13 +34,20 @@ if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
         ../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp)
     target_link_libraries(parallel_roam_transactional_recovery_audit_tests PRIVATE
         parallel_roam_transactional_lod_core parallel_roam_project_warnings)
+    add_executable(parallel_roam_transactional_boundary_audit_tests TransactionalBoundaryAuditTests.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.cpp)
+    target_link_libraries(parallel_roam_transactional_boundary_audit_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_project_warnings)
+    add_test(NAME transactional_boundary_audit COMMAND parallel_roam_transactional_boundary_audit_tests)
     if(MSVC)
         set_source_files_properties(../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp
             ../src/experiment/greedy_transactional_lod/TransactionalRecoveryAudit.cpp
+            ../src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.cpp
             PROPERTIES COMPILE_OPTIONS /fp:strict)
     else()
         set_source_files_properties(../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp
             ../src/experiment/greedy_transactional_lod/TransactionalRecoveryAudit.cpp
+            ../src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.cpp
             PROPERTIES COMPILE_OPTIONS "-fno-fast-math;-ffp-contract=off")
     endif()
     add_test(NAME transactional_fit_counterfactual COMMAND parallel_roam_transactional_fit_counterfactual_tests)
@@ -646,6 +653,7 @@ if(TARGET parallel_roam_experiment_infrastructure AND TARGET parallel_roam_trans
         ../src/benchmark/experiment/ExperimentReplay.cpp
         ../src/benchmark/experiment/ExperimentCpuReplay.cpp
         ../src/benchmark/experiment/TransactionalRecoveryTrace.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.cpp
         ../src/experiment/greedy_transactional_lod/TransactionalQualityProvenance.cpp
         ../src/tools/profiling/ProfileSession.cpp
         ../src/algorithms/TerrainLodAlgorithmRegistry.cpp

@@ -48,7 +48,7 @@ def edges(geometry):
     return uses
 
 
-def validate(old, target):
+def validate(old, target, boundary_split=None):
     """覆盖由边界、方向、配对、无相交和面积联合核查，形状另列。"""
     old_points, new_points = points(old), points(target)
     before, after = edges(old), edges(target)
@@ -64,7 +64,26 @@ def validate(old, target):
     if any(p[0] in old_heights and p[3] != old_heights[p[0]] for p in target["points"]):
         errors.append("old_height_changed")
     boundary = lambda e: Counter((u[0][0], u[0][1]) for u in e.values() if len(u) == 1)
-    if boundary(before) != boundary(after):
+    expected_boundary = boundary(before)
+    if boundary_split is not None:
+        # 只允许将一条域外边界替换为同向两段，不能泛化成任意边界变化。
+        edge = tuple(sorted(boundary_split))
+        uses = before.get(edge, [])
+        new_id = target["newVertex"]
+        legal = len(uses) == 1 and new_id in new_points
+        if legal:
+            a, b = edge
+            p, q = old_points[a], old_points[b]
+            on_domain = any(p[i] == q[i] and p[i] in (0, 1) for i in (0, 1))
+            legal = on_domain and inside_segment(new_points[new_id], p, q)
+        if legal:
+            a, b, _ = uses[0]
+            del expected_boundary[(a, b)]
+            expected_boundary[(a, new_id)] += 1
+            expected_boundary[(new_id, b)] += 1
+        else:
+            errors.append("invalid_boundary_split")
+    if expected_boundary != boundary(after):
         errors.append("boundary_changed")
     for edge, uses in after.items():
         if len(uses) not in (1, 2) or (len(uses) == 2 and uses[0][:2] != uses[1][:2][::-1]):
@@ -104,3 +123,12 @@ def self_test():
     boundary = dict(points=[[0, 0, 0, 0], [1, 3, 0, 0], [2, 3, 1, 0]], faces=[[0, 1, 2]], newVertex=None)
     a = angles(boundary)[0]["angles"][0]
     assert a["allowed"] and a["cosineSquared"] == "9/10"
+    # 默认检查仍禁止改变边界，显式单边授权才允许中点分段。
+    triangle = dict(points=[[0, 0, 0, 0], [1, 1, 0, 1], [2, .5, .5, 2]], faces=[[0, 1, 2]], newVertex=None)
+    split = dict(points=triangle["points"]+[[3, .5, 0, .7]], faces=[[1, 2, 3], [2, 0, 3]], newVertex=3)
+    assert not validate(triangle, split)["structuralValid"]
+    assert validate(triangle, split, (0, 1))["structuralValid"]
+    assert validate(triangle, split, (0, 1))["shapeValid"]
+    assert not validate(triangle, split, (1, 2))["structuralValid"]
+    moved = dict(split, points=triangle["points"]+[[3, .5, .01, .7]])
+    assert not validate(triangle, moved, (0, 1))["structuralValid"]
