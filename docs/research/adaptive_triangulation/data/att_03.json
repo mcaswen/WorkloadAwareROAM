@@ -1,0 +1,591 @@
+{
+  "positive": [
+    {
+      "name": "split",
+      "delta": 2,
+      "fixed_full_boundary": true,
+      "points": {
+        "0": [
+          "0",
+          "0"
+        ],
+        "1": [
+          "2",
+          "0"
+        ],
+        "2": [
+          "2",
+          "2"
+        ],
+        "3": [
+          "0",
+          "2"
+        ],
+        "4": [
+          "1",
+          "1"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          4
+        ],
+        [
+          0,
+          4,
+          3
+        ],
+        [
+          4,
+          2,
+          3
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        },
+        {
+          "vertices": 5,
+          "faces": 4,
+          "boundary_vertices": 4
+        }
+      ]
+    },
+    {
+      "name": "flip",
+      "delta": 0,
+      "fixed_full_boundary": true,
+      "points": {
+        "0": [
+          "10",
+          "0"
+        ],
+        "1": [
+          "12",
+          "0"
+        ],
+        "2": [
+          "12",
+          "2"
+        ],
+        "3": [
+          "10",
+          "2"
+        ],
+        "4": [
+          "11",
+          "1"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        },
+        {
+          "vertices": 4,
+          "faces": 2,
+          "boundary_vertices": 4
+        }
+      ]
+    },
+    {
+      "name": "remove",
+      "delta": -2,
+      "fixed_full_boundary": true,
+      "points": {
+        "0": [
+          "20",
+          "0"
+        ],
+        "1": [
+          "23",
+          "0"
+        ],
+        "2": [
+          "24",
+          "2"
+        ],
+        "3": [
+          "22",
+          "4"
+        ],
+        "4": [
+          "20",
+          "3"
+        ],
+        "5": [
+          "22",
+          "2"
+        ]
+      },
+      "old_faces": [
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          1,
+          2,
+          5
+        ],
+        [
+          2,
+          3,
+          5
+        ],
+        [
+          3,
+          4,
+          5
+        ],
+        [
+          4,
+          0,
+          5
+        ]
+      ],
+      "new_faces": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          3,
+          4
+        ]
+      ],
+      "counts": [
+        {
+          "vertices": 6,
+          "faces": 5,
+          "boundary_vertices": 5
+        },
+        {
+          "vertices": 5,
+          "faces": 3,
+          "boundary_vertices": 5
+        }
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "name": "coupled_loss_missing_reads",
+      "old": "9/16",
+      "each": "1/16",
+      "together": "25/16"
+    },
+    {
+      "name": "negative_weight",
+      "old_potential": "-4",
+      "next_potential": "-1"
+    },
+    {
+      "name": "zero_weight_masks_violation",
+      "loss": "100",
+      "potential": "0"
+    },
+    {
+      "name": "shared_improvement_double_count",
+      "batch_gain": "1",
+      "sum_single_gains": "2"
+    },
+    {
+      "name": "changed_environment",
+      "old_potential": "0",
+      "new_potential": "1"
+    }
+  ],
+  "single_transactions": [
+    {
+      "name": "split",
+      "delta": 2,
+      "losses": [
+        "0",
+        "1/4",
+        "1/4",
+        "1",
+        "9/16",
+        "9/16",
+        "1",
+        "1/4",
+        "1/4"
+      ],
+      "gain": "5/2",
+      "reads": [
+        "(0, 'face', 'new', 0)",
+        "(0, 'face', 'new', 1)",
+        "(0, 'face', 'new', 2)",
+        "(0, 'face', 'new', 3)",
+        "(0, 'face', 'old', 0)",
+        "(0, 'face', 'old', 1)",
+        "(0, 'vertex', 0)",
+        "(0, 'vertex', 1)",
+        "(0, 'vertex', 2)",
+        "(0, 'vertex', 3)",
+        "(0, 'vertex', 4)"
+      ],
+      "writes": [
+        "(0, 'face', 'new', 0)",
+        "(0, 'face', 'new', 1)",
+        "(0, 'face', 'new', 2)",
+        "(0, 'face', 'new', 3)",
+        "(0, 'face', 'old', 0)",
+        "(0, 'face', 'old', 1)",
+        "(0, 'vertex', 4)"
+      ]
+    },
+    {
+      "name": "flip",
+      "delta": 0,
+      "losses": [
+        "1",
+        "1",
+        "1",
+        "0",
+        "1/16",
+        "1/16",
+        "1",
+        "1/4",
+        "1/4"
+      ],
+      "gain": "2",
+      "reads": [
+        "(1, 'face', 'new', 0)",
+        "(1, 'face', 'new', 1)",
+        "(1, 'face', 'old', 0)",
+        "(1, 'face', 'old', 1)",
+        "(1, 'vertex', 0)",
+        "(1, 'vertex', 1)",
+        "(1, 'vertex', 2)",
+        "(1, 'vertex', 3)"
+      ],
+      "writes": [
+        "(1, 'face', 'new', 0)",
+        "(1, 'face', 'new', 1)",
+        "(1, 'face', 'old', 0)",
+        "(1, 'face', 'old', 1)"
+      ]
+    },
+    {
+      "name": "remove",
+      "delta": -2,
+      "losses": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "9/16",
+        "9/16",
+        "0",
+        "0",
+        "0"
+      ],
+      "gain": "11/8",
+      "reads": [
+        "(2, 'face', 'new', 0)",
+        "(2, 'face', 'new', 1)",
+        "(2, 'face', 'new', 2)",
+        "(2, 'face', 'old', 0)",
+        "(2, 'face', 'old', 1)",
+        "(2, 'face', 'old', 2)",
+        "(2, 'face', 'old', 3)",
+        "(2, 'face', 'old', 4)",
+        "(2, 'vertex', 0)",
+        "(2, 'vertex', 1)",
+        "(2, 'vertex', 2)",
+        "(2, 'vertex', 3)",
+        "(2, 'vertex', 4)",
+        "(2, 'vertex', 5)"
+      ],
+      "writes": [
+        "(2, 'face', 'new', 0)",
+        "(2, 'face', 'new', 1)",
+        "(2, 'face', 'new', 2)",
+        "(2, 'face', 'old', 0)",
+        "(2, 'face', 'old', 1)",
+        "(2, 'face', 'old', 2)",
+        "(2, 'face', 'old', 3)",
+        "(2, 'face', 'old', 4)",
+        "(2, 'vertex', 5)"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "patch": 0,
+      "q": [
+        "1",
+        "1"
+      ],
+      "weight": "1",
+      "target": "0",
+      "reference_attribute": "0"
+    },
+    {
+      "patch": 0,
+      "q": [
+        "1",
+        "1/2"
+      ],
+      "weight": "2",
+      "target": "1/16",
+      "reference_attribute": "0"
+    },
+    {
+      "patch": 0,
+      "q": [
+        "1/2",
+        "1"
+      ],
+      "weight": "0",
+      "target": "1/4",
+      "reference_attribute": "0"
+    },
+    {
+      "patch": 1,
+      "q": [
+        "11",
+        "1"
+      ],
+      "weight": "1",
+      "target": "0",
+      "reference_attribute": "0"
+    },
+    {
+      "patch": 1,
+      "q": [
+        "11",
+        "1/2"
+      ],
+      "weight": "2",
+      "target": "1/16",
+      "reference_attribute": "0"
+    },
+    {
+      "patch": 1,
+      "q": [
+        "21/2",
+        "1"
+      ],
+      "weight": "0",
+      "target": "1/4",
+      "reference_attribute": "0"
+    },
+    {
+      "patch": 2,
+      "q": [
+        "22",
+        "2"
+      ],
+      "weight": "1",
+      "target": "0",
+      "reference_attribute": "0"
+    },
+    {
+      "patch": 2,
+      "q": [
+        "22",
+        "1"
+      ],
+      "weight": "2",
+      "target": "1/16",
+      "reference_attribute": "0"
+    },
+    {
+      "patch": 2,
+      "q": [
+        "21",
+        "1"
+      ],
+      "weight": "0",
+      "target": "1/4",
+      "reference_attribute": "0"
+    }
+  ],
+  "old_losses": [
+    "1",
+    "1",
+    "1",
+    "1",
+    "9/16",
+    "9/16",
+    "1",
+    "1/4",
+    "1/4"
+  ],
+  "old_potential": "25/4",
+  "final_losses": [
+    "0",
+    "1/4",
+    "1/4",
+    "0",
+    "1/16",
+    "1/16",
+    "0",
+    "0",
+    "0"
+  ],
+  "permutations": [
+    {
+      "order": [
+        0,
+        1,
+        2
+      ],
+      "counts": [
+        9,
+        11,
+        11,
+        9
+      ],
+      "peak": 11,
+      "final_potential": "3/8",
+      "gain": "47/8"
+    },
+    {
+      "order": [
+        0,
+        2,
+        1
+      ],
+      "counts": [
+        9,
+        11,
+        9,
+        9
+      ],
+      "peak": 11,
+      "final_potential": "3/8",
+      "gain": "47/8"
+    },
+    {
+      "order": [
+        1,
+        0,
+        2
+      ],
+      "counts": [
+        9,
+        9,
+        11,
+        9
+      ],
+      "peak": 11,
+      "final_potential": "3/8",
+      "gain": "47/8"
+    },
+    {
+      "order": [
+        1,
+        2,
+        0
+      ],
+      "counts": [
+        9,
+        9,
+        7,
+        9
+      ],
+      "peak": 9,
+      "final_potential": "3/8",
+      "gain": "47/8"
+    },
+    {
+      "order": [
+        2,
+        0,
+        1
+      ],
+      "counts": [
+        9,
+        7,
+        9,
+        9
+      ],
+      "peak": 9,
+      "final_potential": "3/8",
+      "gain": "47/8"
+    },
+    {
+      "order": [
+        2,
+        1,
+        0
+      ],
+      "counts": [
+        9,
+        7,
+        7,
+        9
+      ],
+      "peak": 9,
+      "final_potential": "3/8",
+      "gain": "47/8"
+    }
+  ],
+  "scope": "三个独立圆盘组件；有理属性插值损失；不是一般几何或生产并发证明",
+  "stage": "att-03",
+  "seconds": 0.008663235000000213,
+  "peak_rss_bytes": 22159360,
+  "sources": {
+    "docs/research/adaptive_triangulation/checks/check_local_replacements.py": "a91d791dc169227498979e4691aaf9a747ea7baec9da64d74dc4be6ca9494bc7",
+    "docs/research/cpu_refinement/checks/verify_bounded_patch_refit.py": "a7c572dbc9c7ead584e939702623b00cc8be181d508278ca18ae03d0fc9cea24"
+  }
+}

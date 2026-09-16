@@ -1,0 +1,102 @@
+{
+  "stage": "ATT-03",
+  "date": "2026-09-17",
+  "toolchain": "leanprover/lean4:v4.8.0",
+  "environment": {
+    "WSLENV": "LEAN_PATH",
+    "LEAN_PATH": "D:/CPP-Projects/WorkloadAwareROAM/benchmark-output/adaptive-triangulation/att-03;D:/CPP-Projects/WorkloadAwareROAM/benchmark-output/adaptive-triangulation/att-02"
+  },
+  "commands_note": "run ATT-02 StateTransactions compile first; create att-03 output directory; run listed commands in order through Ubuntu/Windows interop",
+  "runs": [
+    {
+      "source": "docs/research/cpu_refinement/formal/quality_contract/QualityContract.lean",
+      "sha256": "06907e060a57de3eb1822d591a969a21fad147ce3e476d236c85950398d51eb0",
+      "command": [
+        "tools/downloads/lean/lean-4.8.0-windows/bin/lean.exe",
+        "-o",
+        "D:/CPP-Projects/WorkloadAwareROAM/benchmark-output/adaptive-triangulation/att-03/QualityContract.olean",
+        "D:/CPP-Projects/WorkloadAwareROAM/docs/research/cpu_refinement/formal/quality_contract/QualityContract.lean"
+      ],
+      "exit": 0,
+      "seconds": 0.7288177079999993,
+      "stdout": "'QualityContract.Scalar.pointwise_iff_excess' depends on axioms: [propext, Classical.choice, Quot.sound]\n'QualityContract.Scalar.sequence_envelope' depends on axioms: [Classical.choice, propext, Quot.sound]\n'QualityContract.Scalar.potential_nonincrease' depends on axioms: [propext, Quot.sound, Classical.choice]\n'QualityContract.Scalar.potential_zero_iff' depends on axioms: [propext, Quot.sound, Classical.choice]\n'QualityContract.Scalar.common_maximum_bound' depends on axioms: [Classical.choice, propext, Quot.sound]\n"
+    },
+    {
+      "source": "docs/research/adaptive_triangulation/formal/QualityComposition.lean",
+      "sha256": "37090afd8c5ff37c2d061737aab70b733a95469c0feb0d5b023f11475c231286",
+      "command": [
+        "tools/downloads/lean/lean-4.8.0-windows/bin/lean.exe",
+        "-o",
+        "D:/CPP-Projects/WorkloadAwareROAM/benchmark-output/adaptive-triangulation/att-03/QualityComposition.olean",
+        "D:/CPP-Projects/WorkloadAwareROAM/docs/research/adaptive_triangulation/formal/QualityComposition.lean"
+      ],
+      "exit": 0,
+      "seconds": 0.6475237939999996,
+      "stdout": "'AdaptiveTransactions.weighted_nonincrease' depends on axioms: [propext, Quot.sound, Classical.choice]\n'AdaptiveTransactions.observation_frame' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.certificate_migrates' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+    },
+    {
+      "source": "docs/research/adaptive_triangulation/formal/BatchSafety.lean",
+      "sha256": "1926f34b8ed7a22c2325a136574fb4556d738ee7a60325c5498c9abc7d591a14",
+      "command": [
+        "tools/downloads/lean/lean-4.8.0-windows/bin/lean.exe",
+        "-o",
+        "D:/CPP-Projects/WorkloadAwareROAM/benchmark-output/adaptive-triangulation/att-03/BatchSafety.olean",
+        "D:/CPP-Projects/WorkloadAwareROAM/docs/research/adaptive_triangulation/formal/BatchSafety.lean"
+      ],
+      "exit": 0,
+      "seconds": 0.8255162729999999,
+      "stdout": "'AdaptiveTransactions.run_permutation' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.enabled_after_prefix' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.count_run_frozen' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.endpoint_budget' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.derived_observation_equal' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.create_delta_one' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.delete_delta_negative_one' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.final_fits_but_prefix_and_subset_do_not' does not depend on any axioms\n'AdaptiveTransactions.replace_delta_zero' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.actual_count_nonnegative' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.batch_quality' depends on axioms: [propext, Classical.choice, Quot.sound]\n'AdaptiveTransactions.budget_and_quality' depends on axioms: [propext, Classical.choice, Quot.sound]\n"
+    }
+  ],
+  "reused_state_transactions_sha256": "09c524109e76b623fc77cdcae241c92b84cfa320ce2bd15c9f49654fb15090a9",
+  "sources": {
+    "docs/research/adaptive_triangulation/formal/BatchSafety.lean": "1926f34b8ed7a22c2325a136574fb4556d738ee7a60325c5498c9abc7d591a14",
+    "docs/research/adaptive_triangulation/formal/QualityComposition.lean": "37090afd8c5ff37c2d061737aab70b733a95469c0feb0d5b023f11475c231286",
+    "docs/research/adaptive_triangulation/formal/StateTransactions.lean": "09c524109e76b623fc77cdcae241c92b84cfa320ce2bd15c9f49654fb15090a9",
+    "docs/research/cpu_refinement/formal/quality_contract/QualityContract.lean": "06907e060a57de3eb1822d591a969a21fad147ce3e476d236c85950398d51eb0"
+  },
+  "declarations": {
+    "BatchSafety.lean": [
+      "run_permutation",
+      "read_stable_run",
+      "enabled_after_prefix",
+      "total_congr",
+      "frozen_net_stable",
+      "count_run_frozen",
+      "endpoint_budget",
+      "derived_observation_equal",
+      "create_delta_one",
+      "delete_delta_negative_one",
+      "final_fits_but_prefix_and_subset_do_not",
+      "replace_delta_zero",
+      "actual_count_nonnegative",
+      "batch_quality",
+      "budget_and_quality"
+    ],
+    "QualityComposition.lean": [
+      "weighted_nonincrease",
+      "observation_frame",
+      "certificate_migrates"
+    ],
+    "StateTransactions.lean": [
+      "independent_symm",
+      "apply_frame",
+      "read_stable",
+      "enabled_stable",
+      "apply_commute",
+      "total_sub",
+      "count_delta",
+      "delta_stable",
+      "concrete_create_delete_independent",
+      "absent_read_detects_conflict"
+    ]
+  },
+  "compiler_peak_rss_bytes": null,
+  "fees": "wall time per compiler process includes launcher; no compiler RSS captured; no production performance change",
+  "formal_boundary": [
+    "abstract Scalar/Weighting laws, not mechanized general Real/Rat instance",
+    "finite resource lists require production-complete mapping",
+    "geometry gluing and disjoint-support gain additivity are paper proofs",
+    "no C++ correspondence, race freedom or performance guarantee"
+  ]
+}

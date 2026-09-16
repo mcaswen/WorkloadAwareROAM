@@ -26,4 +26,13 @@
 
 ## ATT-03：质量与总定理
 
-未开始。
+**完成：一般损失、观察依赖与有条件总模型。** [最终结果及范围表](generalization_results.md)、[推导第10～12节](model_derivation.md#10-att-03加权质量及证书迁移的实际推导)。
+
+- [Lean账本](data/att_03_lean.json)：原QC源码未改，仅生成导入缓存0.729秒；新增QualityComposition0.648秒、修改BatchSafety0.826秒，首次均完成。保留完整命令/输出/源码SHA-256、标准逻辑公理；无`sorry/admit`，没有新增全局公理。StateTransactions复用ATT-02已编译且源指纹一致的缓存。
+- `weighted_nonincrease`：显式标量及非负乘法保序下的逐点目标、加权有限和。`observation_frame/certificate_migrates`：具体投影与读域覆盖推出单证书迁移。`batch_quality/budget_and_quality`：归纳及终点预算组合。没有机械建立Real实例、三角复形、双重和可加等式或生产资源映射。
+- 有限命令：`python3 docs/research/adaptive_triangulation/checks/check_local_replacements.py --stage att-03 --output docs/research/adaptive_triangulation/data/att_03.json`。
+- [有理实例](data/att_03.json)：3个合法局部替换、6个排列、5个质量边界；逻辑键状态与确定边邻接相同，9面→9面，Ψ25/4→3/8。3个排列中间11面不能按9面预算逐步可见发布。
+- 新检查体0.008663235秒，RSS22,159,360字节；只计当前夹具体，启动/导入不计。它扩展了检查内容，不能与ATT-01的0.0026秒当成同任务性能回归。旧ATT-01结果保留其历史源码指纹，本次未重跑/覆写。
+- 质量损失是固定参数点的非几何属性平方残差。屏幕/高度实例为条件映射；未知视图、连续曲面和非局部遮挡未证明。
+
+出口：**有条件的一般资源约束局部三角化事务模型成立；Major闭环。** 核心安全不依赖ROAM；任意几何/损失的局部性、通用greedy求解器、生产符合性、性能与新颖性未通过或未研究，不能合并成无类型PASS。

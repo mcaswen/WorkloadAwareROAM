@@ -1,4 +1,4 @@
-import StateTransactions
+import QualityComposition
 
 namespace AdaptiveTransactions
 attribute [local instance] Classical.propDecidable
@@ -131,6 +131,44 @@ theorem actual_count_nonnegative {K V} (keys : List K) (s : State K V) :
     have hk := hm k
     omega
 
+theorem batch_quality {I K V Q A} (s : QualityContract.Scalar A) (w : Weighting s)
+    (o : Observation K V Q A) (points : List Q) (weight target : Q → A)
+    (family : I → Transaction K V) (xs : List I) (seed : State K V)
+    (positive : ∀ q ∈ points, s.le s.zero (weight q))
+    (independent : IndependentBatch family xs)
+    (locality : ∀ i ∈ xs, ObservationLocal o points (family i))
+    (certificates : ∀ i ∈ xs, Certified s o points target (family i) seed) :
+    s.le (potential s w points weight target (loss o (run family xs seed)))
+         (potential s w points weight target (loss o seed)) := by
+  induction xs generalizing seed with
+  | nil => exact s.refl _
+  | cons i rest ih =>
+    have hc : ∀ j ∈ rest, Certified s o points target (family j) (apply (family i) seed) := by
+      intro j hj
+      exact certificate_migrates s o points target (family j) (family i) seed
+        (independent_symm (independent.1 j hj))
+        (locality j (by simp [hj])) (certificates j (by simp [hj]))
+    have ht := ih (apply (family i) seed) independent.2
+      (fun j hj => locality j (by simp [hj])) hc
+    have hi := weighted_nonincrease s w points weight target (loss o seed)
+      (loss o (apply (family i) seed)) positive (certificates i (by simp))
+    exact s.trans ht hi
+
+/- 组合机械核心；局部几何和生产映射仍由实例提供，未伪装成Lean几何定理。 -/
+theorem budget_and_quality {I K V Q A} (s : QualityContract.Scalar A) (w : Weighting s)
+    (o : Observation K V Q A) (points : List Q) (weight target : Q → A)
+    (keys : List K) (family : I → Transaction K V) (xs : List I) (seed : State K V)
+    (budget : Int) (positive : ∀ q ∈ points, s.le s.zero (weight q))
+    (independent : IndependentBatch family xs)
+    (locality : ∀ i ∈ xs, ObservationLocal o points (family i))
+    (certificates : ∀ i ∈ xs, Certified s o points target (family i) seed)
+    (fits : faceCount keys seed + frozenNet keys family seed xs ≤ budget) :
+    faceCount keys (run family xs seed) ≤ budget ∧
+    s.le (potential s w points weight target (loss o (run family xs seed)))
+         (potential s w points weight target (loss o seed)) :=
+  ⟨endpoint_budget keys family xs independent seed budget fits,
+   batch_quality s w o points weight target family xs seed positive independent locality certificates⟩
+
 #print axioms run_permutation
 #print axioms enabled_after_prefix
 #print axioms count_run_frozen
@@ -141,4 +179,6 @@ theorem actual_count_nonnegative {K V} (keys : List K) (s : State K V) :
 #print axioms final_fits_but_prefix_and_subset_do_not
 #print axioms replace_delta_zero
 #print axioms actual_count_nonnegative
+#print axioms batch_quality
+#print axioms budget_and_quality
 end AdaptiveTransactions

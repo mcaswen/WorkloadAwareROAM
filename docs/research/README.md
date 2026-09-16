@@ -1,6 +1,6 @@
 # CPU ROAM 研究探索状态
 
-**一般模型（2026-09-17）：[资源约束自适应三角化事务](adaptive_triangulation/README.md)及[独立理论大规划](../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)。** 用户已授权逐阶段自主闭环和提交；ATT-01条件拼接/8正4反实例、ATT-02资源/预算Lean核心完成，见[验证账本](adaptive_triangulation/verification.md)。不改当前生产或QPC结论，不将模型一般性当作算法新颖性。
+**一般模型（2026-09-17）：[资源约束自适应三角化事务](adaptive_triangulation/README.md)及[独立理论大规划](../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)。** ATT-01～03闭环，[最终报告](adaptive_triangulation/generalization_results.md)确认条件安全组合模型可脱离ROAM；几何纸面、3个Lean源、有限实例及反例见[验证账本](adaptive_triangulation/verification.md)。不改当前生产或QPC结论，不将模型一般性当作算法新颖性。
 
 **算法推导统一入口（2026-09-17）：[推导索引与全部Lean文件](derivations/README.md)、[Markdown数学推导总览](derivations/mathematical_derivations.md)。** 当前QPC-04E的[质量契约推导](cpu_refinement/quality_contract_derivation.md)已完成纸面过程、抽象机械检查和原批次只读审计，见[结果](cpu_refinement/qpc_04e_quality_contract_results.md)。三组参数保留有限机会，持续政策未接入。下文保留各历史日期的探索状态，不把旧阶段通过解释为当前持续质量或性能已通过。
 

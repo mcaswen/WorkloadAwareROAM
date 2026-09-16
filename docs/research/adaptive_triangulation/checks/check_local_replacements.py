@@ -156,12 +156,159 @@ def run():
             "scope": "有限组合与精确局部几何；不是一般几何或Lean证明"}
 
 
+def attribute_at(points, faces, attributes, query):
+    """固定参数点的分片线性属性；共享边上的插值必须一致。"""
+    values = []
+    for face in faces:
+        a, b, c = (points[v] for v in face)
+        area = orient(a, b, c)
+        weights = (orient(query, b, c) / area, orient(a, query, c) / area,
+                   orient(a, b, query) / area)
+        if all(weight >= 0 for weight in weights):
+            values.append(sum(weight * attributes[v] for weight, v in zip(weights, face)))
+    assert values and all(value == values[0] for value in values)
+    return values[0]
+
+
+def run_batch():
+    """三块分离补丁的实际键值更新，不用声明净额替代真实面数。"""
+    square = {i: tuple(map(F, p)) for i, p in enumerate([(0, 0), (2, 0), (2, 2), (0, 2), (1, 1)])}
+    pentagon = {i: tuple(map(F, p)) for i, p in enumerate([(0, 0), (3, 0), (4, 2), (2, 4), (0, 3), (2, 2)])}
+    coarse = [(0, 1, 2), (0, 2, 3)]
+    split = [(0, 1, 4), (1, 2, 4), (0, 4, 3), (4, 2, 3)]
+    flipped = [(0, 1, 3), (1, 2, 3)]
+    fan = [(i, (i + 1) % 5, 5) for i in range(5)]
+    removed = [(0, 1, 2), (0, 2, 3), (0, 3, 4)]
+    fixtures = [
+        ("split", square, coarse, split, {0: F(1), 1: F(1), 2: F(1), 3: F(1), 4: F(0)}, 2),
+        ("flip", square, coarse, flipped, {0: F(1), 1: F(0), 2: F(1), 3: F(0)}, 0),
+        ("remove", pentagon, fan, removed, {i: F(i == 5) for i in range(6)}, -2),
+    ]
+    state = {}
+    transactions = []
+    records = []
+    observations = []
+    for index, (name, local, old, new, attributes, delta) in enumerate(fixtures):
+        points = {v: (xy[0] + 10 * index, xy[1]) for v, xy in local.items()}
+        records.append(replacement(name, points, old, new, delta))
+        before = {}
+        after = {}
+        for label, faces, destination in (("old", old, before), ("new", new, after)):
+            for face_index, face in enumerate(faces):
+                destination[(index, "face", label, face_index)] = face
+            for vertex in active_points(points, faces):
+                destination[(index, "vertex", vertex)] = (*points[vertex], attributes[vertex])
+        state.update(before)
+        writes = {key for key in before.keys() | after.keys() if before.get(key) != after.get(key)}
+        # 包含创建缺席检查和全部旧几何/属性；固定分区使远处面无关。
+        reads = set(before) | set(after)
+        transactions.append({"name": name, "reads": reads, "writes": writes,
+                             "before": before, "after": after})
+        queries = [(F(1), F(1)), (F(1), F(1, 2)), (F(1, 2), F(1))]
+        if name == "remove":
+            queries = [(F(2), F(2)), (F(2), F(1)), (F(1), F(1))]
+        for q, weight, target in zip(queries, [F(1), F(2), F(0)], [F(0), F(1, 16), F(1, 4)]):
+            observations.append((index, (q[0] + 10 * index, q[1]), weight, target))
+
+    def apply_transaction(current, transaction):
+        assert all(current.get(key) == transaction["before"].get(key) for key in transaction["reads"])
+        result = dict(current)
+        for key in transaction["writes"]:
+            if key in transaction["after"]:
+                result[key] = transaction["after"][key]
+            else:
+                result.pop(key, None)
+        return result
+
+    def losses(current):
+        result = []
+        for index, query, _, _ in observations:
+            faces = [value for key, value in current.items() if key[:2] == (index, "face")]
+            vertices = {key[2]: value for key, value in current.items() if key[:2] == (index, "vertex")}
+            value = attribute_at({v: record[:2] for v, record in vertices.items()}, faces,
+                                 {v: record[2] for v, record in vertices.items()}, query)
+            result.append(value * value)  # 固定独立参考属性为0；不是地形高度。
+        return result
+
+    def potential(values):
+        return sum(weight * max(value - target, F(0))
+                   for value, (_, _, weight, target) in zip(values, observations))
+
+    def count(current):
+        return sum(key[1] == "face" for key in current)
+
+    def adjacency(current):
+        result = {}
+        for index in range(3):
+            faces = [value for key, value in sorted(current.items()) if key[:2] == (index, "face")]
+            check_links(faces)
+            result[index] = edge_map(faces)
+        return result
+
+    for a, b in itertools.combinations(transactions, 2):
+        assert not a["writes"] & (b["reads"] | b["writes"])
+        assert not b["writes"] & (a["reads"] | a["writes"])
+    old_losses = losses(state)
+    old_potential = potential(old_losses)
+    single = []
+    for transaction in transactions:
+        updated = apply_transaction(state, transaction)
+        values = losses(updated)
+        assert all(value <= max(old, observation[3]) for value, old, observation in zip(values, old_losses, observations))
+        single.append({"name": transaction["name"], "delta": count(updated) - count(state),
+                       "losses": list(map(str, values)), "gain": str(old_potential - potential(values)),
+                       "reads": sorted(map(str, transaction["reads"])),
+                       "writes": sorted(map(str, transaction["writes"]))})
+    permutations = []
+    final_reference = None
+    for order in itertools.permutations(range(3)):
+        current = state
+        counts = [count(current)]
+        for index in order:
+            current = apply_transaction(current, transactions[index])
+            counts.append(count(current))
+        if final_reference is None:
+            final_reference = current
+        assert current == final_reference
+        assert adjacency(current) == adjacency(final_reference)
+        assert count(current) == count(state) == 9
+        gain = old_potential - potential(losses(current))
+        assert gain == sum(F(item["gain"]) for item in single)
+        permutations.append({"order": order, "counts": counts, "peak": max(counts),
+                             "final_potential": str(potential(losses(current))), "gain": str(gain)})
+
+    # 质量反例以独立精确算术核对，避免把依赖遗漏误称为一般定理失败。
+    coupled = lambda x, y: (x + y - F(3, 4)) ** 2
+    assert coupled(1, 0) < coupled(0, 0) and coupled(0, 1) < coupled(0, 0) < coupled(1, 1)
+    assert -F(1) * 1 > -F(1) * 4  # 负权重破坏势不增。
+    assert F(0) * 100 == 0  # 零权重不证明观察点达标。
+    # 同一超标值由两个幂等清零器修复：最终降1，而单项收益之和为2。
+    assert (1 - 0) < (1 - 0) + (1 - 0)
+    # 环境改变：旧目标1下损失1达标；新目标0下势增至1，几何完全未改。
+    assert max(F(1) - 1, 0) < max(F(1) - 0, 0)
+    negative = [
+        {"name": "coupled_loss_missing_reads", "old": "9/16", "each": "1/16", "together": "25/16"},
+        {"name": "negative_weight", "old_potential": "-4", "next_potential": "-1"},
+        {"name": "zero_weight_masks_violation", "loss": "100", "potential": "0"},
+        {"name": "shared_improvement_double_count", "batch_gain": "1", "sum_single_gains": "2"},
+        {"name": "changed_environment", "old_potential": "0", "new_potential": "1"},
+    ]
+    return {"positive": records, "negative": negative, "single_transactions": single,
+            "observations": [{"patch": i, "q": list(map(str, q)), "weight": str(w), "target": str(t),
+                              "reference_attribute": "0"} for i, q, w, t in observations],
+            "old_losses": list(map(str, old_losses)), "old_potential": str(old_potential),
+            "final_losses": list(map(str, losses(final_reference))), "permutations": permutations,
+            "scope": "三个独立圆盘组件；有理属性插值损失；不是一般几何或生产并发证明"}
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--stage", choices=("att-01", "att-03"), default="att-01")
     args = parser.parse_args()
     start = time.perf_counter()
-    result = run()
+    result = run() if args.stage == "att-01" else run_batch()
+    result["stage"] = args.stage
     result["seconds"] = time.perf_counter() - start
     result["peak_rss_bytes"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
     result["sources"] = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()

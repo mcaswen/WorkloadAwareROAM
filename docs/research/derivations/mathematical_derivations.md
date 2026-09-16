@@ -505,9 +505,9 @@ $$
 
 新增阶段继续补“前提→中间推导→反例→运行时义务→成本”，保持与[总目录](README.md)和具体小规划互链。不要只向本页追加没有来源和状态的漂亮公式。
 
-## 14. 一般资源约束三角化事务：立项边界
+## 14. 一般资源约束三角化事务：条件总模型
 
-**状态：ATT-01条件拼接/有限实例、ATT-02资源/预算Lean核心完成；质量待ATT-03。** 原文与中间步骤见[模型推导](../adaptive_triangulation/model_derivation.md)、[操作嵌入](../adaptive_triangulation/operation_embeddings.md)，范围见[大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)。
+**状态：ATT-01～03完成，条件一般模型成立。** 原文与中间步骤见[模型推导](../adaptive_triangulation/model_derivation.md)、[操作嵌入](../adaptive_triangulation/operation_embeddings.md)，范围见[最终结果](../adaptive_triangulation/generalization_results.md)。几何、可加性为纸面；资源/观察质量/预算为Lean核心；生产对应未证。
 
 给定局部替换 $K_i\to K_i'$，实际面数差 $\delta_i\in\mathbb Z$，完整资源集 $R_i,W_i$，证书 $\mathcal C_i$ 和优先级 $P_i$。这里需要先区分完整补丁边界和连接未修改网格的接口 I：
 
@@ -542,6 +542,23 @@ $$
 w_q[\ell(M',q)-\tau_q]_+\le w_q[\ell(M,q)-\tau_q]_+.
 $$
 
-逐项相加可得加权超标势不增。这是QC代数的候选扩展；非负损失不自动局部，批次还需证书迁移或独占损失变化支持。例如两个字段分别从0改1，损失 $(x+y-3/4)^2$ 单独从 $9/16$ 降至 $1/16$，合并却升至 $25/16$；补全证书读集后应发现冲突。
+逐项相加可得加权超标势不增，已由`weighted_nonincrease`检查显式代数核心。非负损失不自动局部，批次还需证书迁移。例如两个字段分别从0改1，损失 $(x+y-3/4)^2$ 单独从 $9/16$ 降至 $1/16$，合并却升至 $25/16$；补全证书读集后应发现冲突。
 
-因此新方向需分别建立：局部几何可拼接、实际更新读写完备、整数记账、一般损失支持、质量组合和确定续接。安全结论可能完全不使用 P，不能据此声称已得到贪心最优性、恢复时限或新的高性能一般求解器。
+为此定义固定观察域 $O_q$，$\ell(\sigma,q)=f_q(\sigma|_{O_q})$。若每个事务/观察满足：
+
+$$
+W_i\cap O_q=\varnothing\quad\text{或}\quad O_q\subseteq R_i,
+$$
+
+则未受影响点由frame保持，受影响点的完整观察读被资源独立保护；交换更新顺序后也保持新值预测。`certificate_migrates`据此迁移单快照证书，`batch_quality`归纳得到批次势不增，`budget_and_quality`合并预算。不采用“批次本来就通过”这个循环前提。
+
+更强的独占实际变化支持下，按q分区得到：
+
+$$
+\Psi(M)-\Psi(M_{\mathcal B})
+=\sum_i\bigl(\Psi(M)-\Psi(T_iM)\bigr).
+$$
+
+该可加等式为纸面证明及精确有理见证，没有标成Lean已证。split(+2)、flip(0)、删点(−2)的非高度属性例六种排列均有9面→9面、Ψ25/4→3/8，带身份状态相同；其中三个前缀曾到11面，说明顺序独立不自动保证中间预算。
+
+总条件链已建立：局部几何拼接＋实际资源完备＋真实净额预算＋证书迁移＋确定续接，推出声明几何类合法、预算与势不增、最终逻辑顺序独立。安全结论不使用P；当前生产最大值接受尚不满足逐点政策，不能据此声称贪心最优性、持续质量修复、恢复时限或高性能一般求解器。

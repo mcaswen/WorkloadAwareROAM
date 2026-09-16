@@ -1,6 +1,6 @@
 # 资源约束自适应三角化事务：理论研究入口
 
-日期：2026-09-17。状态：**用户授权逐阶段自主闭环；ATT-01/02完成，ATT-03待执行**。对应[大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)、[推导与反例](model_derivation.md)和[验证账本](verification.md)。本模块不改生产算法，也不替代 QPC 的持续质量调查。
+日期：2026-09-17。状态：**ATT-01～03已按授权自主闭环，条件一般模型成立**。先读[最终结论与范围表](generalization_results.md)，过程见[大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md)、[推导与反例](model_derivation.md)和[验证账本](verification.md)。本模块不改生产算法，也不替代 QPC 的持续质量调查。
 
 ## 1. 对建议的判断
 
@@ -36,10 +36,11 @@
 
 | 文件或目录 | 职责与状态 |
 |---|---|
-| [model_derivation.md](model_derivation.md) | 定义、初步判断、中间推导、失败尝试和后续证明义务；已创建，不是完成的总定理 |
-| [大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md) | 阶段、文件归属、形式化边界与验收条件；已创建 |
+| [model_derivation.md](model_derivation.md) | 第1～8节保留初始判断；第9～12节记录实际证明、失败尝试和条件总定理 |
+| [generalization_results.md](generalization_results.md) | 最终边界表、生产对应、成本和精确结项范围 |
+| [大规划](../../plans/adaptive_triangulation/resource_constrained_transaction_theory_plan.md) | 三阶段均已规划、实现、审查和闭环 |
 | [operation_embeddings.md](operation_embeddings.md) | 各类原语的显式实例、支持和前提；ATT-01已完成 |
-| `formal/` | ATT-02已完成资源更新和预算两个Lean模块；加权质量待ATT-03 |
+| `formal/` | 3个Lean源：资源更新、观察/加权质量、批次预算与质量；不含几何/Real库 |
 | [verification.md](verification.md) | 纸面、机械、有限几何证据与最后边界表；按阶段追加 |
 
 复用[QPC-04E 推导](../cpu_refinement/quality_contract_derivation.md)中的标量命题与[批次组合记录](../cpu_refinement/transaction_batch_derivation.md)，但不移动、覆写或追认它们为新模型的完整证明。历史 ROAM 端点修复不作为本模块的基础定理。
@@ -57,10 +58,12 @@ Reynolds 的分离逻辑已有根据受影响存储进行局部推理的框架�
 | 项目 | 状态 |
 |---|---|
 | 一般化问题值得验证 | 是，有具体可检验的前提缺口 |
-| 初步代数与反例 | 已记录纸面过程 |
+| 代数与反例 | 纸面过程、有限数值及明确反例已记录 |
 | 非 ROAM 操作嵌入、几何对应 | ATT-01条件式证明与8正/4反有限检查完成 |
 | 资源组合与预算的机械检查 | ATT-02完成；真实映射/完整资源集仍为实例义务 |
-| 一般质量组合、总定理和边界裁决 | 待 ATT-03 |
+| 一般质量组合、总定理和边界裁决 | ATT-03完成；条件组合成立，任意几何/损失局部性不成立 |
 | 生产接入、性能提升、持续恢复 | 不在本轮范围，没有新增结论 |
 
 用户已另行授权本大规划自主闭环、每阶段单独提交。每完成一个小阶段先回填证明与反例、核查及审查，提交后再进入下一阶段；不越过失败边界扩大范围。
+
+Major已经结束。当前成果可用作ROAM-free的条件正确性骨架；不自动产生通用greedy算法、低成本发现器、生产质量修复或论文创新主张。
