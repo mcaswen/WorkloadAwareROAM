@@ -1,0 +1,18 @@
+{
+  "source": {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/docs/research/cpu_refinement/formal/quality_contract/QualityContract.lean",
+    "bytes": 6723,
+    "sha256": "06907e060a57de3eb1822d591a969a21fad147ce3e476d236c85950398d51eb0"
+  },
+  "binary": {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/tools/downloads/lean/lean-4.8.0-windows/bin/lean.exe",
+    "bytes": 84480,
+    "sha256": "7161ea29daf09926c0b636c4e0dd96881b5df5a2570269150b9ffc764fdba2aa"
+  },
+  "toolchain": "leanprover/lean4:v4.8.0",
+  "command": "tools/downloads/lean/lean-4.8.0-windows/bin/lean.exe docs/research/cpu_refinement/formal/quality_contract/QualityContract.lean",
+  "exitCode": 0,
+  "output": "'QualityContract.Scalar.pointwise_iff_excess' depends on axioms: [propext, Classical.choice, Quot.sound]\n'QualityContract.Scalar.sequence_envelope' depends on axioms: [Classical.choice, propext, Quot.sound]\n'QualityContract.Scalar.potential_nonincrease' depends on axioms: [propext, Quot.sound, Classical.choice]\n'QualityContract.Scalar.potential_zero_iff' depends on axioms: [propext, Quot.sound, Classical.choice]\n'QualityContract.Scalar.common_maximum_bound' depends on axioms: [Classical.choice, propext, Quot.sound]\n",
+  "theorems": 15,
+  "model": "Abstract Scalar with explicit total-order, monotone addition and order-preserving subtraction laws; no concrete Rat/Real instance or C++ mapping formalized"
+}

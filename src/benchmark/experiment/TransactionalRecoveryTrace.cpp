@@ -6,6 +6,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalStateInvariant.h"
 #include "experiment/greedy_transactional_lod/TransactionalQualityProvenance.h"
 #include "experiment/greedy_transactional_lod/TransactionalBoundaryAudit.h"
+#include "experiment/greedy_transactional_lod/TransactionalExchangeQualityAudit.h"
 #include "experiment/mesh_quality/PlatformMeshArtifact.h"
 #include "tools/CpuTaskExecutor.h"
 
@@ -164,10 +165,11 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
     {
         const bool boundaryAudit = argc == 6 && std::string_view(argv[5]) == "--boundary-audit";
         const bool selectedPriorities = argc == 7 && std::string_view(argv[5]) == "--priority-frames";
+        const bool exchangeQuality = argc == 7 && std::string_view(argv[5]) == "--exchange-quality-frames";
         const bool priorityAudit = selectedPriorities || (argc == 6 && std::string_view(argv[5]) == "--priority-audit");
-        if (argc != 5 && !boundaryAudit && !priorityAudit)
+        if (argc != 5 && !boundaryAudit && !priorityAudit && !exchangeQuality)
         {
-            throw std::runtime_error("用法: --recovery-trace RESOLVED WITNESSES OUTPUT [--boundary-audit|--priority-audit|--priority-frames I,J]");
+            throw std::runtime_error("用法: --recovery-trace RESOLVED WITNESSES OUTPUT [--boundary-audit|--priority-audit|--priority-frames I,J|--exchange-quality-frames I,J]");
         }
         const auto input = LoadReplayInput(argv[2]);
         const auto& settings = input.Settings;
@@ -178,7 +180,7 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         }
         const auto groups = ReadWitnesses(argv[3], input.Cameras.size());
         std::set<std::size_t> priorityFrames;
-        if (selectedPriorities)
+        if (selectedPriorities || exchangeQuality)
         {
             // 全根快照显式限为两帧，避免诊断意外扩成逐帧全量记录
             std::istringstream list(argv[6]);
@@ -295,6 +297,12 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
                 }
             }
             const auto batch = TransactionalReservation::Plan(pipeline.State(), pipeline.Samples(), work, execution);
+            if (exchangeQuality && priorityFrames.contains(frame))
+            {
+                // 批次仍按原顺序发布；审计器不能筛选或改变任何生产提案
+                ParallelRoam::Experiment::GreedyTransactionalLod::TransactionalExchangeQualityAudit::Capture(
+                    pipeline.State(), pipeline.Samples(), batch, frame, output);
+            }
             for (const auto& audit : audits)
             {
                 audit->Before(frame, pipeline.State(), pipeline.Samples(), batch);

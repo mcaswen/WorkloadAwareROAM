@@ -39,6 +39,11 @@ if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
     target_link_libraries(parallel_roam_transactional_boundary_audit_tests PRIVATE
         parallel_roam_transactional_lod_core parallel_roam_project_warnings)
     add_test(NAME transactional_boundary_audit COMMAND parallel_roam_transactional_boundary_audit_tests)
+    add_executable(parallel_roam_transactional_exchange_quality_tests TransactionalExchangeQualityAuditTests.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalExchangeQualityAudit.cpp)
+    target_link_libraries(parallel_roam_transactional_exchange_quality_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_project_warnings)
+    add_test(NAME transactional_exchange_quality COMMAND parallel_roam_transactional_exchange_quality_tests)
     if(MSVC)
         set_source_files_properties(../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp
             ../src/experiment/greedy_transactional_lod/TransactionalRecoveryAudit.cpp
@@ -665,6 +670,7 @@ if(TARGET parallel_roam_experiment_infrastructure AND TARGET parallel_roam_trans
         ../src/benchmark/experiment/ExperimentReplay.cpp
         ../src/benchmark/experiment/ExperimentCpuReplay.cpp
         ../src/benchmark/experiment/TransactionalRecoveryTrace.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalExchangeQualityAudit.cpp
         ../src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.cpp
         ../src/experiment/greedy_transactional_lod/TransactionalQualityProvenance.cpp
         ../src/tools/profiling/ProfileSession.cpp

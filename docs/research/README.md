@@ -1,5 +1,7 @@
 # CPU ROAM 研究探索状态
 
+**算法推导统一入口（2026-09-17）：[推导索引与全部Lean文件](derivations/README.md)、[Markdown数学推导总览](derivations/mathematical_derivations.md)。** 当前QPC-04E的[质量契约推导](cpu_refinement/quality_contract_derivation.md)已完成纸面过程、抽象机械检查和原批次只读审计，见[结果](cpu_refinement/qpc_04e_quality_contract_results.md)。三组参数保留有限机会，持续政策未接入。下文保留各历史日期的探索状态，不把旧阶段通过解释为当前持续质量或性能已通过。
+
 2026-09-16：[FER-01首轮正式实验](experiment_infrastructure/fer_01_results.md)已完成。复用EIP冻结4种地形、6组输入和20配置，采集60个独立计时进程、18组实际视觉回放和72个质量点；[数表及19组图像](experiment_infrastructure/fer_01_appendix.md)保留全部反例。同任务1→8线程约3.22×/4.44×，但Peking转向与峡谷质量、200k预留成本仍未满足竞争目标。实验完成不改变下列历史阶段各自的证明边界。
 
 > 更新日期：2026-09-14；依据：保留此前探索状态，MPR-03 已提交为 `602ed48`，原生接入规划为 `c2cd2d8`。NMP-01 实施与验收已提交 `2f04f48`，见[阶段审查](../reviews/roam_parallelism/native_materialization_01_review.md)。NMP-01P 压力性能未达门槛，契约审计后暂停扩展局部性能修改；候选出生及后续推导已提交为 `2d8809f`，未进入 NMP-02。当前另探索独立 greedy 候选，不修改主线定义。

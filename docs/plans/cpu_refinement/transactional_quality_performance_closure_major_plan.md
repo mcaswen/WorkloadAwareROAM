@@ -160,7 +160,7 @@ structural failure可以与view-dependent failure有不同生命周期，但不�
 | QPC-01 质量来源与恢复阻塞 | [小规划](qpc_01_quality_recovery_audit_plan.md) | 诊断完成，用户认可；未修复质量 |
 | QPC-02 CBT质量有效性 | `docs/plans/cbt_2024/qpc_02_quality_validity_plan.md` | 未开始，独立审计 |
 | QPC-03 CPU参考与计时边界 | `docs/plans/profiling/qpc_03_cpu_baseline_audit_plan.md` | 未开始，独立审计 |
-| QPC-04 有限质量修复与契约冻结 | [04A外边界可行性](qpc_04a_boundary_feasibility_plan.md)、[04B生产接入](qpc_04b_boundary_integration_plan.md)、[04C误差目标排查](qpc_04c_quality_target_audit_plan.md)、[04D误差优先对照](qpc_04d_error_first_ordering_plan.md) | 04B质量混合、默认关闭；04C已获认可；04D有限实验完成，质量混合、成本增加，待验收 |
+| QPC-04 有限质量修复与契约冻结 | [04A外边界可行性](qpc_04a_boundary_feasibility_plan.md)、[04B生产接入](qpc_04b_boundary_integration_plan.md)、[04C误差目标排查](qpc_04c_quality_target_audit_plan.md)、[04D误差优先对照](qpc_04d_error_first_ordering_plan.md)、[04E质量契约优化](qpc_04e_quality_contract_optimization_plan.md) | 04B/04D质量混合、默认不变；04E抽象证明与只读审计完成、保留机会有条件通过，待用户验收；持续政策未接入 |
 | QPC-05 预留工作削减与规模因素 | `docs/plans/cpu_refinement/qpc_05_reservation_scaling_plan.md` | 条件阶段，依赖04的政策/工作负载冻结 |
 | QPC-06 无事务帧与发现成本 | `docs/plans/cpu_refinement/qpc_06_sparse_update_cost_plan.md` | 条件阶段，依赖01/04/05 |
 | QPC-07 视觉属性归因 | `docs/plans/cpu_refinement/qpc_07_visual_attribute_audit_plan.md` | 未开始，独立审计 |
@@ -222,6 +222,12 @@ structural failure可以与view-dependent failure有不同生命周期，但不�
 **04C结果。** [五方向报告](../../research/cpu_refinement/qpc_04c_quality_target_results.md)已完成：运行时与独立评价约三分之一采样位置不同；Peking15/Sierra48存在密度前缀挤占，Sierra95则未触发；Canyon真实B在降低局部最大值时使一个当前可见点0.071697→3.116943px。质量差异不能再统一归因于前缀、Fit或恢复轮数。报告提出独立绝对E*与失败出口，并仅建议同一候选集合内误差优先的有限策略A/B；尚未实现，且它不能解决所有触发/接受/采样义务。诊断完成不提升生产质量状态，下一阶段仍须用户验收后单独规划。
 
 **04D实施。** 用户确认后，仅将实验政策的接收键改为`(-E²,稳定身份,槽位)`，资格/P数组/捐赠排序不变，复用块索引。冻结Peking50k、Sierra50k、Canyon50k三组持续对照已经完成，Peking/Canyon两臂B原语开启，Sierra关闭；原B关闭与DOD质量仍保留。Peking/Sierra相对原排序有有限质量改善；Canyon返回Emax从2.3482增到2.7839px，整体标混合。新政策实际认证/配对/续接增加，暖CPU约为原策略2.0–3.2倍；默认同任务路径未观察到明显工程回归。详见[结果](../../research/cpu_refinement/qpc_04d_error_first_results.md)，默认不变，等待用户验收。
+
+**04D原因补充与04E规划，2026-09-17。** 用户要求结合源码、算法和数据解释现象，后又要求据此审视算法结构。补充已定位Canyon返回新最大点的不可见删点及后续资格门槛，并区分Peking预留和Sierra认证/续接的工作增长；相关分析已按用户授权提交为`54fa2b2`。有限质量结论与用户视觉验收状态不因此提升。
+
+用户先要求提交分析并写算法优化小规划，随后要求加入形式推导、整理总目录并开始该文档工作。[QPC-04E](qpc_04e_quality_contract_optimization_plan.md)先验证显式目标、可见/持久损伤约束和独立证据组合；固定原状态与原批准批次，只读审计保留及费用，不修改生产默认或启动持续分叉。现已有[QC-01～09纸面推导](../../research/cpu_refinement/quality_contract_derivation.md)及[总目录](../../research/derivations/README.md)，机械检查、审计工具和自然验证仍待实施。它是QPC-04内的契约准入，不代替质量实测，不提前执行QPC-05资源索引；阶段出口仍交用户验收。
+
+**04E实施，2026-09-17。** 用户确认继续后完成[结果](../../research/cpu_refinement/qpc_04e_quality_contract_results.md)：Lean抽象核心、四轨迹71个原交换独立审计、闭支持核对和六参数表。两坏例六组均拒，三组保留非平凡正进展；Canyon原批全拒和请求资格缺口保留。312机会原结果/公开工作不变，默认性能未发现可复现回归。当前04E待用户验收，不接入生产、不自动进入QPC-05。
 
 ### QPC-05：预留工作削减与规模因素
 

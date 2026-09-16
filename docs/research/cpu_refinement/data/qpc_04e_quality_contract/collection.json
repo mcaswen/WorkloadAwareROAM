@@ -1,0 +1,65 @@
+{
+  "seconds": 65.24557831699997,
+  "normalSameFrames": 24,
+  "cases": {
+    "peking": {
+      "status": "ok",
+      "sameFrames": 24,
+      "captureFiles": [
+        {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04e/run-01/peking/exchange-quality-15.json",
+          "bytes": 1035202,
+          "sha256": "f6322eb0ed232f2584b416a5fd3e45e98323973fd233c621cb036a0f019b08ac"
+        },
+        {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04e/run-01/peking/exchange-quality-23.json",
+          "bytes": 74389,
+          "sha256": "3c35f224260fce4f5855f2effa0c341141a5155c4774e53e7dc62fbd84641d3f"
+        }
+      ]
+    },
+    "sierra": {
+      "status": "ok",
+      "sameFrames": 96,
+      "captureFiles": [
+        {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04e/run-01/sierra/exchange-quality-48.json",
+          "bytes": 159890,
+          "sha256": "b33377c32527e91afd045830740c35d0954ab085ff0defa16e331a0756d16a18"
+        },
+        {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04e/run-01/sierra/exchange-quality-95.json",
+          "bytes": 670,
+          "sha256": "1273c685f051953a470ea1796932fcd44a54b8dee75812e27907bca178e42435"
+        }
+      ]
+    },
+    "canyon": {
+      "status": "ok",
+      "sameFrames": 96,
+      "captureFiles": [
+        {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04e/run-01/canyon/exchange-quality-24.json",
+          "bytes": 581938,
+          "sha256": "f64b17cd08cc72ede109392020a31191cad90fa4638d4ac51859a6f5a13c79e9"
+        },
+        {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04e/run-01/canyon/exchange-quality-95.json",
+          "bytes": 669,
+          "sha256": "ecab0806eeb703444efd9faaf40ed74c9e4de037ac4edd7701732a7ce229e641"
+        }
+      ]
+    },
+    "canyon-composite": {
+      "status": "ok",
+      "sameFrames": 96,
+      "captureFiles": [
+        {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04e/run-01/canyon-composite/exchange-quality-8.json",
+          "bytes": 231774,
+          "sha256": "ea22919f29bb447852b43fa1122f767ecad4da1e3e82c552ab89e7d5a609b588"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "baseline": {
+    "binary": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04e/run-01/before/parallel_roam_experiment_cpu.exe",
+      "bytes": 1483776,
+      "sha256": "263508923178f2df9a033087715cbf4f2eb0d7124b320025a89dbc288f37ad13"
+    },
+    "resolved": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/peking547-b50000-transactional-t8-B/inputs/resolved.json",
+      "bytes": 1594,
+      "sha256": "d6a7551738b8529bed8fa9fb79726ff2c85cb78cd96677d2ef1c97d777f800b9"
+    }
+  },
+  "cppFixtures": "passed; empty batch, closed support dedup, live state/cache unchanged, sample cap, no overwrite, stale version",
+  "pythonTests": "test_censored_batch_has_no_results (test_exchange_quality.ExchangeQualityTests.test_censored_batch_has_no_results) ... ok\ntest_closed_population_and_missing_export (test_exchange_quality.ExchangeQualityTests.test_closed_population_and_missing_export) ... ok\ntest_exact_sum_enclosure (test_exchange_quality.ExchangeQualityTests.test_exact_sum_enclosure) ... ok\ntest_fixed_height_envelope (test_exchange_quality.ExchangeQualityTests.test_fixed_height_envelope) ... ok\ntest_free_and_shared_interface (test_exchange_quality.ExchangeQualityTests.test_free_and_shared_interface) ... ok\ntest_invisible_donor_still_checked (test_exchange_quality.ExchangeQualityTests.test_invisible_donor_still_checked) ... ok\ntest_missing_coverage_unknown (test_exchange_quality.ExchangeQualityTests.test_missing_coverage_unknown) ... ok\ntest_near_plane_unknown (test_exchange_quality.ExchangeQualityTests.test_near_plane_unknown) ... ok\ntest_pointwise_threshold (test_exchange_quality.ExchangeQualityTests.test_pointwise_threshold) ... ok\ntest_potential_does_not_replace_pointwise (test_exchange_quality.ExchangeQualityTests.test_potential_does_not_replace_pointwise) ... ok\ntest_source_vertex_not_neighbourhood_guarantee (test_exchange_quality.ExchangeQualityTests.test_source_vertex_not_neighbourhood_guarantee) ... ok\ntest_tiny_progress_is_not_silently_accepted (test_exchange_quality.ExchangeQualityTests.test_tiny_progress_is_not_silently_accepted) ... ok\n\n----------------------------------------------------------------------\nRan 12 tests in 0.011s\n\nOK\n",
+  "naturalFramesUnchanged": 312,
+  "normalFramesUnchanged": 24,
+  "repeatFramesUnchanged": 48,
+  "publicFields": [
+    "frame",
+    "hash",
+    "faces",
+    "raw",
+    "examined",
+    "receivers",
+    "need",
+    "feasible",
+    "exchanges",
+    "free",
+    "pairs",
+    "conflicts",
+    "donorReuse",
+    "touches"
+  ],
+  "normalBefore": {
+    "count": 21,
+    "mean": 103.32203819638207,
+    "median": 123.2864990234375,
+    "p95": 200.88380432128906
+  },
+  "normalAfter": {
+    "count": 21,
+    "mean": 118.82636751447406,
+    "median": 129.3883056640625,
+    "p95": 222.20840454101562
+  },
+  "controlledRepeat": {
+    "before": {
+      "count": 21,
+      "mean": 122.44529878525506,
+      "median": 129.89239501953125,
+      "p95": 249.2176055908203
+    },
+    "after": {
+      "count": 21,
+      "mean": 118.87434323628743,
+      "median": 136.26809692382812,
+      "p95": 228.17100524902344
+    }
+  },
+  "peakNativeBytes": 190459904,
+  "analysisChecker": {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/scripts/transactional_exchange_quality.py",
+    "bytes": 12282,
+    "sha256": "6736c3f1a47a05d71ce5466ffc865634ef8bfce30080fb998d697fd092dc926e"
+  },
+  "sources": {
+    "src/experiment/greedy_transactional_lod/TransactionalExchangeQualityAudit.h": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/src/experiment/greedy_transactional_lod/TransactionalExchangeQualityAudit.h",
+      "bytes": 994,
+      "sha256": "a2e34c31326d33d863b39801390a6a0b1961c3bf63bfd1d179602694686ee381"
+    },
+    "src/experiment/greedy_transactional_lod/TransactionalExchangeQualityAudit.cpp": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/src/experiment/greedy_transactional_lod/TransactionalExchangeQualityAudit.cpp",
+      "bytes": 11642,
+      "sha256": "96ec97324c96fb45da7d60361651b7783f48c2665b06915e73e6cc1a96becf78"
+    },
+    "src/benchmark/experiment/TransactionalRecoveryTrace.cpp": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/src/benchmark/experiment/TransactionalRecoveryTrace.cpp",
+      "bytes": 17149,
+      "sha256": "1581368a3bd978bab7975512210fba17f14434c9f73f0833160f2e150a9e57cd"
+    },
+    "tests/TransactionalExchangeQualityAuditTests.cpp": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/tests/TransactionalExchangeQualityAuditTests.cpp",
+      "bytes": 5240,
+      "sha256": "94aae95b1dbc1b038f1feeee3ec7687f0261ed98d7fb315a86226fa86eba4e9b"
+    },
+    "tests/test_exchange_quality.py": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/tests/test_exchange_quality.py",
+      "bytes": 5391,
+      "sha256": "1a009d36bf1dbf6217757d494448d8110a614a818f30a330a8f94b3d273d1306"
+    },
+    "scripts/run_transactional_exchange_quality.py": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/scripts/run_transactional_exchange_quality.py",
+      "bytes": 4656,
+      "sha256": "74a05239352a95bbf7279d1bdfaafd0092ee54ab706efb137584ba9516333e5b"
+    },
+    "scripts/analyze_transactional_exchange_quality.py": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/scripts/analyze_transactional_exchange_quality.py",
+      "bytes": 11079,
+      "sha256": "87ebe012beb08c4aad31edbc65c04032fc131a3170928c77ef470373b3c945bf"
+    }
+  },
+  "failuresRetained": [
+    "CPU-only build initially inherited CBT graphics macro; used existing app/CBT-off test configuration, restored original cache",
+    "First Python Q fixture expected seven points; hand count corrected to eight with full coordinates",
+    "Initial plot environment lacked matplotlib; restored pinned infrastructure dependencies; no natural rerun"
+  ],
+  "visualReview": "Agent inspected local geometry/error figure and retention table; user visual acceptance pending",
+  "finalEvidenceValuesEqualInitial": true,
+  "finalAnalysisSeconds": 8.114048091,
+  "finalEvidenceSeconds": 5.795552190000001,
+  "analysisPeakRssBytes": 76423168
+}
