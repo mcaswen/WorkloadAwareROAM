@@ -5,6 +5,7 @@
 ## 文件与来源
 
 - `summary.json`：输入/程序/参考SHA、逐场景12质量点、六档分布、Dmax、Canyon簇、实际工作、暖/冷成本、六个完整前缀审计和原见证失败链。
+- `cause-analysis.json`：与原性能表完全相同暖窗口的工作/阶段增量、局部重评价派生量，以及Canyon返回新最大点的事后事务来源、恢复资格和源码SHA。它是原因分析补充，不替换`summary.json`的冻结门禁。
 - `collection.json`：有限采集范围、独立质量工具身份、正常/诊断与线程兼容结论。seconds是编排耗时，不是算法帧时间。
 - `tests.json`、`validation.json`：定向用例退出状态及阶段证据边界。
 - `visual-sources.json`：六页图的实际截图、mesh来源与身份。
@@ -32,9 +33,17 @@ python3 scripts/analyze_transactional_receiver_ordering.py report \
 PYTHONPATH=scripts:/home/mcaswen/.cache/roam-experiments/packages \
 python3 scripts/analyze_transactional_receiver_ordering.py visuals \
   --output benchmark-output/cpu-refinement/qpc-04d/run-01
+
+PYTHONPATH=scripts:/home/mcaswen/.cache/roam-experiments/packages \
+python3 scripts/analyze_transactional_receiver_ordering.py explain \
+  --output benchmark-output/cpu-refinement/qpc-04d/run-01
 ```
 
 采集脚本依赖仓库已有FER/QPC历史来源和阶段默认前后基线；它是本阶段的冻结编排，不是可脱离这些输入独立发布的通用benchmark。应先阅读脚本和冻结记录，不用新构建覆盖历史程序身份。
+
+`explain`另外依赖`run-01/cause-followup`：其中`freeze.json`、`commands/canyon-new-maximum.json`保存唯一追加追溯的输入、程序身份和完整参数，`compatibility.json`记录96机会公共输出/工作一致，`canyon-new-maximum/frame-95`保存逐帧见证和事务。追加过程约13.02秒，只观察原B已出现的新最大点，不增加性能重复或调整阈值。Git中的归约包含致因事务及同次receiver、见证时间线和后续覆盖根；完整raw仍在忽略目录。
+
+当前Canyon因果证据是：frame24内部donor删点改变插值，当时可见认证集合为空；frame40重新可见后覆盖根P仍低于4，直到95未入资格。该点的世界位置与独立评价样本一致，不是仅凭最终Emax猜测原因。
 
 ## 解读限制
 

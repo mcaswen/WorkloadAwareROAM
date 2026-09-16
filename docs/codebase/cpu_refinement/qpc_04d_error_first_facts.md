@@ -51,3 +51,17 @@ ErrorFirst: (-E², stableFaceId, slot)
 **FACT**：接收键生成从view_order移到原view_scores内部；完整view_refresh仍包含二者。不能将某一子计时的减少单独解释为算法提速。
 
 **UNCERTAIN**：ErrorFirst对持续质量、饥饿与完整CPU成本没有一般保证。现有运行时/独立采样不一致、低于触发值不发请求、目录形状拒绝、局部最大值接受允许误差转移，以及不可回收边界的生命周期限制均未修复。相应证据必须按独立实验结果表述。
+
+## 5. 原因分析补充：接受、恢复与成本字段
+
+**FACT**：`TransactionalProposals::Donor`把`TransactionalSamples::VisibleSupport`写入提案的`Samples`；该集合是闭补丁支持经当前参考可见性过滤后的去重集合。`TransactionalCertification::Measure`先把`ErrorLower/ErrorUpper`置0，空集合返回成功。`Accepts`先检查目标非负，再以区间上下界比较；误差上界0可直接通过正目标。donor没有receiver的`SetProgressTarget`空样本拒绝。因此“闭补丁有参考样本”并不意味着donor必须有当前可见认证证据。
+
+**FACT**：固定存活点高度不禁止删除内部中心。中心删去后，新连接的插值曲面可以在原中心位置改变高度；这个变化不需要修改任何保留顶点，也不需要执行新点拟合。后续是否请求恢复仍由`ReceiverKey`的复合P资格判断决定，ErrorFirst只改变资格集合内部的顺序。
+
+**FACT**：`TransactionalReservation::Plan`在`Need>0`时对整个共同池派发donor认证；之后顺序处理receiver。每个配对依次检查认证状态、接受目标、内部冲突、中心复用及已预留资源；`Unite`构造联合有序集合，`blocked`逐项比较既有预留事务。`PairChecks`在分支之前增加，因而不是等成本操作单位。`Samples::Prepare`在`Pipeline::Apply`中串行准备局部样本、接口评分和索引修复；它不只修改新面。
+
+**FACT**：`TransactionalRenderBridge::Account`把`SampleTouches`导出为`touches`，把`SampleEvaluations`导出为`evaluations`，把`MeshVertices/MeshIndices`导出为`vertexWrites/indexWrites`。当前`Touch()`调用归属认证模块；它不是样本续接数量。`RepairSamples`没有通过这一公共CSV导出，`indexWrites`也不是候选索引维护次数。
+
+**INFERENCE**：当前`Project`只在全Q换视图与局部`Evaluate`中计入`SampleEvaluations`，暖窗口没有初始化。因此在已核对的本次轨迹上，`Σevaluations−Σ换视图机会q`可恢复局部重评价次数。这个量不等于唯一写入样本数，也不包含全部包围框定位或闭面贡献扫描。
+
+**FACT**：分析脚本新增`explain`模式只读取既有暖帧、源码身份和独立追溯记录；生产模块没有反向依赖。Canyon追加记录匹配原B的96机会输出哈希及公共工作，直接显示frame24删除5928、空可见donor证据及后续P未达4的链路。具体数值见[结果§5/7](../../research/cpu_refinement/qpc_04d_error_first_results.md)和[归约数据](../../research/cpu_refinement/data/qpc_04d_error_first/cause-analysis.json)，不把这一单点来源扩张成全部误差分布的原因。

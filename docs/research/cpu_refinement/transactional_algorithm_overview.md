@@ -2,6 +2,8 @@
 
 > 2026-09-14；对应 GWR 保留实现（GTP-04 基线 `8ef2882`；2026-09-14 完成 GWR-02～04）。[GWR 结果](gwr_final_results.md)记录前后差异与失败候选。本页是算法说明与源码成本推导，不是新规划或完整形式化证明。
 
+**2026-09-17补充：以下主体保留GWR时点，不能当作当前配置表。** 后续已有固定存活高度、净零翻边、可选边界`+1`细分，以及QPC-04D误差优先实验政策；本次自然r/m为160，原固定`+2`预算式已由按实际面数计费取代。当前预算为`N'=N+Σ_free c_i+Σ_paired(c_i−2)`，`c_i∈{1,2}`，净零翻边另计。实现已迁至`src/algorithms/greedy_transactional_lod/`。[04D报告](qpc_04d_error_first_results.md)提供最新同窗口成本和原因；[质量与成本结构重审](transactional_quality_cost_reassessment.md)区分现行算法保证、真实缺口与待讨论的修订方向，不覆盖历史实验结论。
+
 ## 算法到底在做什么
 
 **从当前网格自行决定“哪里增加细节、哪里释放预算”，在同一快照上认证并预留一批局部替换，再构造可继续更新的新状态。** 输入是共形参数域三角网格、实际顶点高度、原始双线性高度场、相机、固定样本集 Q 和预算 B；输出是更新后的拓扑、邻接、样本归属、优先级索引及增量 mesh。
@@ -61,4 +63,4 @@ W_{frame}=\mathbf1_{view\ changed}(W_{refresh}+W_{orders})
 
 Λ 是本帧真实扩容搬移成本，可能涉及旧全数组，不能因“局部事务”省略。各组件先全部准备、后依次发布；表格按职责计费，不表示准备后立即单独发布。有限阶段分块还需派发/同步和账本合并，每个阶段等待最慢分块；**整帧不能直接除以线程数 p**。即使 d、r、m、c 都固定，q、关联量和局部认证样本仍可很大；空批次也已支付发现与认证成本。
 
-当前入口见 [TransactionalPipeline.cpp](../../../src/experiment/greedy_transactional_lod/TransactionalPipeline.cpp)，各函数及容器费用的完整追溯见[函数成本分析 C00～C12](../profiling/fpr_function_cost_analysis.md)。本页核查了实际分支、平方优先值与上述非负 P 的对应、精确分块前缀、惰性目录、局部证据及诊断尾扫描分离。GWR-05 不可见块候选已撤回，当前仍执行全 Q 投影；二维去重坏界与精确算术成本未被消除。
+迁移后的入口见 [TransactionalPipeline.cpp](../../../src/algorithms/greedy_transactional_lod/TransactionalPipeline.cpp)，各函数及容器费用的历史追溯见[函数成本分析 C00～C12](../profiling/fpr_function_cost_analysis.md)。本页核查了当时实际分支、平方优先值与上述非负 P 的对应、精确分块前缀、惰性目录、局部证据及诊断尾扫描分离。GWR-05 不可见块候选已撤回，该版本仍执行全 Q 投影；二维去重坏界与精确算术成本未被消除。

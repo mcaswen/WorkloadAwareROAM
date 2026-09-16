@@ -241,9 +241,81 @@ def visuals(output):
     write(output / "visual-sources.json", {"captures": evidence, "userAcceptance": "pending"})
 
 
+def explain(output):
+    """复用冻结计时窗口，记录工作放大与事后新增最大点的直接来源。"""
+    result = {"scope": "post-hoc explanation; original finite quality gate unchanged", "cases": {}}
+    counters = ("examined", "receivers", "need", "exchanges", "free", "pairs", "conflicts",
+                "donorReuse", "touches", "evaluations", "vertexWrites", "indexWrites")
+    stages = ("viewMs", "receiverMs", "donorMs", "reservationMs", "topologyPrepareMs",
+              "topologyPublishMs", "sampleRepairMs", "meshPrepareMs", "continuationMs")
+    for case in CASES:
+        entry = {}
+        for policy in ("A", "B"):
+            path = output / (case + "-" + policy) / "run/frames.csv"
+            warm = [row for row in rows(path) if row["warmup"] == "0" and row["cold"] == "0"]
+            work = {key: sum(int(row[key]) for row in warm) for key in counters}
+            # 当前 Project 仅由全 Q 换视图和局部 Evaluate 调用，暖窗口没有 Initialize
+            local = [int(row["evaluations"]) - (int(row["samples"]) if float(row["viewMs"]) > 0 else 0)
+                     for row in warm]
+            if min(local) < 0:
+                raise RuntimeError("SampleEvaluations 无法按当前源码拆分")
+            entry[policy] = {
+                "source": identity(path), "warmFrames": len(warm), "work": work,
+                "means": {key: sum(float(row[key]) for row in warm) / len(warm) for key in ("cpuMs", *stages)},
+                "viewFrames": sum(float(row["viewMs"]) > 0 for row in warm),
+                "framesNeedingDonor": sum(int(row["need"]) > 0 for row in warm),
+                "derivedLocalEvaluations": sum(local),
+                "framesWithSampleRepair": sum(float(row["sampleRepairMs"]) > 0 for row in warm),
+                "certifiedPerExamined": work["receivers"] / work["examined"],
+                "pairsPerNeed": work["pairs"] / work["need"] if work["need"] else None,
+                "topCpuFrames": sorted(warm, key=lambda row: float(row["cpuMs"]), reverse=True)[:3],
+            }
+        delta = entry["B"]["means"]["cpuMs"] - entry["A"]["means"]["cpuMs"]
+        entry["deltaCpuMs"] = delta
+        entry["stageDeltaMs"] = {key: entry["B"]["means"][key] - entry["A"]["means"][key] for key in stages}
+        entry["stageShareOfCpuDelta"] = {key: value / delta if delta else None
+                                         for key, value in entry["stageDeltaMs"].items()}
+        entry["workRatios"] = {key: entry["B"]["work"][key] / value if value else None
+                               for key, value in entry["A"]["work"].items()}
+        result["cases"][case] = entry
+
+    followup = output / "cause-followup"
+    trace = followup / "canyon-new-maximum"
+    case = CASES[2]
+    compare(rows(output / (case + "-B/run/frames.csv")), rows(trace / "frames.csv"))
+    directory = trace / "frame-95"
+    transactions = [json.loads(line) for line in (directory / "transactions.jsonl").read_text().splitlines()]
+    changes = [row for row in transactions if any(w["heightBefore"] != w["heightAfter"] for w in row["witnesses"])]
+    events = {(row["frame"], row["exchange"]) for row in changes}
+    roots = [json.loads(line) for line in (directory / "roots.jsonl").read_text().splitlines()]
+    witness = rows(directory / "witnesses.csv")
+    first_change = min(row["frame"] for row in changes)
+    later_roots = [row for row in roots if row["phase"] == "before" and row["frame"] > first_change]
+    result["canyonNewMaximum"] = {
+        "freeze": read(followup / "freeze.json"), "compatibility": read(followup / "compatibility.json"),
+        "sources": {name: identity(directory / name) for name in
+                    ("transactions.jsonl", "roots.jsonl", "witnesses.csv", "recovery.jsonl")},
+        "changedTransactions": changes,
+        "exchangePartners": [row for row in transactions if (row["frame"], row["exchange"]) in events],
+        "firstVisibleAfterChange": next(row for row in witness if row["phase"] == "after"
+                                        and int(row["frame"]) > first_change and row["visible"] == "1"),
+        "maxPostChangePriority": max(row["priority"] for row in later_roots),
+        "postChangeRanks": sorted({row["rank"] for row in later_roots}),
+        "timeline": [row for row in witness if row["phase"] == "seed" or row["phase"] == "after"],
+        "roots": later_roots,
+    }
+    source_names = ("TransactionalSamples.cpp", "TransactionalReservation.cpp", "TransactionalCertification.cpp",
+                    "TransactionalProposals.cpp", "TransactionalPipeline.cpp", "TransactionalRenderBridge.cpp",
+                    "TransactionalPriorityIndex.h", "TransactionalExecution.cpp")
+    result["sourceIdentity"] = {name: identity(ROOT / "src/algorithms/greedy_transactional_lod" / name)
+                                for name in source_names}
+    write(output / "cause-analysis.json", result)
+    print("同一暖窗口归因与 Canyon 新最大点来源已保存")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=("report", "visuals"))
+    parser.add_argument("mode", choices=("report", "visuals", "explain"))
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    (report if args.mode == "report" else visuals)(args.output.resolve())
+    {"report": report, "visuals": visuals, "explain": explain}[args.mode](args.output.resolve())
