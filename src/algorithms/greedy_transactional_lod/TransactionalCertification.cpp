@@ -1,5 +1,6 @@
 #include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
 #include "profiling/CpuProfiling.h"
+#include "algorithms/greedy_transactional_lod/TransactionalQualityEvaluation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalProposalEvidence.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 
@@ -11,126 +12,9 @@
 
 namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
+using namespace QualityEvaluation;
 namespace
 {
-using R=boost::multiprecision::cpp_rational;
-using Integer=boost::multiprecision::cpp_int;
-
-/// <summary>
-/// 每次基本运算向外舍入；遇到零分母或非有限值时交给精确分支
-/// </summary>
-struct Interval
-{
-    double Low{}, High{};
-    Interval()=default;
-    Interval(double value) : Low(value), High(value) {}
-    Interval(double low,double high) : Low(low),High(high) {}
-};
-
-double Down(double value) { return std::nextafter(value,-std::numeric_limits<double>::infinity()); }
-double Up(double value) { return std::nextafter(value,std::numeric_limits<double>::infinity()); }
-Interval operator+(Interval a,Interval b) { return {Down(a.Low+b.Low),Up(a.High+b.High)}; }
-Interval operator-(Interval a,Interval b) { return {Down(a.Low-b.High),Up(a.High-b.Low)}; }
-Interval operator*(Interval a,Interval b)
-{
-    // 区间允许跨零，不能只乘同侧端点来估计乘积
-    const std::array<double,4> values{a.Low*b.Low,a.Low*b.High,a.High*b.Low,a.High*b.High};
-    return {Down(*std::min_element(values.begin(),values.end())),Up(*std::max_element(values.begin(),values.end()))};
-}
-Interval operator/(Interval a,Interval b)
-{
-    if (b.Low<=0 && b.High>=0) return {-INFINITY,INFINITY};
-    return a*Interval{Down(1/b.High),Up(1/b.Low)};
-}
-
-template<class T> std::array<T,3> Reference(const TransactionalState& state,const TransactionalSamples& samples,Slot sid)
-{
-    // 同一公式分别在区间域与有理域执行，避免两个参考曲面悄然分叉
-    const auto xy=samples.Decode(sid);const auto& source=samples.Source();
-    const auto x=std::min(xy[0]/6,source.Width-2), y=std::min(xy[1]/6,source.Height-2);
-    const T tx=T(xy[0]-6*x)/T(6), ty=T(xy[1]-6*y)/T(6);
-    const auto index=static_cast<std::size_t>(y)*source.Width+x;
-    const T bottom=T(source.Values[index])*(T(1)-tx)+T(source.Values[index+1])*tx;
-    const T top=T(source.Values[index+source.Width])*(T(1)-tx)+T(source.Values[index+source.Width+1])*tx;
-    return {T(xy[0])/T(samples.Denominator()),T(xy[1])/T(samples.Denominator()),
-        ((T(1)-ty)*bottom+ty*top)*T(state.Config().HeightScale)/T(65535)};
-}
-
-template<class T> std::array<T,4> Clip(const Configuration& c,const T& u,const T& v,const T& h)
-{
-    const T x=(u-T(.5))*T(c.TerrainSize),z=(v-T(.5))*T(c.TerrainSize);
-    std::array<T,4> out{};
-    for (std::size_t i=0;i<4;++i) out[i]=((T(c.Matrix[4*i])*x+T(c.Matrix[4*i+1])*h)+T(c.Matrix[4*i+2])*z)+T(c.Matrix[4*i+3]);
-    return out;
-}
-
-template<class T> T Height(const T& u,const T& v,const Point& a,const Point& b,const Point& c)
-{
-    // 插值读取实际发布高度，不能重新采原始 heightfield 替代被测几何
-    const T area=(T(b.U)-T(a.U))*(T(c.V)-T(a.V))-(T(b.V)-T(a.V))*(T(c.U)-T(a.U));
-    const T w0=((T(b.U)-u)*(T(c.V)-v)-(T(b.V)-v)*(T(c.U)-u))/area;
-    const T w1=((u-T(a.U))*(T(c.V)-T(a.V))-(v-T(a.V))*(T(c.U)-T(a.U)))/area;
-    const T w2=T(1)-w0-w1;
-    return (w0*T(a.Height)+w1*T(b.Height))+w2*T(c.Height);
-}
-
-std::array<Point,3> CoveringFace(const TransactionalState& state,const TransactionalSamples& samples,
-    Slot sid,const Proposal* proposal)
-{
-    if (!proposal)
-    {
-        // 旧状态的唯一 owner 足以定义共享曲面上的见证高度
-        const auto& f=state.Face(samples.Geometry(sid).Owner).Vertices;
-        return {state.Vertex(f[0]).Geometry,state.Vertex(f[1]).Geometry,state.Vertex(f[2]).Geometry};
-    }
-    for (const auto& f : proposal->Faces)
-    {
-        // 边界可同时命中两个面，它们使用同一存活顶点几何
-        const std::array<Point,3> p{proposal->Points.at(f[0]),proposal->Points.at(f[1]),proposal->Points.at(f[2])};
-        std::array<double,3> weights{};
-        if (samples.Weights(sid,p[0],p[1],p[2],weights)) return p;
-    }
-    throw std::runtime_error("局部提案缺失闭面样本覆盖");
-}
-
-std::optional<R> ExactError(const TransactionalState& state,const TransactionalSamples& samples,Slot sid,const Proposal* proposal,
-    TransactionalProposalEvidence* evidence=nullptr,WorkLedger* work=nullptr)
-{
-    const auto ref=Reference<R>(state,samples,sid); const auto p=evidence ? evidence->Face(sid,*work) : CoveringFace(state,samples,sid,proposal);
-    const R height=Height(ref[0],ref[1],p[0],p[1],p[2]);
-    const auto rc=Clip(state.Config(),ref[0],ref[1],ref[2]),mc=Clip(state.Config(),ref[0],ref[1],height);
-    // 比较投影平方误差，避免精确认证依赖平方根舍入
-    if (rc[3]<=0 || mc[3]<=0 || (state.Config().UsesZeroToOneDepth ? mc[2]<0 : mc[2]<-mc[3])) return {};
-    const R dx=(mc[0]/mc[3]-rc[0]/rc[3])*state.Config().Width/2;
-    const R dy=(mc[1]/mc[3]-rc[1]/rc[3])*state.Config().Height/2;
-    return R(dx*dx+dy*dy);
-}
-
-std::optional<Interval> ErrorBounds(const TransactionalState& state,const TransactionalSamples& samples,Slot sid,
-    const Proposal* proposal,WorkLedger& work,TransactionalProposalEvidence* evidence=nullptr)
-{
-    ++work.FilterChecks;
-    const auto ref=Reference<Interval>(state,samples,sid);
-    const auto p=evidence ? evidence->Face(sid,work) : CoveringFace(state,samples,sid,proposal);
-    const auto height=Height(ref[0],ref[1],p[0],p[1],p[2]);
-    const auto rc=Clip(state.Config(),ref[0],ref[1],ref[2]),mc=Clip(state.Config(),ref[0],ref[1],height);
-    const auto near=state.Config().UsesZeroToOneDepth ? mc[2] : mc[2]+mc[3];
-    // 只有整个区间都处于投影定义域，才允许快速接受它给出的误差界
-    if (rc[3].Low>0 && mc[3].Low>0 && near.Low>=0)
-    {
-        const auto dx=(mc[0]/mc[3]-rc[0]/rc[3])*Interval(state.Config().Width*.5);
-        const auto dy=(mc[1]/mc[3]-rc[1]/rc[3])*Interval(state.Config().Height*.5);
-        const auto value=dx*dx+dy*dy;
-        if (std::isfinite(value.Low) && std::isfinite(value.High))
-            return Interval{std::max(0.0,value.Low),std::max(0.0,value.High)};
-    }
-    // 过滤不能判定投影域时，不将整个补丁判坏；先复核精确二进制几何
-    ++work.ExactChecks;
-    const auto exact=ExactError(state,samples,sid,proposal,evidence,&work);
-    if (!exact) return {};
-    const double value=exact->convert_to<double>();
-    return Interval{std::max(0.0,Down(value)),Up(value)};
-}
 
 using Pair=std::array<double,2>;
 std::vector<Pair> ClipPolygon(const std::vector<Pair>& polygon,const Pair& coefficients,double rhs)

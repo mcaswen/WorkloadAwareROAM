@@ -139,7 +139,7 @@ void Side(std::ostream& output, const TransactionalState& state, const Transacti
 
 /// <summary>
 /// 全根目标人口仅供请求缺口审计，扫描费用单列，不能冒充局部更新成本
-/// 旧资格使用原有限 P 与阈值规则，误差目标不反向改写旧前缀
+/// 资格按当前政策记录，旧P人口与显式质量目标人口不能混为一谈
 /// </summary>
 void Roots(const TransactionalState& state, const TransactionalSamples& samples,
     const std::filesystem::path& path, CaptureWork& work)
@@ -166,9 +166,11 @@ void Roots(const TransactionalState& state, const TransactionalSamples& samples,
         }
         const auto count = samples.FaceSamples(face).size();
         work.RootContributions += count;
-        // ErrorFirst 只改变旧成员排序，原资格仍由复合优先级决定
         const double priority = samples.PrioritySquared(face);
-        const bool eligible = std::isfinite(priority) && priority > state.Config().SplitPixels * state.Config().SplitPixels;
+        const auto& config = state.Config();
+        const bool target = config.QualityPolicy == Algorithms::TransactionalQualityPolicy::PointwiseTarget;
+        const bool eligible = target ? std::isfinite(maximum) && maximum > config.QualityTargetPixels * config.QualityTargetPixels :
+            std::isfinite(priority) && priority > config.SplitPixels * config.SplitPixels;
         output << state.Face(face).Id << ',' << maximum << ',' << eligible << ',' << selected.contains(face)
             << ',' << visible << ',' << count << '\n';
     }
@@ -238,7 +240,10 @@ void TransactionalExchangeQualityAudit::Capture(const TransactionalState& state,
         << ",\"budget\":" << config.Budget << ",\"netFaces\":" << batch.NetFaceChange
         << ",\"terrainSize\":" << config.TerrainSize << ",\"heightScale\":" << config.HeightScale
         << ",\"width\":" << config.Width << ",\"height\":" << config.Height
-        << ",\"zeroToOne\":" << config.UsesZeroToOneDepth << ",\"matrix\":[";
+        << ",\"zeroToOne\":" << config.UsesZeroToOneDepth
+        << ",\"qualityPolicy\":\"" << (config.QualityPolicy == Algorithms::TransactionalQualityPolicy::PointwiseTarget ? "pointwise-target" : "legacy")
+        << "\",\"qualityTargetPixels\":" << config.QualityTargetPixels
+        << ",\"qualityHeightRatio\":" << config.QualityHeightRatio << ",\"matrix\":[";
     for (std::size_t i = 0; i < config.Matrix.size(); ++i)
     {
         stream << (i == 0 ? "" : ",");

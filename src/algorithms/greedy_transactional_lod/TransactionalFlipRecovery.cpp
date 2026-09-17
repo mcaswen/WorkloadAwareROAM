@@ -1,6 +1,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalFlipRecovery.h"
 #include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
 #include "profiling/CpuProfiling.h"
 
 #include <algorithm>
@@ -75,6 +76,10 @@ std::optional<Proposal> TransactionalFlipRecovery::FirstCertified(const Transact
                 if (!TransactionalCertification::Measure(state,samples,p,work)) p.Reason="projection_unknown";
                 else p.Reason=TransactionalCertification::Accepts(state,samples,p,p.TargetMicropixels,work) ? "certified" : "quality_infeasible";
             }
+        }
+        if (p.Reason == "certified" && TransactionalPointwiseQuality::Enabled(state.Config()))
+        {
+            p.Reason = TransactionalPointwiseQuality::Certify(state, samples, p, true, work);
         }
         attempts.emplace_back('R',p.Reason);++work.Reasons["flip_"+p.Reason];
         if (p.Reason=="certified") { ++work.FlipCertified;result=std::move(p);break; }

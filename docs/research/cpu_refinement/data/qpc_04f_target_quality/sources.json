@@ -1,0 +1,188 @@
+{
+  "peking547-b50000-transactional-t8": {
+    "A": {
+      "manifest": "benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-A/manifest.json",
+      "sha256": "8bcf9177e10a1fa40ae785ef5da4e9266fe1acf1757926428ba918bb6e0673df",
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+        "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15",
+        "bytes": 6572032
+      },
+      "process": {
+        "returncode": 0,
+        "elapsedSeconds": 5.2441754,
+        "peakRssBytes": 250621952,
+        "status": "ok",
+        "argv": [
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\bin\\ParallelROAM.exe",
+          "--experiment-run",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8-A\\inputs\\resolved.json",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8-A\\run"
+        ],
+        "binary": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+          "bytes": 6572032,
+          "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15"
+        }
+      },
+      "seed": {
+        "meshHash": "18435347681902994536",
+        "faces": 49999
+      }
+    },
+    "B": {
+      "manifest": "benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B/manifest.json",
+      "sha256": "c8e3bb2ab16c424b00fb23645e76db093ccf66a7c07cc44c8c12737bff8e1c97",
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+        "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15",
+        "bytes": 6572032
+      },
+      "process": {
+        "returncode": 0,
+        "elapsedSeconds": 4.0190641,
+        "peakRssBytes": 243527680,
+        "status": "ok",
+        "argv": [
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\bin\\ParallelROAM.exe",
+          "--experiment-run",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8-B\\inputs\\resolved.json",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8-B\\run"
+        ],
+        "binary": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+          "bytes": 6572032,
+          "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15"
+        }
+      },
+      "seed": {
+        "meshHash": "18435347681902994536",
+        "faces": 49999
+      }
+    }
+  },
+  "dem-sierra-b50000-transactional-t8": {
+    "A": {
+      "manifest": "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-A/manifest.json",
+      "sha256": "3cbc93ebd8e6455ecb37a5821836c6d25cc1fb43abd7b648b7f370a77b46993b",
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+        "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15",
+        "bytes": 6572032
+      },
+      "process": {
+        "returncode": 0,
+        "elapsedSeconds": 5.5516478,
+        "peakRssBytes": 209489920,
+        "status": "ok",
+        "argv": [
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\bin\\ParallelROAM.exe",
+          "--experiment-run",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-sierra-b50000-transactional-t8-A\\inputs\\resolved.json",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-sierra-b50000-transactional-t8-A\\run"
+        ],
+        "binary": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+          "bytes": 6572032,
+          "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15"
+        }
+      },
+      "seed": {
+        "meshHash": "12664488107607070644",
+        "faces": 8792
+      }
+    },
+    "B": {
+      "manifest": "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B/manifest.json",
+      "sha256": "e01e907c5819eb2b25297aff96608af3abb127bbc0b7db66e55c3ac52088098c",
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+        "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15",
+        "bytes": 6572032
+      },
+      "process": {
+        "returncode": 0,
+        "elapsedSeconds": 11.942890499999999,
+        "peakRssBytes": 207327232,
+        "status": "ok",
+        "argv": [
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\bin\\ParallelROAM.exe",
+          "--experiment-run",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-sierra-b50000-transactional-t8-B\\inputs\\resolved.json",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-sierra-b50000-transactional-t8-B\\run"
+        ],
+        "binary": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+          "bytes": 6572032,
+          "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15"
+        }
+      },
+      "seed": {
+        "meshHash": "12664488107607070644",
+        "faces": 8792
+      }
+    }
+  },
+  "dem-canyon-b50000-transactional-t8": {
+    "A": {
+      "manifest": "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-A/manifest.json",
+      "sha256": "1bc11fbf57f178051e515145f57070577f44af7aac9d410cc37e97c7c61ac46d",
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+        "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15",
+        "bytes": 6572032
+      },
+      "process": {
+        "returncode": 0,
+        "elapsedSeconds": 10.104802099999999,
+        "peakRssBytes": 233922560,
+        "status": "ok",
+        "argv": [
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\bin\\ParallelROAM.exe",
+          "--experiment-run",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-canyon-b50000-transactional-t8-A\\inputs\\resolved.json",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-canyon-b50000-transactional-t8-A\\run"
+        ],
+        "binary": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+          "bytes": 6572032,
+          "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15"
+        }
+      },
+      "seed": {
+        "meshHash": "5290254211587969315",
+        "faces": 50000
+      }
+    },
+    "B": {
+      "manifest": "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B/manifest.json",
+      "sha256": "1d4a2dfd5fdbc55fe68f3fde36a7a9c1f83961e1d2b6899275ba19f2a5a400f9",
+      "binary": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+        "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15",
+        "bytes": 6572032
+      },
+      "process": {
+        "returncode": 0,
+        "elapsedSeconds": 14.6787383,
+        "peakRssBytes": 230264832,
+        "status": "ok",
+        "argv": [
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\bin\\ParallelROAM.exe",
+          "--experiment-run",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-canyon-b50000-transactional-t8-B\\inputs\\resolved.json",
+          "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-canyon-b50000-transactional-t8-B\\run"
+        ],
+        "binary": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/bin/ParallelROAM.exe",
+          "bytes": 6572032,
+          "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15"
+        }
+      },
+      "seed": {
+        "meshHash": "5290254211587969315",
+        "faces": 50000
+      }
+    }
+  }
+}

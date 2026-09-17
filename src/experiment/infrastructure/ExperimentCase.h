@@ -22,6 +22,9 @@ struct ExperimentCase
     bool FlipRecovery{};
     bool BoundaryRefinement{};
     std::string ReceiverOrder{"composite"};
+    std::string QualityPolicy{"legacy"};
+    double QualityTargetPixels{0.5};
+    double QualityHeightRatio{1.0 / 256.0};
     std::string Camera;
     std::string Material;
     std::string Mode;

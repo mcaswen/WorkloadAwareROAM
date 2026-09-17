@@ -1,0 +1,60 @@
+{
+  "newCpp": [
+    {
+      "path": "src/algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.cpp",
+      "bodyCommentLines": 34,
+      "effectiveLines": 203,
+      "maxBodyBlock": 2
+    },
+    {
+      "path": "src/algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h",
+      "bodyCommentLines": 3,
+      "effectiveLines": 8,
+      "maxBodyBlock": 1
+    },
+    {
+      "path": "src/algorithms/greedy_transactional_lod/TransactionalQualityEvaluation.cpp",
+      "bodyCommentLines": 28,
+      "effectiveLines": 171,
+      "maxBodyBlock": 3
+    },
+    {
+      "path": "src/algorithms/greedy_transactional_lod/TransactionalQualityEvaluation.h",
+      "bodyCommentLines": 12,
+      "effectiveLines": 82,
+      "maxBodyBlock": 1
+    },
+    {
+      "path": "tests/TransactionalPointwiseQualityTests.cpp",
+      "bodyCommentLines": 13,
+      "effectiveLines": 135,
+      "maxBodyBlock": 2
+    }
+  ],
+  "bodyCommentLines": 90,
+  "effectiveLines": 599,
+  "tests": [
+    "pointwise_quality (including directed rounding / threshold ULP)",
+    "receiver_ordering",
+    "flip_recovery",
+    "boundary_refinement",
+    "exchange_quality"
+  ],
+  "naturalNormalFrames": 216,
+  "visualMatchesNormal": true,
+  "pekingOneVsEightEqual": true,
+  "seedsEqual": true,
+  "independentBatchFrames": 6,
+  "nonemptyExchanges": 47,
+  "independentDomains": [
+    "binary64 core",
+    "float world surface"
+  ],
+  "buildLogs": [
+    "build-final.log",
+    "build-observer.log",
+    "build-final-fixture-2.log"
+  ],
+  "limitation": "Selected exact progress only; evidence bytes are cumulative payload estimates, not live peak.",
+  "ratio": 0.15025041736227046
+}

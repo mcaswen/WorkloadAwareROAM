@@ -20,6 +20,17 @@
     "splitPixels"
   ],
   "properties": {
+    "qualityPolicy": {
+      "enum": ["legacy", "pointwise-target"]
+    },
+    "qualityTargetPixels": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "qualityHeightRatio": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
     "receiverOrder": {
       "enum": ["composite", "error-first"]
     },

@@ -29,6 +29,15 @@ struct Point
 };
 
 /// <summary>
+/// 认证与输出共用同一舍入位置，避免私有几何与公开几何悄然分叉
+/// </summary>
+inline std::array<float, 3> PublishedPosition(const Point& point, double terrainSize)
+{
+    return {static_cast<float>((point.U - .5) * terrainSize),
+        static_cast<float>(point.Height), static_cast<float>((point.V - .5) * terrainSize)};
+}
+
+/// <summary>
 /// 面连接使用稳定逻辑身份，物理槽只用于局部存储与访问
 /// </summary>
 struct Triangle
@@ -62,6 +71,9 @@ struct Configuration
     // 单侧中点只创建源高新点，子边不短于源栅格间隔
     bool EnableBoundaryRefinement{};
     TransactionalReceiverOrder ReceiverOrder{TransactionalReceiverOrder::Composite};
+    TransactionalQualityPolicy QualityPolicy{TransactionalQualityPolicy::Legacy};
+    double QualityTargetPixels{0.5};
+    double QualityHeightRatio{1.0 / 256.0};
     bool UsesZeroToOneDepth{};
 };
 
@@ -96,6 +108,7 @@ struct WorkLedger
     std::uint64_t DonorReuse{}, Conflicts{}, PreparedFaces{}, PreparedVertices{}, PreparedEdges{};
     std::uint64_t RepairSamples{}, RepairFaces{}, OrderVisits{}, MeshVertices{}, MeshIndices{}, PendingBlocks{};
     std::uint64_t HeightSamples{}, HeightExactSamples{}, HeightGuardChecks{}, HeightGuardRejected{};
+    std::uint64_t QualityMaxRationalBits{};
     std::uint64_t CapacityGrowths{}, CapacityBytesReserved{}, CapacityBytesRelocated{};
     std::uint64_t ViewBufferAllocations{}, ViewBufferBytes{};
     std::uint64_t IndexBlocks{},IndexSlots{},IndexComparisons{},IndexQueryBlocks{};
@@ -127,6 +140,7 @@ struct WorkLedger
 };
 
 struct HeightEvidence;
+struct ProposalQualityCertificate;
 /// <summary>
 /// 局部替换提案在只读快照上形成，所有新面均引用 Points 内几何
 /// Free 仅列允许改高的点，Support 是被替换的旧面槽
@@ -146,6 +160,8 @@ struct Proposal
     std::string Reason;
     // 保护证据只在当前冻结提案内复用，不跨拓扑或视图代际缓存
     mutable std::shared_ptr<HeightEvidence> HeightProof;
+    // 只读证书拥有提案身份及支持，不借用游标临时几何
+    std::shared_ptr<const ProposalQualityCertificate> QualityProof;
 };
 
 /// <summary>

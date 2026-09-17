@@ -1,6 +1,6 @@
 # 事务化 LOD 持续质量与大负载性能闭环大规划
 
-日期：2026-09-16。编号：QPC（Quality–Performance Closure）。状态：QPC-01诊断、QPC-04A有限调查已完成；QPC-04B生产接入与持续验证已提交，结构/续接通过，质量混合、默认关闭。QPC-04C五方向诊断已提交并获用户认可；QPC-04D实现和有限实验完成，Peking/Sierra有限正面、Canyon混合，默认不变，等待本阶段验收，不自动进入性能阶段。
+日期：2026-09-16；状态更新：2026-09-17。编号：QPC（Quality–Performance Closure）。QPC-01、04A～04E已完成各自诊断/有限实验；04B/04D质量混合、默认不变，04E抽象证明与只读审计有条件保留机会；[04F显式目标政策接入](qpc_04f_target_quality_policy_plan.md)现已实施并完成有限验证：损伤控制/自然可执行获有限验证，恢复及成本受限，待用户验收。ATT保持暂停。此前用户视觉签收等未完成项目不因此自动通过；不进入性能阶段。
 
 本轮用户要求：将 FER-02 问题清单及讨论确定的工作组纳入一个大规划；**每个小阶段必须单独规划、实验、实现、验收和提交，完成后交用户验收，收到继续指示后再进入下一阶段**。本文件规定总体架构、依赖与最大范围，不代替各阶段的小规划，也不表示全部设施都必须做完才允许停止。
 
@@ -160,7 +160,7 @@ structural failure可以与view-dependent failure有不同生命周期，但不�
 | QPC-01 质量来源与恢复阻塞 | [小规划](qpc_01_quality_recovery_audit_plan.md) | 诊断完成，用户认可；未修复质量 |
 | QPC-02 CBT质量有效性 | `docs/plans/cbt_2024/qpc_02_quality_validity_plan.md` | 未开始，独立审计 |
 | QPC-03 CPU参考与计时边界 | `docs/plans/profiling/qpc_03_cpu_baseline_audit_plan.md` | 未开始，独立审计 |
-| QPC-04 有限质量修复与契约冻结 | [04A外边界可行性](qpc_04a_boundary_feasibility_plan.md)、[04B生产接入](qpc_04b_boundary_integration_plan.md)、[04C误差目标排查](qpc_04c_quality_target_audit_plan.md)、[04D误差优先对照](qpc_04d_error_first_ordering_plan.md)、[04E质量契约优化](qpc_04e_quality_contract_optimization_plan.md) | 04B/04D质量混合、默认不变；04E抽象证明与只读审计完成、保留机会有条件通过，待用户验收；持续政策未接入 |
+| QPC-04 有限质量修复与契约冻结 | [04A外边界可行性](qpc_04a_boundary_feasibility_plan.md)、[04B生产接入](qpc_04b_boundary_integration_plan.md)、[04C误差目标排查](qpc_04c_quality_target_audit_plan.md)、[04D误差优先对照](qpc_04d_error_first_ordering_plan.md)、[04E质量契约优化](qpc_04e_quality_contract_optimization_plan.md)、[04F持续政策接入](qpc_04f_target_quality_policy_plan.md) | 04F默认关闭政策已接入；六预定批次47交换独立核查，恢复/成本受限；待用户验收，不提升既有质量/视觉状态 |
 | QPC-05 预留工作削减与规模因素 | `docs/plans/cpu_refinement/qpc_05_reservation_scaling_plan.md` | 条件阶段，依赖04的政策/工作负载冻结 |
 | QPC-06 无事务帧与发现成本 | `docs/plans/cpu_refinement/qpc_06_sparse_update_cost_plan.md` | 条件阶段，依赖01/04/05 |
 | QPC-07 视觉属性归因 | `docs/plans/cpu_refinement/qpc_07_visual_attribute_audit_plan.md` | 未开始，独立审计 |
@@ -228,6 +228,8 @@ structural failure可以与view-dependent failure有不同生命周期，但不�
 用户先要求提交分析并写算法优化小规划，随后要求加入形式推导、整理总目录并开始该文档工作。[QPC-04E](qpc_04e_quality_contract_optimization_plan.md)先验证显式目标、可见/持久损伤约束和独立证据组合；固定原状态与原批准批次，只读审计保留及费用，不修改生产默认或启动持续分叉。现已有[QC-01～09纸面推导](../../research/cpu_refinement/quality_contract_derivation.md)及[总目录](../../research/derivations/README.md)，机械检查、审计工具和自然验证仍待实施。它是QPC-04内的契约准入，不代替质量实测，不提前执行QPC-05资源索引；阶段出口仍交用户验收。
 
 **04E实施，2026-09-17。** 用户确认继续后完成[结果](../../research/cpu_refinement/qpc_04e_quality_contract_results.md)：Lean抽象核心、四轨迹71个原交换独立审计、闭支持核对和六参数表。两坏例六组均拒，三组保留非平凡正进展；Canyon原批全拒和请求资格缺口保留。312机会原结果/公开工作不变，默认性能未发现可复现回归。当前04E待用户验收，不接入生产、不自动进入QPC-05。
+
+**04F规划，2026-09-17。** 用户随后暂停ATT一般模型支线，要求返回QPC继续小规划。[04F](qpc_04f_target_quality_policy_plan.md)拟以默认关闭的`pointwise-target`政策，把独立E*接到请求资格，并在原目录迭代和配对中加入逐点屏幕/高度损伤及正进展证书。唯一自然操作点为0.5px与HeightScale/256；不改变种子阈值、Fit、几何目录、前缀或预算。验收分别回答损伤控制、自然可执行、持续恢复和完整成本；安全拒绝全部事务不能称为质量修复。当前仅规划，实施及后续阶段仍依QPC逐阶段Review/验收，不沿用ATT的自动闭环授权。
 
 ### QPC-05：预留工作削减与规模因素
 
@@ -300,7 +302,7 @@ structural failure可以与view-dependent failure有不同生命周期，但不�
 5. **回填与架构审查。** 小规划实现结果、research报告、实际代码facts（有代码变化时）、按Critical/Major/Minor组织的review，以及本大规划状态同时更新。审查重复职责、依赖方向、生命周期、诊断关闭开销和规划偏离。
 6. **独立提交与用户验收。** 当前任务获得实施/逐阶段提交授权后，完成一个就提交一个，向用户报告完成项、结果、限制及提交身份；停在当前阶段等待验收和继续指示，不自行编写或实施下一小阶段。提交标题沿`feat/fix/update/chore: 中文内容`，正文只写修改和影响，不写测试通过。原始大文件进入忽略目录，精简数据/脚本/报告保留来源，不留悬空产物。
 
-QPC-04A/B/C已按各次授权完成；QPC-04D也已完成实现、有限实验与审查。当前等待04D阶段验收，不自动进入其他小阶段。阶段可按充分证据混合/No-Go闭环并提交记录，不能只为连续编号强行实现后续。
+QPC-04A～04F已按各次授权完成相应实施或有限验证；04F保持默认关闭，等待用户验收，未自动进入QPC-05。此前未完成的视觉签收不因开始规划自动通过。阶段可按充分证据混合/No-Go闭环并提交记录，不能只为连续编号强行实现后续。
 
 ## 9. 实验、验收和成本契约
 
@@ -386,3 +388,6 @@ Peking优先50k与200k既有路线；100k用于解释规模，按需要复用/�
 2026-09-16（04D）：用户确认后完成误差优先接收政策的独立实现与有限持续实验。Peking原边界见证和Sierra旧转向见证获得保留到末帧的固定视图改善，Canyon同时出现返回新坏点；六个自然前缀与独立排序相同，默认216机会与历史一致。新策略成本显著增加，报告已分开实际工作与同任务线程收益。实现/事实/审查/六页视觉证据齐备，当前提交并等待用户验收，不默认切换，不进入QPC-05。
 
 规划自检：12项问题均有归属；九阶段职责和依赖独立；每阶段包含实验、实现归属、验收/成本、退出与提交；关键语义变化没有被等价优化授权覆盖；既有FER/PQ/GWR结果不改写。后续实现仍需对照本规划完成架构审查。
+
+
+**04F实施出口，2026-09-17。** [结果](../../research/cpu_refinement/qpc_04f_target_quality_results.md)将安全、可执行、恢复、成本分开：47个冻结交换在核心/实际float曲面均无独立接受违规；三条自然路线均执行真实事务。Peking转向、Sierra末帧及Canyon转向残差仍在，后两者出现35/33机会停滞，暖CPU为旧政策2.89×/2.00×。请求资格已从旧复合阈值分离，但旧Fit/目录未成为新逐点可行域求解器。本阶段受限闭环、默认不改；用户视觉和阶段验收待定，不进入性能阶段。

@@ -1,0 +1,290 @@
+[
+  {
+    "case": "peking547-b50000-transactional-t8",
+    "frame": 15,
+    "label": "A 旧政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/peking547-b50000-transactional-t8-B-visual/run/frame-15.png",
+      "bytes": 132507,
+      "sha256": "19837f68af6e000b394231933df41a8146d74f82a0916e99a62d51c167b3989b"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/quality-peking547-b50000-transactional-t8/frame-15/quality.json",
+      "bytes": 476,
+      "sha256": "1cb3be7df3b29f78f932e62f19ced34ecd54440110859d3e5c59f8ec70efbd67"
+    },
+    "witness": [
+      1790794,
+      0.9743589758872986,
+      1
+    ],
+    "pixel": [
+      54.4577073063769,
+      386.36151373055486
+    ]
+  },
+  {
+    "case": "peking547-b50000-transactional-t8",
+    "frame": 15,
+    "label": "B 逐点政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B-visual/run/frame-15.png",
+      "bytes": 130023,
+      "sha256": "82b823b622477829620ea4230b341e5477297808f012df8d830d698fcbd3c53f"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/quality-peking547-b50000-transactional-t8/frame-15/quality.json",
+      "bytes": 439,
+      "sha256": "75fb3b080e4f619c8a4e69c2bac9c87a5b0d1f22103433475a163e2eac678de2"
+    },
+    "witness": [
+      1790794,
+      0.9743589758872986,
+      1
+    ],
+    "pixel": [
+      54.4577073063769,
+      386.36151373055486
+    ]
+  },
+  {
+    "case": "peking547-b50000-transactional-t8",
+    "frame": 23,
+    "label": "A 旧政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/peking547-b50000-transactional-t8-B-visual/run/frame-23.png",
+      "bytes": 145829,
+      "sha256": "91c0ce2375b8e885a472d45eb7b38b64570c28657e3dd23b0d7cf0f1659f99e1"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/quality-peking547-b50000-transactional-t8/frame-23/quality.json",
+      "bytes": 475,
+      "sha256": "e61a0718d8acf4e99cb00f406c2c1f25ba97ddef08ed1d1986ede2a52fb348bd"
+    },
+    "witness": [
+      13560,
+      0.8040292859077454,
+      0.007326007355004549
+    ],
+    "pixel": [
+      918.1059610190632,
+      291.0495208350144
+    ]
+  },
+  {
+    "case": "peking547-b50000-transactional-t8",
+    "frame": 23,
+    "label": "B 逐点政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B-visual/run/frame-23.png",
+      "bytes": 145055,
+      "sha256": "5934b751f5fcd953eec48dd39ff34c84ee3900779bdf2c5a6955fc4a0aa05beb"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/quality-peking547-b50000-transactional-t8/frame-23/quality.json",
+      "bytes": 458,
+      "sha256": "22bd939c5d89b77c842b0ec7ecb68b94e4581638241696f2f370d9778055fbe8"
+    },
+    "witness": [
+      13560,
+      0.8040292859077454,
+      0.007326007355004549
+    ],
+    "pixel": [
+      918.1059610190632,
+      291.0495208350144
+    ]
+  },
+  {
+    "case": "dem-sierra-b50000-transactional-t8",
+    "frame": 48,
+    "label": "A 旧政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/dem-sierra-b50000-transactional-t8-B-visual/run/frame-48.png",
+      "bytes": 104642,
+      "sha256": "e3d5a1871cf07ae64314b5f4c4ff95f8c466a2d331568e4c9d1738a26e335134"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/quality-dem-sierra-b50000-transactional-t8/frame-48/quality.json",
+      "bytes": 438,
+      "sha256": "4ab017762be090123b1b60fb98c44067f556bc82906e410bb89d34274cdccb11"
+    },
+    "witness": [
+      1558736,
+      0.73828125,
+      0.990234375
+    ],
+    "pixel": [
+      603.5852184314153,
+      698.5460516452333
+    ]
+  },
+  {
+    "case": "dem-sierra-b50000-transactional-t8",
+    "frame": 48,
+    "label": "B 逐点政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B-visual/run/frame-48.png",
+      "bytes": 100030,
+      "sha256": "c3b855acc1c23a1b19d6cee96249873231a0ed3dd50df8531e4d356dc0fb0c62"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/quality-dem-sierra-b50000-transactional-t8/frame-48/quality.json",
+      "bytes": 436,
+      "sha256": "3cdca2a92643581552bfdae1767a6c963eed59a443f1fa0359200f92d39379db"
+    },
+    "witness": [
+      1558736,
+      0.73828125,
+      0.990234375
+    ],
+    "pixel": [
+      603.5852184314153,
+      698.5460516452333
+    ]
+  },
+  {
+    "case": "dem-sierra-b50000-transactional-t8",
+    "frame": 95,
+    "label": "A 旧政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/dem-sierra-b50000-transactional-t8-B-visual/run/frame-95.png",
+      "bytes": 135095,
+      "sha256": "137a1733fd1d6baecdff68f9459c007dc3e0c02a1045ef6d15f544ffa7811a96"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/quality-dem-sierra-b50000-transactional-t8/frame-95/quality.json",
+      "bytes": 436,
+      "sha256": "fbf39bc9009b049ca67427f51d299c8f6b9af97fb32275170e893eeff85d100e"
+    },
+    "witness": [
+      864998,
+      0.05859375,
+      0.55078125
+    ],
+    "pixel": [
+      362.78856767652854,
+      499.4862257787217
+    ]
+  },
+  {
+    "case": "dem-sierra-b50000-transactional-t8",
+    "frame": 95,
+    "label": "B 逐点政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B-visual/run/frame-95.png",
+      "bytes": 130882,
+      "sha256": "f6bf5253ca2e047d5c56962398468e268659bb2f245998d0fd069a9ea0f1d66d"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/quality-dem-sierra-b50000-transactional-t8/frame-95/quality.json",
+      "bytes": 433,
+      "sha256": "1720846d681480233085331877e35acd091521f966a5da5758ef24bddbef15ca"
+    },
+    "witness": [
+      864998,
+      0.05859375,
+      0.55078125
+    ],
+    "pixel": [
+      362.78856767652854,
+      499.4862257787217
+    ]
+  },
+  {
+    "case": "dem-canyon-b50000-transactional-t8",
+    "frame": 48,
+    "label": "A 旧政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/dem-canyon-b50000-transactional-t8-B-visual/run/frame-48.png",
+      "bytes": 226373,
+      "sha256": "9391324d8e55828725965c935ca6a03d8a6948d593a45ef1439f636dc840e254"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/quality-dem-canyon-b50000-transactional-t8/frame-48/quality.json",
+      "bytes": 427,
+      "sha256": "1051fcf2fa440cbbdddc1be592a892c87ae642726e2a39c4b9a548e2c2f8e5f0"
+    },
+    "witness": [
+      1574412,
+      0.837890625,
+      1
+    ],
+    "pixel": [
+      684.34107063226,
+      706.7874976693269
+    ]
+  },
+  {
+    "case": "dem-canyon-b50000-transactional-t8",
+    "frame": 48,
+    "label": "B 逐点政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B-visual/run/frame-48.png",
+      "bytes": 222862,
+      "sha256": "3efd00ae6d8ac04aa64a87d0072d73b6f4cb2957dbb3d4e626be8300a4428005"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/quality-dem-canyon-b50000-transactional-t8/frame-48/quality.json",
+      "bytes": 420,
+      "sha256": "4de686330f6b34cde0c7dd94e7bf1c9b7208390a697903079d3051b21aeaffcb"
+    },
+    "witness": [
+      1574412,
+      0.837890625,
+      1
+    ],
+    "pixel": [
+      684.34107063226,
+      706.7874976693269
+    ]
+  },
+  {
+    "case": "dem-canyon-b50000-transactional-t8",
+    "frame": 95,
+    "label": "A 旧政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/dem-canyon-b50000-transactional-t8-B-visual/run/frame-95.png",
+      "bytes": 269855,
+      "sha256": "4f61dec80de175495fb244e30b6882ca307c637f34021c9abf4b64c48f09a63d"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/quality-dem-canyon-b50000-transactional-t8/frame-95/quality.json",
+      "bytes": 423,
+      "sha256": "802fbfef2f2bb4a72809531e15e37d6e0e084925b40370e5abaf372a53ed9f5e"
+    },
+    "witness": [
+      1073620,
+      0.92578125,
+      0.681640625
+    ],
+    "pixel": [
+      943.0193429164503,
+      561.6577833272449
+    ]
+  },
+  {
+    "case": "dem-canyon-b50000-transactional-t8",
+    "frame": 95,
+    "label": "B 逐点政策",
+    "image": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B-visual/run/frame-95.png",
+      "bytes": 267505,
+      "sha256": "3a79c104df49135407a88abb86be9e5a9962c0e1fcacc37b2b49b3b5d0620467"
+    },
+    "quality": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/quality-dem-canyon-b50000-transactional-t8/frame-95/quality.json",
+      "bytes": 430,
+      "sha256": "dfb911e67b9ff6b5f11a59d03065d0ae8b4e82d1b1d3a29ae7387d3f2969841d"
+    },
+    "witness": [
+      1073620,
+      0.92578125,
+      0.681640625
+    ],
+    "pixel": [
+      943.0193429164503,
+      561.6577833272449
+    ]
+  }
+]

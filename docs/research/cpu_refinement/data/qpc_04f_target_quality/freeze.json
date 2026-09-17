@@ -1,0 +1,118 @@
+{
+  "protocol": "qpc04f-pointwise-target-v1",
+  "cases": [
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "configs": {
+        "A": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-A.json",
+          "bytes": 559,
+          "sha256": "1fd235841e135de68e767be4dd03179ecdf8a1c59608847c340501e3195fd597"
+        },
+        "B": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B.json",
+          "bytes": 664,
+          "sha256": "08695e3982c01925f6f2a3c8152b6579923917697e47cefc96777d4c91b20102"
+        }
+      },
+      "witnesses": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8.txt",
+        "bytes": 120,
+        "sha256": "084451d6cb0121aad1be419385d45816209701ed7409198b236916f77e8bb375"
+      },
+      "qualityFrames": [
+        2,
+        15,
+        16,
+        23
+      ],
+      "auditFrames": [
+        15,
+        23
+      ],
+      "source": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/peking547-b50000-transactional-t8-B.json",
+        "bytes": 559,
+        "sha256": "1fd235841e135de68e767be4dd03179ecdf8a1c59608847c340501e3195fd597"
+      }
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "configs": {
+        "A": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-A.json",
+          "bytes": 559,
+          "sha256": "0643de36835cdf7ebd0d7626e0fe7142285608a60593b3267f3219fa399846ef"
+        },
+        "B": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B.json",
+          "bytes": 664,
+          "sha256": "1ba9745428ac4d527421c33fe108bbc7c28a316b0c0eb3b6b235d9d8aa5008ac"
+        }
+      },
+      "witnesses": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8.txt",
+        "bytes": 164,
+        "sha256": "92681cf20d01261ab93d70f567e3470cb11da6762267adaee9922325727d4e7b"
+      },
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "auditFrames": [
+        48,
+        95
+      ],
+      "source": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/dem-sierra-b50000-transactional-t8-B.json",
+        "bytes": 559,
+        "sha256": "0643de36835cdf7ebd0d7626e0fe7142285608a60593b3267f3219fa399846ef"
+      }
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "configs": {
+        "A": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-A.json",
+          "bytes": 558,
+          "sha256": "e7347d0d446f4c38a407034bba27dbfc4267151e96d610ca7c3ff769e5531b87"
+        },
+        "B": {
+          "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B.json",
+          "bytes": 663,
+          "sha256": "b04a3c845b921db0765ca690daaacbbf78e0518d37f03cf059589ccacabb425d"
+        }
+      },
+      "witnesses": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8.txt",
+        "bytes": 145,
+        "sha256": "56a6b24894d972b281f54a58a5d3cdaf0271175a1997aba472ea193db47fad07"
+      },
+      "qualityFrames": [
+        2,
+        48,
+        80,
+        95
+      ],
+      "auditFrames": [
+        24,
+        95
+      ],
+      "source": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04d/run-01/dem-canyon-b50000-transactional-t8-B.json",
+        "bytes": 558,
+        "sha256": "e7347d0d446f4c38a407034bba27dbfc4267151e96d610ca7c3ff769e5531b87"
+      }
+    }
+  ],
+  "targetPixels": 0.5,
+  "heightRatio": "1/256",
+  "receiverOwnProgress": true,
+  "processSeconds": 180,
+  "processBytes": 8589934592,
+  "totalSeconds": 2700,
+  "retainedFit": true,
+  "runtimeAndPublishedGeometry": true
+}

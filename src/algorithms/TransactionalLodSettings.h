@@ -14,6 +14,15 @@ enum class TransactionalReceiverOrder
 };
 
 /// <summary>
+/// 质量目标政策与旧排序独立；新政策显式约束每个被修改的样本
+/// </summary>
+enum class TransactionalQualityPolicy
+{
+    Legacy,
+    PointwiseTarget
+};
+
+/// <summary>
 /// 事务化算法的持续配置；任一字段变化都重新初始化独立状态
 /// 旧 DOD 阶段动作不映射到这些设置
 /// </summary>
@@ -31,6 +40,9 @@ struct TransactionalLodSettings
     // 开启后按实际面数预留边界细分，旧点仍固定且不回收边界点
     bool EnableBoundaryRefinement{};
     TransactionalReceiverOrder ReceiverOrder{TransactionalReceiverOrder::Composite};
+    TransactionalQualityPolicy QualityPolicy{TransactionalQualityPolicy::Legacy};
+    double QualityTargetPixels{0.5};
+    double QualityHeightRatio{1.0 / 256.0};
     bool operator==(const TransactionalLodSettings&) const = default;
 };
 }

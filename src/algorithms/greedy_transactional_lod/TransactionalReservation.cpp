@@ -3,6 +3,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
 #include "algorithms/greedy_transactional_lod/TransactionalProposals.h"
 #include "algorithms/greedy_transactional_lod/TransactionalFlipRecovery.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
 
 #include <algorithm>
 #include <optional>
@@ -104,6 +105,11 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
                 if (!next) break;
                 auto& proposal=*next;start=Clock::now();reason=TransactionalProposals::CertifyReceiver(state,samples,proposal,local);
                 local.Seconds["receiver_certification"]+=Seconds(start);++local.Reasons[reason];
+                if (reason == "certified" && TransactionalPointwiseQuality::Enabled(state.Config()))
+                {
+                    reason = TransactionalPointwiseQuality::Certify(state, samples, proposal, true, local);
+                    ++local.Reasons[reason];
+                }
                 batch.Attempts[index].emplace_back(proposal.Kind,reason);
                 if (reason=="certified") { proposal.Reason=reason;certified[index]=std::move(proposal);break; }
             }
@@ -147,7 +153,15 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
     // 原有局部可行分母会检查完整共同池，提前认证不增加被检查的中心
     execution.Run("donor_stage",cache.size(),work,[&](auto first,auto last,WorkLedger& local) {
         for (auto index=first;index<last;++index)
-        { ++local.DonorCertified;cache[index]=TransactionalProposals::Donor(state,samples,batch.PoolIds[index],local); }
+        {
+            ++local.DonorCertified;
+            cache[index] = TransactionalProposals::Donor(state, samples, batch.PoolIds[index], local);
+            if (cache[index].Reason == "certified" && TransactionalPointwiseQuality::Enabled(state.Config()))
+            {
+                cache[index].Reason = TransactionalPointwiseQuality::Certify(state, samples, cache[index], false, local);
+                ++local.Reasons[cache[index].Reason];
+            }
+        }
     });
     std::vector<std::optional<TransactionFootprint>> footprints(cache.size());
     std::vector<bool> touched(cache.size());
@@ -207,7 +221,8 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
                 if (!touched[index]) { touched[index]=true;++work.DonorTouched; }
                 ++work.PairChecks;const auto center=batch.PoolIds[index];const auto& donor=cache[index];
                 if (donor.Reason!="certified") { ++work.Reasons[donor.Reason];continue; }
-                if (!TransactionalCertification::Accepts(state,samples,donor,receiver.TargetMicropixels,work))
+                if (!TransactionalPointwiseQuality::Enabled(state.Config()) &&
+                    !TransactionalCertification::Accepts(state,samples,donor,receiver.TargetMicropixels,work))
                 { ++work.Reasons["fast_quality_miss"];continue; }
                 if (!footprints[index]) { footprints[index]=Footprint(state,donor);++work.FootprintBuilds; }
                 const auto& df=*footprints[index];

@@ -42,6 +42,9 @@ ExperimentCase ExperimentCase::LoadResolved(const std::filesystem::path& path)
     value.FlipRecovery = data.get<bool>("flipRecovery", false);
     value.BoundaryRefinement = data.get<bool>("boundaryRefinement", false);
     value.ReceiverOrder = data.get<std::string>("receiverOrder", "composite");
+    value.QualityPolicy = data.get<std::string>("qualityPolicy", "legacy");
+    value.QualityTargetPixels = data.get<double>("qualityTargetPixels", 0.5);
+    value.QualityHeightRatio = data.get<double>("qualityHeightRatio", 1.0 / 256.0);
     value.Camera = data.get<std::string>("camera");
     value.Material = data.get<std::string>("material");
     value.Backend = data.get<std::string>("backend","opengl");
@@ -92,6 +95,11 @@ ExperimentCase ExperimentCase::LoadResolved(const std::filesystem::path& path)
     }
     Require(OneOf(value.HeightPolicy, {"fit", "immutable"}), "未知高度策略");
     Require(OneOf(value.ReceiverOrder, {"composite", "error-first"}), "未知接收方排序政策");
+    Require(OneOf(value.QualityPolicy, {"legacy", "pointwise-target"}), "未知逐点质量政策");
+    Require(std::isfinite(value.QualityTargetPixels) && value.QualityTargetPixels > 0 &&
+        std::isfinite(value.QualityHeightRatio) && value.QualityHeightRatio > 0, "无效质量目标");
+    Require(value.QualityPolicy == "legacy" || (value.Algorithm == "transactional" &&
+        value.HeightPolicy == "immutable" && value.ReceiverOrder == "error-first"), "逐点政策配置不一致");
     Require(value.ReceiverOrder == "composite" || value.Algorithm == "transactional",
         "误差优先排序仅适用于Transactional");
     Require(!value.FlipRecovery || (value.Algorithm=="transactional" && value.HeightPolicy=="immutable"),

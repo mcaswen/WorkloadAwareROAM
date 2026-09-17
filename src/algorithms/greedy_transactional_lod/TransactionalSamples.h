@@ -98,6 +98,11 @@ public:
     static std::array<double, 4> Clip(const Configuration& config, double u, double v, double height);
     bool Weights(Slot sample, const Point& a, const Point& b, const Point& c, std::array<double,3>& weights) const;
     bool StrictlyInside(Slot sample,const Point& a,const Point& b,const Point& c) const;
+    /// <summary>
+    /// 返回局部矩形内的保守样本候选，调用方仍须在准确数值域检查覆盖
+    /// </summary>
+    std::vector<Slot> BoxCandidates(double minU, double minV, double maxU, double maxV,
+        WorkLedger& work) const;
 
 private:
     void Store(Slot sample,const SampleValue& value) noexcept;
@@ -106,7 +111,7 @@ private:
     SampleValue Project(const Configuration& config,Slot sample,SampleValue value,WorkLedger& work) const;
     static double Priority(const Configuration& config,const std::array<Point,3>& points,double maximum);
     /// <summary>
-    /// 先以复合分数判断资格，再选择排序分量；空误差支持不改变候选人口
+    /// 旧政策按复合分数判断资格，显式质量目标只产生误差超标请求
     /// </summary>
     static std::optional<PriorityKey> ReceiverKey(const Configuration& config, double priority,
         double maximum, Identity id, Slot slot);

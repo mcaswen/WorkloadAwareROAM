@@ -186,6 +186,13 @@ struct TerrainLodBuildInput
     // 旧默认编码保持原样；显式新输入以带名称的扩展记录进入身份
     if (input.View.UsesZeroToOneDepth)
         AppendTerrainLodHash(hash, std::string_view{"depth-zero-to-one-v1"});
+    if (input.Settings.Transactional.QualityPolicy != TransactionalQualityPolicy::Legacy)
+    {
+        AppendTerrainLodHash(hash, std::string_view{"transactional-pointwise-target-v1"});
+        AppendTerrainLodHash(hash, input.Settings.Transactional.QualityPolicy);
+        AppendTerrainLodHash(hash, input.Settings.Transactional.QualityTargetPixels);
+        AppendTerrainLodHash(hash, input.Settings.Transactional.QualityHeightRatio);
+    }
     if (input.Settings.Transactional != TransactionalLodSettings{})
     {
         AppendTerrainLodHash(hash, std::string_view{"transactional-settings-v1"});

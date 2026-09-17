@@ -36,7 +36,8 @@ std::array<Terrain::TerrainMeshVertex,3> TransactionalMesh::Build(const Configur
     if (!(length>0) || !std::isfinite(length)) throw std::runtime_error("输出面法线不可表示");
     for (std::size_t i=0;i<3;++i)
     {
-        result[i].Position=glm::vec3(positions[i]);result[i].Normal=glm::vec3(cross/length);
+        const auto published = PublishedPosition(p[i], config.TerrainSize);
+        result[i].Position={published[0],published[1],published[2]};result[i].Normal=glm::vec3(cross/length);
         // 核心 binary64 合法仍不保证公共 float 输出有限，转换在准备期核查
         for (glm::length_t axis=0;axis<3;++axis)
             if (!std::isfinite(result[i].Position[axis])) throw std::runtime_error("输出位置超出 float 范围");

@@ -70,6 +70,9 @@ def prepare(case, output, executable, mode=None, backend=None, cpu=False):
     if resolved.get("boundaryRefinement",False): task["boundaryRefinement"]=True
     if resolved.get("receiverOrder", "composite") != "composite":
         task["receiverOrder"] = resolved["receiverOrder"]
+    if resolved.get("qualityPolicy", "legacy") != "legacy":
+        task["qualityPolicy"] = {key: resolved[key] for key in
+            ("qualityPolicy", "qualityTargetPixels", "qualityHeightRatio")}
     if resolved["algorithm"] == "cbt":
         task["cbt"] = {key: resolved[key] for key in
             ("cbtCapacity", "cbtArea", "cbtValidation", "cbtGeometry")}

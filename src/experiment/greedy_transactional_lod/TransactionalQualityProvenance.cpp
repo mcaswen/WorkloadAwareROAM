@@ -2,6 +2,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalProposals.h"
 #include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 #include "algorithms/greedy_transactional_lod/TransactionalProposalEvidence.h"
 #include <cmath>
@@ -90,7 +91,10 @@ void Number(std::ostream& out,const std::optional<double>& value)
 std::size_t Rank(const TransactionalState& state,const TransactionalSamples& samples,Slot slot)
 {
     const double p=samples.PrioritySquared(slot),threshold=state.Config().SplitPixels*state.Config().SplitPixels;
-    if (!std::isfinite(p) || p<=threshold) return 0;
+    if (!TransactionalPointwiseQuality::Enabled(state.Config()) && (!std::isfinite(p) || p <= threshold))
+    {
+        return 0;
+    }
     if (state.Config().ReceiverOrder == Algorithms::TransactionalReceiverOrder::ErrorFirst)
     {
         // 只读诊断使用实际接收全序；旧 priority 字段仍保持复合分数含义
@@ -279,8 +283,21 @@ void Recovery(std::ostream& out,std::size_t frame,std::size_t witness,const Tran
     WorkLedger work;work.VisitLimit=100000000;
     work.Deadline=std::chrono::steady_clock::now()+std::chrono::seconds(60);
     ReceiverCursor cursor(state,samples,root);std::optional<Proposal> receiver;
-    while (auto next=cursor.Next(&work))
-        if (TransactionalProposals::CertifyReceiver(state,samples,*next,work)=="certified") { receiver=std::move(next);break; }
+    while (auto next = cursor.Next(&work))
+    {
+        if (TransactionalProposals::CertifyReceiver(state, samples, *next, work) != "certified")
+        {
+            continue;
+        }
+        // 诊断必须使用当前接受政策，不能用旧最大值规则解释逐点拒绝
+        if (TransactionalPointwiseQuality::Enabled(state.Config()) &&
+            TransactionalPointwiseQuality::Certify(state, samples, *next, true, work) != "certified")
+        {
+            continue;
+        }
+        receiver = std::move(next);
+        break;
+    }
     if (!receiver) throw std::runtime_error("见证根独立认证与正常决策不同");
     // 仅较高优先级的已批准成员占用资源，较低成员不能反过来解释本根被拒绝
     std::vector<TransactionFootprint> prior;std::set<Identity> used;
@@ -304,7 +321,13 @@ void Recovery(std::ostream& out,std::size_t frame,std::size_t witness,const Tran
         auto donor=TransactionalProposals::Donor(state,samples,center,work);
         if (donor.Reason!="certified") continue;
         ++certified;
-        if (!TransactionalCertification::Accepts(state,samples,donor,receiver->TargetMicropixels,work)) continue;
+        const bool acceptable = TransactionalPointwiseQuality::Enabled(state.Config())
+            ? TransactionalPointwiseQuality::Certify(state, samples, donor, false, work) == "certified"
+            : TransactionalCertification::Accepts(state, samples, donor, receiver->TargetMicropixels, work);
+        if (!acceptable)
+        {
+            continue;
+        }
         ++quality;const auto df=TransactionalReservation::Footprint(state,donor);
         if (TransactionalReservation::Conflict(rf,df)) continue;
         ++feasible;if (used.contains(center)) continue;
@@ -370,7 +393,7 @@ void TransactionalQualityProvenance::WritePrioritySnapshot(const std::filesystem
     output.exceptions(std::ios::badbit | std::ios::failbit);
     output << std::setprecision(17)
         << "root,slot,errorSquared,densitySquared,prioritySquared,visibleSamples,contributions,"
-        "inPrefix,thresholdPx,prefixLimit,rawCount,faces\n";
+        "inPrefix,thresholdPx,prefixLimit,rawCount,faces,qualityPolicy,qualityTargetPixels\n";
     const auto prefix = samples.Prefix(state.Config().PrefixLimit);
     const std::set<Slot> selected(prefix.begin(), prefix.end());
     const auto& config = state.Config();
@@ -415,7 +438,8 @@ void TransactionalQualityProvenance::WritePrioritySnapshot(const std::filesystem
         output << state.Face(slot).Id << ',' << slot << ',' << maximum << ',' << density << ','
             << samples.PrioritySquared(slot) << ',' << visible << ',' << samples.FaceSamples(slot).size() << ','
             << selected.contains(slot) << ',' << config.SplitPixels << ',' << config.PrefixLimit << ','
-            << samples.RawCount() << ',' << state.FaceCount() << '\n';
+            << samples.RawCount() << ',' << state.FaceCount() << ','
+            << static_cast<unsigned>(config.QualityPolicy) << ',' << config.QualityTargetPixels << '\n';
     }
 }
 

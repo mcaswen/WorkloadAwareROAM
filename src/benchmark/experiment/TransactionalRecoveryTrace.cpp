@@ -216,7 +216,10 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         }
         std::filesystem::create_directories(output);
         std::ofstream metadata(output / "policy.json");
-        metadata << "{\"receiverOrder\":\"" << input.Case.ReceiverOrder << "\",\"priorityField\":\"composite\"}\n";
+        metadata << "{\"receiverOrder\":\"" << input.Case.ReceiverOrder
+            << "\",\"qualityPolicy\":\"" << input.Case.QualityPolicy
+            << "\",\"qualityTargetPixels\":" << input.Case.QualityTargetPixels
+            << ",\"qualityHeightRatio\":" << input.Case.QualityHeightRatio << "}\n";
         Algorithms::TerrainLodBuildInput task;
         task.HeightMap = &input.Source;
         task.Settings = settings;
@@ -229,6 +232,9 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         TransactionalStateInvariant::Validate(pipeline.State());
         WorkLedger initialization;
         pipeline.Initialize(initialization);
+        std::ofstream seedIdentity(output / "seed-identity.json");
+        seedIdentity << "{\"meshHash\":\"" << ValidateReplayMesh(pipeline.Mesh(), input)
+            << "\",\"faces\":" << pipeline.State().FaceCount() << "}\n";
         const auto boundary = Boundary(pipeline.State());
         auto expectedBoundary = boundary;
         std::ofstream boundaryFile(output / "boundary.csv");
@@ -262,6 +268,13 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         budget << "frame,attempts,certified,resolutionRejected,conflicts,freeExecuted,pairedExecuted,"
             "assignedFaces,consumedFreeFaces,unusedFaces,releasedFaces,netFaceChange,boundaryVertices\n";
         std::ofstream priorityTimes;
+        std::ofstream qualityWork;
+        if (pipeline.State().Config().QualityPolicy == Algorithms::TransactionalQualityPolicy::PointwiseTarget)
+        {
+            qualityWork.open(output / "pointwise-work.csv");
+            qualityWork.exceptions(std::ios::badbit | std::ios::failbit);
+            qualityWork << std::setprecision(17) << "frame,type,key,value\n";
+        }
         if (priorityAudit)
         {
             priorityTimes.open(output / "priority-audit.csv");
@@ -351,6 +364,16 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
                 << batch.UnusedFaces << ',' << batch.ReleasedFaces << ',' << batch.NetFaceChange << ','
                 << expectedBoundary.Vertices.size() << '\n';
             frames.flush();
+            if (qualityWork.is_open())
+            {
+                // 完整原因分布仅写诊断回放，不加入正常平台更新的文件IO
+                for (const auto& [key, value] : work.Reasons)
+                    qualityWork << frame << ",count," << key << ',' << value << '\n';
+                for (const auto& [key, value] : work.Seconds)
+                    qualityWork << frame << ",seconds," << key << ',' << value << '\n';
+                qualityWork << frame << ",maximum,rationalBits," << work.QualityMaxRationalBits << '\n';
+                qualityWork.flush();
+            }
         }
         TransactionalStateInvariant::Validate(pipeline.State());
         std::cout << "frames=" << input.Cameras.size() << " boundaryEdges=" << boundary.Edges.size() << '\n';

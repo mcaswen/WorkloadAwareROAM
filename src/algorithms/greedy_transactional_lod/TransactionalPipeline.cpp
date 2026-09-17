@@ -1,6 +1,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalPipeline.h"
 #include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalCommit.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
 #include "profiling/CpuProfiling.h"
 
 #include <stdexcept>
@@ -41,6 +42,7 @@ void TransactionalPipeline::Apply(const CertifiedBatch& batch,WorkLedger& work)
     if (!_initialized) throw std::runtime_error("持续状态尚未初始化");
     if (batch.Version!=_state.Version()) throw std::runtime_error("批次快照已过期");
     if (batch.Exchanges.empty()) return;
+    TransactionalPointwiseQuality::ValidateBatch(_state, _samples, batch, work);
     // 拓扑、样本和 mesh 共享同一个目标代际，发布之间不插入失败点
     auto topology=TransactionalCommit::Prepare(_state,batch,work,_execution,&_samples.Source());
     auto start=std::chrono::steady_clock::now();
@@ -68,6 +70,9 @@ void TransactionalPipeline::SetView(const Configuration& view,WorkLedger& work)
         view.EnableFlipRecovery!=old.EnableFlipRecovery ||
         view.EnableBoundaryRefinement!=old.EnableBoundaryRefinement ||
         view.ReceiverOrder != old.ReceiverOrder ||
+        view.QualityPolicy != old.QualityPolicy ||
+        view.QualityTargetPixels != old.QualityTargetPixels ||
+        view.QualityHeightRatio != old.QualityHeightRatio ||
         !view.Width || !view.Height ||
         !std::all_of(view.Matrix.begin(),view.Matrix.end(),[](double value) { return std::isfinite(value); }))
         throw std::runtime_error("视图刷新不能改变几何、预算或质量规则");

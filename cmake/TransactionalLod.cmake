@@ -27,6 +27,8 @@ add_library(parallel_roam_transactional_lod_core STATIC
     "${transactional_core_dir}/TransactionalState.cpp" "${transactional_core_dir}/TransactionalSamples.cpp"
     "${transactional_core_dir}/TransactionalViewState.cpp" "${transactional_core_dir}/TransactionalProposalEvidence.cpp"
     "${transactional_core_dir}/TransactionalPredicates.cpp" "${transactional_core_dir}/TransactionalCertification.cpp"
+    "${transactional_core_dir}/TransactionalQualityEvaluation.cpp"
+    "${transactional_core_dir}/TransactionalPointwiseQuality.cpp"
     "${transactional_core_dir}/TransactionalProposals.cpp" "${transactional_core_dir}/TransactionalReservation.cpp"
     "${transactional_core_dir}/TransactionalFlipRecovery.cpp"
     "${transactional_core_dir}/TransactionalBoundaryRefinement.cpp"

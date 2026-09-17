@@ -1,0 +1,1294 @@
+{
+  "peking547-b50000-transactional-t8": [
+    {
+      "group": "frame-15",
+      "witnesses": [
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "0",
+          "u": "0.97435897588729858",
+          "v": "1",
+          "reference": "1.9037766066970527",
+          "height": "1.736194959252316",
+          "heightResidual": "-0.16758164744473669",
+          "visible": "0",
+          "error": "6.6811463661772326",
+          "futureError": "1.9965571109865088",
+          "returnError": "6.6811463661772326",
+          "face": "599",
+          "priority": "122.12060242830425",
+          "rank": "0"
+        },
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "1",
+          "u": "0.97619044780731201",
+          "v": "1",
+          "reference": "1.9023117645186836",
+          "height": "1.7364330595446518",
+          "heightResidual": "-0.16587870497403179",
+          "visible": "0",
+          "error": "6.6522773242829096",
+          "futureError": "1.9808580779439462",
+          "returnError": "6.6522773242829096",
+          "face": "599",
+          "priority": "122.12060242830425",
+          "rank": "0"
+        },
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "2",
+          "u": "0.94047619047619047",
+          "v": "0.99816849816849818",
+          "reference": "1.7277180132753491",
+          "height": "1.7262189737606399",
+          "heightResidual": "-0.0014990395147091995",
+          "visible": "0",
+          "error": "0.053194166033101724",
+          "futureError": "0.017133449446579241",
+          "returnError": "0.053194166033101724",
+          "face": "599",
+          "priority": "122.12060242830425",
+          "rank": "0"
+        },
+        {
+          "frame": "15",
+          "phase": "after",
+          "witness": "0",
+          "u": "0.97435897588729858",
+          "v": "1",
+          "reference": "1.9037766066970527",
+          "height": "1.736194959252316",
+          "heightResidual": "-0.16758164744473669",
+          "visible": "1",
+          "error": "1.9965571109865088",
+          "futureError": "1.9965571109865088",
+          "returnError": "6.6811463661772326",
+          "face": "599",
+          "priority": "20.042318055070805",
+          "rank": "1"
+        },
+        {
+          "frame": "15",
+          "phase": "after",
+          "witness": "1",
+          "u": "0.97619044780731201",
+          "v": "1",
+          "reference": "1.9023117645186836",
+          "height": "1.7364330595446518",
+          "heightResidual": "-0.16587870497403179",
+          "visible": "1",
+          "error": "1.9808580779439462",
+          "futureError": "1.9808580779439462",
+          "returnError": "6.6522773242829096",
+          "face": "599",
+          "priority": "20.042318055070805",
+          "rank": "1"
+        },
+        {
+          "frame": "15",
+          "phase": "after",
+          "witness": "2",
+          "u": "0.94047619047619047",
+          "v": "0.99816849816849818",
+          "reference": "1.7277180132753491",
+          "height": "1.7262189737606399",
+          "heightResidual": "-0.0014990395147091995",
+          "visible": "1",
+          "error": "0.017133449446579241",
+          "futureError": "0.017133449446579241",
+          "returnError": "0.053194166033101724",
+          "face": "599",
+          "priority": "20.042318055070805",
+          "rank": "1"
+        },
+        {
+          "frame": "23",
+          "phase": "after",
+          "witness": "0",
+          "u": "0.97435897588729858",
+          "v": "1",
+          "reference": "1.9037766066970527",
+          "height": "1.736194959252316",
+          "heightResidual": "-0.16758164744473669",
+          "visible": "0",
+          "error": "6.6811463661772326",
+          "futureError": "1.9965571109865088",
+          "returnError": "6.6811463661772326",
+          "face": "599",
+          "priority": "122.12060242830425",
+          "rank": "0"
+        },
+        {
+          "frame": "23",
+          "phase": "after",
+          "witness": "1",
+          "u": "0.97619044780731201",
+          "v": "1",
+          "reference": "1.9023117645186836",
+          "height": "1.7364330595446518",
+          "heightResidual": "-0.16587870497403179",
+          "visible": "0",
+          "error": "6.6522773242829096",
+          "futureError": "1.9808580779439462",
+          "returnError": "6.6522773242829096",
+          "face": "599",
+          "priority": "122.12060242830425",
+          "rank": "0"
+        },
+        {
+          "frame": "23",
+          "phase": "after",
+          "witness": "2",
+          "u": "0.94047619047619047",
+          "v": "0.99816849816849818",
+          "reference": "1.7277180132753491",
+          "height": "1.7262189737606399",
+          "heightResidual": "-0.0014990395147091995",
+          "visible": "0",
+          "error": "0.053194166033101724",
+          "futureError": "0.017133449446579241",
+          "returnError": "0.053194166033101724",
+          "face": "599",
+          "priority": "122.12060242830425",
+          "rank": "0"
+        }
+      ],
+      "recovery": [
+        {
+          "frame": 15,
+          "witness": 0,
+          "root": 599,
+          "stage": "shape_infeasible",
+          "attempts": [
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "B",
+              "pointwise_screen_damage"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 15,
+          "witness": 1,
+          "root": 599,
+          "stage": "shape_infeasible",
+          "attempts": [
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "B",
+              "pointwise_screen_damage"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 15,
+          "witness": 2,
+          "root": 599,
+          "stage": "shape_infeasible",
+          "attempts": [
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "B",
+              "pointwise_screen_damage"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 23,
+          "witness": 0,
+          "root": 599,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 23,
+          "witness": 1,
+          "root": 599,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 23,
+          "witness": 2,
+          "root": 599,
+          "stage": "outside_prefix"
+        }
+      ]
+    }
+  ],
+  "dem-sierra-b50000-transactional-t8": [
+    {
+      "group": "frame-48",
+      "witnesses": [
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "0",
+          "u": "0.73828125",
+          "v": "0.9921875",
+          "reference": "6.4218296690446302",
+          "height": "6.6401090621948242",
+          "heightResidual": "0.21827939315019407",
+          "visible": "0",
+          "error": "2.1361107466204983",
+          "futureError": "1.9879600882205277",
+          "returnError": "2.1361107466204983",
+          "face": "4182",
+          "priority": "6.9407236031707038",
+          "rank": "0"
+        },
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "1",
+          "u": "0.5625",
+          "v": "0.453125",
+          "reference": "8.6942328110433884",
+          "height": "8.5864310264587402",
+          "heightResidual": "-0.10780178458464817",
+          "visible": "1",
+          "error": "0.69444685299859799",
+          "futureError": "0.78073448604236473",
+          "returnError": "0.69444685299859799",
+          "face": "2160",
+          "priority": "2.1913955782086671",
+          "rank": "815"
+        },
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "2",
+          "u": "0.73828125",
+          "v": "0.98828125",
+          "reference": "6.4399023604209287",
+          "height": "6.6560217142105103",
+          "heightResidual": "0.21611935378958158",
+          "visible": "0",
+          "error": "2.1081382117734115",
+          "futureError": "1.9636479033151091",
+          "returnError": "2.1081382117734115",
+          "face": "4182",
+          "priority": "6.9407236031707038",
+          "rank": "0"
+        },
+        {
+          "frame": "48",
+          "phase": "after",
+          "witness": "0",
+          "u": "0.73828125",
+          "v": "0.9921875",
+          "reference": "6.4218296690446302",
+          "height": "6.6401090621948242",
+          "heightResidual": "0.21827939315019407",
+          "visible": "1",
+          "error": "1.9879600882205277",
+          "futureError": "1.9879600882205277",
+          "returnError": "2.1361107466204983",
+          "face": "4182",
+          "priority": "6.3077847771488287",
+          "rank": "1"
+        },
+        {
+          "frame": "48",
+          "phase": "after",
+          "witness": "1",
+          "u": "0.5625",
+          "v": "0.453125",
+          "reference": "8.6942328110433884",
+          "height": "8.5876880390734183",
+          "heightResidual": "-0.10654477196997014",
+          "visible": "1",
+          "error": "0.77163535377909553",
+          "futureError": "0.77163535377909553",
+          "returnError": "0.68635289823570123",
+          "face": "-1759",
+          "priority": "1.5378548669757846",
+          "rank": "954"
+        },
+        {
+          "frame": "48",
+          "phase": "after",
+          "witness": "2",
+          "u": "0.73828125",
+          "v": "0.98828125",
+          "reference": "6.4399023604209287",
+          "height": "6.6560217142105103",
+          "heightResidual": "0.21611935378958158",
+          "visible": "1",
+          "error": "1.9636479033151091",
+          "futureError": "1.9636479033151091",
+          "returnError": "2.1081382117734115",
+          "face": "-414",
+          "priority": "4.264959130356754",
+          "rank": "4"
+        },
+        {
+          "frame": "95",
+          "phase": "after",
+          "witness": "0",
+          "u": "0.73828125",
+          "v": "0.9921875",
+          "reference": "6.4218296690446302",
+          "height": "6.6401090621948242",
+          "heightResidual": "0.21827939315019407",
+          "visible": "0",
+          "error": "2.1361107466204983",
+          "futureError": "1.9879600882205277",
+          "returnError": "2.1361107466204983",
+          "face": "4182",
+          "priority": "6.9407236031707038",
+          "rank": "0"
+        },
+        {
+          "frame": "95",
+          "phase": "after",
+          "witness": "1",
+          "u": "0.5625",
+          "v": "0.453125",
+          "reference": "8.6942328110433884",
+          "height": "8.5876880390734183",
+          "heightResidual": "-0.10654477196997014",
+          "visible": "1",
+          "error": "0.68635289823570123",
+          "futureError": "0.77163535377909553",
+          "returnError": "0.68635289823570123",
+          "face": "-1759",
+          "priority": "1.2646934438528428",
+          "rank": "1335"
+        },
+        {
+          "frame": "95",
+          "phase": "after",
+          "witness": "2",
+          "u": "0.73828125",
+          "v": "0.98828125",
+          "reference": "6.4399023604209287",
+          "height": "6.6560217142105103",
+          "heightResidual": "0.21611935378958158",
+          "visible": "0",
+          "error": "2.1081382117734115",
+          "futureError": "1.9636479033151091",
+          "returnError": "2.1081382117734115",
+          "face": "-414",
+          "priority": "5.6902468734615583",
+          "rank": "0"
+        }
+      ],
+      "recovery": [
+        {
+          "frame": 48,
+          "witness": 0,
+          "root": 4182,
+          "stage": "pointwise_height_damage",
+          "attempts": [
+            [
+              "E",
+              "pointwise_height_damage"
+            ],
+            [
+              "E",
+              "pointwise_height_damage"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "F",
+              "pointwise_height_damage"
+            ],
+            [
+              "H",
+              "pointwise_height_damage"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 48,
+          "witness": 1,
+          "root": -1759,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 48,
+          "witness": 1,
+          "root": -1757,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 48,
+          "witness": 1,
+          "root": -1241,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 48,
+          "witness": 1,
+          "root": -1240,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 48,
+          "witness": 2,
+          "root": -414,
+          "stage": "shape_infeasible",
+          "attempts": [
+            [
+              "E",
+              "shape_infeasible"
+            ],
+            [
+              "E",
+              "shape_infeasible"
+            ],
+            [
+              "E",
+              "pointwise_height_damage"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 48,
+          "witness": 2,
+          "root": 4182,
+          "stage": "pointwise_height_damage",
+          "attempts": [
+            [
+              "E",
+              "pointwise_height_damage"
+            ],
+            [
+              "E",
+              "pointwise_height_damage"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "F",
+              "pointwise_height_damage"
+            ],
+            [
+              "H",
+              "pointwise_height_damage"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": 4182,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": -1759,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": -1757,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": -1241,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": -1240,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 2,
+          "root": -414,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 2,
+          "root": 4182,
+          "stage": "outside_prefix"
+        }
+      ]
+    },
+    {
+      "group": "frame-95",
+      "witnesses": [
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "0",
+          "u": "0.05859375",
+          "v": "0.55078125",
+          "reference": "5.5651206848558976",
+          "height": "5.3989787101745605",
+          "heightResidual": "-0.16614197468133707",
+          "visible": "1",
+          "error": "1.133568442602344",
+          "futureError": "1.133568442602344",
+          "returnError": "1.133568442602344",
+          "face": "428",
+          "priority": "1.4892870546994188",
+          "rank": "1"
+        },
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "1",
+          "u": "0.5625",
+          "v": "0.453125",
+          "reference": "8.6942328110433884",
+          "height": "8.5864310264587402",
+          "heightResidual": "-0.10780178458464817",
+          "visible": "1",
+          "error": "0.69444685299859799",
+          "futureError": "0.69444685299859799",
+          "returnError": "0.69444685299859799",
+          "face": "2160",
+          "priority": "2.1913955782086671",
+          "rank": "815"
+        },
+        {
+          "frame": "95",
+          "phase": "after",
+          "witness": "0",
+          "u": "0.05859375",
+          "v": "0.55078125",
+          "reference": "5.5651206848558976",
+          "height": "5.4004455093607238",
+          "heightResidual": "-0.16467517549517385",
+          "visible": "1",
+          "error": "1.1235679976947082",
+          "futureError": "1.1235679976947082",
+          "returnError": "1.1235679976947082",
+          "face": "-272",
+          "priority": "1.1235679976947082",
+          "rank": "1"
+        },
+        {
+          "frame": "95",
+          "phase": "after",
+          "witness": "1",
+          "u": "0.5625",
+          "v": "0.453125",
+          "reference": "8.6942328110433884",
+          "height": "8.5876880390734183",
+          "heightResidual": "-0.10654477196997014",
+          "visible": "1",
+          "error": "0.68635289823570123",
+          "futureError": "0.68635289823570123",
+          "returnError": "0.68635289823570123",
+          "face": "-1759",
+          "priority": "1.2646934438528428",
+          "rank": "1335"
+        }
+      ],
+      "recovery": [
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": -272,
+          "stage": "fit_bound_failed",
+          "attempts": [
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": -271,
+          "stage": "fit_bound_failed",
+          "attempts": [
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": -270,
+          "stage": "fit_bound_failed",
+          "attempts": [
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": -269,
+          "stage": "fit_bound_failed",
+          "attempts": [
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": -1759,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": -1757,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": -1241,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": -1240,
+          "stage": "outside_prefix"
+        }
+      ]
+    }
+  ],
+  "dem-canyon-b50000-transactional-t8": [
+    {
+      "group": "frame-24",
+      "witnesses": [
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "0",
+          "u": "0.748046875",
+          "v": "0.876953125",
+          "reference": "1.8184990139623123",
+          "height": "1.8184990882873535",
+          "heightResidual": "7.4325041232725653e-08",
+          "visible": "1",
+          "error": "6.0674883198550054e-07",
+          "futureError": "6.1685062147168565e-07",
+          "returnError": "6.0674883198550054e-07",
+          "face": "2471",
+          "priority": "0.96714927545141671",
+          "rank": "22446"
+        },
+        {
+          "frame": "24",
+          "phase": "after",
+          "witness": "0",
+          "u": "0.748046875",
+          "v": "0.876953125",
+          "reference": "1.8184990139623123",
+          "height": "1.8184990882873535",
+          "heightResidual": "7.4325041232725653e-08",
+          "visible": "0",
+          "error": "6.1685062147168565e-07",
+          "futureError": "6.1685062147168565e-07",
+          "returnError": "6.0674883198550054e-07",
+          "face": "2471",
+          "priority": "0.83397874098535196",
+          "rank": "0"
+        },
+        {
+          "frame": "95",
+          "phase": "after",
+          "witness": "0",
+          "u": "0.748046875",
+          "v": "0.876953125",
+          "reference": "1.8184990139623123",
+          "height": "1.8184990882873535",
+          "heightResidual": "7.4325041232725653e-08",
+          "visible": "1",
+          "error": "6.0674883198550054e-07",
+          "futureError": "6.1685062147168565e-07",
+          "returnError": "6.0674883198550054e-07",
+          "face": "2471",
+          "priority": "0.96714927545141671",
+          "rank": "22584"
+        }
+      ],
+      "recovery": [
+        {
+          "frame": 24,
+          "witness": 0,
+          "root": 2471,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 24,
+          "witness": 0,
+          "root": 20634,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 24,
+          "witness": 0,
+          "root": 42672,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 24,
+          "witness": 0,
+          "root": 42673,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": 2471,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": 20634,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": 42672,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": 42673,
+          "stage": "outside_prefix"
+        }
+      ]
+    },
+    {
+      "group": "frame-48",
+      "witnesses": [
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "0",
+          "u": "0.837890625",
+          "v": "1",
+          "reference": "2.4800869703129136",
+          "height": "3.612383708357811",
+          "heightResidual": "1.1322967380448974",
+          "visible": "0",
+          "error": "10.546485699245519",
+          "futureError": "9.2744767366487686",
+          "returnError": "10.546485699245519",
+          "face": "803",
+          "priority": "14.184362480618574",
+          "rank": "0"
+        },
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "1",
+          "u": "0.8359375",
+          "v": "1",
+          "reference": "2.4862990637997737",
+          "height": "3.571017324924469",
+          "heightResidual": "1.0847182611246953",
+          "visible": "0",
+          "error": "10.095836162809952",
+          "futureError": "8.8897412975710566",
+          "returnError": "10.095836162809952",
+          "face": "803",
+          "priority": "14.184362480618574",
+          "rank": "0"
+        },
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "2",
+          "u": "0.98828125",
+          "v": "1",
+          "reference": "6.4497974170484866",
+          "height": "7.559752345085144",
+          "heightResidual": "1.1099549280366574",
+          "visible": "0",
+          "error": "11.464675731630287",
+          "futureError": "8.9723286163635958",
+          "returnError": "11.464675731630287",
+          "face": "624",
+          "priority": "7.70550559005338",
+          "rank": "0"
+        },
+        {
+          "frame": "0",
+          "phase": "seed",
+          "witness": "3",
+          "u": "0.86328125",
+          "v": "0.9990234375",
+          "reference": "4.1402689546762765",
+          "height": "4.1317930445075035",
+          "heightResidual": "-0.0084759101687730265",
+          "visible": "0",
+          "error": "0.080696038068503756",
+          "futureError": "0.06961785689692751",
+          "returnError": "0.080696038068503756",
+          "face": "803",
+          "priority": "14.184362480618574",
+          "rank": "0"
+        },
+        {
+          "frame": "48",
+          "phase": "after",
+          "witness": "0",
+          "u": "0.837890625",
+          "v": "1",
+          "reference": "2.4800869703129136",
+          "height": "3.612383708357811",
+          "heightResidual": "1.1322967380448974",
+          "visible": "1",
+          "error": "9.2744767366487686",
+          "futureError": "9.2744767366487686",
+          "returnError": "10.546485699245519",
+          "face": "803",
+          "priority": "11.550127752746544",
+          "rank": "1"
+        },
+        {
+          "frame": "48",
+          "phase": "after",
+          "witness": "1",
+          "u": "0.8359375",
+          "v": "1",
+          "reference": "2.4862990637997737",
+          "height": "3.571017324924469",
+          "heightResidual": "1.0847182611246953",
+          "visible": "1",
+          "error": "8.8897412975710566",
+          "futureError": "8.8897412975710566",
+          "returnError": "10.095836162809952",
+          "face": "803",
+          "priority": "11.550127752746544",
+          "rank": "1"
+        },
+        {
+          "frame": "48",
+          "phase": "after",
+          "witness": "2",
+          "u": "0.98828125",
+          "v": "1",
+          "reference": "6.4497974170484866",
+          "height": "7.559752345085144",
+          "heightResidual": "1.1099549280366574",
+          "visible": "1",
+          "error": "8.9723286163635958",
+          "futureError": "8.9723286163635958",
+          "returnError": "11.464675731630287",
+          "face": "624",
+          "priority": "8.9723286163635958",
+          "rank": "2"
+        },
+        {
+          "frame": "48",
+          "phase": "after",
+          "witness": "3",
+          "u": "0.86328125",
+          "v": "0.9990234375",
+          "reference": "4.1402689546762765",
+          "height": "4.1317930445075035",
+          "heightResidual": "-0.0084759101687730265",
+          "visible": "1",
+          "error": "0.06961785689692751",
+          "futureError": "0.06961785689692751",
+          "returnError": "0.080696038068503756",
+          "face": "803",
+          "priority": "11.550127752746544",
+          "rank": "1"
+        },
+        {
+          "frame": "95",
+          "phase": "after",
+          "witness": "0",
+          "u": "0.837890625",
+          "v": "1",
+          "reference": "2.4800869703129136",
+          "height": "3.612383708357811",
+          "heightResidual": "1.1322967380448974",
+          "visible": "0",
+          "error": "10.546485699245519",
+          "futureError": "9.2744767366487686",
+          "returnError": "10.546485699245519",
+          "face": "803",
+          "priority": "14.184362480618574",
+          "rank": "0"
+        },
+        {
+          "frame": "95",
+          "phase": "after",
+          "witness": "1",
+          "u": "0.8359375",
+          "v": "1",
+          "reference": "2.4862990637997737",
+          "height": "3.571017324924469",
+          "heightResidual": "1.0847182611246953",
+          "visible": "0",
+          "error": "10.095836162809952",
+          "futureError": "8.8897412975710566",
+          "returnError": "10.095836162809952",
+          "face": "803",
+          "priority": "14.184362480618574",
+          "rank": "0"
+        },
+        {
+          "frame": "95",
+          "phase": "after",
+          "witness": "2",
+          "u": "0.98828125",
+          "v": "1",
+          "reference": "6.4497974170484866",
+          "height": "7.559752345085144",
+          "heightResidual": "1.1099549280366574",
+          "visible": "0",
+          "error": "11.464675731630287",
+          "futureError": "8.9723286163635958",
+          "returnError": "11.464675731630287",
+          "face": "624",
+          "priority": "7.70550559005338",
+          "rank": "0"
+        },
+        {
+          "frame": "95",
+          "phase": "after",
+          "witness": "3",
+          "u": "0.86328125",
+          "v": "0.9990234375",
+          "reference": "4.1402689546762765",
+          "height": "4.1317930445075035",
+          "heightResidual": "-0.0084759101687730265",
+          "visible": "0",
+          "error": "0.080696038068503756",
+          "futureError": "0.06961785689692751",
+          "returnError": "0.080696038068503756",
+          "face": "803",
+          "priority": "14.184362480618574",
+          "rank": "0"
+        }
+      ],
+      "recovery": [
+        {
+          "frame": 48,
+          "witness": 0,
+          "root": 803,
+          "stage": "shape_infeasible",
+          "attempts": [
+            [
+              "B",
+              "pointwise_height_damage"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 48,
+          "witness": 1,
+          "root": 803,
+          "stage": "shape_infeasible",
+          "attempts": [
+            [
+              "B",
+              "pointwise_height_damage"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 48,
+          "witness": 2,
+          "root": 624,
+          "stage": "fit_bound_failed",
+          "attempts": [
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "B",
+              "pointwise_height_damage"
+            ],
+            [
+              "F",
+              "fit_bound_failed"
+            ],
+            [
+              "H",
+              "fit_bound_failed"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 48,
+          "witness": 3,
+          "root": 803,
+          "stage": "shape_infeasible",
+          "attempts": [
+            [
+              "B",
+              "pointwise_height_damage"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "E",
+              "fit_bound_failed"
+            ],
+            [
+              "F",
+              "shape_infeasible"
+            ],
+            [
+              "H",
+              "shape_infeasible"
+            ]
+          ],
+          "selected": false
+        },
+        {
+          "frame": 95,
+          "witness": 0,
+          "root": 803,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 1,
+          "root": 803,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 2,
+          "root": 624,
+          "stage": "outside_prefix"
+        },
+        {
+          "frame": 95,
+          "witness": 3,
+          "root": 803,
+          "stage": "outside_prefix"
+        }
+      ]
+    }
+  ]
+}

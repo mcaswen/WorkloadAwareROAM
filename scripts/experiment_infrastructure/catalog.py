@@ -125,6 +125,17 @@ def resolve_case(path: Path, root: Path = ROOT) -> dict:
     if order != "composite" and case["algorithm"] != "transactional":
         raise ValueError("误差优先排序仅适用于Transactional")
     result["receiverOrder"] = order
+    quality_policy = case.get("qualityPolicy", "legacy")
+    quality_target = case.get("qualityTargetPixels", 0.5)
+    quality_height = case.get("qualityHeightRatio", 1 / 256)
+    if quality_policy not in ("legacy", "pointwise-target"):
+        raise ValueError("未知逐点质量政策")
+    if not all(math.isfinite(x) and x > 0 for x in (quality_target, quality_height)):
+        raise ValueError("质量目标必须有限且为正")
+    if quality_policy != "legacy":
+        if case["algorithm"] != "transactional" or case["heightPolicy"] != "immutable" or order != "error-first":
+            raise ValueError("逐点政策要求Transactional固定旧点和误差优先")
+        result.update(qualityPolicy=quality_policy, qualityTargetPixels=quality_target, qualityHeightRatio=quality_height)
     result.update(cameraFile=str(camera_file), cameraSha256=camera["sha256"],
         cameraFnv64=fnv64(camera_file.read_bytes()), sampleFnv64=fnv64(source_samples(local_path(root,asset["path"])).tobytes()),
         materialFile=str(material_file), materialSha256=material["sha256"],

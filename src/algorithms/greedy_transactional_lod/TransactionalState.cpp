@@ -1,5 +1,6 @@
 #include "algorithms/greedy_transactional_lod/TransactionalState.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
 
 #include <algorithm>
 #include <cmath>
@@ -17,6 +18,7 @@ void WorkLedger::Touch() { ++SampleTouches; CheckLimit(); }
 
 TransactionalState::TransactionalState(const InitialMesh& input) : _config(input.Config)
 {
+    TransactionalPointwiseQuality::Validate(_config);
     if (_config.ReceiverOrder != TransactionalReceiverOrder::Composite &&
         _config.ReceiverOrder != TransactionalReceiverOrder::ErrorFirst)
     {

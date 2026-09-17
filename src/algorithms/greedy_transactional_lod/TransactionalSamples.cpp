@@ -229,12 +229,45 @@ double TransactionalSamples::Priority(const Configuration& config,const std::arr
 std::optional<PriorityKey> TransactionalSamples::ReceiverKey(const Configuration& config,
     double priority, double maximum, Identity id, Slot slot)
 {
+    if (config.QualityPolicy == TransactionalQualityPolicy::PointwiseTarget)
+    {
+        if (!std::isfinite(maximum) || maximum <= config.QualityTargetPixels * config.QualityTargetPixels)
+        {
+            return std::nullopt;
+        }
+        return PriorityKey{-maximum, id, slot};
+    }
     if (!std::isfinite(priority) || priority <= config.SplitPixels * config.SplitPixels)
     {
         return std::nullopt;
     }
     const double value = config.ReceiverOrder == TransactionalReceiverOrder::ErrorFirst ? maximum : priority;
     return PriorityKey{-value, id, slot};
+}
+
+std::vector<Slot> TransactionalSamples::BoxCandidates(double minU, double minV,
+    double maxU, double maxV, WorkLedger& work) const
+{
+    std::vector<Slot> result;
+    // 外扩一格仅枚举候选，不用浮点矩形判断替代精确的闭面包含
+    for (const auto& group : _groups)
+    {
+        const int left = std::max(0, static_cast<int>(std::floor((minU * Denominator() - group.X) / 6)) - 1);
+        const int right = std::min(static_cast<int>(group.Columns) - 1,
+            static_cast<int>(std::ceil((maxU * Denominator() - group.X) / 6)) + 1);
+        const int bottom = std::max(0, static_cast<int>(std::floor((minV * Denominator() - group.Y) / 6)) - 1);
+        const int top = std::min(static_cast<int>(group.Rows) - 1,
+            static_cast<int>(std::ceil((maxV * Denominator() - group.Y) / 6)) + 1);
+        for (int y = bottom; y <= top; ++y)
+        {
+            for (int x = left; x <= right; ++x)
+            {
+                result.push_back(group.Start + static_cast<Slot>(y) * group.Columns + static_cast<Slot>(x));
+                work.Touch();
+            }
+        }
+    }
+    return result;
 }
 
 void TransactionalSamples::Refresh(const TransactionalState& state,WorkLedger& work)

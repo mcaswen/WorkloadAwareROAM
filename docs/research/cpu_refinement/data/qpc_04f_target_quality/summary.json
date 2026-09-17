@@ -1,0 +1,4112 @@
+{
+  "protocol": "qpc04f-pointwise-target-v1",
+  "collection": {
+    "cases": [
+      {
+        "case": "peking547-b50000-transactional-t8",
+        "status": "complete",
+        "seedEqual": true
+      },
+      {
+        "case": "dem-sierra-b50000-transactional-t8",
+        "status": "complete",
+        "seedEqual": true
+      },
+      {
+        "case": "dem-canyon-b50000-transactional-t8",
+        "status": "complete",
+        "seedEqual": true
+      }
+    ],
+    "observerFix": "policy-aware diagnostic; normal runs reused",
+    "probe": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+      "bytes": 1583616,
+      "sha256": "ca382053f97fa8493895ff3c06c06d9bee4aa4c0834c9892b57aacedf8a04f90"
+    }
+  },
+  "cases": [
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "timing": {
+        "A": {
+          "frames": 24,
+          "time": {
+            "cpuMs": {
+              "mean": 104.24086697896321,
+              "maximum": 252.6595001220703
+            },
+            "uploadMs": {
+              "mean": 0.6655428494725909,
+              "maximum": 7.3429999351501465
+            },
+            "beginMs": {
+              "mean": 0.16313333333333332,
+              "maximum": 0.306
+            },
+            "waitMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "renderMs": {
+              "mean": 0.03980952380952381,
+              "maximum": 0.0706
+            },
+            "presentMs": {
+              "mean": 0.6104047619047619,
+              "maximum": 1.4215
+            },
+            "frameMs": {
+              "mean": 105.72939523809524,
+              "maximum": 253.3002
+            },
+            "evidenceMs": {
+              "mean": 6.837280952380953,
+              "maximum": 7.4357
+            },
+            "seedMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "initializeMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "viewMs": {
+              "mean": 13.392504761904762,
+              "maximum": 22.3381
+            },
+            "receiverMs": {
+              "mean": 17.217847619047618,
+              "maximum": 61.777100000000004
+            },
+            "donorMs": {
+              "mean": 2.3532571428571427,
+              "maximum": 10.880700000000001
+            },
+            "reservationMs": {
+              "mean": 53.34654761904762,
+              "maximum": 165.9289
+            },
+            "topologyPrepareMs": {
+              "mean": 2.4732904761904764,
+              "maximum": 7.6365
+            },
+            "topologyPublishMs": {
+              "mean": 0.4680380952380952,
+              "maximum": 0.9193
+            },
+            "sampleRepairMs": {
+              "mean": 12.35822857142857,
+              "maximum": 33.8058
+            },
+            "meshPrepareMs": {
+              "mean": 0.20491428571428572,
+              "maximum": 1.6712
+            },
+            "continuationMs": {
+              "mean": 0.9069952380952381,
+              "maximum": 2.3867
+            },
+            "adapterMs": {
+              "mean": 0.029309523809524524,
+              "maximum": 0.06649999999999068
+            }
+          },
+          "finalFaces": "50000",
+          "counters": {
+            "exchanges": 745,
+            "free": 5,
+            "pairs": 227364,
+            "conflicts": 155727,
+            "touches": 1364391
+          },
+          "finalRaw": 49907,
+          "maxStagnant": 0
+        },
+        "B": {
+          "frames": 24,
+          "time": {
+            "cpuMs": {
+              "mean": 103.04614008980847,
+              "maximum": 373.7300109863281
+            },
+            "uploadMs": {
+              "mean": 0.5016238216499221,
+              "maximum": 4.887800216674805
+            },
+            "beginMs": {
+              "mean": 0.07896666666666667,
+              "maximum": 0.135
+            },
+            "waitMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "renderMs": {
+              "mean": 0.028323809523809525,
+              "maximum": 0.0849
+            },
+            "presentMs": {
+              "mean": 0.3810952380952381,
+              "maximum": 0.5332
+            },
+            "frameMs": {
+              "mean": 104.04274761904762,
+              "maximum": 375.5567
+            },
+            "evidenceMs": {
+              "mean": 6.766066666666666,
+              "maximum": 7.4114
+            },
+            "seedMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "initializeMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "viewMs": {
+              "mean": 10.393161904761905,
+              "maximum": 18.306800000000003
+            },
+            "receiverMs": {
+              "mean": 41.66458095238095,
+              "maximum": 135.6849
+            },
+            "donorMs": {
+              "mean": 11.747414285714285,
+              "maximum": 38.6233
+            },
+            "reservationMs": {
+              "mean": 31.884490476190475,
+              "maximum": 201.6403
+            },
+            "topologyPrepareMs": {
+              "mean": 0.9996571428571429,
+              "maximum": 4.6572000000000005
+            },
+            "topologyPublishMs": {
+              "mean": 0.13084761904761905,
+              "maximum": 0.5065999999999999
+            },
+            "sampleRepairMs": {
+              "mean": 4.155366666666667,
+              "maximum": 15.370800000000001
+            },
+            "meshPrepareMs": {
+              "mean": 0.09379047619047619,
+              "maximum": 1.2786
+            },
+            "continuationMs": {
+              "mean": 0.13711428571428572,
+              "maximum": 0.4944
+            },
+            "adapterMs": {
+              "mean": 0.028519047619049463,
+              "maximum": 0.33850000000001046
+            }
+          },
+          "finalFaces": "49999",
+          "counters": {
+            "exchanges": 242,
+            "free": 3,
+            "pairs": 71250,
+            "conflicts": 58847,
+            "touches": 2527698
+          },
+          "finalRaw": 0,
+          "maxStagnant": 0
+        }
+      },
+      "audits": [
+        {
+          "frame": 15,
+          "status": "complete",
+          "input": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B-trace/exchange-quality-15.json",
+            "bytes": 902237,
+            "sha256": "d2eac9c6dbcce521923fc9701a4c8153dfa4149513529f628a39b9ea369069c4"
+          },
+          "approved": 39,
+          "exchanges": [
+            {
+              "index": 0,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 152,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "204665888375115083721663512147773005973/21267647932558653966460912964485513216",
+                    "deltaUpper": "3274654214001841339546616194364368095677/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 152,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "1637322642379892909296037748634579938887/170141183460469231731687303715884105728",
+                    "deltaUpper": "3274645284759785818592075497269159877883/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 1,
+              "receiverKind": "R",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 91,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "3221289315431933085287130386541263830105/340282366920938463463374607431768211456",
+                    "deltaUpper": "3221289315431933085287130386541263830155/340282366920938463463374607431768211456",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 91,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "3221275379486378121548327157696304623133/340282366920938463463374607431768211456",
+                    "deltaUpper": "3221275379486378121548327157696304623183/340282366920938463463374607431768211456",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 2,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 67,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "239324350545333205875759268220751266649/170141183460469231731687303715884105728",
+                    "deltaUpper": "478648701090666411751518536441502533329/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 67,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "239326917543656098116891875637916615247/170141183460469231731687303715884105728",
+                    "deltaUpper": "478653835087312196233783751275833230525/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 3,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 39,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "169060716983284432288372240558061923571/340282366920938463463374607431768211456",
+                    "deltaUpper": "84530358491642216144186120279030961797/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 39,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "84528537688676795301175782276789512371/170141183460469231731687303715884105728",
+                    "deltaUpper": "169057075377353590602351564553579024765/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 4,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 84,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "315179409439763011050115189071607268443/170141183460469231731687303715884105728",
+                    "deltaUpper": "315179409439763011050115189071607268463/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 84,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "630359468071925410242844270157572330171/340282366920938463463374607431768211456",
+                    "deltaUpper": "630359468071925410242844270157572330211/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 5,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 48,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "84367285244321301841814263616878919939/340282366920938463463374607431768211456",
+                    "deltaUpper": "42183642622160650920907131808439459987/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 48,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "21092178868351585084810806789180236711/85070591730234615865843651857942052864",
+                    "deltaUpper": "84368715473406340339243227156720946879/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 6,
+              "receiverKind": "F",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 884,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "7179912741554052759690060758576033124259/170141183460469231731687303715884105728",
+                    "deltaUpper": "14359825483108105519380121517152066248901/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 884,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "1794974235655249819263283431761266644685/42535295865117307932921825928971026432",
+                    "deltaUpper": "14359793885241998554106267454090133157863/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 7,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 54,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "129352860719364119293437525112897263807/340282366920938463463374607431768211456",
+                    "deltaUpper": "129352860719364119293437525112897263849/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 54,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "129349392186407399763221525247556796715/340282366920938463463374607431768211456",
+                    "deltaUpper": "129349392186407399763221525247556796757/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 8,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 334,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "71994127736703825410922984635844341411/42535295865117307932921825928971026432",
+                    "deltaUpper": "575953021893630603287383877086754731333/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 334,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "71994412934039760932147197007301312835/42535295865117307932921825928971026432",
+                    "deltaUpper": "575955303472318087457177576058410502725/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 9,
+              "receiverKind": "F",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 10,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "48765809928171761502616794449717963995/340282366920938463463374607431768211456",
+                    "deltaUpper": "48765809928171761502616794449717964005/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 10,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "48766006983544939198311633963733311151/340282366920938463463374607431768211456",
+                    "deltaUpper": "48766006983544939198311633963733311161/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 10,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 438,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "243015937141128113176466412947883508273/340282366920938463463374607431768211456",
+                    "deltaUpper": "243015937141128113176466412947883508349/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 24,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 438,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "243016122333751132952703555917424519313/340282366920938463463374607431768211456",
+                    "deltaUpper": "243016122333751132952703555917424519389/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 24,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 11,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 225,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "127486041718189652322850381635796509457/42535295865117307932921825928971026432",
+                    "deltaUpper": "509944166872758609291401526543186037857/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 225,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "1019888317455138123657806221718605529191/340282366920938463463374607431768211456",
+                    "deltaUpper": "1019888317455138123657806221718605529249/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 12,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 884,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "609437553476518033022386517417522578357/170141183460469231731687303715884105728",
+                    "deltaUpper": "76179694184564754127798314677190322309/21267647932558653966460912964485513216",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 884,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "152363245041043457264627280788060386683/42535295865117307932921825928971026432",
+                    "deltaUpper": "609452980164173829058509123152241546847/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 13,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 1326,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "195735761426249589958166071944532995253/85070591730234615865843651857942052864",
+                    "deltaUpper": "782943045704998359832664287778131981255/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 1326,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "782964196616644496946372389558516447707/340282366920938463463374607431768211456",
+                    "deltaUpper": "391482098308322248473186194779258223975/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 14,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 14,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "3808031534553658576331375601914591707/85070591730234615865843651857942052864",
+                    "deltaUpper": "15232126138214634305325502407658366831/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 33,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 14,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "15232220815889490788347909682752692459/340282366920938463463374607431768211456",
+                    "deltaUpper": "7616110407944745394173954841376346231/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 33,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 15,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 36,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "214797494127892800436840439247422175707/340282366920938463463374607431768211456",
+                    "deltaUpper": "107398747063946400218420219623711087859/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 24,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 36,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "53699166761604874577566912043043060019/85070591730234615865843651857942052864",
+                    "deltaUpper": "214796667046419498310267648172172240087/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 24,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 16,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 61,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "49142290811670122488440194681931610831/340282366920938463463374607431768211456",
+                    "deltaUpper": "49142290811670122488440194681931610839/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 24,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 61,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "24571155241449498510437338475586188945/170141183460469231731687303715884105728",
+                    "deltaUpper": "24571155241449498510437338475586188949/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 24,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 17,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 76,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "105977626402197667507092625508840393195/340282366920938463463374607431768211456",
+                    "deltaUpper": "105977626402197667507092625508840393209/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 76,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "26494417743574539520193877088666999939/85070591730234615865843651857942052864",
+                    "deltaUpper": "52988835487149079040387754177333999885/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 18,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 38,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "34483075585410625568735493468163683733/170141183460469231731687303715884105728",
+                    "deltaUpper": "17241537792705312784367746734081841869/85070591730234615865843651857942052864",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 38,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "68966076644079370444880439661700927459/340282366920938463463374607431768211456",
+                    "deltaUpper": "68966076644079370444880439661700927469/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 19,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 446,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "108389537181521522033046173679315046115/340282366920938463463374607431768211456",
+                    "deltaUpper": "54194768590760761016523086839657523069/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 446,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "108389438255706024499069599388456529631/340282366920938463463374607431768211456",
+                    "deltaUpper": "54194719127853012249534799694228264827/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 20,
+              "receiverKind": "F",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 52,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "42914679262560302760664452620128826981/170141183460469231731687303715884105728",
+                    "deltaUpper": "85829358525120605521328905240257653975/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 52,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "85830556346894268191668213385782405323/340282366920938463463374607431768211456",
+                    "deltaUpper": "10728819543361783523958526673222800667/42535295865117307932921825928971026432",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 21,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 225,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "52249881303690343657178238717951676203/85070591730234615865843651857942052864",
+                    "deltaUpper": "208999525214761374628712954871806704841/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 225,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "13062363828137332798948238115278706909/21267647932558653966460912964485513216",
+                    "deltaUpper": "208997821250197324783171809844459310573/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 22,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 171,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "150594933361178596693153214832392038377/340282366920938463463374607431768211456",
+                    "deltaUpper": "73532682305262986666578718179878925/166153499473114484112975882535043072",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 171,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "150592225609837593860676333239348362203/340282366920938463463374607431768211456",
+                    "deltaUpper": "75296112804918796930338166619674181113/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 23,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 38,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "2661788245574211451214431737142534005/42535295865117307932921825928971026432",
+                    "deltaUpper": "5323576491148422902428863474285068011/85070591730234615865843651857942052864",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 38,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "21294366348367786106073275407875512513/340282366920938463463374607431768211456",
+                    "deltaUpper": "21294366348367786106073275407875512517/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 24,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 158,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "46779608093634784793117899718596465987/170141183460469231731687303715884105728",
+                    "deltaUpper": "93559216187269569586235799437192932003/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 33,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 158,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "93559881896485269032495196317103876049/340282366920938463463374607431768211456",
+                    "deltaUpper": "46779940948242634516247598158551938039/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 33,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 25,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 325,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "66874452752798056544410104607482804677/170141183460469231731687303715884105728",
+                    "deltaUpper": "133748905505596113088820209214965609377/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 325,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "66874274035280777204926450473091465819/170141183460469231731687303715884105728",
+                    "deltaUpper": "133748548070561554409852900946182931661/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 26,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 35,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "3930519930570974160381024808402395529/340282366920938463463374607431768211456",
+                    "deltaUpper": "1965259965285487080190512404201197765/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 35,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "3930517538761096270448075197378159361/340282366920938463463374607431768211456",
+                    "deltaUpper": "1965258769380548135224037598689079681/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 27,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 169,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "39438207566542785136723135149986486893/340282366920938463463374607431768211456",
+                    "deltaUpper": "39438207566542785136723135149986486903/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 29,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 169,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "39438367094661354060588984696727750027/340282366920938463463374607431768211456",
+                    "deltaUpper": "39438367094661354060588984696727750037/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 29,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 28,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 76,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "16127827964358628723684206670031842865/340282366920938463463374607431768211456",
+                    "deltaUpper": "16127827964358628723684206670031842871/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 33,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 76,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "16127775012144221165365818187658914475/340282366920938463463374607431768211456",
+                    "deltaUpper": "16127775012144221165365818187658914481/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 33,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 29,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 1743,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "155797186028723890258091786748715116159/340282366920938463463374607431768211456",
+                    "deltaUpper": "9737324126795243141130736671794694763/21267647932558653966460912964485513216",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 1743,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "155802333704232513451957797476574026029/340282366920938463463374607431768211456",
+                    "deltaUpper": "77901166852116256725978898738287013039/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 30,
+              "receiverKind": "R",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 84,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "24674293469550821801198012706525813015/340282366920938463463374607431768211456",
+                    "deltaUpper": "12337146734775410900599006353262906509/170141183460469231731687303715884105728",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 84,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "12337045592503946239140041650598633519/170141183460469231731687303715884105728",
+                    "deltaUpper": "24674091185007892478280083301197267041/340282366920938463463374607431768211456",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 31,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 46,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "32464978690372572049017838028678679623/340282366920938463463374607431768211456",
+                    "deltaUpper": "32464978690372572049017838028678679629/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 46,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "32464714460645174098032069009385249973/340282366920938463463374607431768211456",
+                    "deltaUpper": "32464714460645174098032069009385249979/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 26,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 32,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 221,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "3695433206021366361874755641206165829/340282366920938463463374607431768211456",
+                    "deltaUpper": "1847716603010683180937377820603082915/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 221,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "3695831609699337331982013175173019457/340282366920938463463374607431768211456",
+                    "deltaUpper": "1847915804849668665991006587586509729/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 33,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 325,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "12605273840565712390019662114932453825/340282366920938463463374607431768211456",
+                    "deltaUpper": "12605273840565712390019662114932453829/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 325,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "6302756148179964687218139330061849431/170141183460469231731687303715884105728",
+                    "deltaUpper": "6302756148179964687218139330061849433/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 34,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 65,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "19029823311234930147728978062384295117/340282366920938463463374607431768211456",
+                    "deltaUpper": "9514911655617465073864489031192147561/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 65,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "2378706261616875950491929100262672003/42535295865117307932921825928971026432",
+                    "deltaUpper": "19029650092935007603935432802101376029/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 35,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 78,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "13027857390809753304230469229710306361/340282366920938463463374607431768211456",
+                    "deltaUpper": "3256964347702438326057617307427576591/85070591730234615865843651857942052864",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 29,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 78,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "6513882858294981277716252410937022437/170141183460469231731687303715884105728",
+                    "deltaUpper": "13027765716589962555432504821874044877/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 29,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 36,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 329,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "2198996698730815441499844466240106647/170141183460469231731687303715884105728",
+                    "deltaUpper": "4397993397461630882999688932480213297/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 24,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 329,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "2198938762274013016782526751147065547/170141183460469231731687303715884105728",
+                    "deltaUpper": "4397877524548026033565053502294131097/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 24,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 37,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 166,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "3581030024744750875725761896801459965/170141183460469231731687303715884105728",
+                    "deltaUpper": "1790515012372375437862880948400729983/85070591730234615865843651857942052864",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 24,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 166,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "447626205607926779224831571303750157/21267647932558653966460912964485513216",
+                    "deltaUpper": "3581009644863414233798652570430001257/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 24,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 38,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "1766984939751621024593600072418303221/170141183460469231731687303715884105728",
+                    "deltaUpper": "3533969879503242049187200144836606443/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 30,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "3533935939147903481273021132377909431/340282366920938463463374607431768211456",
+                    "deltaUpper": "441741992393487935159127641547238679/42535295865117307932921825928971026432",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 28,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            }
+          ],
+          "combined": [
+            {
+              "status": "pass",
+              "samples": 10676,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "27829415546141568111968719244100902234173/340282366920938463463374607431768211456",
+              "deltaUpper": "3478676943267696013996089905512612779479/42535295865117307932921825928971026432",
+              "accepted": true
+            },
+            {
+              "status": "pass",
+              "samples": 10676,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "27829417118080406451658552019423434105557/340282366920938463463374607431768211456",
+              "deltaUpper": "1739338569880025403228659501213964631701/21267647932558653966460912964485513216",
+              "accepted": true
+            }
+          ],
+          "work": {
+            "supportEnumerationTests": 94584,
+            "coverageTests": 123628,
+            "rationalSampleEvaluations": 21352,
+            "squaredErrorEvaluations": 85408,
+            "maxRationalBits": 460,
+            "heightCacheMaxDifference": 4.440892098500626e-16,
+            "referenceCacheMaxDifference": 8.881784197001252e-16,
+            "screenSquaredCacheMaxDifference": 1.26704202685346e-13
+          }
+        },
+        {
+          "frame": 23,
+          "status": "complete",
+          "input": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B-trace/exchange-quality-23.json",
+            "bytes": 851,
+            "sha256": "a73c90d5e8c2c05d570e9de8afaa910b9bff0ad4be0e4378dbb02292fc0d9452"
+          },
+          "approved": 0,
+          "exchanges": [],
+          "combined": [
+            {
+              "status": "pass",
+              "samples": 0,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "0",
+              "deltaUpper": "0",
+              "accepted": true
+            },
+            {
+              "status": "pass",
+              "samples": 0,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "0",
+              "deltaUpper": "0",
+              "accepted": true
+            }
+          ],
+          "work": {}
+        }
+      ],
+      "quality": [
+        {
+          "frame": 2,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "11420149051358100293",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.4118813246687308,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.03444177755827108,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 839.828303
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "18435347681902994536",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.0358324237514829,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 827.43212
+          },
+          "Dmax": 0.32647138352648924,
+          "excessOver025": 65,
+          "visible": 1709754,
+          "targetExceeded": 0,
+          "squaredExcess": 0.0,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "3504792134666985163",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.0358324237514829,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 876.940937
+          },
+          "DmaxVsDOD": 2.4045695989904914e-13,
+          "excessOver025VsDOD": 0
+        },
+        {
+          "frame": 15,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "13811081599591657479",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1712379,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.8313280665689304,
+            "heightMax": 0.14790036050523314,
+            "terrainSampleRms": 0.08829024654543856,
+            "screenWitness": [
+              1715419,
+              0.9798534512519836,
+              0.9569596946239471
+            ],
+            "heightWitness": [
+              1715419,
+              0.9798534512519836,
+              0.9569596946239471
+            ],
+            "offlineMs": 856.016071
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "12281327372140033769",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1712379,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.9965571109865088,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.10777551568190658,
+            "screenWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 817.65545
+          },
+          "Dmax": 1.8131387448927254,
+          "excessOver025": 7143,
+          "visible": 1712379,
+          "targetExceeded": 13311,
+          "squaredExcess": 10458.513488991848,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "18334981271927936407",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1712379,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.418727498700991,
+            "heightMax": 0.281968581366959,
+            "terrainSampleRms": 0.03405166256535189,
+            "screenWitness": [
+              852488,
+              0.7307692170143127,
+              0.4761904776096344
+            ],
+            "heightWitness": [
+              119098,
+              1,
+              0.06593406945466995
+            ],
+            "offlineMs": 876.768757
+          },
+          "DmaxVsDOD": 1.977369318373242,
+          "excessOver025VsDOD": 31288
+        },
+        {
+          "frame": 16,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "711847779908362842",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.38822132658338726,
+            "heightMax": 0.14790036050523314,
+            "terrainSampleRms": 0.0331096643234165,
+            "screenWitness": [
+              72466,
+              0.7735042770703634,
+              0.03907204046845436
+            ],
+            "heightWitness": [
+              1715419,
+              0.9798534512519836,
+              0.9569596946239471
+            ],
+            "offlineMs": 833.376826
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "12281327372140033769",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.4170659391411788,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.034499434721040494,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 825.455662
+          },
+          "Dmax": 0.30177611342349325,
+          "excessOver025": 31,
+          "visible": 1709754,
+          "targetExceeded": 0,
+          "squaredExcess": 0.0,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "7203336847110121610",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.0358324237514829,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 863.314718
+          },
+          "DmaxVsDOD": 0.1875503456136306,
+          "excessOver025VsDOD": 0
+        },
+        {
+          "frame": 23,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "15216371150959151512",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.38822132658338726,
+            "heightMax": 0.14790036050523314,
+            "terrainSampleRms": 0.03304001311135333,
+            "screenWitness": [
+              72466,
+              0.7735042770703634,
+              0.03907204046845436
+            ],
+            "heightWitness": [
+              1715419,
+              0.9798534512519836,
+              0.9569596946239471
+            ],
+            "offlineMs": 832.730271
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "12281327372140033769",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.4170659391411788,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.034499434721040494,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 824.061428
+          },
+          "Dmax": 0.36576438790687676,
+          "excessOver025": 48,
+          "visible": 1709754,
+          "targetExceeded": 0,
+          "squaredExcess": 0.0,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "2147019052593932915",
+            "sampleHash": "12881002172889809993",
+            "q": 1790881,
+            "visible": 1709754,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 0.44188556383409333,
+            "heightMax": 0.1675816474447367,
+            "terrainSampleRms": 0.0358324237514829,
+            "screenWitness": [
+              13560,
+              0.8040292859077454,
+              0.007326007355004549
+            ],
+            "heightWitness": [
+              1790794,
+              0.9743589758872986,
+              1
+            ],
+            "offlineMs": 892.824261
+          },
+          "DmaxVsDOD": 0.1875503456136306,
+          "excessOver025VsDOD": 0
+        }
+      ],
+      "counts": {
+        "certified": 2981,
+        "fast_shape_miss": 1249,
+        "fit_bound_failed": 305,
+        "pointwise_donor_certified": 1579,
+        "pointwise_height_damage": 48,
+        "pointwise_receiver_certified": 654,
+        "pointwise_screen_damage": 70,
+        "quality_evidence_bytes": 10229084,
+        "quality_exact_samples": 256,
+        "quality_filter_samples": 477754,
+        "quality_infeasible": 21,
+        "quality_samples": 477754,
+        "shape_infeasible": 2239,
+        "flip_certified": 12,
+        "flip_flip_nonconvex_or_existing_diagonal": 208,
+        "flip_shape_infeasible": 41,
+        "flip_flip_not_interior": 3,
+        "flip_quality_infeasible": 8
+      },
+      "seconds": {
+        "donor_order": 0.0006647000000000001,
+        "reservation": 0.7522411999999998,
+        "view_order": 0.029181699999999998,
+        "view_projection": 0.1229971,
+        "view_refresh": 0.247569,
+        "view_scores": 0.0894351,
+        "derived_publish": 0.0033947,
+        "donor_stage": 0.2767589,
+        "face_fill": 0.0004226,
+        "mesh_fill": 0.0004934000000000001,
+        "mesh_prepare": 0.0027291000000000004,
+        "next_order": 0.0168436,
+        "pointwise_batch": 0.024069600000000003,
+        "prepare": 0.022034699999999997,
+        "publish": 0.0024915000000000002,
+        "receiver_stage": 1.0195327,
+        "sample_repair": 0.09535609999999999,
+        "task_wall_sum_pointwise_quality": 5.9368309,
+        "task_wall_sum_proposal": 0.09371769999999999,
+        "task_wall_sum_receiver_certification": 0.9788976,
+        "task_wall_sum_flip_recovery": 0.0388734
+      },
+      "maximumRationalBits": 75,
+      "lastReasons": {}
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "timing": {
+        "A": {
+          "frames": 96,
+          "time": {
+            "cpuMs": {
+              "mean": 33.16076443784981,
+              "maximum": 83.07520294189453
+            },
+            "uploadMs": {
+              "mean": 1.9206559213844718,
+              "maximum": 16.411100387573242
+            },
+            "beginMs": {
+              "mean": 0.11379247311827957,
+              "maximum": 0.2753
+            },
+            "waitMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "renderMs": {
+              "mean": 0.03711505376344086,
+              "maximum": 0.0844
+            },
+            "presentMs": {
+              "mean": 0.5594129032258065,
+              "maximum": 1.6964
+            },
+            "frameMs": {
+              "mean": 35.802036559139786,
+              "maximum": 85.7978
+            },
+            "evidenceMs": {
+              "mean": 1.6539182795698926,
+              "maximum": 2.9019
+            },
+            "seedMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "initializeMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "viewMs": {
+              "mean": 7.782416129032258,
+              "maximum": 16.7002
+            },
+            "receiverMs": {
+              "mean": 11.748208602150537,
+              "maximum": 26.4633
+            },
+            "donorMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "reservationMs": {
+              "mean": 0.22971827956989246,
+              "maximum": 0.8579
+            },
+            "topologyPrepareMs": {
+              "mean": 0.403005376344086,
+              "maximum": 1.7358
+            },
+            "topologyPublishMs": {
+              "mean": 0.09765591397849463,
+              "maximum": 0.5974
+            },
+            "sampleRepairMs": {
+              "mean": 11.899369892473118,
+              "maximum": 44.291900000000005
+            },
+            "meshPrepareMs": {
+              "mean": 0.05113548387096774,
+              "maximum": 0.2437
+            },
+            "continuationMs": {
+              "mean": 0.35885591397849465,
+              "maximum": 2.6374
+            },
+            "adapterMs": {
+              "mean": 0.024352688172042745,
+              "maximum": 0.2575000000000074
+            }
+          },
+          "finalFaces": "11282",
+          "counters": {
+            "exchanges": 0,
+            "free": 1245,
+            "pairs": 0,
+            "conflicts": 725,
+            "touches": 2804616
+          },
+          "finalRaw": 145,
+          "maxStagnant": 33
+        },
+        "B": {
+          "frames": 96,
+          "time": {
+            "cpuMs": {
+              "mean": 95.83805151908628,
+              "maximum": 411.3037109375
+            },
+            "uploadMs": {
+              "mean": 2.4308580653466563,
+              "maximum": 6.373300075531006
+            },
+            "beginMs": {
+              "mean": 0.0931225806451613,
+              "maximum": 0.4564
+            },
+            "waitMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "renderMs": {
+              "mean": 0.03661290322580645,
+              "maximum": 0.1409
+            },
+            "presentMs": {
+              "mean": 0.5214978494623655,
+              "maximum": 1.6438
+            },
+            "frameMs": {
+              "mean": 98.9284688172043,
+              "maximum": 416.6094
+            },
+            "evidenceMs": {
+              "mean": 1.483483870967742,
+              "maximum": 6.5584
+            },
+            "seedMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "initializeMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "viewMs": {
+              "mean": 10.67058064516129,
+              "maximum": 42.2644
+            },
+            "receiverMs": {
+              "mean": 78.86249032258064,
+              "maximum": 374.289
+            },
+            "donorMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "reservationMs": {
+              "mean": 0.08749462365591398,
+              "maximum": 1.4085
+            },
+            "topologyPrepareMs": {
+              "mean": 0.23966666666666667,
+              "maximum": 3.9692
+            },
+            "topologyPublishMs": {
+              "mean": 0.040148387096774193,
+              "maximum": 0.7246
+            },
+            "sampleRepairMs": {
+              "mean": 4.547259139784947,
+              "maximum": 60.86
+            },
+            "meshPrepareMs": {
+              "mean": 0.03707634408602151,
+              "maximum": 0.3598
+            },
+            "continuationMs": {
+              "mean": 0.09466236559139785,
+              "maximum": 2.841
+            },
+            "adapterMs": {
+              "mean": 0.015312903225806597,
+              "maximum": 0.11099999999999
+            }
+          },
+          "finalFaces": "9752",
+          "counters": {
+            "exchanges": 0,
+            "free": 480,
+            "pairs": 0,
+            "conflicts": 359,
+            "touches": 5906477
+          },
+          "finalRaw": 4036,
+          "maxStagnant": 35
+        }
+      },
+      "audits": [
+        {
+          "frame": 48,
+          "status": "complete",
+          "input": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B-trace/exchange-quality-48.json",
+            "bytes": 101262,
+            "sha256": "2ecd893292244d64cb9a97ba96d9d5de8a5c3bad88cf028a25e4fc7b2fd2abd2"
+          },
+          "approved": 6,
+          "exchanges": [
+            {
+              "index": 0,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 117,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "125596369077811912659849958995998211879/85070591730234615865843651857942052864",
+                    "deltaUpper": "502385476311247650639399835983992847565/340282366920938463463374607431768211456",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 117,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "502355871846698213690175184786583879959/340282366920938463463374607431768211456",
+                    "deltaUpper": "62794483980837276711271898098322985001/42535295865117307932921825928971026432",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 1,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 61,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "40832593361373943209216497330394911317/170141183460469231731687303715884105728",
+                    "deltaUpper": "81665186722747886418432994660789822649/340282366920938463463374607431768211456",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 61,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "40831250455505924971332483232186328175/170141183460469231731687303715884105728",
+                    "deltaUpper": "81662500911011849942664966464372656365/340282366920938463463374607431768211456",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 2,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 617,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "143674260738286240333880344373135736527/85070591730234615865843651857942052864",
+                    "deltaUpper": "143674260738286240333880344373135736567/85070591730234615865843651857942052864",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 617,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "574693238917173317829425543541127632939/340282366920938463463374607431768211456",
+                    "deltaUpper": "574693238917173317829425543541127633099/340282366920938463463374607431768211456",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 3,
+              "receiverKind": "F",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 35,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "46189605105311059945021918897779174019/340282366920938463463374607431768211456",
+                    "deltaUpper": "23094802552655529972510959448889587017/170141183460469231731687303715884105728",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 35,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "23096712282130904767853169069311324411/170141183460469231731687303715884105728",
+                    "deltaUpper": "46193424564261809535706338138622648837/340282366920938463463374607431768211456",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 4,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 325,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "427762675933466629495829829278417320849/340282366920938463463374607431768211456",
+                    "deltaUpper": "427762675933466629495829829278417321029/340282366920938463463374607431768211456",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 325,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "106946618065596520089280665073633202833/85070591730234615865843651857942052864",
+                    "deltaUpper": "53473309032798260044640332536816601439/42535295865117307932921825928971026432",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 5,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 85,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "62896660189861827323154249004714397349/170141183460469231731687303715884105728",
+                    "deltaUpper": "125793320379723654646308498009428794731/340282366920938463463374607431768211456",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 85,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "125786967414251735134404768784600343161/340282366920938463463374607431768211456",
+                    "deltaUpper": "62893483707125867567202384392300171597/170141183460469231731687303715884105728",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            }
+          ],
+          "combined": [
+            {
+              "status": "pass",
+              "samples": 1240,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "54952915856426307577516076697592215807/10633823966279326983230456482242756608",
+              "deltaUpper": "439623326851410460620128613580737726569/85070591730234615865843651857942052864",
+              "accepted": true
+            },
+            {
+              "status": "pass",
+              "samples": 1240,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "1758478475915783006489499462009839972563/340282366920938463463374607431768211456",
+              "deltaUpper": "1758478475915783006489499462009839973015/340282366920938463463374607431768211456",
+              "accepted": true
+            }
+          ],
+          "work": {
+            "supportEnumerationTests": 9744,
+            "coverageTests": 14740,
+            "rationalSampleEvaluations": 2480,
+            "squaredErrorEvaluations": 9920,
+            "maxRationalBits": 295,
+            "heightCacheMaxDifference": 8.881784197001252e-16,
+            "referenceCacheMaxDifference": 1.7763568394002505e-15,
+            "screenSquaredCacheMaxDifference": 1.5876189252139739e-13
+          }
+        },
+        {
+          "frame": 95,
+          "status": "complete",
+          "input": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B-trace/exchange-quality-95.json",
+            "bytes": 775,
+            "sha256": "cf473c249a928eaf618cb7cffdc5c3a982e52b9a709300bb59dfbd69606e3483"
+          },
+          "approved": 0,
+          "exchanges": [],
+          "combined": [
+            {
+              "status": "pass",
+              "samples": 0,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "0",
+              "deltaUpper": "0",
+              "accepted": true
+            },
+            {
+              "status": "pass",
+              "samples": 0,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "0",
+              "deltaUpper": "0",
+              "accepted": true
+            }
+          ],
+          "work": {}
+        }
+      ],
+      "quality": [
+        {
+          "frame": 2,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "9394699739884347641",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1499708,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.5864080125804836,
+            "heightMax": 0.37772312545254305,
+            "terrainSampleRms": 0.25729169601475504,
+            "screenWitness": [
+              1559282,
+              0.916015625,
+              0.990234375
+            ],
+            "heightWitness": [
+              1556876,
+              0.1328125,
+              0.990234375
+            ],
+            "offlineMs": 719.50393
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "14184253686552524531",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1499708,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.5864080125804836,
+            "heightMax": 0.37772312545254305,
+            "terrainSampleRms": 0.25719423632738425,
+            "screenWitness": [
+              1559282,
+              0.916015625,
+              0.990234375
+            ],
+            "heightWitness": [
+              1556876,
+              0.1328125,
+              0.990234375
+            ],
+            "offlineMs": 827.253537
+          },
+          "Dmax": 0.10006571637285971,
+          "excessOver025": 0,
+          "visible": 1499708,
+          "targetExceeded": 90364,
+          "squaredExcess": 10274.750690585857,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "7910944778119459221",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1499708,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.1726921856954238,
+            "heightMax": 0.4707915077518159,
+            "terrainSampleRms": 0.2538092346788995,
+            "screenWitness": [
+              864998,
+              0.05859375,
+              0.55078125
+            ],
+            "heightWitness": [
+              1513630,
+              0.064453125,
+              0.962890625
+            ],
+            "offlineMs": 756.278656
+          },
+          "DmaxVsDOD": 1.5537155359378003,
+          "excessOver025VsDOD": 5602
+        },
+        {
+          "frame": 48,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "4915709072609644529",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1155480,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.9764120127831737,
+            "heightMax": 0.37772312545254305,
+            "terrainSampleRms": 0.28524722841504097,
+            "screenWitness": [
+              1558736,
+              0.73828125,
+              0.990234375
+            ],
+            "heightWitness": [
+              1556876,
+              0.1328125,
+              0.990234375
+            ],
+            "offlineMs": 701.895596
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "852793122568151991",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1155480,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.9959503453532907,
+            "heightMax": 0.37772312545254305,
+            "terrainSampleRms": 0.2872518356823005,
+            "screenWitness": [
+              1558736,
+              0.73828125,
+              0.990234375
+            ],
+            "heightWitness": [
+              1556876,
+              0.1328125,
+              0.990234375
+            ],
+            "offlineMs": 788.463351
+          },
+          "Dmax": 0.20339906200248623,
+          "excessOver025": 0,
+          "visible": 1155480,
+          "targetExceeded": 105951,
+          "squaredExcess": 16844.797521716042,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "13095104919855142654",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1155480,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.0416797893895509,
+            "heightMax": 1.754269891755163,
+            "terrainSampleRms": 0.18835355900767617,
+            "screenWitness": [
+              1561810,
+              0.73828125,
+              0.9921875
+            ],
+            "heightWitness": [
+              1430914,
+              0.15625,
+              0.91015625
+            ],
+            "offlineMs": 713.814038
+          },
+          "DmaxVsDOD": 1.9636440746366013,
+          "excessOver025VsDOD": 144148
+        },
+        {
+          "frame": 80,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "12391839687085977834",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1503180,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.133568442602344,
+            "heightMax": 0.37772312545254305,
+            "terrainSampleRms": 0.25252008431029016,
+            "screenWitness": [
+              864998,
+              0.05859375,
+              0.55078125
+            ],
+            "heightWitness": [
+              1556876,
+              0.1328125,
+              0.990234375
+            ],
+            "offlineMs": 715.485135
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "40167193442142411",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1503180,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.123568325551336,
+            "heightMax": 0.37772312545254305,
+            "terrainSampleRms": 0.2541196350828355,
+            "screenWitness": [
+              864998,
+              0.05859375,
+              0.55078125
+            ],
+            "heightWitness": [
+              1556876,
+              0.1328125,
+              0.990234375
+            ],
+            "offlineMs": 809.939469
+          },
+          "Dmax": 0.16437999030473613,
+          "excessOver025": 0,
+          "visible": 1503180,
+          "targetExceeded": 86234,
+          "squaredExcess": 8944.427264771197,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "5042857137947386889",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1503180,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.08957745809527,
+            "heightMax": 0.37772312545254305,
+            "terrainSampleRms": 0.17801768763924997,
+            "screenWitness": [
+              1502006,
+              0.283203125,
+              0.955078125
+            ],
+            "heightWitness": [
+              1556876,
+              0.1328125,
+              0.990234375
+            ],
+            "offlineMs": 781.047061
+          },
+          "DmaxVsDOD": 1.1235682424851967,
+          "excessOver025VsDOD": 140271
+        },
+        {
+          "frame": 95,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "12391839687085977834",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1503180,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.133568442602344,
+            "heightMax": 0.37772312545254305,
+            "terrainSampleRms": 0.25252008431029016,
+            "screenWitness": [
+              864998,
+              0.05859375,
+              0.55078125
+            ],
+            "heightWitness": [
+              1556876,
+              0.1328125,
+              0.990234375
+            ],
+            "offlineMs": 733.146741
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "40167193442142411",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1503180,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.123568325551336,
+            "heightMax": 0.37772312545254305,
+            "terrainSampleRms": 0.2541196350828355,
+            "screenWitness": [
+              864998,
+              0.05859375,
+              0.55078125
+            ],
+            "heightWitness": [
+              1556876,
+              0.1328125,
+              0.990234375
+            ],
+            "offlineMs": 801.702902
+          },
+          "Dmax": 0.16437999030473613,
+          "excessOver025": 0,
+          "visible": 1503180,
+          "targetExceeded": 86234,
+          "squaredExcess": 8944.427264771197,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "5042857137947386889",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1503180,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.08957745809527,
+            "heightMax": 0.37772312545254305,
+            "terrainSampleRms": 0.17801768763924997,
+            "screenWitness": [
+              1502006,
+              0.283203125,
+              0.955078125
+            ],
+            "heightWitness": [
+              1556876,
+              0.1328125,
+              0.990234375
+            ],
+            "offlineMs": 779.951077
+          },
+          "DmaxVsDOD": 1.1235682424851967,
+          "excessOver025VsDOD": 140271
+        }
+      ],
+      "counts": {
+        "certified": 3453,
+        "fit_bound_failed": 48023,
+        "pointwise_height_damage": 1775,
+        "pointwise_receiver_certified": 840,
+        "quality_evidence_bytes": 10521944,
+        "quality_exact_samples": 48103,
+        "quality_filter_samples": 747473,
+        "quality_samples": 747473,
+        "shape_infeasible": 50419,
+        "flip_flip_nonconvex_or_existing_diagonal": 841,
+        "flip_flip_not_interior": 70,
+        "flip_shape_infeasible": 188,
+        "flip_quality_infeasible": 109,
+        "flip_certified": 1
+      },
+      "seconds": {
+        "derived_publish": 0.006857800000000001,
+        "donor_order": 0.002098,
+        "face_fill": 0.0021821000000000006,
+        "mesh_fill": 0.0023713000000000015,
+        "mesh_prepare": 0.0033435999999999995,
+        "next_order": 0.029770500000000012,
+        "pointwise_batch": 0.06279390000000001,
+        "prepare": 0.019374500000000003,
+        "publish": 0.0035589999999999997,
+        "receiver_stage": 7.305050299999997,
+        "reservation": 0.007934599999999993,
+        "sample_repair": 0.37175400000000003,
+        "task_wall_sum_pointwise_quality": 13.168143599999999,
+        "task_wall_sum_proposal": 1.6292811999999999,
+        "task_wall_sum_receiver_certification": 10.5339599,
+        "view_order": 0.03522539999999999,
+        "view_projection": 0.4664814999999998,
+        "view_refresh": 0.7379446000000001,
+        "view_scores": 0.23139329999999989,
+        "task_wall_sum_flip_recovery": 0.07196170000000002
+      },
+      "maximumRationalBits": 73,
+      "lastReasons": {
+        "certified": 6,
+        "fit_bound_failed": 605,
+        "pointwise_height_damage": 6,
+        "quality_evidence_bytes": 4272,
+        "quality_exact_samples": 16,
+        "quality_filter_samples": 224,
+        "quality_samples": 224,
+        "shape_infeasible": 496
+      }
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "timing": {
+        "A": {
+          "frames": 96,
+          "time": {
+            "cpuMs": {
+              "mean": 41.70778389387233,
+              "maximum": 106.78389739990234
+            },
+            "uploadMs": {
+              "mean": 0.017612903266243877,
+              "maximum": 0.06669999659061432
+            },
+            "beginMs": {
+              "mean": 0.11893010752688173,
+              "maximum": 0.2283
+            },
+            "waitMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "renderMs": {
+              "mean": 0.041744086021505374,
+              "maximum": 0.1361
+            },
+            "presentMs": {
+              "mean": 0.5353107526881721,
+              "maximum": 2.0504
+            },
+            "frameMs": {
+              "mean": 42.429684946236556,
+              "maximum": 107.8587
+            },
+            "evidenceMs": {
+              "mean": 7.3101666666666665,
+              "maximum": 8.2961
+            },
+            "seedMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "initializeMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "viewMs": {
+              "mean": 11.314362365591398,
+              "maximum": 19.770300000000002
+            },
+            "receiverMs": {
+              "mean": 14.754137634408602,
+              "maximum": 29.9109
+            },
+            "donorMs": {
+              "mean": 3.8124032258064515,
+              "maximum": 8.5071
+            },
+            "reservationMs": {
+              "mean": 2.397815053763441,
+              "maximum": 21.1018
+            },
+            "topologyPrepareMs": {
+              "mean": 0.566989247311828,
+              "maximum": 2.8314
+            },
+            "topologyPublishMs": {
+              "mean": 0.143447311827957,
+              "maximum": 0.67
+            },
+            "sampleRepairMs": {
+              "mean": 7.882976344086021,
+              "maximum": 37.8018
+            },
+            "meshPrepareMs": {
+              "mean": 0.058076344086021504,
+              "maximum": 0.21330000000000002
+            },
+            "continuationMs": {
+              "mean": 0.19926559139784947,
+              "maximum": 1.2345
+            },
+            "adapterMs": {
+              "mean": 0.017408602150537487,
+              "maximum": 0.07890000000000441
+            }
+          },
+          "finalFaces": "50000",
+          "counters": {
+            "exchanges": 618,
+            "free": 7,
+            "pairs": 145199,
+            "conflicts": 24751,
+            "touches": 2650844
+          },
+          "finalRaw": 282,
+          "maxStagnant": 32
+        },
+        "B": {
+          "frames": 96,
+          "time": {
+            "cpuMs": {
+              "mean": 83.59544933483164,
+              "maximum": 211.04249572753906
+            },
+            "uploadMs": {
+              "mean": 0.048593548164072055,
+              "maximum": 2.1747000217437744
+            },
+            "beginMs": {
+              "mean": 0.11990752688172043,
+              "maximum": 0.2857
+            },
+            "waitMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "renderMs": {
+              "mean": 0.03689032258064516,
+              "maximum": 0.1263
+            },
+            "presentMs": {
+              "mean": 0.5105516129032258,
+              "maximum": 1.4819
+            },
+            "frameMs": {
+              "mean": 84.31860107526882,
+              "maximum": 214.8414
+            },
+            "evidenceMs": {
+              "mean": 7.34428064516129,
+              "maximum": 21.0994
+            },
+            "seedMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "initializeMs": {
+              "mean": 0.0,
+              "maximum": 0.0
+            },
+            "viewMs": {
+              "mean": 11.67527311827957,
+              "maximum": 20.9285
+            },
+            "receiverMs": {
+              "mean": 60.81500430107527,
+              "maximum": 162.0462
+            },
+            "donorMs": {
+              "mean": 9.57552688172043,
+              "maximum": 39.510999999999996
+            },
+            "reservationMs": {
+              "mean": 0.20423655913978495,
+              "maximum": 1.1768
+            },
+            "topologyPrepareMs": {
+              "mean": 0.07141290322580646,
+              "maximum": 0.611
+            },
+            "topologyPublishMs": {
+              "mean": 0.014154838709677419,
+              "maximum": 0.11900000000000001
+            },
+            "sampleRepairMs": {
+              "mean": 0.7076236559139785,
+              "maximum": 6.4981
+            },
+            "meshPrepareMs": {
+              "mean": 0.016223655913978494,
+              "maximum": 0.1336
+            },
+            "continuationMs": {
+              "mean": 0.015288172043010752,
+              "maximum": 0.1081
+            },
+            "adapterMs": {
+              "mean": 0.012505376344086348,
+              "maximum": 0.03650000000001796
+            }
+          },
+          "finalFaces": "50000",
+          "counters": {
+            "exchanges": 110,
+            "free": 2,
+            "pairs": 313589,
+            "conflicts": 1441,
+            "touches": 5845553
+          },
+          "finalRaw": 25733,
+          "maxStagnant": 33
+        }
+      },
+      "audits": [
+        {
+          "frame": 24,
+          "status": "complete",
+          "input": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B-trace/exchange-quality-24.json",
+            "bytes": 11595,
+            "sha256": "fc885167e1cc9889f0209c07838878de981e8786fc534ba7b27928b36fa398fb"
+          },
+          "approved": 2,
+          "exchanges": [
+            {
+              "index": 0,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 19,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "9963888175944728029748661120320694107/85070591730234615865843651857942052864",
+                    "deltaUpper": "39855552703778912118994644481282776435/340282366920938463463374607431768211456",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 19,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 19,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "39846351357848450811552090999747930485/340282366920938463463374607431768211456",
+                    "deltaUpper": "9961587839462112702888022749936982623/85070591730234615865843651857942052864",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 19,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            },
+            {
+              "index": 1,
+              "receiverKind": "E",
+              "domains": [
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 19,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "38285902168442734863997021166763751323/340282366920938463463374607431768211456",
+                    "deltaUpper": "19142951084221367431998510583381875665/170141183460469231731687303715884105728",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 61,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ],
+                [
+                  {
+                    "role": "receiver",
+                    "samples": 19,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "38284989731072010396014195848376252953/340282366920938463463374607431768211456",
+                    "deltaUpper": "1196405929096000324875443620261757905/10633823966279326983230456482242756608",
+                    "accepted": true
+                  },
+                  {
+                    "role": "donor",
+                    "samples": 61,
+                    "screenViolations": [],
+                    "heightViolations": [],
+                    "deltaLower": "0",
+                    "deltaUpper": "0",
+                    "accepted": true
+                  }
+                ]
+              ],
+              "status": "pass"
+            }
+          ],
+          "combined": [
+            {
+              "status": "pass",
+              "samples": 118,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "78141454872221646982991665648046527751/340282366920938463463374607431768211456",
+              "deltaUpper": "78141454872221646982991665648046527765/340282366920938463463374607431768211456",
+              "accepted": true
+            },
+            {
+              "status": "pass",
+              "samples": 118,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "39065670544460230603783143424062091719/170141183460469231731687303715884105728",
+              "deltaUpper": "19532835272230115301891571712031045863/85070591730234615865843651857942052864",
+              "accepted": true
+            }
+          ],
+          "work": {
+            "supportEnumerationTests": 1839,
+            "coverageTests": 1660,
+            "rationalSampleEvaluations": 236,
+            "squaredErrorEvaluations": 944,
+            "maxRationalBits": 288,
+            "heightCacheMaxDifference": 1.7763568394002505e-15,
+            "referenceCacheMaxDifference": 3.552713678800501e-15,
+            "screenSquaredCacheMaxDifference": 9.414691248821327e-14
+          }
+        },
+        {
+          "frame": 95,
+          "status": "complete",
+          "input": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B-trace/exchange-quality-95.json",
+            "bytes": 775,
+            "sha256": "6948f316d2535a89d7d0f2debff7a7d85e91f8012898fa10c542a782e5883bc8"
+          },
+          "approved": 0,
+          "exchanges": [],
+          "combined": [
+            {
+              "status": "pass",
+              "samples": 0,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "0",
+              "deltaUpper": "0",
+              "accepted": true
+            },
+            {
+              "status": "pass",
+              "samples": 0,
+              "screenViolations": [],
+              "heightViolations": [],
+              "deltaLower": "0",
+              "deltaUpper": "0",
+              "accepted": true
+            }
+          ],
+          "work": {}
+        }
+      ],
+      "quality": [
+        {
+          "frame": 2,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "1415755428884888934",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1452205,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 4.63692509577418,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.30283919090954436,
+            "screenWitness": [
+              1501038,
+              0.96875,
+              0.953125
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 808.397405
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "3783830020145409136",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1452205,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 4.676490473244989,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.3028530108667567,
+            "screenWitness": [
+              1501038,
+              0.96875,
+              0.953125
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 890.190083
+          },
+          "Dmax": 0.4594207636106472,
+          "excessOver025": 5,
+          "visible": 1452205,
+          "targetExceeded": 154132,
+          "squaredExcess": 36431.05261711386,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "14389074011157899099",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1452205,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.3156938104516644,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2981173392036623,
+            "screenWitness": [
+              1325460,
+              0.8515625,
+              0.841796875
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 857.046335
+          },
+          "DmaxVsDOD": 4.676487976928246,
+          "excessOver025VsDOD": 7308
+        },
+        {
+          "frame": 48,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "1981425153925890300",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1114577,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 6.818858863056089,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.42952611350554265,
+            "screenWitness": [
+              1549604,
+              0.767578125,
+              0.984375
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 765.819458
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "3045193570500464042",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1114577,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 9.274476736648769,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.4796371514848047,
+            "screenWitness": [
+              1574412,
+              0.837890625,
+              1
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 834.414223
+          },
+          "Dmax": 8.478630600978143,
+          "excessOver025": 2982,
+          "visible": 1114577,
+          "targetExceeded": 161048,
+          "squaredExcess": 171210.64425434713,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "2957331639505755403",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1114577,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 1.839557369258571,
+            "heightMax": 6.259914564360576,
+            "terrainSampleRms": 0.24567629773537125,
+            "screenWitness": [
+              343060,
+              0.267578125,
+              0.21875
+            ],
+            "heightWitness": [
+              1507806,
+              0.169921875,
+              0.958984375
+            ],
+            "offlineMs": 861.29134
+          },
+          "DmaxVsDOD": 8.972326903505774,
+          "excessOver025VsDOD": 131103
+        },
+        {
+          "frame": 80,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "14453462628644333389",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.7838907211193353,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.3016263190939442,
+            "screenWitness": [
+              1380474,
+              0.748046875,
+              0.876953125
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 802.572139
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "11229089894700938834",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.3381912499751776,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2989337988037165,
+            "screenWitness": [
+              1073620,
+              0.92578125,
+              0.681640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 896.97846
+          },
+          "Dmax": 1.1204943559958938,
+          "excessOver025": 732,
+          "visible": 1456877,
+          "targetExceeded": 152232,
+          "squaredExcess": 33720.468340698586,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "6910887810557670167",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.348192641609855,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2990287537793469,
+            "screenWitness": [
+              1073620,
+              0.92578125,
+              0.681640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 849.903048
+          },
+          "DmaxVsDOD": 0.3390881744713694,
+          "excessOver025VsDOD": 1
+        },
+        {
+          "frame": 95,
+          "A": {
+            "status": "sampled_only",
+            "meshHash": "14453462628644333389",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.7838907211193353,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.3016263190939442,
+            "screenWitness": [
+              1380474,
+              0.748046875,
+              0.876953125
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 784.604601
+          },
+          "B": {
+            "status": "sampled_only",
+            "meshHash": "11229089894700938834",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.3381912499751776,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2989337988037165,
+            "screenWitness": [
+              1073620,
+              0.92578125,
+              0.681640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 880.717492
+          },
+          "Dmax": 1.1204943559958938,
+          "excessOver025": 732,
+          "visible": 1456877,
+          "targetExceeded": 152232,
+          "squaredExcess": 33720.468340698586,
+          "DOD": {
+            "status": "sampled_only",
+            "meshHash": "6910887810557670167",
+            "sampleHash": "2831584742635955469",
+            "q": 1574913,
+            "visible": 1456877,
+            "missing": 0,
+            "ambiguous": 0,
+            "nearCrossing": 0,
+            "invalidGeometry": 0,
+            "invalidProjection": 0,
+            "screenMax": 2.348192641609855,
+            "heightMax": 1.165875234581235,
+            "terrainSampleRms": 0.2990287537793469,
+            "screenWitness": [
+              1073620,
+              0.92578125,
+              0.681640625
+            ],
+            "heightWitness": [
+              1573524,
+              0.548828125,
+              1
+            ],
+            "offlineMs": 828.853305
+          },
+          "DmaxVsDOD": 0.3390881744713694,
+          "excessOver025VsDOD": 1
+        }
+      ],
+      "counts": {
+        "certified": 6629,
+        "fast_shape_miss": 51396,
+        "fit_bound_failed": 65936,
+        "internal_conflict": 4,
+        "pointwise_donor_certified": 138,
+        "pointwise_height_damage": 262076,
+        "pointwise_receiver_certified": 1994,
+        "quality_evidence_bytes": 12111856,
+        "quality_exact_samples": 47442,
+        "quality_filter_samples": 353283,
+        "quality_samples": 353283,
+        "shape_infeasible": 25142,
+        "quality_infeasible": 169,
+        "flip_flip_nonconvex_or_existing_diagonal": 710,
+        "flip_quality_infeasible": 172,
+        "flip_flip_not_interior": 53,
+        "flip_shape_infeasible": 64,
+        "pointwise_screen_damage": 1960
+      },
+      "seconds": {
+        "derived_publish": 0.0028087,
+        "donor_order": 0.002695,
+        "donor_stage": 1.0183471,
+        "face_fill": 0.0011250999999999998,
+        "mesh_fill": 0.001193,
+        "mesh_prepare": 0.0016520999999999997,
+        "next_order": 0.029076700000000007,
+        "pointwise_batch": 0.007209899999999999,
+        "prepare": 0.011724899999999996,
+        "publish": 0.0028389999999999995,
+        "receiver_stage": 5.968944500000002,
+        "reservation": 0.04436860000000005,
+        "sample_repair": 0.10033339999999998,
+        "task_wall_sum_pointwise_quality": 12.660817799999998,
+        "task_wall_sum_proposal": 1.1236646,
+        "task_wall_sum_receiver_certification": 11.518738400000002,
+        "view_order": 0.19660500000000006,
+        "view_projection": 0.4672174000000001,
+        "view_refresh": 1.1564798,
+        "view_scores": 0.46501449999999994,
+        "task_wall_sum_flip_recovery": 0.3638516000000001
+      },
+      "maximumRationalBits": 68,
+      "lastReasons": {
+        "fit_bound_failed": 934,
+        "shape_infeasible": 186
+      }
+    }
+  ]
+}

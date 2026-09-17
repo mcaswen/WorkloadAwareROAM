@@ -13,6 +13,12 @@ if(PARALLEL_ROAM_BUILD_PROFILING_TESTS)
 endif()
 
 if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
+    add_executable(parallel_roam_transactional_pointwise_quality_tests TransactionalPointwiseQualityTests.cpp)
+    target_link_libraries(parallel_roam_transactional_pointwise_quality_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_project_warnings)
+    target_include_directories(parallel_roam_transactional_pointwise_quality_tests SYSTEM PRIVATE
+        "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
+    add_test(NAME transactional_pointwise_quality COMMAND parallel_roam_transactional_pointwise_quality_tests)
     add_library(parallel_roam_transactional_adapter_test_support STATIC
         ${PARALLEL_ROAM_DOD_SOURCES} ${PARALLEL_ROAM_FORMAL_INPUT_SOURCES}
         ../src/terrain/HeightMap.cpp ../src/algorithms/TerrainLodView.cpp ../src/tools/PerformanceTimer.cpp)

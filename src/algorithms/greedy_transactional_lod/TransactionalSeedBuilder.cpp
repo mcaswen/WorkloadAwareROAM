@@ -1,5 +1,6 @@
 #include "algorithms/greedy_transactional_lod/TransactionalSeedBuilder.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
+#include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
 #include "algorithms/data_oriented_roam/DataOrientedRoamTerrainLodAlgorithm.h"
 #include "profiling/CpuProfiling.h"
 
@@ -11,6 +12,7 @@ namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
 void TransactionalSeedBuilder::ValidateInput(const TerrainLodBuildInput& input)
 {
+    TransactionalPointwiseQuality::Validate(ConfigurationFor(input));
     const auto* height=input.HeightMap;const auto& s=input.Settings;const auto& t=s.Transactional;
     if (t.ReceiverOrder != TransactionalReceiverOrder::Composite &&
         t.ReceiverOrder != TransactionalReceiverOrder::ErrorFirst)
@@ -52,6 +54,9 @@ Configuration TransactionalSeedBuilder::ConfigurationFor(const TerrainLodBuildIn
     c.EnableFlipRecovery=s.Transactional.EnableFlipRecovery;
     c.EnableBoundaryRefinement=s.Transactional.EnableBoundaryRefinement;
     c.ReceiverOrder = s.Transactional.ReceiverOrder;
+    c.QualityPolicy = s.Transactional.QualityPolicy;
+    c.QualityTargetPixels = s.Transactional.QualityTargetPixels;
+    c.QualityHeightRatio = s.Transactional.QualityHeightRatio;
     c.Width=v.DrawableWidth;c.Height=v.DrawableHeight;c.UsesZeroToOneDepth=v.UsesZeroToOneDepth;
     for (int row=0;row<4;++row) for (int col=0;col<4;++col)
         c.Matrix[static_cast<std::size_t>(row*4+col)]=v.ViewProjection[col][row];

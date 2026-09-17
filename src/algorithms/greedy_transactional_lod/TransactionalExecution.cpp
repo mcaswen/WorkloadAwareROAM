@@ -30,6 +30,7 @@ void Merge(WorkLedger& target,const WorkLedger& source)
         &WorkLedger::CandidateUpdates,&WorkLedger::DonorIndexUpdates,&WorkLedger::ReceiverCacheHits,&WorkLedger::DonorCacheHits,
         &WorkLedger::CacheInvalidations,&WorkLedger::RootObservations});
     for (auto field : counters) target.*field+=source.*field;
+    target.QualityMaxRationalBits = std::max(target.QualityMaxRationalBits, source.QualityMaxRationalBits);
     for (const auto& [key,value] : source.Reasons) target.Reasons[key]+=value;
     for (const auto& [key,value] : source.Seconds) target.Seconds["task_wall_sum_"+key]+=value;
 }
