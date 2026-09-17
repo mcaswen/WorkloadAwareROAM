@@ -1,0 +1,1434 @@
+{
+  "contract": "同政策单独进程快验；内部三次认证仅作内核定位",
+  "cases": {
+    "peking547": {
+      "L0": {
+        "warm": {
+          "frames": 21,
+          "means": {
+            "cpuMs": 92.71534256708054,
+            "viewMs": 12.08192380952381,
+            "receiverMs": 14.821704761904762,
+            "donorMs": 2.348347619047619,
+            "reservationMs": 48.00724761904762,
+            "sampleRepairMs": 10.858647619047618,
+            "topologyPrepareMs": 2.1854095238095237,
+            "topologyPublishMs": 0.34983333333333333,
+            "meshPrepareMs": 0.16226666666666667,
+            "continuationMs": 0.6286047619047619,
+            "adapterMs": 0.0366571428571443,
+            "unitemizedMs": 1.2346997099376864
+          },
+          "medianCpuMs": 109.30960083007812,
+          "p95CpuMs": 177.0550994873047,
+          "counts": {
+            "raw": 1041076,
+            "examined": 3360,
+            "receivers": 1559,
+            "exchanges": 589,
+            "free": 4,
+            "pairs": 175489,
+            "touches": 1019777,
+            "evaluations": 25242445
+          }
+        },
+        "events": {
+          "move": {
+            "frames": 13,
+            "means": {
+              "cpuMs": 133.60382256141077,
+              "viewMs": 18.224984615384614,
+              "receiverMs": 21.88523846153846,
+              "donorMs": 2.457823076923077,
+              "reservationMs": 70.10050769230769,
+              "sampleRepairMs": 14.867076923076922,
+              "topologyPrepareMs": 2.8832307692307695,
+              "topologyPublishMs": 0.4588307692307692,
+              "meshPrepareMs": 0.20802307692307692,
+              "continuationMs": 0.8862461538461539,
+              "adapterMs": 0.04722307692308028,
+              "unitemizedMs": 1.584637946026163
+            },
+            "medianCpuMs": 125.14399719238281,
+            "p95CpuMs": 208.9333953857422,
+            "counts": {
+              "raw": 641667,
+              "examined": 2080,
+              "receivers": 1170,
+              "exchanges": 454,
+              "free": 4,
+              "pairs": 127540,
+              "touches": 963239,
+              "evaluations": 23445959
+            }
+          },
+          "recovery": {
+            "frames": 8,
+            "means": {
+              "cpuMs": 26.271562576293945,
+              "viewMs": 2.09945,
+              "receiverMs": 3.3434625000000002,
+              "donorMs": 2.17045,
+              "reservationMs": 12.1057,
+              "sampleRepairMs": 4.34495,
+              "topologyPrepareMs": 1.05145,
+              "topologyPublishMs": 0.1727125,
+              "meshPrepareMs": 0.0879125,
+              "continuationMs": 0.2099375,
+              "adapterMs": 0.019487499999998326,
+              "unitemizedMs": 0.6660500762939456
+            },
+            "medianCpuMs": 21.98550033569336,
+            "p95CpuMs": 55.45869827270508,
+            "counts": {
+              "raw": 399409,
+              "examined": 1280,
+              "receivers": 389,
+              "exchanges": 135,
+              "free": 0,
+              "pairs": 47949,
+              "touches": 56538,
+              "evaluations": 1796486
+            }
+          }
+        },
+        "process": {
+          "returncode": 0,
+          "elapsedSeconds": 4.8868915,
+          "peakRssBytes": 250499072,
+          "status": "ok",
+          "argv": [
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06a\\run-01\\P1-bin\\ParallelROAM.exe",
+            "--experiment-run",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06a\\run-01\\L0\\peking547-b50000-transactional-t8\\inputs\\resolved.json",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06a\\run-01\\L0\\peking547-b50000-transactional-t8\\run"
+          ],
+          "binary": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06a/run-01/P1-bin/ParallelROAM.exe",
+            "bytes": 6583296,
+            "sha256": "c08fd4202fdc638c4adc5e26513985c9c3dd0697256575b5ec4d95dbd113ef5f"
+          }
+        },
+        "taskId": "c6d2ebeeb66679b342cd7135eaba8e8b728add1a30dc61f2cea7704f7f459c9f",
+        "emptyFrames": 0,
+        "zeroTouchEmptyFrames": 0
+      },
+      "L1": {
+        "warm": {
+          "frames": 21,
+          "means": {
+            "cpuMs": 93.2127751395816,
+            "viewMs": 12.090033333333334,
+            "receiverMs": 14.657333333333334,
+            "donorMs": 2.3474809523809523,
+            "reservationMs": 47.78924285714286,
+            "sampleRepairMs": 11.472466666666667,
+            "topologyPrepareMs": 2.209304761904762,
+            "topologyPublishMs": 0.4632809523809524,
+            "meshPrepareMs": 0.18924285714285716,
+            "continuationMs": 0.6854761904761905,
+            "adapterMs": 0.028847619047621603,
+            "unitemizedMs": 1.2800656157720596
+          },
+          "medianCpuMs": 108.89630126953125,
+          "p95CpuMs": 182.15139770507812,
+          "counts": {
+            "raw": 1041076,
+            "examined": 3360,
+            "receivers": 1559,
+            "exchanges": 589,
+            "free": 4,
+            "pairs": 175489,
+            "touches": 1019777,
+            "evaluations": 25242445
+          }
+        },
+        "events": {
+          "move": {
+            "frames": 13,
+            "means": {
+              "cpuMs": 134.27545987642728,
+              "viewMs": 18.087376923076924,
+              "receiverMs": 21.512253846153847,
+              "donorMs": 2.434623076923077,
+              "reservationMs": 69.89583846153846,
+              "sampleRepairMs": 15.867684615384617,
+              "topologyPrepareMs": 2.9695923076923076,
+              "topologyPublishMs": 0.6394153846153846,
+              "meshPrepareMs": 0.25906153846153845,
+              "continuationMs": 0.9507692307692308,
+              "adapterMs": 0.031569230769234805,
+              "unitemizedMs": 1.627275261042655
+            },
+            "medianCpuMs": 124.13719940185547,
+            "p95CpuMs": 210.0583953857422,
+            "counts": {
+              "raw": 641667,
+              "examined": 2080,
+              "receivers": 1170,
+              "exchanges": 454,
+              "free": 4,
+              "pairs": 127540,
+              "touches": 963239,
+              "evaluations": 23445959
+            }
+          },
+          "recovery": {
+            "frames": 8,
+            "means": {
+              "cpuMs": 26.485912442207336,
+              "viewMs": 2.34435,
+              "receiverMs": 3.5180875,
+              "donorMs": 2.205875,
+              "reservationMs": 11.866024999999999,
+              "sampleRepairMs": 4.3302375,
+              "topologyPrepareMs": 0.9738375,
+              "topologyPublishMs": 0.1770625,
+              "meshPrepareMs": 0.07578750000000001,
+              "continuationMs": 0.254375,
+              "adapterMs": 0.02442500000000014,
+              "unitemizedMs": 0.7158499422073383
+            },
+            "medianCpuMs": 22.366100311279297,
+            "p95CpuMs": 57.5546989440918,
+            "counts": {
+              "raw": 399409,
+              "examined": 1280,
+              "receivers": 389,
+              "exchanges": 135,
+              "free": 0,
+              "pairs": 47949,
+              "touches": 56538,
+              "evaluations": 1796486
+            }
+          }
+        },
+        "process": {
+          "returncode": 0,
+          "elapsedSeconds": 4.856199,
+          "peakRssBytes": 251240448,
+          "status": "ok",
+          "argv": [
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06b\\run-01\\candidate-bin\\ParallelROAM.exe",
+            "--experiment-run",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06b\\run-01\\L1\\peking547-b50000-transactional-t8\\inputs\\resolved.json",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06b\\run-01\\L1\\peking547-b50000-transactional-t8\\run"
+          ],
+          "binary": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06b/run-01/candidate-bin/ParallelROAM.exe",
+            "bytes": 6583296,
+            "sha256": "845ad06a920aa93a9059bd9c3ab36b7d377f2c3c0d6b0559c68066dc5795b54e"
+          }
+        },
+        "taskId": "c6d2ebeeb66679b342cd7135eaba8e8b728add1a30dc61f2cea7704f7f459c9f",
+        "emptyFrames": 0,
+        "zeroTouchEmptyFrames": 0
+      }
+    },
+    "dem-sierra": {
+      "L0": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 29.829310876066966,
+            "viewMs": 7.085713978494623,
+            "receiverMs": 10.317345161290323,
+            "donorMs": 0.0,
+            "reservationMs": 0.21292150537634408,
+            "sampleRepairMs": 11.026513978494624,
+            "topologyPrepareMs": 0.3475354838709677,
+            "topologyPublishMs": 0.09882150537634408,
+            "meshPrepareMs": 0.04568279569892473,
+            "continuationMs": 0.25256236559139783,
+            "adapterMs": 0.014237634408601582,
+            "unitemizedMs": 0.4279764674648163
+          },
+          "medianCpuMs": 27.58650016784668,
+          "p95CpuMs": 70.55789947509766,
+          "counts": {
+            "raw": 233458,
+            "examined": 14391,
+            "receivers": 1873,
+            "exchanges": 0,
+            "free": 1192,
+            "pairs": 0,
+            "touches": 2704384,
+            "evaluations": 98348730
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 2.8428687378764153,
+              "viewMs": 0.34673125,
+              "receiverMs": 2.40540625,
+              "donorMs": 0.0,
+              "reservationMs": 6.874999999999999e-05,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.005684375000000047,
+              "unitemizedMs": 0.08497811287641532
+            },
+            "medianCpuMs": 2.387500047683716,
+            "p95CpuMs": 3.3201000690460205,
+            "counts": {
+              "raw": 4640,
+              "examined": 4640,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 4480,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 28.131947100162506,
+              "viewMs": 10.641399999999999,
+              "receiverMs": 10.91365,
+              "donorMs": 0.0,
+              "reservationMs": 0.118009375,
+              "sampleRepairMs": 5.706490625,
+              "topologyPrepareMs": 0.22659375,
+              "topologyPublishMs": 0.054928125,
+              "meshPrepareMs": 0.040775,
+              "continuationMs": 0.112421875,
+              "adapterMs": 0.014653124999999934,
+              "unitemizedMs": 0.3030252251625072
+            },
+            "medianCpuMs": 27.957449913024902,
+            "p95CpuMs": 40.674400329589844,
+            "counts": {
+              "raw": 115214,
+              "examined": 5111,
+              "receivers": 382,
+              "exchanges": 0,
+              "free": 244,
+              "pairs": 0,
+              "touches": 724540,
+              "evaluations": 50521875
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 61.48040705713733,
+              "viewMs": 10.598317241379311,
+              "receiverMs": 18.38976896551724,
+              "donorMs": 0.0,
+              "reservationMs": 0.5525241379310345,
+              "sampleRepairMs": 29.064072413793102,
+              "topologyPrepareMs": 0.8644758620689655,
+              "topologyPublishMs": 0.2563,
+              "meshPrepareMs": 0.10150689655172414,
+              "continuationMs": 0.6858896551724137,
+              "adapterMs": 0.023217241379308546,
+              "unitemizedMs": 0.9443346433442272
+            },
+            "medianCpuMs": 59.980201721191406,
+            "p95CpuMs": 78.62740325927734,
+            "counts": {
+              "raw": 113604,
+              "examined": 4640,
+              "receivers": 1491,
+              "exchanges": 0,
+              "free": 948,
+              "pairs": 0,
+              "touches": 1975364,
+              "evaluations": 46251942
+            }
+          }
+        },
+        "process": {
+          "returncode": 0,
+          "elapsedSeconds": 5.00166,
+          "peakRssBytes": 208707584,
+          "status": "ok",
+          "argv": [
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06a\\run-01\\P1-bin\\ParallelROAM.exe",
+            "--experiment-run",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06a\\run-01\\L0\\dem-sierra-b50000-transactional-t8\\inputs\\resolved.json",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06a\\run-01\\L0\\dem-sierra-b50000-transactional-t8\\run"
+          ],
+          "binary": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06a/run-01/P1-bin/ParallelROAM.exe",
+            "bytes": 6583296,
+            "sha256": "c08fd4202fdc638c4adc5e26513985c9c3dd0697256575b5ec4d95dbd113ef5f"
+          }
+        },
+        "taskId": "b07bc9ad5abd9ba07fb364269cc72327402f1349874fea785799fd52a41ad8cd",
+        "emptyFrames": 33,
+        "zeroTouchEmptyFrames": 0,
+        "empty": {
+          "frames": 33,
+          "means": {
+            "cpuMs": 3.207245443806504,
+            "viewMs": 0.6981030303030303,
+            "receiverMs": 2.4168363636363637,
+            "donorMs": 0.0,
+            "reservationMs": 6.969696969696969e-05,
+            "sampleRepairMs": 0.0,
+            "topologyPrepareMs": 0.0,
+            "topologyPublishMs": 0.0,
+            "meshPrepareMs": 0.0,
+            "continuationMs": 0.0,
+            "adapterMs": 0.0057939393939394285,
+            "unitemizedMs": 0.08644241350347359
+          },
+          "medianCpuMs": 2.388400077819824,
+          "p95CpuMs": 13.287799835205078,
+          "counts": {
+            "raw": 4791,
+            "examined": 4791,
+            "receivers": 0,
+            "exchanges": 0,
+            "free": 0,
+            "pairs": 0,
+            "touches": 4768,
+            "evaluations": 3149826
+          }
+        },
+        "staticSuffix": {
+          "first": 64,
+          "last": 95,
+          "statistics": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 2.8428687378764153,
+              "viewMs": 0.34673125,
+              "receiverMs": 2.40540625,
+              "donorMs": 0.0,
+              "reservationMs": 6.874999999999999e-05,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.005684375000000047,
+              "unitemizedMs": 0.08497811287641532
+            },
+            "medianCpuMs": 2.387500047683716,
+            "p95CpuMs": 3.3201000690460205,
+            "counts": {
+              "raw": 4640,
+              "examined": 4640,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 4480,
+              "evaluations": 1574913
+            }
+          }
+        }
+      },
+      "L1": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 29.8349031118616,
+            "viewMs": 7.226706451612904,
+            "receiverMs": 9.998791397849462,
+            "donorMs": 0.0,
+            "reservationMs": 0.2336258064516129,
+            "sampleRepairMs": 11.025203225806452,
+            "topologyPrepareMs": 0.3708548387096774,
+            "topologyPublishMs": 0.09826559139784946,
+            "meshPrepareMs": 0.050408602150537635,
+            "continuationMs": 0.32268602150537634,
+            "adapterMs": 0.01732473118279548,
+            "unitemizedMs": 0.4910364451949327
+          },
+          "medianCpuMs": 27.897199630737305,
+          "p95CpuMs": 75.17379760742188,
+          "counts": {
+            "raw": 233458,
+            "examined": 14391,
+            "receivers": 1873,
+            "exchanges": 0,
+            "free": 1192,
+            "pairs": 0,
+            "touches": 2700044,
+            "evaluations": 98348730
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 0.5661375219933689,
+              "viewMs": 0.442490625,
+              "receiverMs": 0.069384375,
+              "donorMs": 0.0,
+              "reservationMs": 3.1249999999999997e-06,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.004224999999999943,
+              "unitemizedMs": 0.05003439699336887
+            },
+            "medianCpuMs": 0.04274999909102917,
+            "p95CpuMs": 0.1647000014781952,
+            "counts": {
+              "raw": 4640,
+              "examined": 4640,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 140,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 28.6239874958992,
+              "viewMs": 11.09136875,
+              "receiverMs": 10.945175,
+              "donorMs": 0.0,
+              "reservationMs": 0.13094375,
+              "sampleRepairMs": 5.6639,
+              "topologyPrepareMs": 0.230984375,
+              "topologyPublishMs": 0.056115625,
+              "meshPrepareMs": 0.0446125,
+              "continuationMs": 0.116915625,
+              "adapterMs": 0.016674999999999884,
+              "unitemizedMs": 0.32729687089920034
+            },
+            "medianCpuMs": 28.174599647521973,
+            "p95CpuMs": 41.17430114746094,
+            "counts": {
+              "raw": 115214,
+              "examined": 5111,
+              "receivers": 382,
+              "exchanges": 0,
+              "free": 244,
+              "pairs": 0,
+              "touches": 724540,
+              "evaluations": 50521875
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 63.46765478726091,
+              "viewMs": 10.448282758620689,
+              "receiverMs": 19.911093103448277,
+              "donorMs": 0.0,
+              "reservationMs": 0.6047206896551724,
+              "sampleRepairMs": 29.106865517241378,
+              "topologyPrepareMs": 0.9344137931034483,
+              "topologyPublishMs": 0.2532068965517241,
+              "meshPrepareMs": 0.11242758620689655,
+              "continuationMs": 0.9058103448275862,
+              "adapterMs": 0.032496551724137415,
+              "unitemizedMs": 1.1583375458816008
+            },
+            "medianCpuMs": 63.62730026245117,
+            "p95CpuMs": 78.4634017944336,
+            "counts": {
+              "raw": 113604,
+              "examined": 4640,
+              "receivers": 1491,
+              "exchanges": 0,
+              "free": 948,
+              "pairs": 0,
+              "touches": 1975364,
+              "evaluations": 46251942
+            }
+          }
+        },
+        "process": {
+          "returncode": 0,
+          "elapsedSeconds": 5.0848711,
+          "peakRssBytes": 208715776,
+          "status": "ok",
+          "argv": [
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06b\\run-01\\candidate-bin\\ParallelROAM.exe",
+            "--experiment-run",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06b\\run-01\\L1\\dem-sierra-b50000-transactional-t8\\inputs\\resolved.json",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06b\\run-01\\L1\\dem-sierra-b50000-transactional-t8\\run"
+          ],
+          "binary": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06b/run-01/candidate-bin/ParallelROAM.exe",
+            "bytes": 6583296,
+            "sha256": "845ad06a920aa93a9059bd9c3ab36b7d377f2c3c0d6b0559c68066dc5795b54e"
+          }
+        },
+        "taskId": "b07bc9ad5abd9ba07fb364269cc72327402f1349874fea785799fd52a41ad8cd",
+        "emptyFrames": 33,
+        "zeroTouchEmptyFrames": 31,
+        "empty": {
+          "frames": 33,
+          "means": {
+            "cpuMs": 1.082106069633455,
+            "viewMs": 0.8650212121212121,
+            "receiverMs": 0.15291515151515153,
+            "donorMs": 0.0,
+            "reservationMs": 6.06060606060606e-06,
+            "sampleRepairMs": 0.0,
+            "topologyPrepareMs": 0.0,
+            "topologyPublishMs": 0.0,
+            "meshPrepareMs": 0.0,
+            "continuationMs": 0.0,
+            "adapterMs": 0.004578787878787777,
+            "unitemizedMs": 0.05958485751224307
+          },
+          "medianCpuMs": 0.042899999767541885,
+          "p95CpuMs": 16.525100708007812,
+          "counts": {
+            "raw": 4791,
+            "examined": 4791,
+            "receivers": 0,
+            "exchanges": 0,
+            "free": 0,
+            "pairs": 0,
+            "touches": 428,
+            "evaluations": 3149826
+          }
+        },
+        "staticSuffix": {
+          "first": 64,
+          "last": 95,
+          "statistics": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 0.5661375219933689,
+              "viewMs": 0.442490625,
+              "receiverMs": 0.069384375,
+              "donorMs": 0.0,
+              "reservationMs": 3.1249999999999997e-06,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.004224999999999943,
+              "unitemizedMs": 0.05003439699336887
+            },
+            "medianCpuMs": 0.04274999909102917,
+            "p95CpuMs": 0.1647000014781952,
+            "counts": {
+              "raw": 4640,
+              "examined": 4640,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 140,
+              "evaluations": 1574913
+            }
+          }
+        }
+      }
+    },
+    "dem-canyon": {
+      "L0": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 32.92239902865502,
+            "viewMs": 9.787656989247312,
+            "receiverMs": 10.756905376344086,
+            "donorMs": 2.6958849462365593,
+            "reservationMs": 1.8497731182795698,
+            "sampleRepairMs": 6.559450537634409,
+            "topologyPrepareMs": 0.4775225806451613,
+            "topologyPublishMs": 0.12908279569892472,
+            "meshPrepareMs": 0.03834838709677419,
+            "continuationMs": 0.1725483870967742,
+            "adapterMs": 0.017756989247311977,
+            "unitemizedMs": 0.4374689211281364
+          },
+          "medianCpuMs": 36.38740158081055,
+          "p95CpuMs": 64.2822036743164,
+          "counts": {
+            "raw": 395617,
+            "examined": 14880,
+            "receivers": 1212,
+            "exchanges": 573,
+            "free": 7,
+            "pairs": 137546,
+            "touches": 2543805,
+            "evaluations": 97968478
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 6.133890628814697,
+              "viewMs": 0.5561,
+              "receiverMs": 5.393678125,
+              "donorMs": 0.0,
+              "reservationMs": 0.00011874999999999999,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.012084374999999953,
+              "unitemizedMs": 0.17190937881469726
+            },
+            "medianCpuMs": 5.574350118637085,
+            "p95CpuMs": 6.11359977722168,
+            "counts": {
+              "raw": 9024,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 33920,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 37.00476282835007,
+              "viewMs": 14.626553125000001,
+              "receiverMs": 11.87628125,
+              "donorMs": 4.151625,
+              "reservationMs": 0.8202625,
+              "sampleRepairMs": 4.520671875,
+              "topologyPrepareMs": 0.322759375,
+              "topologyPublishMs": 0.0808875,
+              "meshPrepareMs": 0.039525,
+              "continuationMs": 0.131021875,
+              "adapterMs": 0.018196875000000223,
+              "unitemizedMs": 0.4169784533500689
+            },
+            "medianCpuMs": 36.799150466918945,
+            "p95CpuMs": 47.56740188598633,
+            "counts": {
+              "raw": 197484,
+              "examined": 5120,
+              "receivers": 295,
+              "exchanges": 142,
+              "free": 1,
+              "pairs": 34676,
+              "touches": 928861,
+              "evaluations": 50464116
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 57.977455139160156,
+              "viewMs": 14.634731034482758,
+              "receiverMs": 15.439775862068965,
+              "donorMs": 4.0643206896551725,
+              "reservationMs": 5.02678275862069,
+              "sampleRepairMs": 16.04715172413793,
+              "topologyPrepareMs": 1.1752172413793103,
+              "topologyPublishMs": 0.3247,
+              "meshPrepareMs": 0.07936551724137932,
+              "continuationMs": 0.4087689655172414,
+              "adapterMs": 0.02353103448275891,
+              "unitemizedMs": 0.7531103115739484
+            },
+            "medianCpuMs": 56.2843017578125,
+            "p95CpuMs": 76.0625,
+            "counts": {
+              "raw": 189109,
+              "examined": 4640,
+              "receivers": 917,
+              "exchanges": 431,
+              "free": 6,
+              "pairs": 102870,
+              "touches": 1581024,
+              "evaluations": 45929449
+            }
+          }
+        },
+        "process": {
+          "returncode": 0,
+          "elapsedSeconds": 8.3573901,
+          "peakRssBytes": 232951808,
+          "status": "ok",
+          "argv": [
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06a\\run-01\\P1-bin\\ParallelROAM.exe",
+            "--experiment-run",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06a\\run-01\\L0\\dem-canyon-b50000-transactional-t8\\inputs\\resolved.json",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06a\\run-01\\L0\\dem-canyon-b50000-transactional-t8\\run"
+          ],
+          "binary": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06a/run-01/P1-bin/ParallelROAM.exe",
+            "bytes": 6583296,
+            "sha256": "c08fd4202fdc638c4adc5e26513985c9c3dd0697256575b5ec4d95dbd113ef5f"
+          }
+        },
+        "taskId": "6d80d380b9e6382fbaad8a4383138c27ec5b4876b2a96e2f55d8040dfb51752c",
+        "emptyFrames": 35,
+        "zeroTouchEmptyFrames": 0,
+        "empty": {
+          "frames": 35,
+          "means": {
+            "cpuMs": 7.885622896466937,
+            "viewMs": 1.7408742857142858,
+            "receiverMs": 5.959745714285714,
+            "donorMs": 0.0,
+            "reservationMs": 0.00014,
+            "sampleRepairMs": 0.0,
+            "topologyPrepareMs": 0.0,
+            "topologyPublishMs": 0.0,
+            "meshPrepareMs": 0.0,
+            "continuationMs": 0.0,
+            "adapterMs": 0.012017142857142891,
+            "unitemizedMs": 0.17284575360979382
+          },
+          "medianCpuMs": 5.577600002288818,
+          "p95CpuMs": 24.67620086669922,
+          "counts": {
+            "raw": 10611,
+            "examined": 5600,
+            "receivers": 0,
+            "exchanges": 0,
+            "free": 0,
+            "pairs": 0,
+            "touches": 90434,
+            "evaluations": 6299652
+          }
+        },
+        "staticSuffix": {
+          "first": 64,
+          "last": 95,
+          "statistics": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 6.133890628814697,
+              "viewMs": 0.5561,
+              "receiverMs": 5.393678125,
+              "donorMs": 0.0,
+              "reservationMs": 0.00011874999999999999,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.012084374999999953,
+              "unitemizedMs": 0.17190937881469726
+            },
+            "medianCpuMs": 5.574350118637085,
+            "p95CpuMs": 6.11359977722168,
+            "counts": {
+              "raw": 9024,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 33920,
+              "evaluations": 1574913
+            }
+          }
+        }
+      },
+      "L1": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 31.361448671067915,
+            "viewMs": 9.890104301075269,
+            "receiverMs": 9.05660430107527,
+            "donorMs": 2.7498935483870968,
+            "reservationMs": 1.8480408602150538,
+            "sampleRepairMs": 6.479268817204301,
+            "topologyPrepareMs": 0.4783989247311828,
+            "topologyPublishMs": 0.13061182795698925,
+            "meshPrepareMs": 0.04044623655913979,
+            "continuationMs": 0.18760967741935483,
+            "adapterMs": 0.017649462365590948,
+            "unitemizedMs": 0.48282071407866667
+          },
+          "medianCpuMs": 37.215301513671875,
+          "p95CpuMs": 65.20960235595703,
+          "counts": {
+            "raw": 395617,
+            "examined": 14880,
+            "receivers": 1212,
+            "exchanges": 573,
+            "free": 7,
+            "pairs": 137546,
+            "touches": 2510945,
+            "evaluations": 97968478
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 0.8143312740139663,
+              "viewMs": 0.452646875,
+              "receiverMs": 0.16266250000000002,
+              "donorMs": 0.0,
+              "reservationMs": 1.5625e-05,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.009718749999999993,
+              "unitemizedMs": 0.1892875240139663
+            },
+            "medianCpuMs": 0.19369999319314957,
+            "p95CpuMs": 0.39800000190734863,
+            "counts": {
+              "raw": 9024,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 1060,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 37.64718770980835,
+              "viewMs": 14.9121625,
+              "receiverMs": 12.00819375,
+              "donorMs": 4.21181875,
+              "reservationMs": 0.81843125,
+              "sampleRepairMs": 4.591978125,
+              "topologyPrepareMs": 0.33963125,
+              "topologyPublishMs": 0.084765625,
+              "meshPrepareMs": 0.041321875,
+              "continuationMs": 0.147421875,
+              "adapterMs": 0.019243749999999893,
+              "unitemizedMs": 0.4722189598083517
+            },
+            "medianCpuMs": 37.649749755859375,
+            "p95CpuMs": 47.21229934692383,
+            "counts": {
+              "raw": 197484,
+              "examined": 5120,
+              "receivers": 295,
+              "exchanges": 142,
+              "free": 1,
+              "pairs": 34676,
+              "touches": 928861,
+              "evaluations": 50464116
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 58.13262479058628,
+              "viewMs": 14.762268965517242,
+              "receiverMs": 15.61368275862069,
+              "donorMs": 4.1711,
+              "reservationMs": 5.023362068965517,
+              "sampleRepairMs": 15.711334482758621,
+              "topologyPrepareMs": 1.1594103448275863,
+              "topologyPublishMs": 0.3253241379310345,
+              "meshPrepareMs": 0.0841103448275862,
+              "continuationMs": 0.4389724137931035,
+              "adapterMs": 0.024641379310343506,
+              "unitemizedMs": 0.8184178940345532
+            },
+            "medianCpuMs": 57.96889877319336,
+            "p95CpuMs": 72.95860290527344,
+            "counts": {
+              "raw": 189109,
+              "examined": 4640,
+              "receivers": 917,
+              "exchanges": 431,
+              "free": 6,
+              "pairs": 102870,
+              "touches": 1581024,
+              "evaluations": 45929449
+            }
+          }
+        },
+        "process": {
+          "returncode": 0,
+          "elapsedSeconds": 8.282362,
+          "peakRssBytes": 231677952,
+          "status": "ok",
+          "argv": [
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06b\\run-01\\candidate-bin\\ParallelROAM.exe",
+            "--experiment-run",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06b\\run-01\\L1\\dem-canyon-b50000-transactional-t8\\inputs\\resolved.json",
+            "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-06b\\run-01\\L1\\dem-canyon-b50000-transactional-t8\\run"
+          ],
+          "binary": {
+            "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06b/run-01/candidate-bin/ParallelROAM.exe",
+            "bytes": 6583296,
+            "sha256": "845ad06a920aa93a9059bd9c3ab36b7d377f2c3c0d6b0559c68066dc5795b54e"
+          }
+        },
+        "taskId": "6d80d380b9e6382fbaad8a4383138c27ec5b4876b2a96e2f55d8040dfb51752c",
+        "emptyFrames": 35,
+        "zeroTouchEmptyFrames": 31,
+        "empty": {
+          "frames": 35,
+          "means": {
+            "cpuMs": 3.1422171826873506,
+            "viewMs": 1.7287657142857142,
+            "receiverMs": 1.2028857142857143,
+            "donorMs": 0.0,
+            "reservationMs": 2.857142857142857e-05,
+            "sampleRepairMs": 0.0,
+            "topologyPrepareMs": 0.0,
+            "topologyPublishMs": 0.0,
+            "meshPrepareMs": 0.0,
+            "continuationMs": 0.0,
+            "adapterMs": 0.010220000000000031,
+            "unitemizedMs": 0.20031718268735066
+          },
+          "medianCpuMs": 0.20909999310970306,
+          "p95CpuMs": 27.569799423217773,
+          "counts": {
+            "raw": 10611,
+            "examined": 5600,
+            "receivers": 0,
+            "exchanges": 0,
+            "free": 0,
+            "pairs": 0,
+            "touches": 57574,
+            "evaluations": 6299652
+          }
+        },
+        "staticSuffix": {
+          "first": 64,
+          "last": 95,
+          "statistics": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 0.8143312740139663,
+              "viewMs": 0.452646875,
+              "receiverMs": 0.16266250000000002,
+              "donorMs": 0.0,
+              "reservationMs": 1.5625e-05,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.009718749999999993,
+              "unitemizedMs": 0.1892875240139663
+            },
+            "medianCpuMs": 0.19369999319314957,
+            "p95CpuMs": 0.39800000190734863,
+            "counts": {
+              "raw": 9024,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 1060,
+              "evaluations": 1574913
+            }
+          }
+        }
+      }
+    }
+  },
+  "sources": {
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/peking547-b50000-transactional-t8/run/frames.csv": "bbb9f9026da33d61a5052f711e728ca2daa604d0a20bb4bb607b9a65754e8141",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/peking547-b50000-transactional-t8/manifest.json": "ac97c4d04aa9795188c2fb70a662de6178b688f85719568269b38e3b753cca97",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/peking547-b50000-transactional-t8/run/flip-recovery.csv": "cff55d6298099924f8d95438fff652acc50a0467e123a44ca8e86c68d2e5dce8",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/peking547-b50000-transactional-t8/run/boundary-refinement.csv": "0a9edf5e083b7a5e7c9c8a03bf7237f12ce08f4d52e59bf11ec7d05c811f7113",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/peking547-b50000-transactional-t8/run/frames.csv": "24e5402bced886e9997395ea03f5ec657f17347f3fd99f021a2f5b85d693ae44",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/peking547-b50000-transactional-t8/manifest.json": "701d0566b7a3c7f5aba690a8e5d3b56e76a5fade187ea572a8d0fc48bb62f4a8",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/peking547-b50000-transactional-t8/run/flip-recovery.csv": "cff55d6298099924f8d95438fff652acc50a0467e123a44ca8e86c68d2e5dce8",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/peking547-b50000-transactional-t8/run/boundary-refinement.csv": "0a9edf5e083b7a5e7c9c8a03bf7237f12ce08f4d52e59bf11ec7d05c811f7113",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/dem-sierra-b50000-transactional-t8/run/frames.csv": "e25bcbc55f85ebd894b381fc6d7110e282a3343639f93fdadf187220adddec38",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/dem-sierra-b50000-transactional-t8/manifest.json": "c7f545c67750d241889f187a49f406131437806081f6f2d3ae63371df4f4b252",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/dem-sierra-b50000-transactional-t8/run/flip-recovery.csv": "f075aa4aa7f18a1ab8d5f7f0ee7204b3d8a207d96d7611271c1762815afd86bd",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/dem-sierra-b50000-transactional-t8/run/boundary-refinement.csv": "9990a2e773077090a3e5e28a8a32b4e61aec7a29fd3966b2e7a6a091b132f092",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/dem-sierra-b50000-transactional-t8/run/frames.csv": "76f1ee87568df72001a41ef4cb8e26a0476ed15b208e5e6261a5d40a6a9226a4",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/dem-sierra-b50000-transactional-t8/manifest.json": "943c6d128096e8ff7372d70fbfb751990aeae221d9f3f018efc68ccddc33d529",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/dem-sierra-b50000-transactional-t8/run/flip-recovery.csv": "2c31cdcac988e996924c294173dd8d266acef0aa4bac689e165834e4c61607ba",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/dem-sierra-b50000-transactional-t8/run/boundary-refinement.csv": "9990a2e773077090a3e5e28a8a32b4e61aec7a29fd3966b2e7a6a091b132f092",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/dem-canyon-b50000-transactional-t8/run/frames.csv": "8715f1beef847fd683f646b97be740a8c26f549d25d275c26bce9b49b250ba55",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/dem-canyon-b50000-transactional-t8/manifest.json": "bc9e39a116ba0137517237f70fa5af14a20ac06bd807c194acbe5d40817ea3ca",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/dem-canyon-b50000-transactional-t8/run/flip-recovery.csv": "8c9f388cf5d8035dbc9a30f7c2430a1b79e0f146f03bfa8d71a6675d5b1ce52a",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/dem-canyon-b50000-transactional-t8/run/boundary-refinement.csv": "04717530b1a823c471d6f1250407da9cb0b66e5e4b30a8238dcde8a12fa6363b",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/dem-canyon-b50000-transactional-t8/run/frames.csv": "2166a91e395ab3eef56d49703bcf1966e8c4e31b3be146bf735f2f723e3bc955",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/dem-canyon-b50000-transactional-t8/manifest.json": "34e5b4bc8f6771bdc6ce4329bcfee0aa2e24648969995a5166cd6a1e72548e42",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/dem-canyon-b50000-transactional-t8/run/flip-recovery.csv": "5af6bc8c146fe9f8f14533afd6be41ac592c0b0b77e28f6a6b1d3f4054d4b8d0",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/dem-canyon-b50000-transactional-t8/run/boundary-refinement.csv": "c52fe8633f77ca132cd0dfecc4b6a69a01277f55f129f3dfaaa632365eff019d",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L0/program.json": "4849f3a4e54f7b8bbc7252a0bdf358a0862bb011975008c33a9fb855e39f47ff",
+    "benchmark-output/cpu-refinement/qpc-06b/run-01/L1/program.json": "2f9613e52bcd28dd1489b8878726cfdc8d01798dc77d08c5ce3cd9df98602ee8"
+  },
+  "sameProposalRecords": 0,
+  "micro": {
+    "L0": {},
+    "L1": {}
+  },
+  "programs": {
+    "L0": {
+      "app": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06a/run-01/P1-bin/ParallelROAM.exe",
+        "bytes": 6583296,
+        "sha256": "c08fd4202fdc638c4adc5e26513985c9c3dd0697256575b5ec4d95dbd113ef5f"
+      },
+      "probe": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06a/run-01/P1-bin/parallel_roam_experiment_cpu.exe",
+        "bytes": 1645568,
+        "sha256": "1513bbd64ac20de3869110746b7126d809f215f13d9b500898a916e7e5cc766f"
+      }
+    },
+    "L1": {
+      "app": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06b/run-01/candidate-bin/ParallelROAM.exe",
+        "bytes": 6583296,
+        "sha256": "845ad06a920aa93a9059bd9c3ab36b7d377f2c3c0d6b0559c68066dc5795b54e"
+      }
+    }
+  },
+  "diagnosticWork": {
+    "L0": {},
+    "L1": {}
+  },
+  "supplement": {
+    "L0": {
+      "dem-canyon-b50000-transactional-t8": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 32.92239902865502,
+            "viewMs": 9.787656989247312,
+            "receiverMs": 10.756905376344086,
+            "donorMs": 2.6958849462365593,
+            "reservationMs": 1.8497731182795698,
+            "sampleRepairMs": 6.559450537634409,
+            "topologyPrepareMs": 0.4775225806451613,
+            "topologyPublishMs": 0.12908279569892472,
+            "meshPrepareMs": 0.03834838709677419,
+            "continuationMs": 0.1725483870967742,
+            "adapterMs": 0.017756989247311977,
+            "unitemizedMs": 0.4374689211281364
+          },
+          "medianCpuMs": 36.38740158081055,
+          "p95CpuMs": 64.2822036743164,
+          "counts": {
+            "raw": 395617,
+            "examined": 14880,
+            "receivers": 1212,
+            "exchanges": 573,
+            "free": 7,
+            "pairs": 137546,
+            "touches": 2543805,
+            "evaluations": 97968478
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 6.133890628814697,
+              "viewMs": 0.5561,
+              "receiverMs": 5.393678125,
+              "donorMs": 0.0,
+              "reservationMs": 0.00011874999999999999,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.012084374999999953,
+              "unitemizedMs": 0.17190937881469726
+            },
+            "medianCpuMs": 5.574350118637085,
+            "p95CpuMs": 6.11359977722168,
+            "counts": {
+              "raw": 9024,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 33920,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 37.00476282835007,
+              "viewMs": 14.626553125000001,
+              "receiverMs": 11.87628125,
+              "donorMs": 4.151625,
+              "reservationMs": 0.8202625,
+              "sampleRepairMs": 4.520671875,
+              "topologyPrepareMs": 0.322759375,
+              "topologyPublishMs": 0.0808875,
+              "meshPrepareMs": 0.039525,
+              "continuationMs": 0.131021875,
+              "adapterMs": 0.018196875000000223,
+              "unitemizedMs": 0.4169784533500689
+            },
+            "medianCpuMs": 36.799150466918945,
+            "p95CpuMs": 47.56740188598633,
+            "counts": {
+              "raw": 197484,
+              "examined": 5120,
+              "receivers": 295,
+              "exchanges": 142,
+              "free": 1,
+              "pairs": 34676,
+              "touches": 928861,
+              "evaluations": 50464116
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 57.977455139160156,
+              "viewMs": 14.634731034482758,
+              "receiverMs": 15.439775862068965,
+              "donorMs": 4.0643206896551725,
+              "reservationMs": 5.02678275862069,
+              "sampleRepairMs": 16.04715172413793,
+              "topologyPrepareMs": 1.1752172413793103,
+              "topologyPublishMs": 0.3247,
+              "meshPrepareMs": 0.07936551724137932,
+              "continuationMs": 0.4087689655172414,
+              "adapterMs": 0.02353103448275891,
+              "unitemizedMs": 0.7531103115739484
+            },
+            "medianCpuMs": 56.2843017578125,
+            "p95CpuMs": 76.0625,
+            "counts": {
+              "raw": 189109,
+              "examined": 4640,
+              "receivers": 917,
+              "exchanges": 431,
+              "free": 6,
+              "pairs": 102870,
+              "touches": 1581024,
+              "evaluations": 45929449
+            }
+          }
+        }
+      },
+      "dem-sierra-b50000-transactional-t8": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 29.829310876066966,
+            "viewMs": 7.085713978494623,
+            "receiverMs": 10.317345161290323,
+            "donorMs": 0.0,
+            "reservationMs": 0.21292150537634408,
+            "sampleRepairMs": 11.026513978494624,
+            "topologyPrepareMs": 0.3475354838709677,
+            "topologyPublishMs": 0.09882150537634408,
+            "meshPrepareMs": 0.04568279569892473,
+            "continuationMs": 0.25256236559139783,
+            "adapterMs": 0.014237634408601582,
+            "unitemizedMs": 0.4279764674648163
+          },
+          "medianCpuMs": 27.58650016784668,
+          "p95CpuMs": 70.55789947509766,
+          "counts": {
+            "raw": 233458,
+            "examined": 14391,
+            "receivers": 1873,
+            "exchanges": 0,
+            "free": 1192,
+            "pairs": 0,
+            "touches": 2704384,
+            "evaluations": 98348730
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 2.8428687378764153,
+              "viewMs": 0.34673125,
+              "receiverMs": 2.40540625,
+              "donorMs": 0.0,
+              "reservationMs": 6.874999999999999e-05,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.005684375000000047,
+              "unitemizedMs": 0.08497811287641532
+            },
+            "medianCpuMs": 2.387500047683716,
+            "p95CpuMs": 3.3201000690460205,
+            "counts": {
+              "raw": 4640,
+              "examined": 4640,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 4480,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 28.131947100162506,
+              "viewMs": 10.641399999999999,
+              "receiverMs": 10.91365,
+              "donorMs": 0.0,
+              "reservationMs": 0.118009375,
+              "sampleRepairMs": 5.706490625,
+              "topologyPrepareMs": 0.22659375,
+              "topologyPublishMs": 0.054928125,
+              "meshPrepareMs": 0.040775,
+              "continuationMs": 0.112421875,
+              "adapterMs": 0.014653124999999934,
+              "unitemizedMs": 0.3030252251625072
+            },
+            "medianCpuMs": 27.957449913024902,
+            "p95CpuMs": 40.674400329589844,
+            "counts": {
+              "raw": 115214,
+              "examined": 5111,
+              "receivers": 382,
+              "exchanges": 0,
+              "free": 244,
+              "pairs": 0,
+              "touches": 724540,
+              "evaluations": 50521875
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 61.48040705713733,
+              "viewMs": 10.598317241379311,
+              "receiverMs": 18.38976896551724,
+              "donorMs": 0.0,
+              "reservationMs": 0.5525241379310345,
+              "sampleRepairMs": 29.064072413793102,
+              "topologyPrepareMs": 0.8644758620689655,
+              "topologyPublishMs": 0.2563,
+              "meshPrepareMs": 0.10150689655172414,
+              "continuationMs": 0.6858896551724137,
+              "adapterMs": 0.023217241379308546,
+              "unitemizedMs": 0.9443346433442272
+            },
+            "medianCpuMs": 59.980201721191406,
+            "p95CpuMs": 78.62740325927734,
+            "counts": {
+              "raw": 113604,
+              "examined": 4640,
+              "receivers": 1491,
+              "exchanges": 0,
+              "free": 948,
+              "pairs": 0,
+              "touches": 1975364,
+              "evaluations": 46251942
+            }
+          }
+        }
+      },
+      "peking547-b50000-transactional-t8": {
+        "warm": {
+          "frames": 21,
+          "means": {
+            "cpuMs": 92.71534256708054,
+            "viewMs": 12.08192380952381,
+            "receiverMs": 14.821704761904762,
+            "donorMs": 2.348347619047619,
+            "reservationMs": 48.00724761904762,
+            "sampleRepairMs": 10.858647619047618,
+            "topologyPrepareMs": 2.1854095238095237,
+            "topologyPublishMs": 0.34983333333333333,
+            "meshPrepareMs": 0.16226666666666667,
+            "continuationMs": 0.6286047619047619,
+            "adapterMs": 0.0366571428571443,
+            "unitemizedMs": 1.2346997099376864
+          },
+          "medianCpuMs": 109.30960083007812,
+          "p95CpuMs": 177.0550994873047,
+          "counts": {
+            "raw": 1041076,
+            "examined": 3360,
+            "receivers": 1559,
+            "exchanges": 589,
+            "free": 4,
+            "pairs": 175489,
+            "touches": 1019777,
+            "evaluations": 25242445
+          }
+        },
+        "events": {
+          "move": {
+            "frames": 13,
+            "means": {
+              "cpuMs": 133.60382256141077,
+              "viewMs": 18.224984615384614,
+              "receiverMs": 21.88523846153846,
+              "donorMs": 2.457823076923077,
+              "reservationMs": 70.10050769230769,
+              "sampleRepairMs": 14.867076923076922,
+              "topologyPrepareMs": 2.8832307692307695,
+              "topologyPublishMs": 0.4588307692307692,
+              "meshPrepareMs": 0.20802307692307692,
+              "continuationMs": 0.8862461538461539,
+              "adapterMs": 0.04722307692308028,
+              "unitemizedMs": 1.584637946026163
+            },
+            "medianCpuMs": 125.14399719238281,
+            "p95CpuMs": 208.9333953857422,
+            "counts": {
+              "raw": 641667,
+              "examined": 2080,
+              "receivers": 1170,
+              "exchanges": 454,
+              "free": 4,
+              "pairs": 127540,
+              "touches": 963239,
+              "evaluations": 23445959
+            }
+          },
+          "recovery": {
+            "frames": 8,
+            "means": {
+              "cpuMs": 26.271562576293945,
+              "viewMs": 2.09945,
+              "receiverMs": 3.3434625000000002,
+              "donorMs": 2.17045,
+              "reservationMs": 12.1057,
+              "sampleRepairMs": 4.34495,
+              "topologyPrepareMs": 1.05145,
+              "topologyPublishMs": 0.1727125,
+              "meshPrepareMs": 0.0879125,
+              "continuationMs": 0.2099375,
+              "adapterMs": 0.019487499999998326,
+              "unitemizedMs": 0.6660500762939456
+            },
+            "medianCpuMs": 21.98550033569336,
+            "p95CpuMs": 55.45869827270508,
+            "counts": {
+              "raw": 399409,
+              "examined": 1280,
+              "receivers": 389,
+              "exchanges": 135,
+              "free": 0,
+              "pairs": 47949,
+              "touches": 56538,
+              "evaluations": 1796486
+            }
+          }
+        }
+      }
+    }
+  }
+}

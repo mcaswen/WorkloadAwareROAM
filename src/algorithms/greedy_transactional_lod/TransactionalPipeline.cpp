@@ -51,6 +51,7 @@ void TransactionalPipeline::Apply(const CertifiedBatch& batch,WorkLedger& work)
     start=std::chrono::steady_clock::now();auto mesh=_mesh.Prepare(_state,topology,work,_execution);
     work.Seconds["mesh_prepare"]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
     work.Seconds.try_emplace("derived_publish",0);work.CheckLimit();
+    _idlePlan.Clear(work);
     // 全部潜在分配及失败点已越过，旧 live 值到此仍未发生变化
     TransactionalCommit::Publish(_state,std::move(topology),work);
     start=std::chrono::steady_clock::now();
@@ -81,6 +82,7 @@ void TransactionalPipeline::SetView(const Configuration& view,WorkLedger& work)
     // 新视图的数值域检查和投影结果完成后，才共同替换配置与派生状态
     const auto started=std::chrono::steady_clock::now();
     auto prepared=_samples.PrepareView(_state,view,work,_execution);work.CheckLimit();work.Seconds.try_emplace("view_refresh",0);
+    _idlePlan.Clear(work);
     _state._config.Matrix=view.Matrix;_state._config.Width=view.Width;_state._config.Height=view.Height;
     _state._config.UsesZeroToOneDepth=view.UsesZeroToOneDepth;
     _state._config.SampleIndex=view.SampleIndex;++_state._version;
@@ -93,8 +95,15 @@ CertifiedBatch TransactionalPipeline::Update(WorkLedger& work)
     ROAM_CPU_ZONE("gtp.update");
     const auto start=std::chrono::steady_clock::now();Initialize(work);
     work.Seconds.try_emplace("update",0);
+    auto reused = _idlePlan.Find(_state, _execution.Diagnostics, work);
+    if (reused)
+    {
+        work.Seconds.at("update") = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+        return std::move(*reused);
+    }
     auto batch=TransactionalReservation::Plan(_state,_samples,work,_execution);
     Apply(batch,work);
+    _idlePlan.Remember(_state, _execution.Diagnostics, batch, work);
     work.Seconds.at("update")=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
     return batch;
 }

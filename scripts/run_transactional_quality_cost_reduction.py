@@ -16,7 +16,7 @@ def read(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def collect(output, arm, app, probe, audit=False, audit_only=False):
+def collect(output, arm, app, probe, audit=False, audit_only=False, policy="pointwise-target", reuse_work=False):
     target = output / arm
     target.mkdir(parents=True, exist_ok=True)
     program = target / ("audit-program.json" if audit_only else "program.json")
@@ -26,14 +26,22 @@ def collect(output, arm, app, probe, audit=False, audit_only=False):
     if program.exists() and read(program) != current:
         raise RuntimeError("同一实验臂禁止混用程序")
     write(program, current)
+    variant = "B" if policy == "pointwise-target" else "A"
+    fields = ("frame", "hash", "faces", "raw", "examined", "receivers", "need", "feasible", "exchanges", "free")
     for case in (() if audit_only else CASES):
-        config = PRIOR / (case + "-B.json")
+        config = PRIOR / (case + "-" + variant + ".json")
         checked_run(config, target / case, app)
-        compare(rows(target / case / "run/frames.csv"), rows(PRIOR / (case + "-B/run/frames.csv")))
+        current_rows = rows(target / case / "run/frames.csv")
+        prior_rows = rows(PRIOR / (case + "-" + variant + "/run/frames.csv"))
+        if reuse_work:
+            compare(current_rows, prior_rows, fields)
+            compare(current_rows, prior_rows, ("poseHash", "projectionHash"))
+        else:
+            compare(current_rows, prior_rows)
         print(arm, case, "离散结果一致", flush=True)
     # 旧政策单独验证，必须显式沿用immutable，不能回到源码默认旧点自由拟合
     case = CASES[0]
-    if not audit_only:
+    if not audit_only and not reuse_work:
         checked_run(PRIOR / (case + "-A.json"), target / "legacy", app)
         compare(rows(target / "legacy/run/frames.csv"), rows(PRIOR / (case + "-A/run/frames.csv")))
     if not audit and not audit_only:
@@ -61,6 +69,8 @@ if __name__ == "__main__":
     parser.add_argument("--probe", type=Path)
     parser.add_argument("--audit", action="store_true")
     parser.add_argument("--audit-only", action="store_true")
+    parser.add_argument("--policy", choices=("legacy", "pointwise-target"), default="pointwise-target")
+    parser.add_argument("--allow-work-reduction", action="store_true")
     args = parser.parse_args()
     collect(args.output.resolve(), args.arm, args.app.resolve(), args.probe.resolve() if args.probe else None,
-            args.audit, args.audit_only)
+            args.audit, args.audit_only, args.policy, args.allow_work_reduction)

@@ -2,6 +2,7 @@
 
 #include "algorithms/greedy_transactional_lod/TransactionalSamples.h"
 #include "algorithms/greedy_transactional_lod/TransactionalMesh.h"
+#include "algorithms/greedy_transactional_lod/TransactionalIdlePlanCache.h"
 
 namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
@@ -32,6 +33,7 @@ private:
     TransactionalState _state;
     TransactionalSamples _samples;
     TransactionalMesh _mesh;
+    TransactionalIdlePlanCache _idlePlan;
     bool _initialized{};
     std::set<Identity> _invalidatedRoots, _invalidatedDonors;
 };

@@ -195,7 +195,7 @@ def plot(summary: dict):
     plt.close(figure)
 
 
-def reduction(raw: Path, output: Path, arms: list[str]) -> dict:
+def reduction(raw: Path, output: Path, arms: list[str], reuse_work=False) -> dict:
     """显式输入的同政策版本对照，原04F默认归约和产物保持不变。"""
     sources = {}
     result = {"contract": "同政策单独进程快验；内部三次认证仅作内核定位", "cases": {}, "sources": sources}
@@ -203,17 +203,53 @@ def reduction(raw: Path, output: Path, arms: list[str]) -> dict:
         case = scene + "-b50000-transactional-t8"
         records = {}
         baseline = None
+        baseline_extra = {}
         for arm in arms:
             frames = read_rows(raw / arm / case / "run/frames.csv", sources)
             if baseline is None:
                 baseline = frames
             elif len(frames) != len(baseline) or any(
-                any(a[k] != b[k] for k in MATCH) for a, b in zip(baseline, frames)):
+                any(a[k] != b[k] for k in (MATCH if not reuse_work else
+                    ("frame", "hash", "faces", "budget", "raw", "examined", "receivers", "need", "feasible", "exchanges", "free",
+                     "poseHash", "projectionHash", "vertexWrites", "indexWrites", "sequence", "status", "updated", "uploadBytes")))
+                for a, b in zip(baseline, frames)):
                 raise ValueError("等价优化改变离散结果")
             warm = [r for r in frames if not int(r["warmup"])]
             records[arm] = {"warm": statistics_for(warm), "events": {
                 event: statistics_for([r for r in warm if r["event"] == event])
                 for event in sorted({r["event"] for r in warm})}}
+            if reuse_work:
+                manifest = read_json(raw / arm / case / "manifest.json", sources)
+                records[arm]["process"] = manifest["process"]
+                records[arm]["taskId"] = manifest["taskId"]
+                if records[arm]["taskId"] != records[arms[0]]["taskId"]:
+                    raise ValueError("等价优化改变冻结任务身份")
+                for filename, keys in (
+                    ("flip-recovery.csv", ("frame", "executed")),
+                    ("boundary-refinement.csv", ("frame", "freeExecuted", "pairedExecuted", "assignedFaces",
+                     "consumedFreeFaces", "unusedFaces", "releasedFaces", "netFaceChange"))):
+                    extra = [{k: r[k] for k in keys} for r in read_rows(raw / arm / case / "run" / filename, sources)]
+                    if filename in baseline_extra and baseline_extra[filename] != extra:
+                        raise ValueError("复用改变翻边或边界预算结果")
+                    baseline_extra[filename] = extra
+            if reuse_work:
+                # 共同相机/mesh与原先空批不变；这里只统计真实零访问，不凭它虚造命中计数
+                idle = [r for r in warm if all(int(r[k]) == 0 for k in
+                    ("exchanges", "free", "vertexWrites", "indexWrites"))]
+                records[arm]["emptyFrames"] = len(idle)
+                records[arm]["zeroTouchEmptyFrames"] = sum(int(r["touches"]) == 0 for r in idle)
+                if idle:
+                    records[arm]["empty"] = statistics_for(idle)
+                suffix = []
+                for row in reversed(warm):
+                    if any(int(row[k]) for k in ("exchanges", "free", "vertexWrites", "indexWrites")):
+                        break
+                    if suffix and any(row[k] != suffix[-1][k] for k in ("poseHash", "projectionHash", "hash")):
+                        break
+                    suffix.append(row)
+                if suffix:
+                    records[arm]["staticSuffix"] = {"first": int(suffix[-1]["frame"]),
+                        "last": int(suffix[0]["frame"]), "statistics": statistics_for(suffix)}
         result["cases"][scene] = records
     micro = {}
     comparison = {}
@@ -264,12 +300,13 @@ if __name__ == "__main__":
     parser.add_argument("--reduction-input", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--arms", nargs="+", default=["P0", "A1", "P1"])
+    parser.add_argument("--allow-work-reduction", action="store_true")
     args = parser.parse_args()
     started = time.perf_counter()
     if args.reduction_input:
         if args.output is None:
             parser.error("版本对照必须指定独立输出目录")
-        result = reduction(args.reduction_input.resolve(), args.output.resolve(), args.arms)
+        result = reduction(args.reduction_input.resolve(), args.output.resolve(), args.arms, args.allow_work_reduction)
         print(json.dumps({s: {a: v['warm']['means']['cpuMs'] for a,v in r.items()}
                           for s,r in result['cases'].items()}))
     elif args.plot:

@@ -68,12 +68,137 @@ template <class F> void MustReject(F &&action, const char *message)
     }
     Require(rejected, message);
 }
+
+void SameIdleResult(const CertifiedBatch& a, const CertifiedBatch& b)
+{
+    // 与独立冷Plan比较全部逻辑结果；工作/计时属于实际执行，不由缓存伪造
+    Require(a.Exchanges.empty() && b.Exchanges.empty(), "期望空批逻辑结果");
+    const auto fields = [](const CertifiedBatch& value) {
+        return std::tie(value.Version, value.PairAuditComplete, value.Raw, value.Examined, value.Receivers,
+            value.Need, value.Feasible, value.Executed, value.FreeExecuted, value.AssignedCredits,
+            value.UnusedCredits, value.FlipExecuted, value.AssignedFaces, value.ConsumedFreeFaces,
+            value.UnusedFaces, value.ReleasedFaces, value.BoundaryFreeExecuted, value.BoundaryPairedExecuted,
+            value.NetFaceChange, value.IntentIds, value.PoolIds, value.IntentResults, value.Attempts);
+    };
+    Require(fields(a) == fields(b), "缓存改变目录、理由或资源分母");
+    Require(a.IntentBudgets.size() == b.IntentBudgets.size(), "缓存改变意图预算规模");
+    for (std::size_t i = 0; i < a.IntentBudgets.size(); ++i)
+    {
+        Require(a.IntentBudgets[i].Faces == b.IntentBudgets[i].Faces &&
+                a.IntentBudgets[i].Funding == b.IntentBudgets[i].Funding, "缓存改变意图预算来源");
+    }
+}
+
+void IdleReuse()
+{
+    for (const auto policy : {TransactionalQualityPolicy::Legacy, TransactionalQualityPolicy::PointwiseTarget})
+    {
+        auto input = Square();
+        input.Config.QualityPolicy = policy;
+        input.Config.SplitPixels = 1;
+        for (auto& entry : input.Vertices)
+        {
+            entry.second.Height = 0;
+        }
+        TransactionalPipeline pipeline(input);
+        WorkLedger coldWork;
+        const auto cold = pipeline.Update(coldWork);
+        Require(cold.Exchanges.empty(), "平面输入意外生成事务");
+        WorkLedger oracleWork;
+        const auto oracle = TransactionalReservation::Plan(pipeline.State(), pipeline.Samples(), oracleWork);
+        WorkLedger hitWork;
+        SameIdleResult(oracle, pipeline.Update(hitWork));
+        Require(hitWork.Reasons["idle_plan_hit"] == 1 && hitWork.SampleTouches == 0,
+                "同代次仍重复空批发现");
+        WorkLedger expired;
+        expired.Deadline = std::chrono::steady_clock::time_point::min();
+        MustReject([&] { pipeline.Update(expired); }, "缓存绕过当前调用期限");
+
+        // 外部发布替换原物理面槽位，不能只依靠公开面数判断缓存仍有效
+        auto proposal = Refine(input, 0);
+        proposal.Reason = "certified";
+        if (policy == TransactionalQualityPolicy::Legacy)
+        {
+            CertifiedBatch batch;
+            batch.Version = pipeline.State().Version();
+            batch.Exchanges.push_back({proposal, {}, false});
+            WorkLedger applyWork;
+            pipeline.Apply(batch, applyWork);
+            Require(applyWork.Reasons["idle_plan_invalidated"] == 1, "外部Apply未失效缓存");
+            WorkLedger next;
+            pipeline.Update(next);
+            Require(next.Reasons["idle_plan_hit"] == 0, "新拓扑复用旧失败");
+        }
+        auto view = pipeline.State().Config();
+        view.Matrix[3] += .01;
+        WorkLedger viewWork;
+        pipeline.SetView(view, viewWork);
+        WorkLedger next;
+        pipeline.Update(next);
+        Require(next.Reasons["idle_plan_hit"] == 0, "视图变化未失效缓存");
+        TransactionalPipeline reset(input);
+        WorkLedger resetWork;
+        reset.Update(resetWork);
+        Require(resetWork.Reasons["idle_plan_hit"] == 0, "新实例继承旧缓存");
+
+        // 缓存本身再次绑定实例与诊断语义，避免两个Version相同的状态误命中
+        TransactionalIdlePlanCache cache;
+        WorkLedger binding;
+        cache.Remember(reset.State(), false, cold, binding);
+        TransactionalPipeline sameVersion(input);
+        sameVersion.Initialize(binding);
+        Require(sameVersion.State().Version() == reset.State().Version(), "跨实例夹具代次不一致");
+        Require(!cache.Find(sameVersion.State(), false, binding), "跨实例命中缓存");
+        Require(!cache.Find(reset.State(), true, binding), "跨诊断模式命中缓存");
+        if (policy == TransactionalQualityPolicy::Legacy)
+        {
+            WorkLedger limited;
+            limited.Deadline = std::chrono::steady_clock::time_point::min();
+            MustReject([&] { sameVersion.Update(limited); }, "冷求解没有遵守时间配额");
+            WorkLedger retry;
+            SameIdleResult(oracle, sameVersion.Update(retry));
+            Require(retry.Reasons["idle_plan_hit"] == 0, "未完成求解被错误缓存");
+        }
+    }
+
+    auto hidden = Square();
+    hidden.Config.SplitPixels = 1;
+    hidden.Source.Values[4] = 10000;
+    for (auto& entry : hidden.Vertices)
+    {
+        entry.second.Height = 0;
+    }
+    hidden.Config.Matrix[3] = 10;
+    TransactionalPipeline pipeline(hidden);
+    WorkLedger first;
+    Require(pipeline.Update(first).Exchanges.empty(), "离屏输入意外细化");
+    WorkLedger second;
+    pipeline.Update(second);
+    Require(second.Reasons["idle_plan_hit"] == 1, "未复用离屏空结果");
+    auto visible = pipeline.State().Config();
+    visible.Matrix[3] = 0;
+    WorkLedger reveal;
+    pipeline.SetView(visible, reveal);
+    Require(!pipeline.Update(reveal).Exchanges.empty(), "视图变化后失败不能转为成功");
+    Require(reveal.Reasons["idle_plan_hit"] == 0, "显露成功事务来自错误缓存");
+    hidden.Config.Matrix[3] = 0;
+    TransactionalPipeline interrupted(hidden);
+    WorkLedger initialized;
+    interrupted.Initialize(initialized);
+    WorkLedger limited;
+    limited.VisitLimit = 0;
+    MustReject([&] { interrupted.Update(limited); }, "非空发现未遵守访问配额");
+    WorkLedger retry;
+    Require(!interrupted.Update(retry).Exchanges.empty() && retry.Reasons["idle_plan_hit"] == 0,
+            "中断的发现阻止了合法重试");
+}
 } // namespace
 
 int main()
 {
     try
     {
+        IdleReuse();
         // 极小正数只能得到跨零区间；负数须向下取整，而不是向零截断
         using namespace QualityEvaluation;
         // 覆盖每个有限指数、两种符号和尾数极端；独立oracle保留通用有理除法

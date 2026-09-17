@@ -47,6 +47,7 @@
 | TX-10 | [QPC-04F 接入规划](../../plans/cpu_refinement/qpc_04f_target_quality_policy_plan.md) | QC-10～13：请求、独立证据组合、持续义务和数值对应 | 已实施；纸面推导及47交换双域独立核查，未扩Lean证明范围；恢复/成本受限 |
 | TX-11 | [QPC-04G 固定提案可行域](../cpu_refinement/proposal_feasibility_derivation.md) | PF-01～06：透视误差仿射条件、内/外包方向、单点无进展、存储对应 | 纸面推导+解析反例+43项有限有理审计；没有新Lean，不是持续恢复证明 |
 | TX-12 | [QPC-06A认证降本](../cpu_refinement/quality_cost_reduction_derivation.md) | QCOST-01～04：局部证据复用、binary64定向累计、决策等价与费用 | 纸面推导与独立有理oracle；不修改质量政策或扩展Lean范围 |
+| TX-13 | [QPC-06B空批复用](../cpu_refinement/idle_plan_reuse_derivation.md) | IDLE-01～04：完整空结果、实例/代次失效、资源中断与复杂度 | 纸面推导、专项及六条同政策有限对照；只降静止重复成本，无新Lean或恢复保证 |
 | ATT-00 | [一般事务模型推导](../adaptive_triangulation/model_derivation.md)、[操作嵌入](../adaptive_triangulation/operation_embeddings.md)、[范围表](../adaptive_triangulation/generalization_results.md) | 接口、面数、资源语义、证书迁移与加权质量 | ATT-01～03完成；条件安全模型，非生产/性能证明 |
 
 质量演进证据：[PQ-01](../cpu_refinement/pq_01_quality_provenance_results.md)、[PQ-02](../cpu_refinement/pq_02_residual_provenance_results.md)、[PQ-03](../cpu_refinement/pq_03_fit_counterfactual_results.md)、[PQ-04](../cpu_refinement/pq_04_local_recovery_results.md)、[PQ-05](../cpu_refinement/pq_05_flip_recovery_results.md)、[QPC-01](../cpu_refinement/qpc_01_quality_recovery_results.md)、[04A](../cpu_refinement/qpc_04a_boundary_feasibility_results.md)、[04B](../cpu_refinement/qpc_04b_boundary_integration_results.md)、[04C](../cpu_refinement/qpc_04c_quality_target_results.md)、[04D](../cpu_refinement/qpc_04d_error_first_results.md)。它们是事实与反例来源，不升级为 Lean 定理。

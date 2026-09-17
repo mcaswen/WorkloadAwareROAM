@@ -2,7 +2,7 @@
 
 创建：2026-09-16；本轮重整：2026-09-17。编号：QPC（Quality–Performance Closure）。
 
-**当前结论：QPC-04A～04G的有限实验与诊断已完成，但持续质量恢复和质量—性能联合目标没有通过。** 新逐点政策不再被当作后续工作的必选前提。根据用户本轮要求，重排发现/认证降本与预留优化，加入明确的策略回退边界；本轮只修改规划，不切换生产配置、不实施优化。
+**当前结论：QPC-04A～04G的有限实验与诊断已完成，但持续质量恢复和质量—性能联合目标没有通过。** 新逐点政策不再被当作后续工作的必选前提。重排后已按用户授权完成06A/06B的有限成本削减；停止P专属认证救援，L为后续成本对照政策，默认配置不改。06完成不等于持续质量或论文性能目标通过。
 
 当前提交：04F `b437315`、04G `736f9ed`、成本审计 `febb0d1`。撤回未提交、未实施的“04H”独立编号，其有效内容归入[QPC-06A小规划](qpc_06a_quality_cost_reduction_plan.md)。ATT继续暂停。
 
@@ -103,7 +103,7 @@
 | QualitySampleEvidence | 06A条件Create | 单样本单域取证复用，局部生命周期；不持久复制全Q |
 | Reservation/Conflict | 05 Extend | 全局顺序、预算、捐赠唯一与冲突；不堆数值认证 |
 | ResourceReservations | 05条件Create | 单批资源占用索引；不改变选择或并行化预留 |
-| ProposalEvidence/失效根与捐赠信息 | 06B Reuse/Extend | 旧Fit证据与依赖完整的失败复用；不把double权重等同精确证据 |
+| IdlePlanCache/Pipeline | 06B Create/Extend，已实施 | 同实例同代次完整空结果复用；不保存成功提案、不跨视图/拓扑变化复用 |
 | 实验追溯、WorkLedger、perf/Tracy | Reuse，缺口才Extend | 只读取证，正常与诊断分离，不让统计改变生产决策 |
 | 共同runner/evaluator/report | Reuse | 来源、质量/数量/成本对照；算法不依赖实验层 |
 
@@ -134,6 +134,8 @@
 
 优先复用现有失效列表。不满足完整失效证据就保持重算；不先建全状态副本或一般缓存框架。重复失败复用只减少重复求值，不会让没有合法提案的区域恢复，必须另报停滞状态。
 
+06B实施选择更保守的整批边界：原Plan正常返回空批，且State实例、Version及诊断模式不变时，复制完整逻辑结果；任何真正视图/拓扑变化前清除。没有采用局部失败依赖或跨代次批内冲突复用。具体职责、成本和异常边界见[06B小规划](qpc_06b_idle_plan_reuse_plan.md)。
+
 ### 5.3 批内资源索引（05，条件）
 
 已批准事务聚合为读/写资源集，候选可预留当且仅当：
@@ -156,7 +158,7 @@ R_candidate ∩ W_used = ∅
 | Create，逐阶段 | `qpc_06b_*`、`qpc_05_*`及02/03/07/08/09小规划 | 每阶段独立设计/验收；当前不预建 |
 | Extend，06A | `src/algorithms/greedy_transactional_lod/TransactionalQualityEvaluation.*`、`TransactionalPointwiseQuality.cpp` | 数值求值及证据消费 |
 | Create，条件06A | 同目录`TransactionalQualitySampleEvidence.*` | 单样本局部证据，不与旧Fit证据混义 |
-| Extend，条件06B | 同目录Samples/ProposalEvidence/Pipeline及失效信息 | 有证明的生命周期维护；需小规划冻结owner、容量、清理及接口 |
+| Create/Extend，06B已实施 | 同目录`TransactionalIdlePlanCache.*`和Pipeline | 至多一个完整空结果，绑定实例/代次/诊断；不修改Samples或旧Fit证据 |
 | Extend/Create，条件05 | 同目录Reservation及`TransactionalResourceReservations.*` | 控制与资源查询分离 |
 | Reuse/Extend | `src/experiment/greedy_transactional_lod/`、相关probe、`scripts/` | 有限输入捕获、独立核查与编排，不成为生产依赖 |
 | Reuse/Extend | 现有CBT捕获、MeshQualityEvaluator与DOD观测工具 | 02/03分别定位参考问题；不改参考算法找优势 |
@@ -190,8 +192,8 @@ R_candidate ∩ W_used = ∅
 |---|---|
 | 01 | 诊断已完成；[小规划](qpc_01_quality_recovery_audit_plan.md) |
 | 04A～G | 各自有限工作已完成，详见§1；质量总目标未通过，当前不再自动扩展 |
-| 06A | [认证等价降本小规划](qpc_06a_quality_cost_reduction_plan.md)已整理、未实施；两项有限候选，不承诺完整退化消除 |
-| 06B | 未规划/未实施；策略检查点之后按重复工作证据准入 |
+| 06A | [小规划](qpc_06a_quality_cost_reduction_plan.md)已完成并提交`89773d6`；认证降本23.7%，未达25%内核目标，停止P专属优化 |
+| 06B | [小规划](qpc_06b_idle_plan_reuse_plan.md)已完成；同代次空批复用显著减少静止重复工作，整个06有限闭环 |
 | 05 | 未实施；所选政策重新记账后条件准入 |
 | 02/03/07 | 未实施；分别是CBT有效性、DOD参考与视觉属性 |
 | 08/09 | 条件阶段；可按负结果提前收口，不强制扩实验 |
@@ -213,6 +215,8 @@ R_candidate ∩ W_used = ∅
 每个子阶段独立小规划、实验、实现、验收与提交；按§8最新整轮06授权，06A检查点完成后可自主进入条件06B。
 
 06A已完成：[结果](../../research/cpu_refinement/qpc_06a_quality_cost_reduction_results.md)。同提案认证中位降23.7%，Sierra移动完整CPU降18.8%；等价性成立，内核25%目标未达，停止P专属认证优化。后续06B以L为主要成本政策，P作受限对照；默认政策不改，持续质量仍未通过。
+
+06B已完成：[结果](../../research/cpu_refinement/qpc_06b_idle_plan_reuse_results.md)。L的Sierra/Canyon末端区间（包含首个冷刷新）完整CPU均值从2.843/6.134降到0.566/0.814ms；六条同政策前后轨迹逻辑结果、曲面与输出一致。移动首次求解成本基本不变，完整轨迹收益远小于静止局部收益。保留唯一完整空结果缓存，不追加跨代次、局部revision或新的恢复机制。本轮06结束，不自动进入05。
 
 ### 7.3 QPC-05：预留工作削减与规模因素
 
@@ -315,4 +319,4 @@ Ubuntu负责命令编排，Windows平台仍运行同环境原生程序；不把W
 
 本轮只重整总规划、将未提交04H草案归入06A并调整其政策/回退边界、补[规划审查](../../reviews/cpu_refinement/qpc_major_plan_rebaseline_review.md)。04A～G结果、推导与原数据不改写；当前源码、配置、默认开关、运行轨迹和Git历史都没有回滚。
 
-上述为本轮重排时的文档交付。随后用户授权整个06闭环，06A结果与政策检查点已落地；下一步仅条件06B，须先写其小规划。05及质量算法修订未启动，其他编号保持逐阶段验收边界。
+上述为重排时的文档交付。随后用户授权整个06闭环，06A结果、政策检查点及06B已全部落地，相关推导、代码事实、数据与审查均已回填并分阶段提交。05及质量算法修订未启动，其他编号保持逐阶段验收边界。
