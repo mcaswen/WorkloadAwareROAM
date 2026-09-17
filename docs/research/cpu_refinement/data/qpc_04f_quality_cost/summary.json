@@ -1,0 +1,1243 @@
+{
+  "contract": "正常平台墙钟与诊断任务子计时分开；暖机会排除0/1/2；单进程历史快验",
+  "cases": {
+    "peking547": {
+      "seed": {
+        "meshHash": "18435347681902994536",
+        "faces": 49999
+      },
+      "normalTraceMatchingFrames": 24,
+      "arms": {
+        "A": {
+          "frames": 21,
+          "means": {
+            "cpuMs": 104.24086697896321,
+            "viewMs": 13.392504761904762,
+            "receiverMs": 17.217847619047618,
+            "donorMs": 2.3532571428571427,
+            "reservationMs": 53.34654761904762,
+            "sampleRepairMs": 12.35822857142857,
+            "topologyPrepareMs": 2.4732904761904764,
+            "topologyPublishMs": 0.4680380952380952,
+            "meshPrepareMs": 0.20491428571428572,
+            "continuationMs": 0.9069952380952381,
+            "adapterMs": 0.029309523809524524,
+            "unitemizedMs": 1.4899336456298755
+          },
+          "medianCpuMs": 120.80339813232422,
+          "p95CpuMs": 229.82020568847656,
+          "counts": {
+            "raw": 1041076,
+            "examined": 3360,
+            "receivers": 1559,
+            "exchanges": 589,
+            "free": 4,
+            "pairs": 175489,
+            "touches": 1019777,
+            "evaluations": 25242445
+          },
+          "events": {
+            "move": {
+              "frames": 13,
+              "means": {
+                "cpuMs": 151.4992388211764,
+                "viewMs": 20.213407692307694,
+                "receiverMs": 25.579561538461537,
+                "donorMs": 2.4276615384615385,
+                "reservationMs": 78.52931538461539,
+                "sampleRepairMs": 17.265976923076924,
+                "topologyPrepareMs": 3.303323076923077,
+                "topologyPublishMs": 0.6329384615384616,
+                "meshPrepareMs": 0.27907692307692306,
+                "continuationMs": 1.3214384615384616,
+                "adapterMs": 0.03324615384615452,
+                "unitemizedMs": 1.9132926673302393
+              },
+              "medianCpuMs": 140.62469482421875,
+              "p95CpuMs": 252.6595001220703,
+              "counts": {
+                "raw": 641667,
+                "examined": 2080,
+                "receivers": 1170,
+                "exchanges": 454,
+                "free": 4,
+                "pairs": 127540,
+                "touches": 963239,
+                "evaluations": 23445959
+              }
+            },
+            "recovery": {
+              "frames": 8,
+              "means": {
+                "cpuMs": 27.44601273536682,
+                "viewMs": 2.3085375,
+                "receiverMs": 3.6300625,
+                "donorMs": 2.2323500000000003,
+                "reservationMs": 12.42455,
+                "sampleRepairMs": 4.3831375,
+                "topologyPrepareMs": 1.1244875,
+                "topologyPublishMs": 0.200075,
+                "meshPrepareMs": 0.0844,
+                "continuationMs": 0.233525,
+                "adapterMs": 0.02291250000000078,
+                "unitemizedMs": 0.8019752353668181
+              },
+              "medianCpuMs": 23.907349586486816,
+              "p95CpuMs": 57.010501861572266,
+              "counts": {
+                "raw": 399409,
+                "examined": 1280,
+                "receivers": 389,
+                "exchanges": 135,
+                "free": 0,
+                "pairs": 47949,
+                "touches": 56538,
+                "evaluations": 1796486
+              }
+            }
+          }
+        },
+        "B": {
+          "frames": 21,
+          "means": {
+            "cpuMs": 103.04614008980847,
+            "viewMs": 10.393161904761905,
+            "receiverMs": 41.66458095238095,
+            "donorMs": 11.747414285714285,
+            "reservationMs": 31.884490476190475,
+            "sampleRepairMs": 4.155366666666667,
+            "topologyPrepareMs": 0.9996571428571429,
+            "topologyPublishMs": 0.13084761904761905,
+            "meshPrepareMs": 0.09379047619047619,
+            "continuationMs": 0.13711428571428572,
+            "adapterMs": 0.028519047619049463,
+            "unitemizedMs": 1.81119723266562
+          },
+          "medianCpuMs": 17.943199157714844,
+          "p95CpuMs": 294.622314453125,
+          "counts": {
+            "raw": 1152,
+            "examined": 926,
+            "receivers": 642,
+            "exchanges": 242,
+            "free": 3,
+            "pairs": 71250,
+            "touches": 2527698,
+            "evaluations": 25162798
+          },
+          "events": {
+            "move": {
+              "frames": 13,
+              "means": {
+                "cpuMs": 165.06098020993747,
+                "viewMs": 15.4133,
+                "receiverMs": 67.30432307692308,
+                "donorMs": 18.976592307692307,
+                "reservationMs": 51.50562307692308,
+                "sampleRepairMs": 6.712515384615385,
+                "topologyPrepareMs": 1.6148307692307693,
+                "topologyPublishMs": 0.21136923076923075,
+                "meshPrepareMs": 0.15150769230769232,
+                "continuationMs": 0.22149230769230768,
+                "adapterMs": 0.04186153846154147,
+                "unitemizedMs": 2.9075648253220834
+              },
+              "medianCpuMs": 144.90859985351562,
+              "p95CpuMs": 373.7300109863281,
+              "counts": {
+                "raw": 1152,
+                "examined": 926,
+                "receivers": 642,
+                "exchanges": 242,
+                "free": 3,
+                "pairs": 71250,
+                "touches": 2527698,
+                "evaluations": 23371917
+              }
+            },
+            "recovery": {
+              "frames": 8,
+              "means": {
+                "cpuMs": 2.2720248945988715,
+                "viewMs": 2.2354375,
+                "receiverMs": 0.0,
+                "donorMs": 0.0,
+                "reservationMs": 0.00015,
+                "sampleRepairMs": 0.0,
+                "topologyPrepareMs": 0.0,
+                "topologyPublishMs": 0.0,
+                "meshPrepareMs": 0.0,
+                "continuationMs": 0.0,
+                "adapterMs": 0.006837499999999955,
+                "unitemizedMs": 0.029599894598871135
+              },
+              "medianCpuMs": 0.03349999897181988,
+              "p95CpuMs": 17.943199157714844,
+              "counts": {
+                "raw": 0,
+                "examined": 0,
+                "receivers": 0,
+                "exchanges": 0,
+                "free": 0,
+                "pairs": 0,
+                "touches": 0,
+                "evaluations": 1790881
+              }
+            }
+          }
+        }
+      },
+      "deltaMs": {
+        "cpuMs": -1.1947268891547367,
+        "viewMs": -2.9993428571428566,
+        "receiverMs": 24.446733333333334,
+        "donorMs": 9.394157142857143,
+        "reservationMs": -21.462057142857144,
+        "sampleRepairMs": -8.202861904761903,
+        "topologyPrepareMs": -1.4736333333333334,
+        "topologyPublishMs": -0.33719047619047615,
+        "meshPrepareMs": -0.11112380952380953,
+        "continuationMs": -0.7698809523809523,
+        "adapterMs": -0.0007904761904750611,
+        "unitemizedMs": 0.32126358703574454
+      },
+      "cpuRatio": 0.9885387859504675,
+      "diagnosticWarm": {
+        "seconds": {
+          "donor_order": 0.0005617,
+          "reservation": 0.7522407999999998,
+          "view_order": 0.029181699999999998,
+          "view_projection": 0.1229971,
+          "view_refresh": 0.247569,
+          "view_scores": 0.0894351,
+          "derived_publish": 0.0033947,
+          "donor_stage": 0.2767589,
+          "face_fill": 0.0004226,
+          "mesh_fill": 0.0004934000000000001,
+          "mesh_prepare": 0.0027291000000000004,
+          "next_order": 0.0168436,
+          "pointwise_batch": 0.024069600000000003,
+          "prepare": 0.022034699999999997,
+          "publish": 0.0024915000000000002,
+          "receiver_stage": 1.0195327,
+          "sample_repair": 0.09535609999999999,
+          "task_wall_sum_pointwise_quality": 5.9368309,
+          "task_wall_sum_proposal": 0.09371769999999999,
+          "task_wall_sum_receiver_certification": 0.9788976,
+          "task_wall_sum_flip_recovery": 0.0388734
+        },
+        "count": {
+          "certified": 2981,
+          "fast_shape_miss": 1249,
+          "fit_bound_failed": 305,
+          "pointwise_donor_certified": 1579,
+          "pointwise_height_damage": 48,
+          "pointwise_receiver_certified": 654,
+          "pointwise_screen_damage": 70,
+          "quality_evidence_bytes": 10229084,
+          "quality_exact_samples": 256,
+          "quality_filter_samples": 477754,
+          "quality_infeasible": 21,
+          "quality_samples": 477754,
+          "shape_infeasible": 2239,
+          "flip_certified": 12,
+          "flip_flip_nonconvex_or_existing_diagonal": 208,
+          "flip_shape_infeasible": 41,
+          "flip_flip_not_interior": 3,
+          "flip_quality_infeasible": 8
+        },
+        "maximum": {
+          "rationalBits": 75
+        }
+      },
+      "diagnosticAll": {
+        "seconds": {
+          "donor_order": 0.0006647000000000001,
+          "reservation": 0.7522411999999998,
+          "view_order": 0.029181699999999998,
+          "view_projection": 0.1229971,
+          "view_refresh": 0.247569,
+          "view_scores": 0.0894351,
+          "derived_publish": 0.0033947,
+          "donor_stage": 0.2767589,
+          "face_fill": 0.0004226,
+          "mesh_fill": 0.0004934000000000001,
+          "mesh_prepare": 0.0027291000000000004,
+          "next_order": 0.0168436,
+          "pointwise_batch": 0.024069600000000003,
+          "prepare": 0.022034699999999997,
+          "publish": 0.0024915000000000002,
+          "receiver_stage": 1.0195327,
+          "sample_repair": 0.09535609999999999,
+          "task_wall_sum_pointwise_quality": 5.9368309,
+          "task_wall_sum_proposal": 0.09371769999999999,
+          "task_wall_sum_receiver_certification": 0.9788976,
+          "task_wall_sum_flip_recovery": 0.0388734
+        },
+        "count": {
+          "certified": 2981,
+          "fast_shape_miss": 1249,
+          "fit_bound_failed": 305,
+          "pointwise_donor_certified": 1579,
+          "pointwise_height_damage": 48,
+          "pointwise_receiver_certified": 654,
+          "pointwise_screen_damage": 70,
+          "quality_evidence_bytes": 10229084,
+          "quality_exact_samples": 256,
+          "quality_filter_samples": 477754,
+          "quality_infeasible": 21,
+          "quality_samples": 477754,
+          "shape_infeasible": 2239,
+          "flip_certified": 12,
+          "flip_flip_nonconvex_or_existing_diagonal": 208,
+          "flip_shape_infeasible": 41,
+          "flip_flip_not_interior": 3,
+          "flip_quality_infeasible": 8
+        },
+        "maximum": {
+          "rationalBits": 75
+        }
+      },
+      "staticEmptySuffix": {
+        "first": 16,
+        "last": 23,
+        "normal": {
+          "frames": 8,
+          "means": {
+            "cpuMs": 2.2720248945988715,
+            "viewMs": 2.2354375,
+            "receiverMs": 0.0,
+            "donorMs": 0.0,
+            "reservationMs": 0.00015,
+            "sampleRepairMs": 0.0,
+            "topologyPrepareMs": 0.0,
+            "topologyPublishMs": 0.0,
+            "meshPrepareMs": 0.0,
+            "continuationMs": 0.0,
+            "adapterMs": 0.006837499999999955,
+            "unitemizedMs": 0.029599894598871135
+          },
+          "medianCpuMs": 0.03349999897181988,
+          "p95CpuMs": 17.943199157714844,
+          "counts": {
+            "raw": 0,
+            "examined": 0,
+            "receivers": 0,
+            "exchanges": 0,
+            "free": 0,
+            "pairs": 0,
+            "touches": 0,
+            "evaluations": 1790881
+          }
+        },
+        "cpuSumMs": 18.17619915679097,
+        "viewSumMs": 17.8835,
+        "diagnostic": {
+          "seconds": {
+            "donor_order": 0.00025600000000000004,
+            "reservation": 1e-06,
+            "view_order": 0.0023412,
+            "view_projection": 0.0088464,
+            "view_refresh": 0.0202742,
+            "view_scores": 0.0087296
+          },
+          "count": {},
+          "maximum": {
+            "rationalBits": 0
+          }
+        }
+      },
+      "lastFrameWork": {
+        "seconds": {
+          "donor_order": 2.9e-05,
+          "reservation": 2e-07
+        },
+        "count": {},
+        "maximum": {
+          "rationalBits": 0
+        }
+      }
+    },
+    "dem-sierra": {
+      "seed": {
+        "meshHash": "12664488107607070644",
+        "faces": 8792
+      },
+      "normalTraceMatchingFrames": 96,
+      "arms": {
+        "A": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 33.16076443784981,
+            "viewMs": 7.782416129032258,
+            "receiverMs": 11.748208602150537,
+            "donorMs": 0.0,
+            "reservationMs": 0.22971827956989246,
+            "sampleRepairMs": 11.899369892473118,
+            "topologyPrepareMs": 0.403005376344086,
+            "topologyPublishMs": 0.09765591397849463,
+            "meshPrepareMs": 0.05113548387096774,
+            "continuationMs": 0.35885591397849465,
+            "adapterMs": 0.024352688172042745,
+            "unitemizedMs": 0.5660461582799172
+          },
+          "medianCpuMs": 31.07360076904297,
+          "p95CpuMs": 76.89109802246094,
+          "counts": {
+            "raw": 233458,
+            "examined": 14391,
+            "receivers": 1873,
+            "exchanges": 0,
+            "free": 1192,
+            "pairs": 0,
+            "touches": 2704384,
+            "evaluations": 98348730
+          },
+          "events": {
+            "recovery": {
+              "frames": 32,
+              "means": {
+                "cpuMs": 4.076221853494644,
+                "viewMs": 0.48273125,
+                "receiverMs": 3.41485,
+                "donorMs": 0.0,
+                "reservationMs": 0.00015937499999999998,
+                "sampleRepairMs": 0.0,
+                "topologyPrepareMs": 0.0,
+                "topologyPublishMs": 0.0,
+                "meshPrepareMs": 0.0,
+                "continuationMs": 0.0,
+                "adapterMs": 0.010631250000000064,
+                "unitemizedMs": 0.16784997849464434
+              },
+              "medianCpuMs": 3.536900043487549,
+              "p95CpuMs": 4.480800151824951,
+              "counts": {
+                "raw": 4640,
+                "examined": 4640,
+                "receivers": 0,
+                "exchanges": 0,
+                "free": 0,
+                "pairs": 0,
+                "touches": 4480,
+                "evaluations": 1574913
+              }
+            },
+            "return": {
+              "frames": 32,
+              "means": {
+                "cpuMs": 32.597437500953674,
+                "viewMs": 12.1573375,
+                "receiverMs": 13.113009375,
+                "donorMs": 0.0,
+                "reservationMs": 0.13675625,
+                "sampleRepairMs": 6.26359375,
+                "topologyPrepareMs": 0.277471875,
+                "topologyPublishMs": 0.067990625,
+                "meshPrepareMs": 0.055178125,
+                "continuationMs": 0.13859375,
+                "adapterMs": 0.01672812499999965,
+                "unitemizedMs": 0.3707781259536702
+              },
+              "medianCpuMs": 33.03269958496094,
+              "p95CpuMs": 44.04119873046875,
+              "counts": {
+                "raw": 115214,
+                "examined": 5111,
+                "receivers": 382,
+                "exchanges": 0,
+                "free": 244,
+                "pairs": 0,
+                "touches": 724540,
+                "evaluations": 50521875
+              }
+            },
+            "reveal": {
+              "frames": 29,
+              "means": {
+                "cpuMs": 65.87565494405813,
+                "viewMs": 11.009741379310345,
+                "receiverMs": 19.437651724137933,
+                "donorMs": 0.0,
+                "reservationMs": 0.5856034482758621,
+                "sampleRepairMs": 31.248496551724138,
+                "topologyPrepareMs": 0.9862206896551724,
+                "topologyPublishMs": 0.23814827586206896,
+                "meshPrepareMs": 0.1031,
+                "continuationMs": 0.9978827586206896,
+                "adapterMs": 0.0479068965517236,
+                "unitemizedMs": 1.2209032199201886
+              },
+              "medianCpuMs": 67.36689758300781,
+              "p95CpuMs": 81.21089935302734,
+              "counts": {
+                "raw": 113604,
+                "examined": 4640,
+                "receivers": 1491,
+                "exchanges": 0,
+                "free": 948,
+                "pairs": 0,
+                "touches": 1975364,
+                "evaluations": 46251942
+              }
+            }
+          }
+        },
+        "B": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 95.83805151908628,
+            "viewMs": 10.67058064516129,
+            "receiverMs": 78.86249032258064,
+            "donorMs": 0.0,
+            "reservationMs": 0.08749462365591398,
+            "sampleRepairMs": 4.547259139784947,
+            "topologyPrepareMs": 0.23966666666666667,
+            "topologyPublishMs": 0.040148387096774193,
+            "meshPrepareMs": 0.03707634408602151,
+            "continuationMs": 0.09466236559139785,
+            "adapterMs": 0.015312903225806597,
+            "unitemizedMs": 1.2433601212368188
+          },
+          "medianCpuMs": 56.35689926147461,
+          "p95CpuMs": 310.24310302734375,
+          "counts": {
+            "raw": 282818,
+            "examined": 14880,
+            "receivers": 655,
+            "exchanges": 0,
+            "free": 385,
+            "pairs": 0,
+            "touches": 5453627,
+            "evaluations": 97810688
+          },
+          "events": {
+            "recovery": {
+              "frames": 32,
+              "means": {
+                "cpuMs": 22.59631246328354,
+                "viewMs": 0.607078125,
+                "receiverMs": 21.74213125,
+                "donorMs": 0.0,
+                "reservationMs": 0.00014687499999999998,
+                "sampleRepairMs": 0.0,
+                "topologyPrepareMs": 0.0,
+                "topologyPublishMs": 0.0,
+                "meshPrepareMs": 0.0,
+                "continuationMs": 0.0,
+                "adapterMs": 0.013118750000000179,
+                "unitemizedMs": 0.23383746328353894
+              },
+              "medianCpuMs": 20.031299591064453,
+              "p95CpuMs": 38.82870101928711,
+              "counts": {
+                "raw": 129152,
+                "examined": 5120,
+                "receivers": 0,
+                "exchanges": 0,
+                "free": 0,
+                "pairs": 0,
+                "touches": 579712,
+                "evaluations": 1574913
+              }
+            },
+            "return": {
+              "frames": 32,
+              "means": {
+                "cpuMs": 69.12352192401886,
+                "viewMs": 14.3861625,
+                "receiverMs": 52.841387499999996,
+                "donorMs": 0.0,
+                "reservationMs": 0.028378125,
+                "sampleRepairMs": 1.264175,
+                "topologyPrepareMs": 0.10036250000000001,
+                "topologyPublishMs": 0.012621875,
+                "meshPrepareMs": 0.031440625,
+                "continuationMs": 0.02189375,
+                "adapterMs": 0.013334375000000565,
+                "unitemizedMs": 0.4237656740188669
+              },
+              "medianCpuMs": 57.98699951171875,
+              "p95CpuMs": 131.84190368652344,
+              "counts": {
+                "raw": 88441,
+                "examined": 5120,
+                "receivers": 73,
+                "exchanges": 0,
+                "free": 53,
+                "pairs": 0,
+                "touches": 1735732,
+                "evaluations": 50413447
+              }
+            },
+            "reveal": {
+              "frames": 29,
+              "means": {
+                "cpuMs": 206.13462382349474,
+                "viewMs": 17.67518275862069,
+                "receiverMs": 170.6047931034483,
+                "donorMs": 0.0,
+                "reservationMs": 0.2491103448275862,
+                "sampleRepairMs": 13.187637931034482,
+                "topologyPrepareMs": 0.6578413793103448,
+                "topologyPublishMs": 0.11482413793103448,
+                "meshPrepareMs": 0.08420689655172414,
+                "continuationMs": 0.27941379310344827,
+                "adapterMs": 0.01991724137930999,
+                "unitemizedMs": 3.261696237287822
+              },
+              "medianCpuMs": 203.0384979248047,
+              "p95CpuMs": 404.03759765625,
+              "counts": {
+                "raw": 65225,
+                "examined": 4640,
+                "receivers": 582,
+                "exchanges": 0,
+                "free": 332,
+                "pairs": 0,
+                "touches": 3138183,
+                "evaluations": 45822328
+              }
+            }
+          }
+        }
+      },
+      "deltaMs": {
+        "cpuMs": 62.67728708123647,
+        "viewMs": 2.8881645161290326,
+        "receiverMs": 67.1142817204301,
+        "donorMs": 0.0,
+        "reservationMs": -0.14222365591397848,
+        "sampleRepairMs": -7.352110752688171,
+        "topologyPrepareMs": -0.16333870967741934,
+        "topologyPublishMs": -0.057507526881720436,
+        "meshPrepareMs": -0.014059139784946231,
+        "continuationMs": -0.2641935483870968,
+        "adapterMs": -0.009039784946236149,
+        "unitemizedMs": 0.6773139629569016
+      },
+      "cpuRatio": 2.890103806222766,
+      "diagnosticWarm": {
+        "seconds": {
+          "derived_publish": 0.0056584999999999995,
+          "donor_order": 0.002032,
+          "face_fill": 0.0020889000000000003,
+          "mesh_fill": 0.002260100000000001,
+          "mesh_prepare": 0.0029484000000000003,
+          "next_order": 0.026138800000000004,
+          "pointwise_batch": 0.053900100000000006,
+          "prepare": 0.016486800000000006,
+          "publish": 0.003074799999999999,
+          "receiver_stage": 6.917576799999996,
+          "reservation": 0.005681400000000002,
+          "sample_repair": 0.31206920000000005,
+          "task_wall_sum_flip_recovery": 0.07194680000000002,
+          "task_wall_sum_pointwise_quality": 11.496925999999998,
+          "task_wall_sum_proposal": 1.5981007,
+          "task_wall_sum_receiver_certification": 10.208929699999995,
+          "view_order": 0.0343234,
+          "view_projection": 0.4514542999999998,
+          "view_refresh": 0.7151349,
+          "view_scores": 0.2249195999999999
+        },
+        "count": {
+          "certified": 3052,
+          "fit_bound_failed": 46684,
+          "flip_flip_nonconvex_or_existing_diagonal": 837,
+          "flip_flip_not_interior": 68,
+          "pointwise_height_damage": 1742,
+          "pointwise_receiver_certified": 656,
+          "quality_evidence_bytes": 8699784,
+          "quality_exact_samples": 43948,
+          "quality_filter_samples": 630644,
+          "quality_samples": 630644,
+          "shape_infeasible": 49690,
+          "flip_shape_infeasible": 188,
+          "flip_quality_infeasible": 109,
+          "flip_certified": 1
+        },
+        "maximum": {
+          "rationalBits": 73
+        }
+      },
+      "diagnosticAll": {
+        "seconds": {
+          "derived_publish": 0.006857800000000001,
+          "donor_order": 0.002098,
+          "face_fill": 0.0021821000000000006,
+          "mesh_fill": 0.0023713000000000015,
+          "mesh_prepare": 0.0033435999999999995,
+          "next_order": 0.029770500000000012,
+          "pointwise_batch": 0.06279390000000001,
+          "prepare": 0.019374500000000003,
+          "publish": 0.0035589999999999997,
+          "receiver_stage": 7.305050299999997,
+          "reservation": 0.007934599999999993,
+          "sample_repair": 0.37175400000000003,
+          "task_wall_sum_pointwise_quality": 13.168143599999999,
+          "task_wall_sum_proposal": 1.6292811999999999,
+          "task_wall_sum_receiver_certification": 10.5339599,
+          "view_order": 0.03522539999999999,
+          "view_projection": 0.4664814999999998,
+          "view_refresh": 0.7379446000000001,
+          "view_scores": 0.23139329999999989,
+          "task_wall_sum_flip_recovery": 0.07196170000000002
+        },
+        "count": {
+          "certified": 3453,
+          "fit_bound_failed": 48023,
+          "pointwise_height_damage": 1775,
+          "pointwise_receiver_certified": 840,
+          "quality_evidence_bytes": 10521944,
+          "quality_exact_samples": 48103,
+          "quality_filter_samples": 747473,
+          "quality_samples": 747473,
+          "shape_infeasible": 50419,
+          "flip_flip_nonconvex_or_existing_diagonal": 841,
+          "flip_flip_not_interior": 70,
+          "flip_shape_infeasible": 188,
+          "flip_quality_infeasible": 109,
+          "flip_certified": 1
+        },
+        "maximum": {
+          "rationalBits": 73
+        }
+      },
+      "staticEmptySuffix": {
+        "first": 64,
+        "last": 95,
+        "normal": {
+          "frames": 32,
+          "means": {
+            "cpuMs": 22.59631246328354,
+            "viewMs": 0.607078125,
+            "receiverMs": 21.74213125,
+            "donorMs": 0.0,
+            "reservationMs": 0.00014687499999999998,
+            "sampleRepairMs": 0.0,
+            "topologyPrepareMs": 0.0,
+            "topologyPublishMs": 0.0,
+            "meshPrepareMs": 0.0,
+            "continuationMs": 0.0,
+            "adapterMs": 0.013118750000000179,
+            "unitemizedMs": 0.23383746328353894
+          },
+          "medianCpuMs": 20.031299591064453,
+          "p95CpuMs": 38.82870101928711,
+          "counts": {
+            "raw": 129152,
+            "examined": 5120,
+            "receivers": 0,
+            "exchanges": 0,
+            "free": 0,
+            "pairs": 0,
+            "touches": 579712,
+            "evaluations": 1574913
+          }
+        },
+        "cpuSumMs": 723.0819988250732,
+        "viewSumMs": 19.4265,
+        "diagnostic": {
+          "seconds": {
+            "donor_order": 0.0007695,
+            "receiver_stage": 0.6529355,
+            "reservation": 3.9e-06,
+            "task_wall_sum_pointwise_quality": 0.1668058,
+            "task_wall_sum_proposal": 0.5005696999999999,
+            "task_wall_sum_receiver_certification": 2.6586003000000002,
+            "view_order": 0.0005684,
+            "view_projection": 0.007822,
+            "view_refresh": 0.012939,
+            "view_scores": 0.0045155
+          },
+          "count": {
+            "certified": 192,
+            "fit_bound_failed": 19360,
+            "pointwise_height_damage": 192,
+            "quality_evidence_bytes": 136704,
+            "quality_exact_samples": 512,
+            "quality_filter_samples": 7168,
+            "quality_samples": 7168,
+            "shape_infeasible": 15872
+          },
+          "maximum": {
+            "rationalBits": 40
+          }
+        }
+      },
+      "lastFrameWork": {
+        "seconds": {
+          "donor_order": 3.05e-05,
+          "receiver_stage": 0.0204968,
+          "reservation": 1e-07,
+          "task_wall_sum_pointwise_quality": 0.005596800000000001,
+          "task_wall_sum_proposal": 0.0164538,
+          "task_wall_sum_receiver_certification": 0.0889676
+        },
+        "count": {
+          "certified": 6,
+          "fit_bound_failed": 605,
+          "pointwise_height_damage": 6,
+          "quality_evidence_bytes": 4272,
+          "quality_exact_samples": 16,
+          "quality_filter_samples": 224,
+          "quality_samples": 224,
+          "shape_infeasible": 496
+        },
+        "maximum": {
+          "rationalBits": 40
+        }
+      }
+    },
+    "dem-canyon": {
+      "seed": {
+        "meshHash": "5290254211587969315",
+        "faces": 50000
+      },
+      "normalTraceMatchingFrames": 96,
+      "arms": {
+        "A": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 41.70778389387233,
+            "viewMs": 11.314362365591398,
+            "receiverMs": 14.754137634408602,
+            "donorMs": 3.8124032258064515,
+            "reservationMs": 2.397815053763441,
+            "sampleRepairMs": 7.882976344086021,
+            "topologyPrepareMs": 0.566989247311828,
+            "topologyPublishMs": 0.143447311827957,
+            "meshPrepareMs": 0.058076344086021504,
+            "continuationMs": 0.19926559139784947,
+            "adapterMs": 0.017408602150537487,
+            "unitemizedMs": 0.5609021734422228
+          },
+          "medianCpuMs": 46.49100112915039,
+          "p95CpuMs": 81.94429779052734,
+          "counts": {
+            "raw": 395617,
+            "examined": 14880,
+            "receivers": 1212,
+            "exchanges": 573,
+            "free": 7,
+            "pairs": 137546,
+            "touches": 2543805,
+            "evaluations": 97968478
+          },
+          "events": {
+            "recovery": {
+              "frames": 32,
+              "means": {
+                "cpuMs": 7.6071218848228455,
+                "viewMs": 0.5316125,
+                "receiverMs": 6.878546875,
+                "donorMs": 0.0,
+                "reservationMs": 0.00015,
+                "sampleRepairMs": 0.0,
+                "topologyPrepareMs": 0.0,
+                "topologyPublishMs": 0.0,
+                "meshPrepareMs": 0.0,
+                "continuationMs": 0.0,
+                "adapterMs": 0.011106250000000123,
+                "unitemizedMs": 0.1857062598228456
+              },
+              "medianCpuMs": 6.992249965667725,
+              "p95CpuMs": 8.897500038146973,
+              "counts": {
+                "raw": 9024,
+                "examined": 5120,
+                "receivers": 0,
+                "exchanges": 0,
+                "free": 0,
+                "pairs": 0,
+                "touches": 33920,
+                "evaluations": 1574913
+              }
+            },
+            "return": {
+              "frames": 32,
+              "means": {
+                "cpuMs": 46.87585920095444,
+                "viewMs": 16.976131249999998,
+                "receiverMs": 16.344653125,
+                "donorMs": 5.77524375,
+                "reservationMs": 1.0627625,
+                "sampleRepairMs": 5.419853125,
+                "topologyPrepareMs": 0.414871875,
+                "topologyPublishMs": 0.09823125,
+                "meshPrepareMs": 0.060225,
+                "continuationMs": 0.1468375,
+                "adapterMs": 0.01740937500000017,
+                "unitemizedMs": 0.5596404509544399
+              },
+              "medianCpuMs": 46.918949127197266,
+              "p95CpuMs": 57.77149963378906,
+              "counts": {
+                "raw": 197484,
+                "examined": 5120,
+                "receivers": 295,
+                "exchanges": 142,
+                "free": 1,
+                "pairs": 34676,
+                "touches": 928861,
+                "evaluations": 50464116
+              }
+            },
+            "reveal": {
+              "frames": 29,
+              "means": {
+                "cpuMs": 73.63339680638806,
+                "viewMs": 16.9651,
+                "receiverMs": 21.689393103448275,
+                "donorMs": 5.8533,
+                "reservationMs": 6.516675862068966,
+                "sampleRepairMs": 19.299362068965518,
+                "topologyPrepareMs": 1.3604862068965518,
+                "topologyPublishMs": 0.35162758620689655,
+                "meshPrepareMs": 0.11978965517241379,
+                "continuationMs": 0.4769965517241379,
+                "adapterMs": 0.02436206896551645,
+                "unitemizedMs": 0.9763037029397879
+              },
+              "medianCpuMs": 72.05290222167969,
+              "p95CpuMs": 96.03379821777344,
+              "counts": {
+                "raw": 189109,
+                "examined": 4640,
+                "receivers": 917,
+                "exchanges": 431,
+                "free": 6,
+                "pairs": 102870,
+                "touches": 1581024,
+                "evaluations": 45929449
+              }
+            }
+          }
+        },
+        "B": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 83.59544933483164,
+            "viewMs": 11.67527311827957,
+            "receiverMs": 60.81500430107527,
+            "donorMs": 9.57552688172043,
+            "reservationMs": 0.20423655913978495,
+            "sampleRepairMs": 0.7076236559139785,
+            "topologyPrepareMs": 0.07141290322580646,
+            "topologyPublishMs": 0.014154838709677419,
+            "meshPrepareMs": 0.016223655913978494,
+            "continuationMs": 0.015288172043010752,
+            "adapterMs": 0.012505376344086348,
+            "unitemizedMs": 0.4881998724660548
+          },
+          "medianCpuMs": 98.01429748535156,
+          "p95CpuMs": 161.97689819335938,
+          "counts": {
+            "raw": 1896521,
+            "examined": 14880,
+            "receivers": 1811,
+            "exchanges": 62,
+            "free": 2,
+            "pairs": 287994,
+            "touches": 5715278,
+            "evaluations": 97661064
+          },
+          "events": {
+            "recovery": {
+              "frames": 32,
+              "means": {
+                "cpuMs": 15.451296895742416,
+                "viewMs": 0.578415625,
+                "receiverMs": 13.96410625,
+                "donorMs": 0.6543,
+                "reservationMs": 0.002853125,
+                "sampleRepairMs": 0.057075,
+                "topologyPrepareMs": 0.005184375,
+                "topologyPublishMs": 0.000934375,
+                "meshPrepareMs": 0.000796875,
+                "continuationMs": 0.00101875,
+                "adapterMs": 0.0099843750000001,
+                "unitemizedMs": 0.17662814574241636
+              },
+              "medianCpuMs": 11.825600147247314,
+              "p95CpuMs": 41.17359924316406,
+              "counts": {
+                "raw": 823453,
+                "examined": 5120,
+                "receivers": 5,
+                "exchanges": 2,
+                "free": 1,
+                "pairs": 638,
+                "touches": 124045,
+                "evaluations": 1575210
+              }
+            },
+            "return": {
+              "frames": 32,
+              "means": {
+                "cpuMs": 108.24472832679749,
+                "viewMs": 17.42976875,
+                "receiverMs": 79.815146875,
+                "donorMs": 10.3537875,
+                "reservationMs": 0.170928125,
+                "sampleRepairMs": 0.0,
+                "topologyPrepareMs": 0.0,
+                "topologyPublishMs": 0.0,
+                "meshPrepareMs": 0.0,
+                "continuationMs": 0.0,
+                "adapterMs": 0.011968750000001416,
+                "unitemizedMs": 0.46312832679748794
+              },
+              "medianCpuMs": 104.52985000610352,
+              "p95CpuMs": 161.97689819335938,
+              "counts": {
+                "raw": 571958,
+                "examined": 5120,
+                "receivers": 677,
+                "exchanges": 0,
+                "free": 0,
+                "pairs": 108320,
+                "touches": 2669111,
+                "evaluations": 50397216
+              }
+            },
+            "reveal": {
+              "frames": 29,
+              "means": {
+                "cpuMs": 131.58979244889883,
+                "viewMs": 17.570293103448275,
+                "receiverMs": 91.54687241379311,
+                "donorMs": 18.56086896551724,
+                "reservationMs": 0.46320689655172415,
+                "sampleRepairMs": 2.206296551724138,
+                "topologyPrepareMs": 0.22329310344827585,
+                "topologyPublishMs": 0.04436206896551724,
+                "meshPrepareMs": 0.051148275862068965,
+                "continuationMs": 0.04790344827586207,
+                "adapterMs": 0.015879310344826963,
+                "unitemizedMs": 0.8596683109678054
+              },
+              "medianCpuMs": 131.12139892578125,
+              "p95CpuMs": 188.92489624023438,
+              "counts": {
+                "raw": 501110,
+                "examined": 4640,
+                "receivers": 1129,
+                "exchanges": 60,
+                "free": 1,
+                "pairs": 179036,
+                "touches": 2922122,
+                "evaluations": 45688638
+              }
+            }
+          }
+        }
+      },
+      "deltaMs": {
+        "cpuMs": 41.88766544095931,
+        "viewMs": 0.36091075268817185,
+        "receiverMs": 46.06086666666667,
+        "donorMs": 5.7631236559139785,
+        "reservationMs": -2.193578494623656,
+        "sampleRepairMs": -7.175352688172043,
+        "topologyPrepareMs": -0.4955763440860215,
+        "topologyPublishMs": -0.12929247311827957,
+        "meshPrepareMs": -0.04185268817204301,
+        "continuationMs": -0.18397741935483872,
+        "adapterMs": -0.004903225806451139,
+        "unitemizedMs": -0.07270230097616803
+      },
+      "cpuRatio": 2.0043129011012595,
+      "diagnosticWarm": {
+        "seconds": {
+          "derived_publish": 0.0016088,
+          "donor_order": 0.0026155999999999996,
+          "donor_stage": 0.9160447000000002,
+          "face_fill": 0.0010119999999999999,
+          "mesh_fill": 0.0010326,
+          "mesh_prepare": 0.0013590999999999996,
+          "next_order": 0.020843600000000004,
+          "pointwise_batch": 0.004688600000000002,
+          "prepare": 0.0065861,
+          "publish": 0.0017414000000000002,
+          "receiver_stage": 5.831253300000002,
+          "reservation": 0.017545799999999993,
+          "sample_repair": 0.0613627,
+          "task_wall_sum_pointwise_quality": 11.858501099999996,
+          "task_wall_sum_proposal": 1.1054251,
+          "task_wall_sum_receiver_certification": 11.333109,
+          "view_order": 0.18897540000000004,
+          "view_projection": 0.4500280000000001,
+          "view_refresh": 1.1157254,
+          "view_scores": 0.44988809999999985,
+          "task_wall_sum_flip_recovery": 0.3638516000000001
+        },
+        "count": {
+          "certified": 6185,
+          "fast_shape_miss": 46240,
+          "fit_bound_failed": 64180,
+          "pointwise_donor_certified": 78,
+          "pointwise_height_damage": 247004,
+          "pointwise_receiver_certified": 1811,
+          "quality_evidence_bytes": 11299964,
+          "quality_exact_samples": 46451,
+          "quality_filter_samples": 331248,
+          "quality_samples": 331248,
+          "shape_infeasible": 24777,
+          "quality_infeasible": 169,
+          "flip_flip_nonconvex_or_existing_diagonal": 710,
+          "flip_quality_infeasible": 172,
+          "flip_flip_not_interior": 53,
+          "flip_shape_infeasible": 64,
+          "pointwise_screen_damage": 1960
+        },
+        "maximum": {
+          "rationalBits": 68
+        }
+      },
+      "diagnosticAll": {
+        "seconds": {
+          "derived_publish": 0.0028087,
+          "donor_order": 0.002695,
+          "donor_stage": 1.0183471,
+          "face_fill": 0.0011250999999999998,
+          "mesh_fill": 0.001193,
+          "mesh_prepare": 0.0016520999999999997,
+          "next_order": 0.029076700000000007,
+          "pointwise_batch": 0.007209899999999999,
+          "prepare": 0.011724899999999996,
+          "publish": 0.0028389999999999995,
+          "receiver_stage": 5.968944500000002,
+          "reservation": 0.04436860000000005,
+          "sample_repair": 0.10033339999999998,
+          "task_wall_sum_pointwise_quality": 12.660817799999998,
+          "task_wall_sum_proposal": 1.1236646,
+          "task_wall_sum_receiver_certification": 11.518738400000002,
+          "view_order": 0.19660500000000006,
+          "view_projection": 0.4672174000000001,
+          "view_refresh": 1.1564798,
+          "view_scores": 0.46501449999999994,
+          "task_wall_sum_flip_recovery": 0.3638516000000001
+        },
+        "count": {
+          "certified": 6629,
+          "fast_shape_miss": 51396,
+          "fit_bound_failed": 65936,
+          "internal_conflict": 4,
+          "pointwise_donor_certified": 138,
+          "pointwise_height_damage": 262076,
+          "pointwise_receiver_certified": 1994,
+          "quality_evidence_bytes": 12111856,
+          "quality_exact_samples": 47442,
+          "quality_filter_samples": 353283,
+          "quality_samples": 353283,
+          "shape_infeasible": 25142,
+          "quality_infeasible": 169,
+          "flip_flip_nonconvex_or_existing_diagonal": 710,
+          "flip_quality_infeasible": 172,
+          "flip_flip_not_interior": 53,
+          "flip_shape_infeasible": 64,
+          "pointwise_screen_damage": 1960
+        },
+        "maximum": {
+          "rationalBits": 68
+        }
+      },
+      "staticEmptySuffix": {
+        "first": 65,
+        "last": 95,
+        "normal": {
+          "frames": 31,
+          "means": {
+            "cpuMs": 14.047641969496205,
+            "viewMs": 0.0,
+            "receiverMs": 13.865612903225806,
+            "donorMs": 0.0,
+            "reservationMs": 9.67741935483871e-05,
+            "sampleRepairMs": 0.0,
+            "topologyPrepareMs": 0.0,
+            "topologyPublishMs": 0.0,
+            "meshPrepareMs": 0.0,
+            "continuationMs": 0.0,
+            "adapterMs": 0.009909677419355065,
+            "unitemizedMs": 0.1720226146574948
+          },
+          "medianCpuMs": 11.8233003616333,
+          "p95CpuMs": 35.047401428222656,
+          "counts": {
+            "raw": 797723,
+            "examined": 4960,
+            "receivers": 0,
+            "exchanges": 0,
+            "free": 0,
+            "pairs": 0,
+            "touches": 108252,
+            "evaluations": 0
+          }
+        },
+        "cpuSumMs": 435.4769010543823,
+        "viewSumMs": 0.0,
+        "diagnostic": {
+          "seconds": {
+            "donor_order": 0.0009444,
+            "receiver_stage": 0.3529463000000001,
+            "reservation": 4.199999999999998e-06,
+            "task_wall_sum_proposal": 0.2348718999999999,
+            "task_wall_sum_receiver_certification": 2.2191128
+          },
+          "count": {
+            "fit_bound_failed": 28954,
+            "shape_infeasible": 5766
+          },
+          "maximum": {
+            "rationalBits": 0
+          }
+        }
+      },
+      "lastFrameWork": {
+        "seconds": {
+          "donor_order": 2.55e-05,
+          "receiver_stage": 0.0116981,
+          "reservation": 1e-07,
+          "task_wall_sum_proposal": 0.007176499999999998,
+          "task_wall_sum_receiver_certification": 0.0724274
+        },
+        "count": {
+          "fit_bound_failed": 934,
+          "shape_infeasible": 186
+        },
+        "maximum": {
+          "rationalBits": 0
+        }
+      }
+    }
+  },
+  "sources": {
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-A/inputs/resolved.json": "c5fedcf6c3041bfc39032cbe07f553626be1aa4c414d6403c21eadcb0f3c4052",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-A/run/frames.csv": "b6c1020cc998f3e6cb4c841c96dbb9870d5bfd9fb11a36d335cc5c949a6149dd",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B/inputs/resolved.json": "d5c3e8566121b56ee0eba10b59b688e2e72a663aada44cd61691efaf34ce1277",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B/run/frames.csv": "c5f08321a304ec4f606bb9f68e76285d8d6f68680d26d3e802f402c5fffa8136",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-A-seed-trace/seed-identity.json": "91bcaf3be77e503ba7f49cce4cce4e46cace1a77f0024aa9875e7c1e0f86b91c",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B-trace/seed-identity.json": "91bcaf3be77e503ba7f49cce4cce4e46cace1a77f0024aa9875e7c1e0f86b91c",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B-trace/frames.csv": "933ba2794e9e593c9e25aec91d75cd058bf5cf4301ea27b84f45d127ff918db0",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B-trace/pointwise-work.csv": "92de6b9278ab1f0a9f16bb3d38ddaca4e6c5cdcb1c689249fcc498332f2b5381",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-A/inputs/resolved.json": "4dd9c94baa6b58181bff90deb22838fadb45d0b8a83c094168a560a05fd9d07f",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-A/run/frames.csv": "08709a50982d6926f133f4c0c2530001fc57da5bed18b69280ea610a514a604a",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B/inputs/resolved.json": "f159562a2fd16da012209797fc20260cbb743c237c86114025ccc237b0a140ed",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B/run/frames.csv": "e0406dd2d8bcb078d1ff9369b70a2b1c7ac6919c2560dc9241b415d6d0fa1429",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-A-seed-trace/seed-identity.json": "657fee7a97867fc32730fca7991c0151b26af3ebd5dab0e089c7828a8d63e0cc",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B-trace/seed-identity.json": "657fee7a97867fc32730fca7991c0151b26af3ebd5dab0e089c7828a8d63e0cc",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B-trace/frames.csv": "5d9b5b69ccf0cdc3e4ea5106add7c753938f5ae6b97bf70616a295d09555a109",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B-trace/pointwise-work.csv": "2496271e422af21a0e8d2dc4fb3f31d9a21bd551af8ca93cbc1d61de313127ed",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-A/inputs/resolved.json": "06694b1fac0758ff0847557ffdc3cf9bf3f658c5c18eb123a29f245445053532",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-A/run/frames.csv": "2789c14816f5a439d2000971762cf7b3054bf28fd2f0ed749555b69e41e0bc07",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B/inputs/resolved.json": "86bcbb576df57165e88d8cc5d3e264e073e897e8e712605b6709a660071c3ad4",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B/run/frames.csv": "bf1f8fa265824ad00ff0654e8d30078c03c2f21e2c502a6e4366519f30d8e7a1",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-A-seed-trace/seed-identity.json": "70eabad77551e2b5f821333584efb446976c39d2d72805853377fd6869b171dc",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B-trace/seed-identity.json": "70eabad77551e2b5f821333584efb446976c39d2d72805853377fd6869b171dc",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B-trace/frames.csv": "0ccf17fa21a42af3b338c9a01fef69a76321d28be611dc100673345d0053f01a",
+    "benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B-trace/pointwise-work.csv": "60d772e43b0f863c6190f6a24a640a2fd07a1a982b40f67832a77d2b26379b8e"
+  },
+  "analysisSeconds": 0.15963118799999165,
+  "scriptSha256": "aa0f23ecc2577df0e53d01d1ae025290923b6a2bd590bb14ec28ae724d4dcd74"
+}

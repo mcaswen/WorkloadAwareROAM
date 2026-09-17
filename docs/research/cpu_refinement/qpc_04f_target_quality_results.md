@@ -138,6 +138,8 @@ a为旧闭面关联、c为公开曲面包围框候选、s为实际闭支持、d�
 
 诊断账本`pointwise_quality`是任务墙钟之和（约5.94/13.17/12.66s），不能当完整帧时间或aggregate CPU time；它与receiver/donor阶段有包含关系，不能累加。没有测得全轨迹逐交换精确进展幅度或证据实时峰值，不能声称完整成本下界或全部内存逐项归因。
 
+后续只读[成本追溯](../../reviews/cpu_refinement/qpc_04f_quality_cost_analysis.md)进一步按暖掩码拆解净增量、请求与实际根、旧/新认证及静止失败工作；发现新增逐点认证为零时仍存在反复旧Fit开销，且质量回退计数不覆盖全部精确运算。本页历史采样与性能未通过的状态保持不变。
+
 ## 7. 视觉核查
 
 ![Peking同相机A/B与同尺度热图](data/qpc_04f_target_quality/peking547-b50000-transactional-t8-visual.png)
