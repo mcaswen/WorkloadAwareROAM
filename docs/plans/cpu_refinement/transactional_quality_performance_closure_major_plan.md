@@ -12,6 +12,8 @@
 
 2026-09-18后续授权覆盖：用户要求将已讨论的剩余空间逐项小规划、自主闭环，每完成一项提交一次。[06G～06J有限队列](qpc_06_remaining_work_plan.md)在该范围内无需逐项再确认；质量政策、精度、候选顺序和其他QPC阶段不随之开放。06F已提交`1f72df1`，历史“未进入下一阶段”是当时状态。
 
+该队列现已闭环：06G坐标/高度分离`3ae5a8e`、06H认证准备后移`9425da7`、06I续接减工`7327afc`；06J最终归因与候选结账见[报告](../../research/cpu_refinement/qpc_06j_remaining_cost_results.md)。原生源高移动Sierra110.643→105.708ms、Canyon67.743→62.893ms，三条96机会结果保持。支持缓存仅1次复用已撤回，捐赠池当前全部触达、不做无人口收益的惰性改造。剩余数值核/旧Measure义务、样本维护和视图查询仍开放；本轮既未通过持续恢复，也未通过源高默认晋升、DOD性能竞争或优化极限判断。ATT及其他阶段不随有限队列自动恢复。
+
 ## 1. 研究目标与04实施后的事实
 
 依据：[FER-02总报告](../../research/experiment_infrastructure/fer_02_overall_results.md)、[问题清单](../../research/experiment_infrastructure/fer_02_validation_questions.md)、[平台接入规划](transactional_platform_integration_plan.md)、[GWR规划](greedy_transactional_work_reduction_plan.md)、[CBT共同实验规划](../experiment_infrastructure/cbt_experiment_infrastructure_major_plan.md)。

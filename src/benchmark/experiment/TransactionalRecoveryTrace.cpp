@@ -415,6 +415,11 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
                     qualityWork << frame << ",count," << key << ',' << value << '\n';
                 for (const auto& [key, value] : work.Seconds)
                     qualityWork << frame << ",seconds," << key << ',' << value << '\n';
+                // 导出已有账本，区分提前认证人口与实际配对触达，不在诊断中重跑求值
+                qualityWork << frame << ",count,donor_certified," << work.DonorCertified << '\n';
+                qualityWork << frame << ",count,donor_touched," << work.DonorTouched << '\n';
+                qualityWork << frame << ",count,sample_location_tests," << work.LocationTests << '\n';
+                qualityWork << frame << ",count,sample_evaluations," << work.SampleEvaluations << '\n';
                 qualityWork << frame << ",maximum,rationalBits," << work.QualityMaxRationalBits << '\n';
                 qualityWork.flush();
             }
