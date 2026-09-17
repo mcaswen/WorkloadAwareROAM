@@ -1,0 +1,567 @@
+{
+  "schema": "research-history-evidence-v1",
+  "assembledDate": "2026-09-18",
+  "cutoffCommit": "c95ace0a297350928ef8e99c477a9dd68dcfd2eb",
+  "commitCount": 131,
+  "order": "git log --reverse --topo-order; dates retained independently",
+  "promptSource": "本会话可见用户消息，人工选取U01至U43；无消息时间戳、平台消息ID或完整早期会话导出",
+  "scopeLimit": "文档与关键提交范围核对；没有重跑旧实验或逐行审计所有历史源码差异",
+  "sourceFiles": [
+    {
+      "path": "docs/codebase/cbt_2024/source_import.md",
+      "headBlob": "183e0cf92860d01ddf04eb02f804238c6d70e687",
+      "sha256AtCutoff": "736d5b8c19ea6470584d597d923dd2c3917c6c72a8b5d324e9ec810f8f76e5a5",
+      "workspaceSha256AtCollection": "736d5b8c19ea6470584d597d923dd2c3917c6c72a8b5d324e9ec810f8f76e5a5",
+      "latestCommitAtCutoff": "8631320b0a69376567b9dd2b85c102bbc9b290fe"
+    },
+    {
+      "path": "docs/parallel-roam/04-milestones.md",
+      "headBlob": "3fc6f12ac33659b13a76037d6f1edbd52279ae50",
+      "sha256AtCutoff": "6c45d37c36d06e442d748f2a68be0ea216bef43edd678c844fd3b6ace0bb7770",
+      "workspaceSha256AtCollection": "04843bfcd737d847e0fd8018dad2157a0c7939e686d366d23cfd58b60073f2ad",
+      "latestCommitAtCutoff": "aa6bb71790442c107104e6fcc461936e49f23379"
+    },
+    {
+      "path": "docs/parallel-roam/19-workload-aware-problem-definition.md",
+      "headBlob": "359b6fe4f7e167996a3608d377b964665e4ddebb",
+      "sha256AtCutoff": "6084cbf3ff936e8287f2818c0b4816e067cf0d2278cd72c50bc2ac7cfd42cd6b",
+      "workspaceSha256AtCollection": "6084cbf3ff936e8287f2818c0b4816e067cf0d2278cd72c50bc2ac7cfd42cd6b",
+      "latestCommitAtCutoff": "16017171ccba0d3162d00cd20bf18e1b1c4a622a"
+    },
+    {
+      "path": "docs/plans/cbt_2024/cbi_04_first_comparison_plan.md",
+      "headBlob": "e3776cd3577ba475a09d7debce4448273dcbf61e",
+      "sha256AtCutoff": "53b6a4841da47061350b3be0854924523874cfffa4e339bdfd89fb83c4a2ebb6",
+      "workspaceSha256AtCollection": "53b6a4841da47061350b3be0854924523874cfffa4e339bdfd89fb83c4a2ebb6",
+      "latestCommitAtCutoff": "212bb483df00e6800cf1d0330047d23a4949462d"
+    },
+    {
+      "path": "docs/plans/cpu_refinement/transactional_quality_performance_closure_major_plan.md",
+      "headBlob": "bc63c57a7f302bab06c9aa03f64bc6e63a626ca6",
+      "sha256AtCutoff": "6050469d33a592c00b2d68ae56788b391f37a31b2f61d774282f03d156462626",
+      "workspaceSha256AtCollection": "6050469d33a592c00b2d68ae56788b391f37a31b2f61d774282f03d156462626",
+      "latestCommitAtCutoff": "c95ace0a297350928ef8e99c477a9dd68dcfd2eb"
+    },
+    {
+      "path": "docs/plans/formal_experiment/cpu_roam_research_definition.md",
+      "headBlob": "3927f36f7ebae57fa5ed5c8dae93ba3475f7ac23",
+      "sha256AtCutoff": "2c766b5605098b2a55ade57c11094afed0428a3dc728fa9daf74cf6e9ff476c1",
+      "workspaceSha256AtCollection": "2c766b5605098b2a55ade57c11094afed0428a3dc728fa9daf74cf6e9ff476c1",
+      "latestCommitAtCutoff": "16017171ccba0d3162d00cd20bf18e1b1c4a622a"
+    },
+    {
+      "path": "docs/plans/formal_experiment/formal_experiment_preparation_major_plan.md",
+      "headBlob": "9d7b231213711321b9dfe54c54092455e4071adb",
+      "sha256AtCutoff": "772a1f0221d19d6b87742c2ff4af172dfdc702f0aeec653230c7c29d5fd4bf84",
+      "workspaceSha256AtCollection": "1c9048136722e9c7840a670a503411e2e640b9338344f65a6befcdeaf96dc73c",
+      "latestCommitAtCutoff": "16017171ccba0d3162d00cd20bf18e1b1c4a622a"
+    },
+    {
+      "path": "docs/plans/ordering_relaxation/gate_02_mesh_quality_evaluation_plan.md",
+      "headBlob": "8d28fd504e6eaa1d04cd1136283040e95964c523",
+      "sha256AtCutoff": "fdab7490be10052ec0934fa1cce790d3b79e7af981c2005a61eaf73e2fad92c8",
+      "workspaceSha256AtCollection": "fdab7490be10052ec0934fa1cce790d3b79e7af981c2005a61eaf73e2fad92c8",
+      "latestCommitAtCutoff": "b078d59182b3506259c183605a647d58590b5b61"
+    },
+    {
+      "path": "docs/plans/ordering_relaxation/ordering_relaxation_discussion_record.md",
+      "headBlob": "987a94d3e9b979fff7828d40895acefcc37eedda",
+      "sha256AtCutoff": "1c3a6f2c1380763cf810e8c488414a8b95649a42f70ca02dd49313d7af04ca10",
+      "workspaceSha256AtCollection": "1c3a6f2c1380763cf810e8c488414a8b95649a42f70ca02dd49313d7af04ca10",
+      "latestCommitAtCutoff": "16017171ccba0d3162d00cd20bf18e1b1c4a622a"
+    },
+    {
+      "path": "docs/plans/plan_guideline.md",
+      "headBlob": "cb36de08f3f5fa8e025d0a048bf0cd3f1f055c1d",
+      "sha256AtCutoff": "19a6f4e30c75b4c390036c18621dfaae4920d74ea74077d432042a529a4b4db7",
+      "workspaceSha256AtCollection": "19a6f4e30c75b4c390036c18621dfaae4920d74ea74077d432042a529a4b4db7",
+      "latestCommitAtCutoff": "031b6391eaf1fdd12af34fa50f6afa6526881a25"
+    },
+    {
+      "path": "docs/plans/roam_parallelism/native_planner_performance_plan.md",
+      "headBlob": "a6fe8b1df1975e8a60da0f8a92f75fbb4478d8ce",
+      "sha256AtCutoff": "57d4a5143b79ebccd294e5c83733fbb7c08e55c8b63500b6b16d84dabef5454b",
+      "workspaceSha256AtCollection": "57d4a5143b79ebccd294e5c83733fbb7c08e55c8b63500b6b16d84dabef5454b",
+      "latestCommitAtCutoff": "2d8809fa9f05119f67b507463093662fcc7e2f54"
+    },
+    {
+      "path": "docs/research/README.md",
+      "headBlob": "3d26d7d988b1285b7729641b558bd86a6da85851",
+      "sha256AtCutoff": "f7deac0a6e5898d729a51395faf8c75ff90c54cd85f9bc86128282f7b019eff6",
+      "workspaceSha256AtCollection": "dd4073347f9b3835b9c843f76b646d4b2ad3bb0ee841669f65dfe6638a2af258",
+      "latestCommitAtCutoff": "c2cc2788039a8448abddb64b5c3f54395cce65aa"
+    },
+    {
+      "path": "docs/research/adaptive_triangulation/generalization_results.md",
+      "headBlob": "c51d64afc610f2a2d292683c4ab8bc910981ccb6",
+      "sha256AtCutoff": "f87b242d937aa3c3be2e6b1460ef87d066cd1e52acaa7a9adeeeb57b2a876a78",
+      "workspaceSha256AtCollection": "f87b242d937aa3c3be2e6b1460ef87d066cd1e52acaa7a9adeeeb57b2a876a78",
+      "latestCommitAtCutoff": "c2cc2788039a8448abddb64b5c3f54395cce65aa"
+    },
+    {
+      "path": "docs/research/cpu_refinement/bounded_patch_refit_derivation.md",
+      "headBlob": "5a50f1f31a0ae1d9acccb3d1599f5a85c6214071",
+      "sha256AtCutoff": "82e2524d9077f14bdbe34217d78b6ed7c403db2899b908bce823d9f3e29e7ac7",
+      "workspaceSha256AtCollection": "82e2524d9077f14bdbe34217d78b6ed7c403db2899b908bce823d9f3e29e7ac7",
+      "latestCommitAtCutoff": "8af1a41d545deaf3d5b5267f852730c1a3471a10"
+    },
+    {
+      "path": "docs/research/cpu_refinement/cavity_budget_recovery_derivation.md",
+      "headBlob": "79ca23809a484e7b0f50cd1b619d475daebde1b7",
+      "sha256AtCutoff": "0d17b4b012fd0a44075749767f62f43a5e0c9313ae405f09be558a5893d52c29",
+      "workspaceSha256AtCollection": "0d17b4b012fd0a44075749767f62f43a5e0c9313ae405f09be558a5893d52c29",
+      "latestCommitAtCutoff": "1b93ca8cf810dc4e82070b43c287997d9986bedb"
+    },
+    {
+      "path": "docs/research/cpu_refinement/greedy_local_exchange_candidate.md",
+      "headBlob": "7d8cbfcd311dc30120484064dcc0afef6998b8fc",
+      "sha256AtCutoff": "09f75e8047f6e61f93d2c66bb790a5a80141b609a6cb0509665fb038153e3736",
+      "workspaceSha256AtCollection": "09f75e8047f6e61f93d2c66bb790a5a80141b609a6cb0509665fb038153e3736",
+      "latestCommitAtCutoff": "8af1a41d545deaf3d5b5267f852730c1a3471a10"
+    },
+    {
+      "path": "docs/research/cpu_refinement/gtp_04_multicore_results.md",
+      "headBlob": "8b3fed626d5b6dffad69edc230b833ef3a97eda8",
+      "sha256AtCutoff": "7f9ea8daeb0e32294be7a3353662f042a20063a3b3605e3f5944a455a9287948",
+      "workspaceSha256AtCollection": "7f9ea8daeb0e32294be7a3353662f042a20063a3b3605e3f5944a455a9287948",
+      "latestCommitAtCutoff": "b13aaf55d54df91db8fe92d82e0db1b79741347d"
+    },
+    {
+      "path": "docs/research/cpu_refinement/gtp_platform_performance_analysis.md",
+      "headBlob": "634d9b1d00ed79698aab55c4cf5669d3e84b2a9c",
+      "sha256AtCutoff": "fef5675b9aadd13b07bde78df70aff851650ca2337cfc03a54aa3628d3c0fb93",
+      "workspaceSha256AtCollection": "fef5675b9aadd13b07bde78df70aff851650ca2337cfc03a54aa3628d3c0fb93",
+      "latestCommitAtCutoff": "b13aaf55d54df91db8fe92d82e0db1b79741347d"
+    },
+    {
+      "path": "docs/research/cpu_refinement/gwr_final_results.md",
+      "headBlob": "adb149a6c6d4de2487944adac957ea0ae11c8613",
+      "sha256AtCutoff": "f69ac902e681af2116740899a1946f91621aaf6e386285eccb706b943a1445b0",
+      "workspaceSha256AtCollection": "f69ac902e681af2116740899a1946f91621aaf6e386285eccb706b943a1445b0",
+      "latestCommitAtCutoff": "7425736fc6a4be1ed82b732122043c4c93fdfe4b"
+    },
+    {
+      "path": "docs/research/cpu_refinement/local_height_minimax_derivation.md",
+      "headBlob": "7009231d29fda232cd224fdca4c571fa2266ae84",
+      "sha256AtCutoff": "0762e1c99c5f4db3086147a36e7b4216ff0971b6f027a0c62cae67b72ddd4cc4",
+      "workspaceSha256AtCollection": "0762e1c99c5f4db3086147a36e7b4216ff0971b6f027a0c62cae67b72ddd4cc4",
+      "latestCommitAtCutoff": "8af1a41d545deaf3d5b5267f852730c1a3471a10"
+    },
+    {
+      "path": "docs/research/cpu_refinement/pq_01_quality_provenance_results.md",
+      "headBlob": "a384c1e196d708e0cdd8c198621c6cda6f842c84",
+      "sha256AtCutoff": "db763f7fb95e88f0335bf12f0e471a6e7e6473cc30575fb946b58e0d68bc7929",
+      "workspaceSha256AtCollection": "db763f7fb95e88f0335bf12f0e471a6e7e6473cc30575fb946b58e0d68bc7929",
+      "latestCommitAtCutoff": "de377ee65a1eb69f62a626c2b47d40beebf28e65"
+    },
+    {
+      "path": "docs/research/cpu_refinement/pq_02_residual_provenance_results.md",
+      "headBlob": "468faa7a0aeae501e05a294cb6bb3647b2d7d949",
+      "sha256AtCutoff": "4d0b8504d5665b4bccd7b188758077700bf7f5ce62589c7cd6e260083f13609b",
+      "workspaceSha256AtCollection": "4d0b8504d5665b4bccd7b188758077700bf7f5ce62589c7cd6e260083f13609b",
+      "latestCommitAtCutoff": "64e478ad016f245f4e1db21f953662fe6cbf739b"
+    },
+    {
+      "path": "docs/research/cpu_refinement/pq_03_fit_counterfactual_results.md",
+      "headBlob": "61ef4df96c8fa8a539c5b8b77ed8d14505b56693",
+      "sha256AtCutoff": "d6b0bb03d3ec3b297b8c0a856da065303701536787baa0aa1e9848e968d91795",
+      "workspaceSha256AtCollection": "d6b0bb03d3ec3b297b8c0a856da065303701536787baa0aa1e9848e968d91795",
+      "latestCommitAtCutoff": "f195fda3d3ea74cf971253f0284d759721508908"
+    },
+    {
+      "path": "docs/research/cpu_refinement/pq_04_local_recovery_results.md",
+      "headBlob": "2f35bd76eea608bfe88008c728b8b51b6910cdd4",
+      "sha256AtCutoff": "3665a57f6523871556727475b05a97caab6e157b88f939764e28990729a94897",
+      "workspaceSha256AtCollection": "3665a57f6523871556727475b05a97caab6e157b88f939764e28990729a94897",
+      "latestCommitAtCutoff": "eebf9bdb45e88e71fee623e1b8e6dce5deb8f313"
+    },
+    {
+      "path": "docs/research/cpu_refinement/pq_05_flip_recovery_results.md",
+      "headBlob": "65785ce45d554d5bfc02a907180be7cea9d54091",
+      "sha256AtCutoff": "a6472745683e8ab115c8e8a462654975d880285e4689bbb50babef043ba6f1a5",
+      "workspaceSha256AtCollection": "a6472745683e8ab115c8e8a462654975d880285e4689bbb50babef043ba6f1a5",
+      "latestCommitAtCutoff": "39767a809d497e577cdce25a48ef0a44afe66d95"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_01_quality_recovery_results.md",
+      "headBlob": "f06ab72ff637a2930683ee9268b632d4a66ec4b2",
+      "sha256AtCutoff": "c02bcc478cca711f7c62e19acec5d36021bdb7226ec851adec36c78c9a176397",
+      "workspaceSha256AtCollection": "c02bcc478cca711f7c62e19acec5d36021bdb7226ec851adec36c78c9a176397",
+      "latestCommitAtCutoff": "e0a69c7238badae85d3c9bf4a9fb56aaacd74754"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_04a_boundary_feasibility_results.md",
+      "headBlob": "41ed518e7c36793704da3c6b70b4025fc7743233",
+      "sha256AtCutoff": "c79b1d50c2b130367407b65e56e224065b528f7f1e56fb8c866422280b8e895e",
+      "workspaceSha256AtCollection": "c79b1d50c2b130367407b65e56e224065b528f7f1e56fb8c866422280b8e895e",
+      "latestCommitAtCutoff": "b1174d40009cbcf734ff68dbe83c1efd1e120852"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_04b_boundary_integration_results.md",
+      "headBlob": "cd2efa362fd594af6a3e7c21283d77e7ec09b3cc",
+      "sha256AtCutoff": "28215a6e49da365ab0d544c2458d7a29a568224abbc06b5642a68c41c6005203",
+      "workspaceSha256AtCollection": "28215a6e49da365ab0d544c2458d7a29a568224abbc06b5642a68c41c6005203",
+      "latestCommitAtCutoff": "60bd106fcb8d4f22c34a6f61efde9faa4e833816"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_04c_quality_target_results.md",
+      "headBlob": "1bd364ce953b118bdabd8346169e911e09b90599",
+      "sha256AtCutoff": "ac32cb6f209432c12cbcf08c65a5b896b9861f9b2a6ecfb6bbc09873e8e071de",
+      "workspaceSha256AtCollection": "ac32cb6f209432c12cbcf08c65a5b896b9861f9b2a6ecfb6bbc09873e8e071de",
+      "latestCommitAtCutoff": "644bbf712a9a79d3c58d022f5d1472d1ae7d77ab"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_04d_error_first_results.md",
+      "headBlob": "92256352f03ff04115c60bb6e5c0bca7f13e1af9",
+      "sha256AtCutoff": "b6accd7211bb293d3ddbca32c8960c35967efd9bd8864dad5f8272e1aeba1ad7",
+      "workspaceSha256AtCollection": "b6accd7211bb293d3ddbca32c8960c35967efd9bd8864dad5f8272e1aeba1ad7",
+      "latestCommitAtCutoff": "54fa2b239908c7a9800d1871b4de85d66ccb4daa"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_04e_quality_contract_results.md",
+      "headBlob": "1c1139289ec046ec535be26d6c8656849aeeaf3a",
+      "sha256AtCutoff": "fdc753e962b1af1d774b4b140fe2c07b261d0a854cebb7e88f0fc04f484af207",
+      "workspaceSha256AtCollection": "fdc753e962b1af1d774b4b140fe2c07b261d0a854cebb7e88f0fc04f484af207",
+      "latestCommitAtCutoff": "031b6391eaf1fdd12af34fa50f6afa6526881a25"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_04f_target_quality_results.md",
+      "headBlob": "289651dfaba44aabe29dc967117b9670a57b5df1",
+      "sha256AtCutoff": "2b42218a922fd54c21d5f457fdc60f9bb92d19df4023110c2fcb49cce41924a8",
+      "workspaceSha256AtCollection": "2b42218a922fd54c21d5f457fdc60f9bb92d19df4023110c2fcb49cce41924a8",
+      "latestCommitAtCutoff": "febb0d14b98cb3c00e6a7c6da68baa1292831936"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_04g_proposal_feasibility_results.md",
+      "headBlob": "49b46110805b19a2a544ff85e680042db6bc26e7",
+      "sha256AtCutoff": "f0f7e8fdabe76590d0703c595c642a3d849e9227c8367667713f688f983e1658",
+      "workspaceSha256AtCollection": "f0f7e8fdabe76590d0703c595c642a3d849e9227c8367667713f688f983e1658",
+      "latestCommitAtCutoff": "736f9ed7af03284235f420545ab698db62b4f833"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_04h_source_height_results.md",
+      "headBlob": "7766c9bb1a3863c202adad303985bfb870e147dd",
+      "sha256AtCutoff": "7682663a6b01ea9542d2c23bfb5dd532787c807fd44fecc4835505ab3cfea1ce",
+      "workspaceSha256AtCollection": "7682663a6b01ea9542d2c23bfb5dd532787c807fd44fecc4835505ab3cfea1ce",
+      "latestCommitAtCutoff": "8b5f557f74569c60149035b48b6087c4df46ea8c"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_06e_face_evidence_results.md",
+      "headBlob": "fcef45d03f99c03035c5de5e03dc3ddf12962ec8",
+      "sha256AtCutoff": "40b71cd461824b050effce1ec6f9d0e245e9633a0f5dda1f163a3f84e7faed7d",
+      "workspaceSha256AtCollection": "40b71cd461824b050effce1ec6f9d0e245e9633a0f5dda1f163a3f84e7faed7d",
+      "latestCommitAtCutoff": "c00ca8a4b80111dcb6ce13705f988ce86cef6dfd"
+    },
+    {
+      "path": "docs/research/cpu_refinement/qpc_06j_remaining_cost_results.md",
+      "headBlob": "65afd4d7ae1d8a28587a29dcd839d4cb8855b88c",
+      "sha256AtCutoff": "e9a7d366f0dea33f0730361da3101bb0037de32e58a977865579f067659fcad9",
+      "workspaceSha256AtCollection": "e9a7d366f0dea33f0730361da3101bb0037de32e58a977865579f067659fcad9",
+      "latestCommitAtCutoff": "c95ace0a297350928ef8e99c477a9dd68dcfd2eb"
+    },
+    {
+      "path": "docs/research/cpu_refinement/sve_01_scaling_results.md",
+      "headBlob": "2cb99c49cb18bb79412f1a9875063b845efeb02e",
+      "sha256AtCutoff": "1b5e5e9648644f63bc09899d7914771e603110ad9fb8cd279109e4146a3153a8",
+      "workspaceSha256AtCollection": "1b5e5e9648644f63bc09899d7914771e603110ad9fb8cd279109e4146a3153a8",
+      "latestCommitAtCutoff": "c7e6cd10769a5764551b73a9a6e0b2086921543e"
+    },
+    {
+      "path": "docs/research/cpu_refinement/tpi_platform_results_and_headroom.md",
+      "headBlob": "d56169bec6e51c9b02c28fbae0cc80b7190d8479",
+      "sha256AtCutoff": "591058b688f94897762957a19104a7d911f1b433b6dfaf643f74cb7dce30524a",
+      "workspaceSha256AtCollection": "591058b688f94897762957a19104a7d911f1b433b6dfaf643f74cb7dce30524a",
+      "latestCommitAtCutoff": "01ecf96ba9a4532206596e5b0c974d75dc0b4fb1"
+    },
+    {
+      "path": "docs/research/cpu_refinement/transaction_backend_gate.md",
+      "headBlob": "f4e51562807bc3c5559ca5f9550392a77cd09421",
+      "sha256AtCutoff": "cd6bf422e07cd2e4790d48ab0e608af07799f1428241bf949d536b7f027c40ff",
+      "workspaceSha256AtCollection": "cd6bf422e07cd2e4790d48ab0e608af07799f1428241bf949d536b7f027c40ff",
+      "latestCommitAtCutoff": "b6ddc6d5465c3035caf496495291dcd5f8edd7aa"
+    },
+    {
+      "path": "docs/research/cpu_refinement/transactional_algorithm_overview.md",
+      "headBlob": "8d279bda6f95cc631583554b9e88ae5f7c464838",
+      "sha256AtCutoff": "3d2921241abb865554e669622e3a6e8c782c5e8695903e2412e8b6695a48662b",
+      "workspaceSha256AtCollection": "3d2921241abb865554e669622e3a6e8c782c5e8695903e2412e8b6695a48662b",
+      "latestCommitAtCutoff": "54fa2b239908c7a9800d1871b4de85d66ccb4daa"
+    },
+    {
+      "path": "docs/research/cpu_refinement/transactional_quality_cost_reassessment.md",
+      "headBlob": "72d7cf07d3814c51e7b2b84a6b12a2c502179540",
+      "sha256AtCutoff": "8c92948a3e1981af5fbd58f6ab0cec9c8910d34a3f66f5410f1225742a3723de",
+      "workspaceSha256AtCollection": "8c92948a3e1981af5fbd58f6ab0cec9c8910d34a3f66f5410f1225742a3723de",
+      "latestCommitAtCutoff": "54fa2b239908c7a9800d1871b4de85d66ccb4daa"
+    },
+    {
+      "path": "docs/research/derivations/README.md",
+      "headBlob": "585ba18ed64ffcf4991bc0606267c59ca49b01ae",
+      "sha256AtCutoff": "5fcf408524fe588da7544b09f521151aa63b91919c393f84d25a5c497b39f6c6",
+      "workspaceSha256AtCollection": "5fcf408524fe588da7544b09f521151aa63b91919c393f84d25a5c497b39f6c6",
+      "latestCommitAtCutoff": "7327afc55ca2c224e4e277ccbb230e08a8ceee83"
+    },
+    {
+      "path": "docs/research/derivations/mathematical_derivations.md",
+      "headBlob": "9c527f6376427c79bf6956fd58762f8bc178fdd4",
+      "sha256AtCutoff": "ad46a92859d5b854cd7ab9d4ffaf2286f9072d14ad1450603c956da1db8bdbe1",
+      "workspaceSha256AtCollection": "ad46a92859d5b854cd7ab9d4ffaf2286f9072d14ad1450603c956da1db8bdbe1",
+      "latestCommitAtCutoff": "7327afc55ca2c224e4e277ccbb230e08a8ceee83"
+    },
+    {
+      "path": "docs/research/experiment_infrastructure/fer_01_results.md",
+      "headBlob": "610dbedc048c2c77faaf0546fdb299e23afcb28b",
+      "sha256AtCutoff": "d830f10998c1b89dc59479b3a80f2d48ee404802045281bb68af50760fe9d68c",
+      "workspaceSha256AtCollection": "d830f10998c1b89dc59479b3a80f2d48ee404802045281bb68af50760fe9d68c",
+      "latestCommitAtCutoff": "3d8b352f6663dfde5716e99d4b4f40a8c1a336d0"
+    },
+    {
+      "path": "docs/research/experiment_infrastructure/fer_02_overall_results.md",
+      "headBlob": "8b3fde662431b5e59d6be9cfa9358b874788cfd3",
+      "sha256AtCutoff": "a0cc5edb10e9d1fc295c5d0b1dd21237636084a5e0e6219fe12560d4139dda27",
+      "workspaceSha256AtCollection": "a0cc5edb10e9d1fc295c5d0b1dd21237636084a5e0e6219fe12560d4139dda27",
+      "latestCommitAtCutoff": "21451dc229418f6c5836dc3374826d952e7a4dea"
+    },
+    {
+      "path": "docs/research/profiling/cpu_function_profiling_findings.md",
+      "headBlob": "97bb36176d70810b031bc444da654ead4b3ec3de",
+      "sha256AtCutoff": "083845c24035e5196b0a1c38fec662d1a755a75c18eb687dc5f5e31f76516973",
+      "workspaceSha256AtCollection": "083845c24035e5196b0a1c38fec662d1a755a75c18eb687dc5f5e31f76516973",
+      "latestCommitAtCutoff": "114c00da42357996fa5e915c80ddb886d1f50d49"
+    },
+    {
+      "path": "docs/research/roam_parallelism/direction_note.md",
+      "headBlob": "866a1fa0e5cc8191e28b6d932cb73751d02f3608",
+      "sha256AtCutoff": "70a84941d17f22bf2595a8fd7ff842402d120adada90f3ee41b1329fe2330303",
+      "workspaceSha256AtCollection": "70a84941d17f22bf2595a8fd7ff842402d120adada90f3ee41b1329fe2330303",
+      "latestCommitAtCutoff": "24c6391101d8694f72b233c9c9bd5dc4e40e6a89"
+    },
+    {
+      "path": "docs/research/roam_parallelism/native_candidate_birth_proof.md",
+      "headBlob": "bbf82b12b33d4b2b41c844d9cacda33d18fbd09a",
+      "sha256AtCutoff": "d5433895f90d8ee3e933cff61245d3668758655d15ae8e31fbabece1d44d99aa",
+      "workspaceSha256AtCollection": "d5433895f90d8ee3e933cff61245d3668758655d15ae8e31fbabece1d44d99aa",
+      "latestCommitAtCutoff": "2d8809fa9f05119f67b507463093662fcc7e2f54"
+    },
+    {
+      "path": "docs/research/roam_parallelism/native_target_discovery_reduction_derivation.md",
+      "headBlob": "31b7cc90a4df3463e2df3437ad6ace234da22623",
+      "sha256AtCutoff": "79b54d5db5e8e65ad0f3cfdf6c68489796ba82c5d5eef7ad7552c2b018813c13",
+      "workspaceSha256AtCollection": "79b54d5db5e8e65ad0f3cfdf6c68489796ba82c5d5eef7ad7552c2b018813c13",
+      "latestCommitAtCutoff": "2d8809fa9f05119f67b507463093662fcc7e2f54"
+    },
+    {
+      "path": "docs/research/roam_parallelism/necessary_dependency_audit.md",
+      "headBlob": "4120455b6e041d26891ebb3761f75c85264cbe4f",
+      "sha256AtCutoff": "14a236f79b0a5b0c882bdf22eaa756c8771f4a48e468d1214d070570a2690657",
+      "workspaceSha256AtCollection": "14a236f79b0a5b0c882bdf22eaa756c8771f4a48e468d1214d070570a2690657",
+      "latestCommitAtCutoff": "24c6391101d8694f72b233c9c9bd5dc4e40e6a89"
+    },
+    {
+      "path": "docs/research/roam_parallelism/parametric_cost_semantics_gate.md",
+      "headBlob": "2685c4d1349a6733ac221a82807a12b8c9d8cda1",
+      "sha256AtCutoff": "39aac10dd27cd8f3df6ad2807aa721ca6ec6ff60e6c8a05bc6ba4f44561cb924",
+      "workspaceSha256AtCollection": "39aac10dd27cd8f3df6ad2807aa721ca6ec6ff60e6c8a05bc6ba4f44561cb924",
+      "latestCommitAtCutoff": "69ab803c267e683fdfc47d181fd061093743943c"
+    },
+    {
+      "path": "docs/research/roam_parallelism/target_materialization_gate.md",
+      "headBlob": "7ba00b30f08c140643474141387c530a274f038b",
+      "sha256AtCutoff": "6e5829b603c9a65cab267d91b82a595b98ef778eb584a7cac8d24e6dd9c66730",
+      "workspaceSha256AtCollection": "6e5829b603c9a65cab267d91b82a595b98ef778eb584a7cac8d24e6dd9c66730",
+      "latestCommitAtCutoff": "1e05b242547c535af822239ca2af5bcb82fcbbfd"
+    },
+    {
+      "path": "docs/research/roam_parallelism/target_materialization_prototype.md",
+      "headBlob": "fcec063e3bc8cfce5763a49cd1272d57f7f21afb",
+      "sha256AtCutoff": "29344250ca5cf2ee37ce02bac6b9c2dde783201ec6afe09925f663268f0d2e0e",
+      "workspaceSha256AtCollection": "29344250ca5cf2ee37ce02bac6b9c2dde783201ec6afe09925f663268f0d2e0e",
+      "latestCommitAtCutoff": "602ed48fe8eece1507dc9d454894922f71f55dca"
+    },
+    {
+      "path": "docs/research/roam_parallelism/target_materialization_serial_costs.md",
+      "headBlob": "bfd2b12fd06eb4fe0d42b64bbd0457849b030803",
+      "sha256AtCutoff": "24f78f4029c6ad34b8b4da8e19000da9f693f722034587b9dc495a46f5761ffa",
+      "workspaceSha256AtCollection": "24f78f4029c6ad34b8b4da8e19000da9f693f722034587b9dc495a46f5761ffa",
+      "latestCommitAtCutoff": "602ed48fe8eece1507dc9d454894922f71f55dca"
+    },
+    {
+      "path": "docs/research/roam_parallelism/work_inflation_measurement_contract.md",
+      "headBlob": "7a0d271beb329aebedbe9ade7ec8effb09bf9afd",
+      "sha256AtCutoff": "f802e45d7011c54d9009c179e13e4e5208e834942c503eaa520caf735330b921",
+      "workspaceSha256AtCollection": "f802e45d7011c54d9009c179e13e4e5208e834942c503eaa520caf735330b921",
+      "latestCommitAtCutoff": "24c6391101d8694f72b233c9c9bd5dc4e40e6a89"
+    },
+    {
+      "path": "docs/research/roam_recourse/minimum_change_note.md",
+      "headBlob": "e072894aedc1d0b36ab0002a31e0e5eb000fdfa4",
+      "sha256AtCutoff": "2da4d7d4ca3f47e4c0e53f320b6374574b83dda73a17a48a5ffe534401866bee",
+      "workspaceSha256AtCollection": "2da4d7d4ca3f47e4c0e53f320b6374574b83dda73a17a48a5ffe534401866bee",
+      "latestCommitAtCutoff": "037c698208e3d7fe491069e58efac249c5d9f88f"
+    },
+    {
+      "path": "docs/research/roam_threshold/README.md",
+      "headBlob": "1e8034b80da8265fd2d063d2e6fb44a3d7b275aa",
+      "sha256AtCutoff": "75ca1bea1e88499258a377fb934d7a6dcc6006ce746cd5b83f5dd11aacca5a8d",
+      "workspaceSha256AtCollection": "75ca1bea1e88499258a377fb934d7a6dcc6006ce746cd5b83f5dd11aacca5a8d",
+      "latestCommitAtCutoff": "037c698208e3d7fe491069e58efac249c5d9f88f"
+    },
+    {
+      "path": "docs/research/roam_threshold/incremental_gate.md",
+      "headBlob": "f3063d5a4c770f423e5c44dc119b529fa3e52728",
+      "sha256AtCutoff": "8715a67c49dbc19c5af877807f4710ebfd2c154d45c3ce366e8e7cba0ce03123",
+      "workspaceSha256AtCollection": "8715a67c49dbc19c5af877807f4710ebfd2c154d45c3ce366e8e7cba0ce03123",
+      "latestCommitAtCutoff": "e95b85bfb2caab2495606c1bae684fa1317b6a1f"
+    },
+    {
+      "path": "docs/reviews/cpu_cbt/cpu_cbt_02_parallel_bisect_review.md",
+      "headBlob": "b058de0fae028080d995a67eae68d599bd6ac000",
+      "sha256AtCutoff": "daf84c82eccda3f0aa17baa800d47fa67722e3734cc996490db4bf61ceae8f03",
+      "workspaceSha256AtCollection": "daf84c82eccda3f0aa17baa800d47fa67722e3734cc996490db4bf61ceae8f03",
+      "latestCommitAtCutoff": "f9f316c0fbb7f0f0494b30d02c3dbbca043af72c"
+    },
+    {
+      "path": "docs/reviews/cpu_cbt/cpu_cbt_archive_review.md",
+      "headBlob": "52ec89556e6439023d7e7118427b2b6ca0e3b9b7",
+      "sha256AtCutoff": "10ae1a10fe5faa948738bed85530b0da6cd74ffe665745c6fdcffe25a3306ca6",
+      "workspaceSha256AtCollection": "10ae1a10fe5faa948738bed85530b0da6cd74ffe665745c6fdcffe25a3306ca6",
+      "latestCommitAtCutoff": "f9f316c0fbb7f0f0494b30d02c3dbbca043af72c"
+    },
+    {
+      "path": "docs/reviews/cpu_refinement/qpc_04f_quality_cost_analysis.md",
+      "headBlob": "c40927077a6989fe67a89300b5fb13c20e0a63fe",
+      "sha256AtCutoff": "bec288e50d42af02afe7925d3560a9592b9a8dd88eb3a1048bc928d8a0d99005",
+      "workspaceSha256AtCollection": "bec288e50d42af02afe7925d3560a9592b9a8dd88eb3a1048bc928d8a0d99005",
+      "latestCommitAtCutoff": "89773d68e87832d68bcf0fc99994f83fd8011a31"
+    },
+    {
+      "path": "docs/reviews/cpu_refinement/qpc_major_plan_rebaseline_review.md",
+      "headBlob": "5687b1918fa4c98d7538c3ebcf84df648a73815b",
+      "sha256AtCutoff": "12dcc40569e3cf1a1ad497440147239f52ebdd9cc7b9f93637f76521e65ff747",
+      "workspaceSha256AtCollection": "12dcc40569e3cf1a1ad497440147239f52ebdd9cc7b9f93637f76521e65ff747",
+      "latestCommitAtCutoff": "89773d68e87832d68bcf0fc99994f83fd8011a31"
+    },
+    {
+      "path": "docs/reviews/formal_experiment/prep_04_split_topology_equivalence_analysis.md",
+      "headBlob": "4c97664a10e313514bbf9a37f441b845bf89f218",
+      "sha256AtCutoff": "97ccee0b95ce46d0425cd5b1affaea1b8b80b52119c17885e13c3037eb9597c8",
+      "workspaceSha256AtCollection": "97ccee0b95ce46d0425cd5b1affaea1b8b80b52119c17885e13c3037eb9597c8",
+      "latestCommitAtCutoff": "2faaa3a2c20bec3c1f35b1102fd6b03e7563e816"
+    },
+    {
+      "path": "docs/reviews/formal_experiment/prep_05_cpu_crossover_pilot_gate_review.md",
+      "headBlob": "1ad0c9b9b8ef2f852b8f0995caa207019a271476",
+      "sha256AtCutoff": "39c88db1a040df8bb4e95c7bf7e018dbcf74fd3bbe70a25daf59c341e804b4f5",
+      "workspaceSha256AtCollection": "39c88db1a040df8bb4e95c7bf7e018dbcf74fd3bbe70a25daf59c341e804b4f5",
+      "latestCommitAtCutoff": "bb23e2a122279098c4a0dc34bbd60163816f8b43"
+    },
+    {
+      "path": "docs/reviews/ordering_relaxation/gate_03_snapshot_relaxation_review.md",
+      "headBlob": "bc1779c0e48e6ddb021665e162ccf55ceadc04f3",
+      "sha256AtCutoff": "475e7ba4fbbcbe59463e083e10d66a55c04c2f67792dd4f91963ca05707b928d",
+      "workspaceSha256AtCollection": "475e7ba4fbbcbe59463e083e10d66a55c04c2f67792dd4f91963ca05707b928d",
+      "latestCommitAtCutoff": "b078d59182b3506259c183605a647d58590b5b61"
+    },
+    {
+      "path": "docs/reviews/review_guideline.md",
+      "headBlob": "373b41fda64a4a43bddf09d9a0a71f96c026c9fe",
+      "sha256AtCutoff": "19db5af306e735386623bf5643043e319b8a43567965f76f032317d911644f93",
+      "workspaceSha256AtCollection": "350492bfc53e88c965b28472e58955c273b387ed52b6a0cd2a077b30ad1f5d1a",
+      "latestCommitAtCutoff": "2faaa3a2c20bec3c1f35b1102fd6b03e7563e816"
+    },
+    {
+      "path": "docs/reviews/roam_parallelism/native_materialization_01_review.md",
+      "headBlob": "0818fe14fda44c8f0b22378dd5114422d3b5767c",
+      "sha256AtCutoff": "af4554d7afd32fd0feb0cd53489dc43c858c64811cd34303a3abdc41606a5583",
+      "workspaceSha256AtCollection": "af4554d7afd32fd0feb0cd53489dc43c858c64811cd34303a3abdc41606a5583",
+      "latestCommitAtCutoff": "c36286ffe49190b5e0761a73accd4f4f63a6bb71"
+    },
+    {
+      "path": "docs/reviews/roam_parallelism/native_planner_contract_traceability_audit.md",
+      "headBlob": "326e180b4f93bb4bf410fe8ac7d01480a8a9a79c",
+      "sha256AtCutoff": "cde1600c95e676d5840f858e275d1c2d22c077210ef7e384cf47c2faac2e2699",
+      "workspaceSha256AtCollection": "cde1600c95e676d5840f858e275d1c2d22c077210ef7e384cf47c2faac2e2699",
+      "latestCommitAtCutoff": "2f7e5a052d476359a71dbda516c52bbabb46766d"
+    },
+    {
+      "path": "docs/standards/development_guidelines.md",
+      "headBlob": "52c52c988eefb7956f614a2e9b7a53968bdfa435",
+      "sha256AtCutoff": "bb089ab3d77c8b6f1c7f3c54285a82a41e58d99f0a59665b4ae1e92fd6d42f40",
+      "workspaceSha256AtCollection": "bb089ab3d77c8b6f1c7f3c54285a82a41e58d99f0a59665b4ae1e92fd6d42f40",
+      "latestCommitAtCutoff": "3427141871e0aa2d0456fd5a95c9c9399ab3bd19"
+    },
+    {
+      "path": "src/algorithms/TerrainLodCbtTypes.h",
+      "headBlob": "14b6b762ff7d5979dbef58792c6c89553a54f3f0",
+      "sha256AtCutoff": "6cc25db7f1cd8e2731f3565b5263e6c4f397482c96521c90e3ebcffea4928096",
+      "workspaceSha256AtCollection": "6cc25db7f1cd8e2731f3565b5263e6c4f397482c96521c90e3ebcffea4928096",
+      "latestCommitAtCutoff": "7157ea7de79bc447af8d3e15cb8d53363fb73037"
+    },
+    {
+      "path": "src/algorithms/cbt_2024/CbtClassification.cpp",
+      "headBlob": "ebbd244f2835851d4f9666442e29ee13755761dd",
+      "sha256AtCutoff": "18ae18f42fe4a4512f97c25cd1954f802f1122dd7e4ef9b9b74c350c7e4661e0",
+      "workspaceSha256AtCollection": "e0c95375269dbc23bc4b0fda651046091cb2ff06ec4506259155c7d2908b0330",
+      "latestCommitAtCutoff": "8631320b0a69376567b9dd2b85c102bbc9b290fe"
+    },
+    {
+      "path": "src/benchmark/cbt_2024/CbtPlatformCheck.cpp",
+      "headBlob": "3b22c0bc95f0d86aa888d6d67ca245360930ecae",
+      "sha256AtCutoff": "537e2c1ff7eb28fed2038d4feaf4500a2e0ac5ee2c75bb84cf5cc8d3d2834b67",
+      "workspaceSha256AtCollection": "537e2c1ff7eb28fed2038d4feaf4500a2e0ac5ee2c75bb84cf5cc8d3d2834b67",
+      "latestCommitAtCutoff": "7157ea7de79bc447af8d3e15cb8d53363fb73037"
+    }
+  ],
+  "priorConversationAnalysis": [
+    {
+      "path": "benchmark-output/cpu-refinement/qpc-quality-distribution-audit/analyze.py",
+      "sha256": "e3448219a616c0b1013ccfe6dce45db91e2c138bfcad435a92127d2ab261972f",
+      "bytes": 5068
+    },
+    {
+      "path": "benchmark-output/cpu-refinement/qpc-quality-distribution-audit/compare_cbt.py",
+      "sha256": "0383b7be958abb6f9be55c0dc326a5f0624b43ea2ab0aa60507bda48ff0f5f98",
+      "bytes": 5092
+    },
+    {
+      "path": "benchmark-output/cpu-refinement/qpc-quality-distribution-audit/summary.json",
+      "sha256": "55732cdf0534d173ef8ffbdb2f83883668a9dd59bb061aafb5bc5244c376493c",
+      "bytes": 21856
+    },
+    {
+      "path": "benchmark-output/cpu-refinement/qpc-quality-distribution-audit/cbt-comparison.json",
+      "sha256": "a96ae4cc099a6338e69baecd80111789bcc6253d33d3a6689c88c3c84a7db8f7",
+      "bytes": 14291
+    },
+    {
+      "path": "benchmark-output/cpu-refinement/qpc-quality-distribution-audit/report.md",
+      "sha256": "6d36abf861ef1a7266793c0266507954d8c45b3015906f876fb3252e4c9ffa4a",
+      "bytes": 2938
+    },
+    {
+      "path": "benchmark-output/cpu-refinement/qpc-quality-distribution-audit/cbt-comparison.md",
+      "sha256": "0119c14e4e7f9267f5af422cb8ab3f2f831caf78786e02a2a6e86bc6d12189be",
+      "bytes": 2453
+    }
+  ],
+  "externalReferencesPreviouslyCheckedInConversation": [
+    "https://arxiv.org/html/2407.02215v1#S4.SS1"
+  ],
+  "savedArtifacts": [
+    {
+      "file": "commits.csv",
+      "sha256": "8711c39542e9bc5d668c52b1d496301a4816e0034e8e9da2d03232957e9121fb",
+      "bytes": 25523
+    },
+    {
+      "file": "quality_summary.json",
+      "sha256": "55732cdf0534d173ef8ffbdb2f83883668a9dd59bb061aafb5bc5244c376493c",
+      "bytes": 21856
+    },
+    {
+      "file": "cbt_quality_summary.json",
+      "sha256": "a96ae4cc099a6338e69baecd80111789bcc6253d33d3a6689c88c3c84a7db8f7",
+      "bytes": 14291
+    }
+  ]
+}
