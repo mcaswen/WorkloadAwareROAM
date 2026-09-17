@@ -4,6 +4,7 @@
 
 namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
+class TransactionalQualityFaceEvidence;
 /// <summary>
 /// 提案内累计证据构造次数与精确请求；在样本循环外汇入现有账本
 /// 这些是物理工作计数，不参与访问配额或质量判断
@@ -31,6 +32,10 @@ public:
     const std::array<QualityEvaluation::Interval, 4>& ClipBounds();
     const std::array<QualityEvaluation::R, 4>& ExactClip();
     std::optional<QualityEvaluation::QualityFace> Cover(const std::vector<QualityEvaluation::QualityFace>& faces);
+    /// <summary>
+    /// 返回面集合中借用的首个闭覆盖面，集合须在消费期间保持存活和位置稳定
+    /// </summary>
+    TransactionalQualityFaceEvidence* Cover(std::vector<TransactionalQualityFaceEvidence>& faces);
     bool VisibilityAgrees();
 
 private:

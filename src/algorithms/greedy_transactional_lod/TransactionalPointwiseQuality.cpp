@@ -1,6 +1,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
 #include "algorithms/greedy_transactional_lod/TransactionalQualityEvaluation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalQualitySampleEvidence.h"
+#include "algorithms/greedy_transactional_lod/TransactionalQualityFaceEvidence.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 #include "profiling/CpuProfiling.h"
 
@@ -42,7 +43,8 @@ struct QualityWork
 {
     WorkLedger &Ledger;
     std::uint64_t Samples{}, Exact{}, Filters{}, Bytes{};
-    QualityEvidenceWork Evidence;
+    QualityEvidenceWork Evidence{};
+    QualityFaceEvidenceWork FaceEvidence{};
     const std::chrono::steady_clock::time_point Started{std::chrono::steady_clock::now()};
     ~QualityWork()
     {
@@ -58,14 +60,31 @@ struct QualityWork
         Ledger.Reasons["quality_clip_exact_builds"] += Evidence.ExactClips;
         Ledger.Reasons["quality_cover_exact_requests"] += Evidence.ExactCoverRequests;
         Ledger.Reasons["quality_visibility_exact_requests"] += Evidence.ExactVisibilityRequests;
+        Ledger.Reasons["quality_face_records"] += FaceEvidence.Records;
+        Ledger.Reasons["quality_face_bounds_builds"] += FaceEvidence.BoundsBuilds;
+        Ledger.Reasons["quality_face_exact_builds"] += FaceEvidence.ExactBuilds;
+        Ledger.Reasons["quality_face_bounds_sides"] += FaceEvidence.BoundsSides;
+        Ledger.Reasons["quality_face_exact_sides"] += FaceEvidence.ExactSides;
+        Ledger.Reasons["quality_face_bounds_heights"] += FaceEvidence.BoundsHeights;
+        Ledger.Reasons["quality_face_exact_heights"] += FaceEvidence.ExactHeights;
         Ledger.Seconds["pointwise_quality"] +=
             std::chrono::duration<double>(std::chrono::steady_clock::now() - Started).count();
+#if defined(TRACY_ENABLE)
+        // 每个认证只导出一次聚合工作量，避免在样本循环中产生诊断事件
+        ROAM_CPU_ZONE("gtp.face_evidence");
+        const auto counts = std::to_string(FaceEvidence.Records) + "/" +
+            std::to_string(FaceEvidence.BoundsBuilds) + "/" + std::to_string(FaceEvidence.ExactBuilds) + "/" +
+            std::to_string(FaceEvidence.BoundsSides) + "/" + std::to_string(FaceEvidence.ExactSides) + "/" +
+            std::to_string(FaceEvidence.BoundsHeights) + "/" + std::to_string(FaceEvidence.ExactHeights);
+        ROAM_CPU_TEXT(counts.data(), counts.size());
+#endif
     }
 };
 
 std::string CheckSample(const TransactionalState &state, const TransactionalSamples &samples, Slot sid,
                         TransactionalQualitySampleEvidence& evidence,
-                        const QualityFace &old, const QualityFace &next, QualityWork &work, Integer &gainLow,
+                        TransactionalQualityFaceEvidence& old, TransactionalQualityFaceEvidence& next,
+                        QualityWork &work, Integer &gainLow,
                         Integer &gainHigh)
 {
     ++work.Samples;
@@ -78,8 +97,8 @@ std::string CheckSample(const TransactionalState &state, const TransactionalSamp
         return "pointwise_visibility_unknown";
     }
     const auto& uv = evidence.CoordinateBounds();
-    const auto h0 = Height(uv[0], uv[1], old[0], old[1], old[2]);
-    const auto h1 = Height(uv[0], uv[1], next[0], next[1], next[2]);
+    const auto h0 = old.HeightBounds(uv);
+    const auto h1 = next.HeightBounds(uv);
     // 高度残差跨相机保持含义，离屏点也必须走这个分支
     const auto v0 = h0 - ref[2], v1 = h1 - ref[2];
     const auto u0 = v0 * v0, u1 = v1 * v1;
@@ -122,8 +141,8 @@ std::string CheckSample(const TransactionalState &state, const TransactionalSamp
     ++work.Exact;
     const auto& exactRef = evidence.ExactReference();
     const auto& exactUV = evidence.ExactCoordinate();
-    const R oldHeight = Height(exactUV[0], exactUV[1], old[0], old[1], old[2]);
-    const R newHeight = Height(exactUV[0], exactUV[1], next[0], next[1], next[2]);
+    const R oldHeight = old.ExactHeight(exactUV);
+    const R newHeight = next.ExactHeight(exactUV);
     const R oldResidual = oldHeight - exactRef[2], newResidual = newHeight - exactRef[2];
     RecordBits(oldResidual, work.Ledger);
     RecordBits(newResidual, work.Ledger);
@@ -251,11 +270,24 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
         candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
         // 每个表示域独立累计，内部改善不能补贴公开曲面的无进展
         Integer low = 0, high = 0;
+        // 面证据只活到当前域结束；不同提案高度和float输出不得复用旧系数
+        const auto prepare = [&](const auto& faces) {
+            std::vector<TransactionalQualityFaceEvidence> result;
+            result.reserve(faces.size());
+            for (const auto& face : faces)
+            {
+                result.emplace_back(face, &work.FaceEvidence);
+            }
+            work.Bytes += result.capacity() * sizeof(TransactionalQualityFaceEvidence);
+            return result;
+        };
+        auto oldEvidence = prepare(old);
+        auto nextEvidence = prepare(next);
         for (auto sid : candidates)
         {
             TransactionalQualitySampleEvidence evidence(state, samples, sid, output, &work.Evidence);
-            const auto before = evidence.Cover(old);
-            const auto after = evidence.Cover(next);
+            auto* before = evidence.Cover(oldEvidence);
+            auto* after = evidence.Cover(nextEvidence);
             // 包围盒外扩产生的域外点跳过，旧新覆盖不一致则不能接受
             if (!before && !after)
             {

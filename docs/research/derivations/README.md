@@ -10,6 +10,7 @@
 - **最新诊断：**[QPC-04G推导](../cpu_refinement/proposal_feasibility_derivation.md)完成PF-01～06及[有限审计](../cpu_refinement/qpc_04g_proposal_feasibility_results.md)：43项中28个新契约正例均被旧统一最大值门槛排除，8项安全域仅能保持旧曲面；双域/原生核查完成，生产拟合未改。12项正例进展仅存储级微量，所有正例局部Emax不变，不能当作持续恢复完成。
 - **实现与费用：**[算法及阶段复杂度](../cpu_refinement/transactional_algorithm_overview.md)、[QPC-04D 原因分析](../cpu_refinement/qpc_04d_error_first_results.md)、[质量与成本重审](../cpu_refinement/transactional_quality_cost_reassessment.md)。
 - **执行调度推导：**[QPC-06D §3](../cpu_refinement/qpc_06d_receiver_task_balance_results.md#3-从热点到实现什么变了什么成本没有消失)给出独立根唯一领取、确定前缀收集的同结果论证及理想列表调度界；纸面推导、专项测试与有限运行支持，不新增Lean或语义必需span定理。
+- **面证据推导：**[QPC-06E §3](../cpu_refinement/qpc_06e_face_evidence_results.md#3-从函数热点到等价变换推导过程)记录原表达式子式复用、覆盖/认证等价和`2e+6h→8b`的工作计数；保留区间舍入、空间和早拒绝边界，没有新增Lean。
 - **历史状态：**[研究入口](../README.md)。早期状态按记录日期解释，不替代最新阶段报告。
 
 ## 2. 证据层级与模型分界
@@ -49,6 +50,8 @@
 | TX-11 | [QPC-04G 固定提案可行域](../cpu_refinement/proposal_feasibility_derivation.md) | PF-01～06：透视误差仿射条件、内/外包方向、单点无进展、存储对应 | 纸面推导+解析反例+43项有限有理审计；没有新Lean，不是持续恢复证明 |
 | TX-12 | [QPC-06A认证降本](../cpu_refinement/quality_cost_reduction_derivation.md) | QCOST-01～04：局部证据复用、binary64定向累计、决策等价与费用 | 纸面推导与独立有理oracle；不修改质量政策或扩展Lean范围 |
 | TX-13 | [QPC-06B空批复用](../cpu_refinement/idle_plan_reuse_derivation.md) | IDLE-01～04：完整空结果、实例/代次失效、资源中断与复杂度 | 纸面推导、专项及六条同政策有限对照；只降静止重复成本，无新Lean或恢复保证 |
+| TX-14 | [QPC-06D任务均衡](../cpu_refinement/qpc_06d_receiver_task_balance_results.md) | 独立根唯一领取、确定前缀消费与理想调度界 | 纸面推导及有限执行证据；几何工作不变 |
+| TX-15 | [QPC-06E面证据复用](../cpu_refinement/qpc_06e_face_evidence_results.md) | FE-01～03：原子式缓存、双域闭覆盖与认证等价、实际工作计费 | 数值oracle、有限轨迹与纸面推导；完整覆盖仍O(ud)，非质量修复 |
 | ATT-00 | [一般事务模型推导](../adaptive_triangulation/model_derivation.md)、[操作嵌入](../adaptive_triangulation/operation_embeddings.md)、[范围表](../adaptive_triangulation/generalization_results.md) | 接口、面数、资源语义、证书迁移与加权质量 | ATT-01～03完成；条件安全模型，非生产/性能证明 |
 
 质量演进证据：[PQ-01](../cpu_refinement/pq_01_quality_provenance_results.md)、[PQ-02](../cpu_refinement/pq_02_residual_provenance_results.md)、[PQ-03](../cpu_refinement/pq_03_fit_counterfactual_results.md)、[PQ-04](../cpu_refinement/pq_04_local_recovery_results.md)、[PQ-05](../cpu_refinement/pq_05_flip_recovery_results.md)、[QPC-01](../cpu_refinement/qpc_01_quality_recovery_results.md)、[04A](../cpu_refinement/qpc_04a_boundary_feasibility_results.md)、[04B](../cpu_refinement/qpc_04b_boundary_integration_results.md)、[04C](../cpu_refinement/qpc_04c_quality_target_results.md)、[04D](../cpu_refinement/qpc_04d_error_first_results.md)。它们是事实与反例来源，不升级为 Lean 定理。

@@ -126,6 +126,18 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
         parallel_roam_transactional_lod_core parallel_roam_cpu_execution parallel_roam_project_warnings)
     add_test(NAME transactional_execution COMMAND parallel_roam_transactional_execution_tests)
     set_tests_properties(transactional_execution PROPERTIES TIMEOUT 20)
+    add_executable(parallel_roam_transactional_face_evidence_tests TransactionalQualityFaceEvidenceTests.cpp)
+    target_link_libraries(parallel_roam_transactional_face_evidence_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_project_warnings)
+    target_include_directories(parallel_roam_transactional_face_evidence_tests SYSTEM PRIVATE
+        "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
+    if(MSVC)
+        target_compile_options(parallel_roam_transactional_face_evidence_tests PRIVATE /fp:strict)
+    else()
+        target_compile_options(parallel_roam_transactional_face_evidence_tests PRIVATE -fno-fast-math -ffp-contract=off)
+    endif()
+    add_test(NAME transactional_face_evidence COMMAND parallel_roam_transactional_face_evidence_tests)
+    set_tests_properties(transactional_face_evidence PROPERTIES TIMEOUT 30)
     add_executable(parallel_roam_transactional_lod_probe GreedyTransactionalLodProbe.cpp
         ../src/tools/profiling/ProfileSession.cpp
         "${transactional_dir}/TransactionalInput.cpp" "${transactional_dir}/TransactionalValidation.cpp"

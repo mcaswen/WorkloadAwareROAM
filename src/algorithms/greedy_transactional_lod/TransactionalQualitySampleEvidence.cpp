@@ -1,4 +1,5 @@
 #include "algorithms/greedy_transactional_lod/TransactionalQualitySampleEvidence.h"
+#include "algorithms/greedy_transactional_lod/TransactionalQualityFaceEvidence.h"
 
 namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
@@ -96,6 +97,44 @@ std::optional<QualityFace> TransactionalQualitySampleEvidence::Cover(const std::
         }
         return ExactCoordinate();
     });
+}
+
+TransactionalQualityFaceEvidence* TransactionalQualitySampleEvidence::Cover(
+    std::vector<TransactionalQualityFaceEvidence>& faces)
+{
+    const auto& q = CoordinateBounds();
+    for (auto& face : faces)
+    {
+        bool covered = true;
+        for (std::size_t edge = 0; edge < 3; ++edge)
+        {
+            const auto cross = face.SideBounds(edge, q);
+            if (cross.Low >= 0)
+            {
+                continue;
+            }
+            if (cross.High < 0)
+            {
+                covered = false;
+                break;
+            }
+            // 与原覆盖入口一致：仅歧义边读取精确坐标，共享边仍按原面序闭包含
+            if (_work)
+            {
+                ++_work->ExactCoverRequests;
+            }
+            if (face.ExactSide(edge, ExactCoordinate()) < 0)
+            {
+                covered = false;
+                break;
+            }
+        }
+        if (covered)
+        {
+            return &face;
+        }
+    }
+    return nullptr;
 }
 
 bool TransactionalQualitySampleEvidence::VisibilityAgrees()

@@ -1,0 +1,94 @@
+{
+  "processes": 13,
+  "framesPerProcess": 96,
+  "behaviorEqual": true,
+  "kernelDecrease": 0.31023748601844936,
+  "numericCases": 840,
+  "twoSystemsTwoPMovingGate": true,
+  "rootRows": 4640,
+  "faceRows": 1357,
+  "perfSelfWeight": 5398797552,
+  "sourceDifference": [
+    "src/algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.cpp"
+  ],
+  "savedBinaries": {
+    "fp": {
+      "path": "after-fp",
+      "sha256": "d650d87f70ee79c610f924f7f8807503ea75ce1a44cf6c218df8a48c442ab746"
+    },
+    "tracy": {
+      "path": "after-tracy",
+      "sha256": "b5fcbd5557b9be218db9826fc10ea40053e70d2e00a309e11aea3c256ea45bbf"
+    }
+  },
+  "manifests": [
+    {
+      "path": "dem-canyon-L/fp-timing/manifest.json",
+      "binary": "d650d87f70ee79c610f924f7f8807503ea75ce1a44cf6c218df8a48c442ab746",
+      "sourceId": "1e4e4a37a1637de0ab669950f1b9b06820608155a41a422c73deb684b1b16b35"
+    },
+    {
+      "path": "dem-canyon-L/windows/manifest.json",
+      "binary": "2bcb77a7fcff08055bfcee30e3582d1ded4364d747220c88c650a94cc79358a2",
+      "sourceId": "e5f3961c814945a88e4be55d124004d99de96662f11585565992103a7f079a33"
+    },
+    {
+      "path": "dem-canyon-P/fp-timing/manifest.json",
+      "binary": "d650d87f70ee79c610f924f7f8807503ea75ce1a44cf6c218df8a48c442ab746",
+      "sourceId": "1e4e4a37a1637de0ab669950f1b9b06820608155a41a422c73deb684b1b16b35"
+    },
+    {
+      "path": "dem-canyon-P/windows/manifest.json",
+      "binary": "2bcb77a7fcff08055bfcee30e3582d1ded4364d747220c88c650a94cc79358a2",
+      "sourceId": "e5f3961c814945a88e4be55d124004d99de96662f11585565992103a7f079a33"
+    },
+    {
+      "path": "dem-sierra-L/fp-timing/manifest.json",
+      "binary": "d650d87f70ee79c610f924f7f8807503ea75ce1a44cf6c218df8a48c442ab746",
+      "sourceId": "1e4e4a37a1637de0ab669950f1b9b06820608155a41a422c73deb684b1b16b35"
+    },
+    {
+      "path": "dem-sierra-L/windows/manifest.json",
+      "binary": "2bcb77a7fcff08055bfcee30e3582d1ded4364d747220c88c650a94cc79358a2",
+      "sourceId": "e5f3961c814945a88e4be55d124004d99de96662f11585565992103a7f079a33"
+    },
+    {
+      "path": "dem-sierra-P/fp-timing/manifest.json",
+      "binary": "d650d87f70ee79c610f924f7f8807503ea75ce1a44cf6c218df8a48c442ab746",
+      "sourceId": "1e4e4a37a1637de0ab669950f1b9b06820608155a41a422c73deb684b1b16b35"
+    },
+    {
+      "path": "dem-sierra-P/perf/manifest.json",
+      "binary": "d650d87f70ee79c610f924f7f8807503ea75ce1a44cf6c218df8a48c442ab746",
+      "sourceId": "e5f3961c814945a88e4be55d124004d99de96662f11585565992103a7f079a33"
+    },
+    {
+      "path": "dem-sierra-P/tracy/manifest.json",
+      "binary": "b5fcbd5557b9be218db9826fc10ea40053e70d2e00a309e11aea3c256ea45bbf",
+      "sourceId": "e5f3961c814945a88e4be55d124004d99de96662f11585565992103a7f079a33"
+    },
+    {
+      "path": "dem-sierra-P/tracy-timing/manifest.json",
+      "binary": "b5fcbd5557b9be218db9826fc10ea40053e70d2e00a309e11aea3c256ea45bbf",
+      "sourceId": "e5f3961c814945a88e4be55d124004d99de96662f11585565992103a7f079a33"
+    },
+    {
+      "path": "dem-sierra-P/windows/manifest.json",
+      "binary": "2bcb77a7fcff08055bfcee30e3582d1ded4364d747220c88c650a94cc79358a2",
+      "sourceId": "e5f3961c814945a88e4be55d124004d99de96662f11585565992103a7f079a33"
+    },
+    {
+      "path": "recheck/dem-canyon-P/linux/after/manifest.json",
+      "binary": "d650d87f70ee79c610f924f7f8807503ea75ce1a44cf6c218df8a48c442ab746",
+      "sourceId": "e5f3961c814945a88e4be55d124004d99de96662f11585565992103a7f079a33"
+    },
+    {
+      "path": "recheck/dem-canyon-P/linux/before/manifest.json",
+      "binary": "b5e2ac116547007829c363288a021abbb843be6bb323102de53d08f0b2c76e34",
+      "sourceId": "c6c84c43aeb81badc8f24707024424f8df00392ab3da77a56bcd56e8ae0ea2b6"
+    }
+  ],
+  "scriptSyntax": true,
+  "documentLinks": true,
+  "scope": "有限同结果/移动性能验证，不代表持续质量或一般性能极限"
+}

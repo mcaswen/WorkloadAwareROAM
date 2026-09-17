@@ -1,0 +1,17 @@
+--- FP/source
++++ Tracy/source
+@@ -46,2 +46,2 @@
+-    QualityEvidenceWork Evidence;
+-    QualityFaceEvidenceWork FaceEvidence;
++    QualityEvidenceWork Evidence{};
++    QualityFaceEvidenceWork FaceEvidence{};
+@@ -71,0 +72,9 @@
++#if defined(TRACY_ENABLE)
++        // 每个认证只导出一次聚合工作量，避免在样本循环中产生诊断事件
++        ROAM_CPU_ZONE("gtp.face_evidence");
++        const auto counts = std::to_string(FaceEvidence.Records) + "/" +
++            std::to_string(FaceEvidence.BoundsBuilds) + "/" + std::to_string(FaceEvidence.ExactBuilds) + "/" +
++            std::to_string(FaceEvidence.BoundsSides) + "/" + std::to_string(FaceEvidence.ExactSides) + "/" +
++            std::to_string(FaceEvidence.BoundsHeights) + "/" + std::to_string(FaceEvidence.ExactHeights);
++        ROAM_CPU_TEXT(counts.data(), counts.size());
++#endif
