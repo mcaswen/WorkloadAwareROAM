@@ -121,6 +121,11 @@ if(PARALLEL_ROAM_BUILD_TRANSACTIONAL_LOD)
     endif()
     add_executable(parallel_roam_transactional_lod_tests GreedyTransactionalLodTests.cpp
         "${transactional_dir}/TransactionalValidation.cpp")
+    add_executable(parallel_roam_transactional_execution_tests TransactionalExecutionTests.cpp)
+    target_link_libraries(parallel_roam_transactional_execution_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_cpu_execution parallel_roam_project_warnings)
+    add_test(NAME transactional_execution COMMAND parallel_roam_transactional_execution_tests)
+    set_tests_properties(transactional_execution PROPERTIES TIMEOUT 20)
     add_executable(parallel_roam_transactional_lod_probe GreedyTransactionalLodProbe.cpp
         ../src/tools/profiling/ProfileSession.cpp
         "${transactional_dir}/TransactionalInput.cpp" "${transactional_dir}/TransactionalValidation.cpp"

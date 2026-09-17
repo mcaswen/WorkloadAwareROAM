@@ -9,6 +9,7 @@
 - **当前算法优化：**[QPC-04E 逐点损伤与质量组合推导](../cpu_refinement/quality_contract_derivation.md)的抽象Lean核心与只读自然审计已完成，见[结果](../cpu_refinement/qpc_04e_quality_contract_results.md)。[04F持续政策](../../plans/cpu_refinement/qpc_04f_target_quality_policy_plan.md)已实施；QC-10～13为纸面推导/数值夹具/有限独立审计，见[结果](../cpu_refinement/qpc_04f_target_quality_results.md)。损伤控制有有限验证，恢复/成本受限，默认未改。
 - **最新诊断：**[QPC-04G推导](../cpu_refinement/proposal_feasibility_derivation.md)完成PF-01～06及[有限审计](../cpu_refinement/qpc_04g_proposal_feasibility_results.md)：43项中28个新契约正例均被旧统一最大值门槛排除，8项安全域仅能保持旧曲面；双域/原生核查完成，生产拟合未改。12项正例进展仅存储级微量，所有正例局部Emax不变，不能当作持续恢复完成。
 - **实现与费用：**[算法及阶段复杂度](../cpu_refinement/transactional_algorithm_overview.md)、[QPC-04D 原因分析](../cpu_refinement/qpc_04d_error_first_results.md)、[质量与成本重审](../cpu_refinement/transactional_quality_cost_reassessment.md)。
+- **执行调度推导：**[QPC-06D §3](../cpu_refinement/qpc_06d_receiver_task_balance_results.md#3-从热点到实现什么变了什么成本没有消失)给出独立根唯一领取、确定前缀收集的同结果论证及理想列表调度界；纸面推导、专项测试与有限运行支持，不新增Lean或语义必需span定理。
 - **历史状态：**[研究入口](../README.md)。早期状态按记录日期解释，不替代最新阶段报告。
 
 ## 2. 证据层级与模型分界

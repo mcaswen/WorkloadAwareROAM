@@ -1,6 +1,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalExecution.h"
 #include "profiling/CpuProfiling.h"
 
+#include <atomic>
 #include <set>
 #include <stdexcept>
 #include <thread>
@@ -75,5 +76,38 @@ void TransactionalExecution::Run(const std::string& phase,std::size_t count,Work
         evidence[0]+=count;evidence[1]+=chunks;evidence[2]=std::max(evidence[2],actual.size());
     }
     work.Seconds[phase]+=std::chrono::duration<double>(std::chrono::steady_clock::now()-started).count();
+}
+
+void TransactionalExecution::RunIndependent(const std::string& phase, std::size_t count, WorkLedger& work,
+    const std::function<void(std::size_t, std::size_t, WorkLedger&)>& task) const
+{
+    if (Workers == 1 || count <= 1)
+    {
+        Run(phase, count, work, task);
+        return;
+    }
+
+    // 派发数量仍受线程数限制；只在现有同步任务内部领取独立索引
+    // relaxed仅保证唯一归属，业务输入与输出的可见性由派发和等待边界保证
+    std::atomic<std::size_t> next{0};
+    Run(phase, count, work, [&](std::size_t, std::size_t, WorkLedger& local) {
+        while (true)
+        {
+            const auto index = next.fetch_add(1, std::memory_order_relaxed);
+            if (index >= count)
+            {
+                break;
+            }
+
+            // 账本随同步任务累积，不为每根分配容器或重置访问配额
+            local.CheckLimit();
+            ROAM_CPU_ZONE("gtp.item");
+#if defined(TRACY_ENABLE)
+            const auto itemIdentity = phase + "/" + std::to_string(index);
+            ROAM_CPU_TEXT(itemIdentity.data(), itemIdentity.size());
+#endif
+            task(index, index + 1, local);
+        }
+    });
 }
 }

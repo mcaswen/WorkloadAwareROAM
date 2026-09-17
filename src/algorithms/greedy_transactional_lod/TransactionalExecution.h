@@ -20,5 +20,12 @@ struct TransactionalExecution
     /// </summary>
     void Run(const std::string& phase,std::size_t count,WorkLedger& work,
         const std::function<void(std::size_t,std::size_t,WorkLedger&)>& task) const;
+
+    /// <summary>
+    /// 独立项由空闲任务动态领取，调用方必须保证每项只写自己的输出
+    /// 仍借用原同步派发与局部账本；串行路径允许一次处理完整区间
+    /// </summary>
+    void RunIndependent(const std::string& phase, std::size_t count, WorkLedger& work,
+        const std::function<void(std::size_t, std::size_t, WorkLedger&)>& task) const;
 };
 }

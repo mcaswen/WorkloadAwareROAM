@@ -1,0 +1,60 @@
+{
+  "cases": {
+    "dem-sierra-L": {
+      "behavior": true,
+      "movingGate": true
+    },
+    "dem-sierra-P": {
+      "behavior": true,
+      "movingGate": true,
+      "tracyRootRows": 4640,
+      "perfFunctionRows": 179
+    },
+    "dem-canyon-L": {
+      "behavior": true,
+      "movingGate": true
+    },
+    "dem-canyon-P": {
+      "behavior": true,
+      "movingGate": true,
+      "tracyRootRows": 4640
+    }
+  },
+  "idleRows": {
+    "linux": {
+      "before": {
+        "count": 30,
+        "meanMs": 0.5513402019937833,
+        "medianMs": 0.6121275126934052,
+        "minMs": 0.24498699605464935,
+        "maxMs": 0.7641519904136658
+      },
+      "after": {
+        "count": 30,
+        "meanMs": 0.6168510327736537,
+        "medianMs": 0.6722249984741211,
+        "minMs": 0.2686780095100403,
+        "maxMs": 0.8365449905395508
+      }
+    },
+    "windows": {
+      "before": {
+        "count": 30,
+        "meanMs": 0.18181666607658067,
+        "medianMs": 0.16290000081062317,
+        "minMs": 0.0860000029206276,
+        "maxMs": 0.38429999351501465
+      },
+      "after": {
+        "count": 30,
+        "meanMs": 0.2175600012143453,
+        "medianMs": 0.21835000067949295,
+        "minMs": 0.09099999815225601,
+        "maxMs": 0.35510000586509705
+      }
+    }
+  },
+  "note": "工程归约核查；静止小差异保留，非正式统计推断",
+  "processes": 21,
+  "linkedDocuments": 9
+}

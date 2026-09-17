@@ -92,7 +92,8 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
     batch.IntentIds.resize(prefix.size());batch.IntentResults.resize(prefix.size());batch.Attempts.resize(prefix.size());
     batch.IntentBudgets.resize(prefix.size());
     std::vector<std::optional<Proposal>> certified(prefix.size());
-    execution.Run("receiver_stage",prefix.size(),work,[&](auto first,auto last,WorkLedger& local) {
+    // 每根只写独占索引，动态领取不改变屏障后的全局前缀收集顺序
+    execution.RunIndependent("receiver_stage", prefix.size(), work, [&](auto first, auto last, WorkLedger& local) {
         for (auto index=first;index<last;++index)
         {
             local.CheckLimit();const auto root=prefix[index];batch.IntentIds[index]=state.Face(root).Id;
