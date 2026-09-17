@@ -1,0 +1,91 @@
+{
+  "protocol": "qpc04g-v1",
+  "commit": "b437315",
+  "binary": {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04g/run-01/before/parallel_roam_experiment_cpu.exe",
+    "bytes": 1583616,
+    "sha256": "ca382053f97fa8493895ff3c06c06d9bee4aa4c0834c9892b57aacedf8a04f90"
+  },
+  "cases": [
+    {
+      "case": "peking547-b50000-transactional-t8",
+      "resolved": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8-B/inputs/resolved.json",
+        "bytes": 1699,
+        "sha256": "d5c3e8566121b56ee0eba10b59b688e2e72a663aada44cd61691efaf34ce1277"
+      },
+      "witnesses": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/peking547-b50000-transactional-t8.txt",
+        "bytes": 120,
+        "sha256": "084451d6cb0121aad1be419385d45816209701ed7409198b236916f77e8bb375"
+      },
+      "frames": [
+        15
+      ],
+      "roots": [
+        [
+          599
+        ]
+      ]
+    },
+    {
+      "case": "dem-sierra-b50000-transactional-t8",
+      "resolved": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8-B/inputs/resolved.json",
+        "bytes": 1718,
+        "sha256": "f159562a2fd16da012209797fc20260cbb743c237c86114025ccc237b0a140ed"
+      },
+      "witnesses": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-sierra-b50000-transactional-t8.txt",
+        "bytes": 164,
+        "sha256": "92681cf20d01261ab93d70f567e3470cb11da6762267adaee9922325727d4e7b"
+      },
+      "frames": [
+        48,
+        95
+      ],
+      "roots": [
+        [
+          4182
+        ],
+        [
+          -272,
+          -271,
+          -270,
+          -269
+        ]
+      ]
+    },
+    {
+      "case": "dem-canyon-b50000-transactional-t8",
+      "resolved": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8-B/inputs/resolved.json",
+        "bytes": 1715,
+        "sha256": "86bcbb576df57165e88d8cc5d3e264e073e897e8e712605b6709a660071c3ad4"
+      },
+      "witnesses": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04f/run-01/dem-canyon-b50000-transactional-t8.txt",
+        "bytes": 145,
+        "sha256": "56a6b24894d972b281f54a58a5d3cdaf0271175a1997aba472ea193db47fad07"
+      },
+      "frames": [
+        48
+      ],
+      "roots": [
+        [
+          803
+        ]
+      ]
+    }
+  ],
+  "environment": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "sampleLimit": 200000,
+  "totalSampleLimit": 2000000,
+  "trialLimit": 32,
+  "intervalNodes": 1024,
+  "perProposalSeconds": 20,
+  "analysisSeconds": 900,
+  "nativeProcessSeconds": 180,
+  "totalExperimentSeconds": 1500,
+  "processBytes": 8589934592
+}

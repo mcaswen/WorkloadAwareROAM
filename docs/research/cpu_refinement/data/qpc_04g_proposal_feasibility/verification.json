@@ -1,0 +1,34 @@
+{
+  "productionAlgorithmsUnchanged": true,
+  "brokenLinks": [],
+  "cppComments": [
+    [
+      "src/experiment/greedy_transactional_lod/TransactionalProposalFeasibilityAudit.h",
+      6,
+      24
+    ],
+    [
+      "src/experiment/greedy_transactional_lod/TransactionalProposalFeasibilityAudit.cpp",
+      40,
+      257
+    ],
+    [
+      "tests/TransactionalProposalFeasibilityAuditTests.cpp",
+      12,
+      84
+    ]
+  ],
+  "cppCommentRatio": 0.1589041095890411,
+  "targetedTests": "benchmark-output/cpu-refinement/qpc-04g/run-01/targeted-tests-final.log",
+  "finalNativeTestLog": "benchmark-output/cpu-refinement/qpc-04g/run-01/targeted-tests.log",
+  "visualInspection": "UV geometry, height axes and certified markers inspected; production images unchanged",
+  "finalFiles": {
+    "scripts/run_transactional_proposal_feasibility.py": "1e926098aa4fffefc858927c7f959da97520d1c28b9becba13653437e63dc308",
+    "scripts/transactional_proposal_feasibility.py": "5c7bbb82318624c51ddea4b6e570e164c54b3a2d79d488732ec0fceb4d7965c1",
+    "src/experiment/greedy_transactional_lod/TransactionalProposalFeasibilityAudit.cpp": "36b92566a6244a5526fd315611ddab40df67bfef25ce57a5531870fe47ac549d",
+    "src/experiment/greedy_transactional_lod/TransactionalProposalFeasibilityAudit.h": "f0565702e1e675947481ec581f27b387b8a54ac54c15310e1a6ffe1ae6afe41d",
+    "tests/TransactionalProposalFeasibilityAuditTests.cpp": "131e1e9694391b3b161f1cd9a493fc256319755fb12d5ddc68c38f8c809ef925",
+    "tests/test_transactional_proposal_feasibility.py": "44c98242cecf71fb49d359c1c00d3b278da7177811621c2fdf746dabf59fc1ac",
+    "src/benchmark/experiment/TransactionalRecoveryTrace.cpp": "46fd8e8edb4200319a03f211ac80d36309af14729c44e1102fc9e7d2c9df3107"
+  }
+}

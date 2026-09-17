@@ -1,0 +1,138 @@
+{
+  "dem-canyon-b50000-transactional-t8-capture": {
+    "returncode": 0,
+    "elapsedSeconds": 25.723106299999998,
+    "peakRssBytes": 174022656,
+    "status": "ok",
+    "argv": [
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+      "--recovery-trace",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-canyon-b50000-transactional-t8-B\\inputs\\resolved.json",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-canyon-b50000-transactional-t8.txt",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\dem-canyon-b50000-transactional-t8-capture",
+      "--proposal-feasibility",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\dem-canyon-b50000-transactional-t8-capture-spec.json"
+    ],
+    "binary": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+      "bytes": 1633280,
+      "sha256": "e33fad864f8e72ab3a4542a5e0d4c5faafabb302a9e02e6e2a4d5380f695ff71"
+    }
+  },
+  "dem-sierra-b50000-transactional-t8-capture": {
+    "returncode": 0,
+    "elapsedSeconds": 10.9519197,
+    "peakRssBytes": 135020544,
+    "status": "ok",
+    "argv": [
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+      "--recovery-trace",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-sierra-b50000-transactional-t8-B\\inputs\\resolved.json",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-sierra-b50000-transactional-t8.txt",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\dem-sierra-b50000-transactional-t8-capture",
+      "--proposal-feasibility",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\dem-sierra-b50000-transactional-t8-capture-spec.json"
+    ],
+    "binary": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+      "bytes": 1633280,
+      "sha256": "e33fad864f8e72ab3a4542a5e0d4c5faafabb302a9e02e6e2a4d5380f695ff71"
+    }
+  },
+  "dem-sierra-b50000-transactional-t8-verify": {
+    "returncode": 0,
+    "elapsedSeconds": 11.4573327,
+    "peakRssBytes": 136339456,
+    "status": "ok",
+    "argv": [
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+      "--recovery-trace",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-sierra-b50000-transactional-t8-B\\inputs\\resolved.json",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\dem-sierra-b50000-transactional-t8.txt",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\dem-sierra-b50000-transactional-t8-verify",
+      "--proposal-feasibility",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\dem-sierra-b50000-transactional-t8-verify-spec.json"
+    ],
+    "binary": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+      "bytes": 1633280,
+      "sha256": "e33fad864f8e72ab3a4542a5e0d4c5faafabb302a9e02e6e2a4d5380f695ff71"
+    }
+  },
+  "normal-after": {
+    "returncode": 0,
+    "elapsedSeconds": 5.2328306,
+    "peakRssBytes": 183808000,
+    "status": "ok",
+    "argv": [
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+      "--recovery-trace",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8-B\\inputs\\resolved.json",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8.txt",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\normal-after"
+    ],
+    "binary": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+      "bytes": 1633280,
+      "sha256": "5d4346d9cb58a03f30b4de5bd47d680acc7e902140a9004069646eb08a08b9f1"
+    }
+  },
+  "normal-before": {
+    "returncode": 0,
+    "elapsedSeconds": 5.312347099999999,
+    "peakRssBytes": 184418304,
+    "status": "ok",
+    "argv": [
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\before\\parallel_roam_experiment_cpu.exe",
+      "--recovery-trace",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8-B\\inputs\\resolved.json",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8.txt",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\normal-before"
+    ],
+    "binary": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04g/run-01/before/parallel_roam_experiment_cpu.exe",
+      "bytes": 1583616,
+      "sha256": "ca382053f97fa8493895ff3c06c06d9bee4aa4c0834c9892b57aacedf8a04f90"
+    }
+  },
+  "peking547-b50000-transactional-t8-capture": {
+    "returncode": 0,
+    "elapsedSeconds": 5.3288579,
+    "peakRssBytes": 184967168,
+    "status": "ok",
+    "argv": [
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+      "--recovery-trace",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8-B\\inputs\\resolved.json",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8.txt",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\peking547-b50000-transactional-t8-capture",
+      "--proposal-feasibility",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\peking547-b50000-transactional-t8-capture-spec.json"
+    ],
+    "binary": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+      "bytes": 1633280,
+      "sha256": "e33fad864f8e72ab3a4542a5e0d4c5faafabb302a9e02e6e2a4d5380f695ff71"
+    }
+  },
+  "peking547-b50000-transactional-t8-verify": {
+    "returncode": 0,
+    "elapsedSeconds": 5.4720685,
+    "peakRssBytes": 188153856,
+    "status": "ok",
+    "argv": [
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\build\\relwithdebinfo-d3d12-fetch\\tests\\RelWithDebInfo\\parallel_roam_experiment_cpu.exe",
+      "--recovery-trace",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8-B\\inputs\\resolved.json",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04f\\run-01\\peking547-b50000-transactional-t8.txt",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\peking547-b50000-transactional-t8-verify",
+      "--proposal-feasibility",
+      "D:\\CPP-Projects\\WorkloadAwareROAM\\benchmark-output\\cpu-refinement\\qpc-04g\\run-01\\peking547-b50000-transactional-t8-verify-spec.json"
+    ],
+    "binary": {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+      "bytes": 1633280,
+      "sha256": "e33fad864f8e72ab3a4542a5e0d4c5faafabb302a9e02e6e2a4d5380f695ff71"
+    }
+  }
+}

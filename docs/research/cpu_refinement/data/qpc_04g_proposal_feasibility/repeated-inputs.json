@@ -1,0 +1,57 @@
+{
+  "peking547-b50000-transactional-t8": {
+    "599": {
+      "activeFrames": 24,
+      "uniqueGeometry": 5,
+      "uniqueGeometryView": 15,
+      "repeatedGeometryView": 9,
+      "longestIdenticalInputMultiplicity": 8
+    }
+  },
+  "dem-sierra-b50000-transactional-t8": {
+    "-272": {
+      "activeFrames": 95,
+      "uniqueGeometry": 2,
+      "uniqueGeometryView": 64,
+      "repeatedGeometryView": 31,
+      "longestIdenticalInputMultiplicity": 32
+    },
+    "-271": {
+      "activeFrames": 95,
+      "uniqueGeometry": 1,
+      "uniqueGeometryView": 64,
+      "repeatedGeometryView": 31,
+      "longestIdenticalInputMultiplicity": 32
+    },
+    "-270": {
+      "activeFrames": 95,
+      "uniqueGeometry": 2,
+      "uniqueGeometryView": 64,
+      "repeatedGeometryView": 31,
+      "longestIdenticalInputMultiplicity": 32
+    },
+    "-269": {
+      "activeFrames": 95,
+      "uniqueGeometry": 1,
+      "uniqueGeometryView": 64,
+      "repeatedGeometryView": 31,
+      "longestIdenticalInputMultiplicity": 32
+    },
+    "4182": {
+      "activeFrames": 96,
+      "uniqueGeometry": 6,
+      "uniqueGeometryView": 65,
+      "repeatedGeometryView": 31,
+      "longestIdenticalInputMultiplicity": 32
+    }
+  },
+  "dem-canyon-b50000-transactional-t8": {
+    "803": {
+      "activeFrames": 96,
+      "uniqueGeometry": 4,
+      "uniqueGeometryView": 65,
+      "repeatedGeometryView": 31,
+      "longestIdenticalInputMultiplicity": 32
+    }
+  }
+}

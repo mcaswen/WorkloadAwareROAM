@@ -1,0 +1,8 @@
+{
+  "binary": {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch/tests/RelWithDebInfo/parallel_roam_experiment_cpu.exe",
+    "bytes": 1633280,
+    "sha256": "e33fad864f8e72ab3a4542a5e0d4c5faafabb302a9e02e6e2a4d5380f695ff71"
+  },
+  "protocol": "qpc04g-v1"
+}

@@ -7,6 +7,7 @@
 #include "experiment/greedy_transactional_lod/TransactionalQualityProvenance.h"
 #include "experiment/greedy_transactional_lod/TransactionalBoundaryAudit.h"
 #include "experiment/greedy_transactional_lod/TransactionalExchangeQualityAudit.h"
+#include "experiment/greedy_transactional_lod/TransactionalProposalFeasibilityAudit.h"
 #include "experiment/mesh_quality/PlatformMeshArtifact.h"
 #include "tools/CpuTaskExecutor.h"
 
@@ -166,10 +167,11 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         const bool boundaryAudit = argc == 6 && std::string_view(argv[5]) == "--boundary-audit";
         const bool selectedPriorities = argc == 7 && std::string_view(argv[5]) == "--priority-frames";
         const bool exchangeQuality = argc == 7 && std::string_view(argv[5]) == "--exchange-quality-frames";
+        const bool proposalFeasibility = argc == 7 && std::string_view(argv[5]) == "--proposal-feasibility";
         const bool priorityAudit = selectedPriorities || (argc == 6 && std::string_view(argv[5]) == "--priority-audit");
-        if (argc != 5 && !boundaryAudit && !priorityAudit && !exchangeQuality)
+        if (argc != 5 && !boundaryAudit && !priorityAudit && !exchangeQuality && !proposalFeasibility)
         {
-            throw std::runtime_error("用法: --recovery-trace RESOLVED WITNESSES OUTPUT [--boundary-audit|--priority-audit|--priority-frames I,J|--exchange-quality-frames I,J]");
+            throw std::runtime_error("用法: --recovery-trace RESOLVED WITNESSES OUTPUT [--boundary-audit|--priority-audit|--priority-frames I,J|--exchange-quality-frames I,J|--proposal-feasibility SPEC.json]");
         }
         const auto input = LoadReplayInput(argv[2]);
         const auto& settings = input.Settings;
@@ -179,6 +181,13 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
             throw std::runtime_error("本追溯只接受冻结旧点且启用翻边恢复的 Transactional 输入");
         }
         const auto groups = ReadWitnesses(argv[3], input.Cameras.size());
+        std::unique_ptr<ParallelRoam::Experiment::GreedyTransactionalLod::TransactionalProposalFeasibilityAudit> feasibility;
+        if (proposalFeasibility)
+        {
+            // 先校验有限诊断范围，再创建输出；正常路径不分配审计状态
+            feasibility = std::make_unique<ParallelRoam::Experiment::GreedyTransactionalLod::TransactionalProposalFeasibilityAudit>(
+                argv[6], input.Cameras.size());
+        }
         std::set<std::size_t> priorityFrames;
         if (selectedPriorities || exchangeQuality)
         {
@@ -310,6 +319,15 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
                 }
             }
             const auto batch = TransactionalReservation::Plan(pipeline.State(), pipeline.Samples(), work, execution);
+            if (feasibility)
+            {
+                if (batch.Version != pipeline.State().Version())
+                {
+                    throw std::runtime_error("提案审计不能观察过期批次");
+                }
+                // 复核只读取Plan所用快照，随后仍应用原始批次
+                feasibility->Observe(pipeline.State(), pipeline.Samples(), frame, output);
+            }
             if (exchangeQuality && priorityFrames.contains(frame))
             {
                 // 批次仍按原顺序发布；审计器不能筛选或改变任何生产提案

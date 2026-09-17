@@ -2,6 +2,8 @@
 
 日期：2026-09-16；状态更新：2026-09-17。编号：QPC（Quality–Performance Closure）。QPC-01、04A～04E已完成各自诊断/有限实验；04B/04D质量混合、默认不变，04E抽象证明与只读审计有条件保留机会；[04F显式目标政策接入](qpc_04f_target_quality_policy_plan.md)现已实施并完成有限验证：损伤控制/自然可执行获有限验证，恢复及成本受限，待用户验收。ATT保持暂停。此前用户视觉签收等未完成项目不因此自动通过；不进入性能阶段。
 
+04F已提交`b437315`。用户确认后，[QPC-04G小规划](qpc_04g_proposal_feasibility_plan.md)已完成只读诊断，待验收：43项得到28个新逐点正例、8个无进展单点、2个固定B违规和5个shape失败。正例均被旧统一最大值门槛排除，且局部Emax均未降低；12项进展仅存储级微量。生产政策不变，持续质量与成本门禁没有因此通过。
+
 本轮用户要求：将 FER-02 问题清单及讨论确定的工作组纳入一个大规划；**每个小阶段必须单独规划、实验、实现、验收和提交，完成后交用户验收，收到继续指示后再进入下一阶段**。本文件规定总体架构、依赖与最大范围，不代替各阶段的小规划，也不表示全部设施都必须做完才允许停止。
 
 ## 1. 背景、目标与已有证据
@@ -161,6 +163,7 @@ structural failure可以与view-dependent failure有不同生命周期，但不�
 | QPC-02 CBT质量有效性 | `docs/plans/cbt_2024/qpc_02_quality_validity_plan.md` | 未开始，独立审计 |
 | QPC-03 CPU参考与计时边界 | `docs/plans/profiling/qpc_03_cpu_baseline_audit_plan.md` | 未开始，独立审计 |
 | QPC-04 有限质量修复与契约冻结 | [04A外边界可行性](qpc_04a_boundary_feasibility_plan.md)、[04B生产接入](qpc_04b_boundary_integration_plan.md)、[04C误差目标排查](qpc_04c_quality_target_audit_plan.md)、[04D误差优先对照](qpc_04d_error_first_ordering_plan.md)、[04E质量契约优化](qpc_04e_quality_contract_optimization_plan.md)、[04F持续政策接入](qpc_04f_target_quality_policy_plan.md) | 04F默认关闭政策已接入；六预定批次47交换独立核查，恢复/成本受限；待用户验收，不提升既有质量/视觉状态 |
+| QPC-04G 既有目录的逐点可行性审计 | [小规划](qpc_04g_proposal_feasibility_plan.md) | 四快照七根43项只读审计闭环，28项双域/原生正例；不改Fit、不替代持续恢复门禁，待验收 |
 | QPC-05 预留工作削减与规模因素 | `docs/plans/cpu_refinement/qpc_05_reservation_scaling_plan.md` | 条件阶段，依赖04的政策/工作负载冻结 |
 | QPC-06 无事务帧与发现成本 | `docs/plans/cpu_refinement/qpc_06_sparse_update_cost_plan.md` | 条件阶段，依赖01/04/05 |
 | QPC-07 视觉属性归因 | `docs/plans/cpu_refinement/qpc_07_visual_attribute_audit_plan.md` | 未开始，独立审计 |
@@ -391,3 +394,5 @@ Peking优先50k与200k既有路线；100k用于解释规模，按需要复用/�
 
 
 **04F实施出口，2026-09-17。** [结果](../../research/cpu_refinement/qpc_04f_target_quality_results.md)将安全、可执行、恢复、成本分开：47个冻结交换在核心/实际float曲面均无独立接受违规；三条自然路线均执行真实事务。Peking转向、Sierra末帧及Canyon转向残差仍在，后两者出现35/33机会停滞，暖CPU为旧政策2.89×/2.00×。请求资格已从旧复合阈值分离，但旧Fit/目录未成为新逐点可行域求解器。本阶段受限闭环、默认不改；用户视觉和阶段验收待定，不进入性能阶段。
+
+**04G闭环，2026-09-17。** [完整结果](../../research/cpu_refinement/qpc_04g_proposal_feasibility_results.md)与[PF推导](../../research/cpu_refinement/proposal_feasibility_derivation.md)记录：旧统一max−0.01px政策确实排除新逐点契约允许的局部解；另有相反损伤约束将安全高度锁成仅重现旧曲面的单点。因此换Fit有定向依据，但不能普遍解除目录/接口限制，更不能把微小正进展当恢复时限。只读轨迹与04F一致；不扩大几何目录、不改政策、不实现缓存、不进入性能阶段，待用户验收。

@@ -7,6 +7,7 @@
 - **连续阅读公式与推导链：**[数学推导总览](mathematical_derivations.md)。包含前提、推导、边界和原文链接，不仅罗列公式。
 - **一般模型：**[资源约束三角化事务](../adaptive_triangulation/README.md)、[推导与反例](../adaptive_triangulation/model_derivation.md)和[最终报告](../adaptive_triangulation/generalization_results.md)。ATT-01～03完成：几何纸面、资源/质量/预算3个Lean源、有限实例与反例；条件安全模型可一般化，非通用greedy算法或生产修复。用户已暂停此支线，不继续扩展。
 - **当前算法优化：**[QPC-04E 逐点损伤与质量组合推导](../cpu_refinement/quality_contract_derivation.md)的抽象Lean核心与只读自然审计已完成，见[结果](../cpu_refinement/qpc_04e_quality_contract_results.md)。[04F持续政策](../../plans/cpu_refinement/qpc_04f_target_quality_policy_plan.md)已实施；QC-10～13为纸面推导/数值夹具/有限独立审计，见[结果](../cpu_refinement/qpc_04f_target_quality_results.md)。损伤控制有有限验证，恢复/成本受限，默认未改。
+- **最新诊断：**[QPC-04G推导](../cpu_refinement/proposal_feasibility_derivation.md)完成PF-01～06及[有限审计](../cpu_refinement/qpc_04g_proposal_feasibility_results.md)：43项中28个新契约正例均被旧统一最大值门槛排除，8项安全域仅能保持旧曲面；双域/原生核查完成，生产拟合未改。12项正例进展仅存储级微量，所有正例局部Emax不变，不能当作持续恢复完成。
 - **实现与费用：**[算法及阶段复杂度](../cpu_refinement/transactional_algorithm_overview.md)、[QPC-04D 原因分析](../cpu_refinement/qpc_04d_error_first_results.md)、[质量与成本重审](../cpu_refinement/transactional_quality_cost_reassessment.md)。
 - **历史状态：**[研究入口](../README.md)。早期状态按记录日期解释，不替代最新阶段报告。
 
@@ -44,6 +45,7 @@
 | TX-08 | [质量/成本重审](../cpu_refinement/transactional_quality_cost_reassessment.md) | 04B/04D 反例→需求、损伤与进展分离 | 候选设计，未改生产 |
 | TX-09 | [QPC-04E 形式推导](../cpu_refinement/quality_contract_derivation.md) | QC-01～09、逐点条件、归纳、组合及计费 | QC-01～03抽象Lean、71交换有限审计；三操作点保留机会，非持续修复 |
 | TX-10 | [QPC-04F 接入规划](../../plans/cpu_refinement/qpc_04f_target_quality_policy_plan.md) | QC-10～13：请求、独立证据组合、持续义务和数值对应 | 已实施；纸面推导及47交换双域独立核查，未扩Lean证明范围；恢复/成本受限 |
+| TX-11 | [QPC-04G 固定提案可行域](../cpu_refinement/proposal_feasibility_derivation.md) | PF-01～06：透视误差仿射条件、内/外包方向、单点无进展、存储对应 | 纸面推导+解析反例+43项有限有理审计；没有新Lean，不是持续恢复证明 |
 | ATT-00 | [一般事务模型推导](../adaptive_triangulation/model_derivation.md)、[操作嵌入](../adaptive_triangulation/operation_embeddings.md)、[范围表](../adaptive_triangulation/generalization_results.md) | 接口、面数、资源语义、证书迁移与加权质量 | ATT-01～03完成；条件安全模型，非生产/性能证明 |
 
 质量演进证据：[PQ-01](../cpu_refinement/pq_01_quality_provenance_results.md)、[PQ-02](../cpu_refinement/pq_02_residual_provenance_results.md)、[PQ-03](../cpu_refinement/pq_03_fit_counterfactual_results.md)、[PQ-04](../cpu_refinement/pq_04_local_recovery_results.md)、[PQ-05](../cpu_refinement/pq_05_flip_recovery_results.md)、[QPC-01](../cpu_refinement/qpc_01_quality_recovery_results.md)、[04A](../cpu_refinement/qpc_04a_boundary_feasibility_results.md)、[04B](../cpu_refinement/qpc_04b_boundary_integration_results.md)、[04C](../cpu_refinement/qpc_04c_quality_target_results.md)、[04D](../cpu_refinement/qpc_04d_error_first_results.md)。它们是事实与反例来源，不升级为 Lean 定理。

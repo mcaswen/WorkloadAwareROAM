@@ -13,6 +13,13 @@ if(PARALLEL_ROAM_BUILD_PROFILING_TESTS)
 endif()
 
 if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
+    add_executable(parallel_roam_transactional_proposal_feasibility_tests TransactionalProposalFeasibilityAuditTests.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalProposalFeasibilityAudit.cpp)
+    target_link_libraries(parallel_roam_transactional_proposal_feasibility_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_project_warnings)
+    target_include_directories(parallel_roam_transactional_proposal_feasibility_tests SYSTEM PRIVATE
+        "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
+    add_test(NAME transactional_proposal_feasibility COMMAND parallel_roam_transactional_proposal_feasibility_tests)
     add_executable(parallel_roam_transactional_pointwise_quality_tests TransactionalPointwiseQualityTests.cpp)
     target_link_libraries(parallel_roam_transactional_pointwise_quality_tests PRIVATE
         parallel_roam_transactional_lod_core parallel_roam_project_warnings)
@@ -51,11 +58,15 @@ if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
         parallel_roam_transactional_lod_core parallel_roam_project_warnings)
     add_test(NAME transactional_exchange_quality COMMAND parallel_roam_transactional_exchange_quality_tests)
     if(MSVC)
+        set_source_files_properties(../src/experiment/greedy_transactional_lod/TransactionalProposalFeasibilityAudit.cpp
+            PROPERTIES COMPILE_OPTIONS /fp:strict)
         set_source_files_properties(../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp
             ../src/experiment/greedy_transactional_lod/TransactionalRecoveryAudit.cpp
             ../src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.cpp
             PROPERTIES COMPILE_OPTIONS /fp:strict)
     else()
+        set_source_files_properties(../src/experiment/greedy_transactional_lod/TransactionalProposalFeasibilityAudit.cpp
+            PROPERTIES COMPILE_OPTIONS "-fno-fast-math;-ffp-contract=off")
         set_source_files_properties(../src/experiment/greedy_transactional_lod/TransactionalFitCounterfactual.cpp
             ../src/experiment/greedy_transactional_lod/TransactionalRecoveryAudit.cpp
             ../src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.cpp
@@ -676,6 +687,7 @@ if(TARGET parallel_roam_experiment_infrastructure AND TARGET parallel_roam_trans
         ../src/benchmark/experiment/ExperimentReplay.cpp
         ../src/benchmark/experiment/ExperimentCpuReplay.cpp
         ../src/benchmark/experiment/TransactionalRecoveryTrace.cpp
+        ../src/experiment/greedy_transactional_lod/TransactionalProposalFeasibilityAudit.cpp
         ../src/experiment/greedy_transactional_lod/TransactionalExchangeQualityAudit.cpp
         ../src/experiment/greedy_transactional_lod/TransactionalBoundaryAudit.cpp
         ../src/experiment/greedy_transactional_lod/TransactionalQualityProvenance.cpp
@@ -692,4 +704,6 @@ if(TARGET parallel_roam_experiment_infrastructure AND TARGET parallel_roam_trans
     target_link_libraries(parallel_roam_experiment_cpu PRIVATE parallel_roam_experiment_infrastructure
         parallel_roam_transactional_lod_adapter parallel_roam_transactional_adapter_test_support
         parallel_roam_cpu_execution parallel_roam_project_warnings)
+    target_include_directories(parallel_roam_experiment_cpu SYSTEM PRIVATE
+        "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
 endif()
