@@ -253,23 +253,8 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
     proposal.QualityProof.reset();
     // 消费通过旧认证或源高结构准备的合法目录项，不检查任意三角化是否合法
     QualityWork work{ledger};
-    auto proof = std::make_shared<ProposalQualityCertificate>();
-    // 发布前逐字段比对用于防止缓存证书被复制到另一份拟合结果
-    proof->Owner = &state;
-    proof->Version = state.Version();
-    proof->Config = state.Config();
-    proof->Kind = proposal.Kind;
-    proof->Root = proposal.Root;
-    proof->Center = proposal.Center;
-    proof->NewVertex = proposal.NewVertex;
-    proof->Support = proposal.Support;
-    proof->Free = proposal.Free;
-    proof->Points = proposal.Points;
-    proof->Faces = proposal.Faces;
-    proof->Receiver = receiver;
-    // 只保存有界几何与本提案支持，避免将完整Q或生产状态复制进证书
-    work.Bytes += sizeof(*proof) + proof->Points.size() * sizeof(std::pair<Identity, Point>) +
-                  proof->Faces.size() * sizeof(std::array<Identity, 3>);
+    // 拒绝提案只持有检查期间的样本，完整成功后才复制绑定几何
+    std::array<std::vector<Slot>, 2> certifiedSamples;
     for (std::size_t domain = 0; domain < 2; ++domain)
     {
         // 两域分别成功才接受；这比仅保护私有拟合曲面更保守
@@ -279,38 +264,6 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
         {
             return output ? "pointwise_output_interface" : "pointwise_interface";
         }
-        std::vector<Slot> candidates;
-        if (!output)
-        {
-            // 核心域复用已维护的闭面关联，owner唯一不等于贡献唯一
-            for (auto slot : proposal.Support)
-            {
-                const auto &closed = samples.FaceSamples(slot);
-                candidates.insert(candidates.end(), closed.begin(), closed.end());
-            }
-        }
-        else
-        {
-            // float边界可能稍移；不能直接沿用binary64的FaceSamples作为完整支持
-            double minU = 1, minV = 1, maxU = 0, maxV = 0;
-            for (const auto &f : old)
-            {
-                for (const auto &p : f)
-                {
-                    const double u = p.U / state.Config().TerrainSize + .5;
-                    const double v = p.V / state.Config().TerrainSize + .5;
-                    minU = std::min(minU, u);
-                    minV = std::min(minV, v);
-                    maxU = std::max(maxU, u);
-                    maxV = std::max(maxV, v);
-                }
-            }
-            candidates = samples.BoxCandidates(minU, minV, maxU, maxV, ledger);
-        }
-        // 闭面贡献会重复，去重发生在质量求值前而不是进展求和后
-        std::sort(candidates.begin(), candidates.end());
-        // 一个Q在多个旧面上出现时只支付一次质量比较，不能累加虚假进展
-        candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
         // 每个表示域独立累计，内部改善不能补贴公开曲面的无进展
         Integer low = 0, high = 0;
         // 面证据只活到当前域结束；不同提案高度和float输出不得复用旧系数
@@ -336,7 +289,18 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
             const auto started = std::chrono::steady_clock::now();
             const auto sid = activeRejection->HintSample;
             bool reject = false;
-            if (!std::binary_search(candidates.begin(), candidates.end(), sid))
+            // 成员资格等价于属于任一当前闭面，不为检查一个提示先整理整个并集
+            bool member = false;
+            for (auto face : proposal.Support)
+            {
+                const auto& closed = samples.FaceSamples(face);
+                if (std::find(closed.begin(), closed.end(), sid) != closed.end())
+                {
+                    member = true;
+                    break;
+                }
+            }
+            if (!member)
             {
                 ++work.HintOutside;
             }
@@ -375,6 +339,37 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
                 return "pointwise_height_damage";
             }
         }
+        std::vector<Slot> candidates;
+        if (!output)
+        {
+            for (auto face : proposal.Support)
+            {
+                const auto& closed = samples.FaceSamples(face);
+                candidates.insert(candidates.end(), closed.begin(), closed.end());
+            }
+        }
+        else
+        {
+            // float边界可能稍移，公开曲面仍独立枚举候选并检查闭覆盖
+            double minU = 1, minV = 1, maxU = 0, maxV = 0;
+            for (const auto& face : old)
+            {
+                for (const auto& point : face)
+                {
+                    const double u = point.U / state.Config().TerrainSize + .5;
+                    const double v = point.V / state.Config().TerrainSize + .5;
+                    minU = std::min(minU, u);
+                    minV = std::min(minV, v);
+                    maxU = std::max(maxU, u);
+                    maxV = std::max(maxV, v);
+                }
+            }
+            candidates = samples.BoxCandidates(minU, minV, maxU, maxV, ledger);
+        }
+        ledger.Reasons["quality_support_items_sorted"] += candidates.size();
+        ++ledger.Reasons["quality_support_builds"];
+        std::sort(candidates.begin(), candidates.end());
+        candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
         ++work.DomainLoops;
         for (auto sid : candidates)
         {
@@ -390,14 +385,14 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
             {
                 return "pointwise_coverage_unknown";
             }
-            proof->Samples[domain].push_back(sid);
+            certifiedSamples[domain].push_back(sid);
             const auto reason = CheckSample(state, samples, sid, evidence, *before, *after, work, low, high, activeRejection);
             if (!reason.empty())
             {
                 return reason;
             }
         }
-        work.Bytes += candidates.capacity() * sizeof(Slot) + proof->Samples[domain].capacity() * sizeof(Slot);
+        work.Bytes += candidates.capacity() * sizeof(Slot) + certifiedSamples[domain].capacity() * sizeof(Slot);
         // donor的非负进展已由逐点条件保证；receiver另需严格正下界
         // 跨零只说明当前数值证据不足，不能改成一个微小正数
         if (receiver && low <= 0)
@@ -405,6 +400,23 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
             return high <= 0 ? "pointwise_no_progress" : "pointwise_progress_unknown";
         }
     }
+    auto proof = std::make_shared<ProposalQualityCertificate>();
+    proof->Owner = &state;
+    proof->Version = state.Version();
+    proof->Config = state.Config();
+    proof->Kind = proposal.Kind;
+    proof->Root = proposal.Root;
+    proof->Center = proposal.Center;
+    proof->NewVertex = proposal.NewVertex;
+    proof->Support = proposal.Support;
+    proof->Free = proposal.Free;
+    proof->Points = proposal.Points;
+    proof->Faces = proposal.Faces;
+    proof->Receiver = receiver;
+    proof->Samples = std::move(certifiedSamples);
+    ++ledger.Reasons["quality_proof_allocations"];
+    work.Bytes += sizeof(*proof) + proof->Points.size() * sizeof(std::pair<Identity, Point>) +
+                  proof->Faces.size() * sizeof(std::array<Identity, 3>);
     proposal.QualityProof = std::move(proof);
     // 只有走完整个支持后才发布成功标志，不能提前把部分检查当作证书
     ++ledger.Reasons[receiver ? "pointwise_receiver_certified" : "pointwise_donor_certified"];

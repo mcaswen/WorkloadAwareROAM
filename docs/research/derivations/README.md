@@ -1,5 +1,7 @@
 # 算法推导与形式化验证总目录
 
+[06H认证准备](../cpu_refinement/qpc_06h_certification_preparation_results.md)：CP-01集合成员等价、CP-02成功后绑定及根内复用负结果；纸面与有限检查，无新Lean。
+
 2026-09-18补充：[06G坐标证据解耦](../cpu_refinement/qpc_06g_coordinate_evidence_results.md)，CE-01坐标不依赖高度、CE-02覆盖与认证等价及实际成本；纸面推导与有限C++核对，无新增Lean。
 
 更新：2026-09-18。范围：项目自有推导、证明过程、反例及 Lean 源文件；不含第三方、工具下载与构建缓存。原始材料保留在所属模块，不复制或移动证明工程。
