@@ -29,8 +29,14 @@ def full_symbols(text,windows):
 def collect(case,output,executable,backend="perf",perf="perf",capture=None,csvexport=None):
     output=Path(output).resolve();executable=Path(executable).resolve()
     manifest=prepare(case,output,executable,mode="profile",cpu=True)
-    work=Path(tempfile.mkdtemp(prefix="eip-profile-"))
+    native_root = Path.home() / ".cache/roam-profiling/runs"
+    native_root.mkdir(parents=True, exist_ok=True)
+    work=Path(tempfile.mkdtemp(prefix="eip-profile-", dir=native_root))
     recorded=work/"recorded-executable";shutil.copy2(executable,recorded)
+    for name in ("CMakeCache.txt", "compile_commands.json"):
+        source = executable.parent.parent / name
+        if source.is_file():
+            shutil.copy2(source, work / name)
     args=["--experiment-cpu",str(output/"inputs/resolved.json"),str(output/"run")]
     result={}
     try:

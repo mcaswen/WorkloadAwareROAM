@@ -2,6 +2,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalQualityEvaluation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalQualitySampleEvidence.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
+#include "profiling/CpuProfiling.h"
 
 #include <set>
 #include <stdexcept>
@@ -185,6 +186,7 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
     {
         return "certified";
     }
+    ROAM_CPU_ZONE("gtp.pointwise.certify");
     // 拒绝或异常都不能残留此前提案的成功证书
     proposal.QualityProof.reset();
     // 这里只消费旧目录已认证的提案，不扩成任意三角化合法性检查器
@@ -291,6 +293,7 @@ void TransactionalPointwiseQuality::ValidateBatch(const TransactionalState &stat
     {
         return;
     }
+    ROAM_CPU_ZONE("gtp.pointwise.validate_batch");
     const auto started = std::chrono::steady_clock::now();
     // 共享索引是本次发布的临时对象，不进入跨帧缓存或候选队列
     std::array<std::map<Slot, std::vector<const Proposal *>>, 2> shared;
