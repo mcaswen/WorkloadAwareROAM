@@ -55,6 +55,7 @@ Configuration TransactionalSeedBuilder::ConfigurationFor(const TerrainLodBuildIn
     c.EnableBoundaryRefinement=s.Transactional.EnableBoundaryRefinement;
     c.ReceiverOrder = s.Transactional.ReceiverOrder;
     c.QualityPolicy = s.Transactional.QualityPolicy;
+    c.ReceiverHeightPolicy = s.Transactional.ReceiverHeightPolicy;
     c.QualityTargetPixels = s.Transactional.QualityTargetPixels;
     c.QualityHeightRatio = s.Transactional.QualityHeightRatio;
     c.Width=v.DrawableWidth;c.Height=v.DrawableHeight;c.UsesZeroToOneDepth=v.UsesZeroToOneDepth;

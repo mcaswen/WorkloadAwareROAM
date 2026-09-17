@@ -72,6 +72,7 @@ void TransactionalPipeline::SetView(const Configuration& view,WorkLedger& work)
         view.EnableBoundaryRefinement!=old.EnableBoundaryRefinement ||
         view.ReceiverOrder != old.ReceiverOrder ||
         view.QualityPolicy != old.QualityPolicy ||
+        view.ReceiverHeightPolicy != old.ReceiverHeightPolicy ||
         view.QualityTargetPixels != old.QualityTargetPixels ||
         view.QualityHeightRatio != old.QualityHeightRatio ||
         !view.Width || !view.Height ||

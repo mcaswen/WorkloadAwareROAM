@@ -20,6 +20,9 @@
     "splitPixels"
   ],
   "properties": {
+    "receiverHeightPolicy": {
+      "enum": ["legacy-fit", "source-height"]
+    },
     "qualityPolicy": {
       "enum": ["legacy", "pointwise-target"]
     },

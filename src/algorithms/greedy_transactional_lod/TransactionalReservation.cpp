@@ -4,6 +4,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalProposals.h"
 #include "algorithms/greedy_transactional_lod/TransactionalFlipRecovery.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSourceHeightReceiver.h"
 
 #include <algorithm>
 #include <optional>
@@ -104,9 +105,26 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
             {
                 start=Clock::now();auto next=cursor.Next(&local);local.Seconds["proposal"]+=Seconds(start);
                 if (!next) break;
-                auto& proposal=*next;start=Clock::now();reason=TransactionalProposals::CertifyReceiver(state,samples,proposal,local);
-                local.Seconds["receiver_certification"]+=Seconds(start);++local.Reasons[reason];
-                if (reason == "certified" && TransactionalPointwiseQuality::Enabled(state.Config()))
+                auto& proposal = *next;
+                start = Clock::now();
+                const bool sourceHeight = state.Config().ReceiverHeightPolicy == TransactionalReceiverHeightPolicy::SourceHeight &&
+                    (proposal.Kind == 'E' || proposal.Kind == 'F' || proposal.Kind == 'H');
+                bool ready = false;
+                if (sourceHeight)
+                {
+                    reason = TransactionalSourceHeightReceiver::Prepare(state, samples, proposal, local);
+                    ready = reason.empty();
+                    ++local.Reasons[ready ? "source_height_prepared" : reason];
+                }
+                else
+                {
+                    reason = TransactionalProposals::CertifyReceiver(state, samples, proposal, local);
+                    ready = reason == "certified";
+                    ++local.Reasons[reason];
+                }
+                local.Seconds["receiver_certification"] += Seconds(start);
+                // 源高准备只恢复结构前提，成功标记必须由完整逐点认证产生
+                if (ready && TransactionalPointwiseQuality::Enabled(state.Config()))
                 {
                     reason = TransactionalPointwiseQuality::Certify(state, samples, proposal, true, local);
                     ++local.Reasons[reason];

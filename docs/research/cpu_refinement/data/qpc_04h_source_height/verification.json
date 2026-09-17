@@ -1,0 +1,87 @@
+{
+  "status": "finite-checks-complete",
+  "docs": [
+    "docs/reviews/cpu_refinement/qpc_04h_source_height_review.md",
+    "docs/research/cpu_refinement/qpc_04h_source_height_derivation.md",
+    "docs/research/cpu_refinement/qpc_04h_source_height_results.md",
+    "docs/plans/cpu_refinement/qpc_04h_source_height_receiver_plan.md",
+    "docs/codebase/cpu_refinement/qpc_04h_source_height_facts.md",
+    "docs/research/cpu_refinement/data/qpc_04h_source_height/README.md"
+  ],
+  "inputs": [
+    {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04h/run-01/final-check.json",
+      "bytes": 478,
+      "sha256": "31f7dbe343a64bfa2dbbc412f148c20f85ac552d429007535f7947c52fbc81fb"
+    },
+    {
+      "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/docs/research/cpu_refinement/data/qpc_04h_source_height/summary.json",
+      "bytes": 282663,
+      "sha256": "1c941bfe941bd90b6bdbfd17fcfd6f05085071ec0292f1540d24cd53ffb7bc3a"
+    }
+  ],
+  "sourceFixture": "[1/5] Building CXX object CMakeFiles/parallel_roam_transactional_lod_core.dir/src/algorithms/greedy_transactional_lod/TransactionalSourceHeightReceiver.cpp.o\n[2/5] Building CXX object CMakeFiles/parallel_roam_transactional_lod_core.dir/src/algorithms/greedy_transactional_lod/TransactionalReservation.cpp.o\n[3/5] Linking CXX static library libparallel_roam_transactional_lod_core.a\n[4/5] Building CXX object tests/CMakeFiles/parallel_roam_transactional_source_height_tests.dir/TransactionalSourceHeightReceiverTests.cpp.o\nIn file included from /mnt/d/CPP-Projects/WorkloadAwareROAM/third_party/glm/glm/fwd.hpp:3,\n                 from /mnt/d/CPP-Projects/WorkloadAwareROAM/third_party/glm/glm/glm.hpp:115,\n                 from /mnt/d/CPP-Projects/WorkloadAwareROAM/src/terrain/TerrainMeshBuilder.h:5,\n                 from /mnt/d/CPP-Projects/WorkloadAwareROAM/src/algorithms/greedy_transactional_lod/TransactionalMesh.h:4,\n                 from /mnt/d/CPP-Projects/WorkloadAwareROAM/src/algorithms/greedy_transactional_lod/TransactionalPipeline.h:4,\n                 from /mnt/d/CPP-Projects/WorkloadAwareROAM/tests/TransactionalSourceHeightReceiverTests.cpp:4:\n/mnt/d/CPP-Projects/WorkloadAwareROAM/third_party/glm/glm/detail/qualifier.hpp:88:33: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]\n   88 |                         T data[L];\n      |                                 ^\n/mnt/d/CPP-Projects/WorkloadAwareROAM/third_party/glm/glm/detail/qualifier.hpp:97:41: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]\n   97 |                                 T data[L];\n      |                                         ^\n[5/5] Linking CXX executable tests/parallel_roam_transactional_source_height_tests\nTest project /home/mcaswen/.cache/roam-profiling/build/cpu-profile-fp\n    Start 5: transactional_source_height\n1/1 Test #5: transactional_source_height ......   Passed    0.01 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.01 sec\n",
+  "configuration": [
+    {
+      "name": "valid",
+      "accepted": true
+    },
+    {
+      "name": "unknown",
+      "accepted": false,
+      "error": "'unknown' is not one of ['legacy-fit', 'source-height']\n\nFailed validating 'enum' in schema['properties']['receiverHeightPolicy']:\n    {'enum': ['legacy-fit', 'source-height']}\n\nOn instance['receiverHeightPolicy']:\n    'unknown'"
+    },
+    {
+      "name": "legacy",
+      "accepted": false,
+      "error": "源高度接收提案要求逐点质量政策"
+    },
+    {
+      "name": "mutable",
+      "accepted": false,
+      "error": "翻边恢复要求Transactional固定旧点策略"
+    },
+    {
+      "name": "composite",
+      "accepted": false,
+      "error": "逐点政策要求Transactional固定旧点和误差优先"
+    }
+  ],
+  "nativeConfigurationRestore": [
+    {
+      "command": [
+        "/mnt/d/Microsoft/Visual Studio/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+        "-S",
+        "D:/CPP-Projects/WorkloadAwareROAM",
+        "-B",
+        "D:/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch",
+        "-DPARALLEL_ROAM_BUILD_TESTS=OFF",
+        "-DPARALLEL_ROAM_ENABLE_CBT_2024=ON"
+      ],
+      "returncode": 0,
+      "seconds": 0.9504326030000101
+    },
+    {
+      "command": [
+        "/mnt/d/Microsoft/Visual Studio/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+        "--build",
+        "D:/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch",
+        "--config",
+        "RelWithDebInfo",
+        "--target",
+        "parallel_roam",
+        "--parallel",
+        "4"
+      ],
+      "returncode": 0,
+      "seconds": 166.10454233599998
+    }
+  ],
+  "gates": {
+    "finite_semantic_evidence": true,
+    "sampled_emax_guard": true,
+    "cost_candidate": false,
+    "production_recommendation": false,
+    "old_path_performance_unresolved": "Sierra 7.12% one-window residual"
+  }
+}

@@ -71,6 +71,8 @@ ReplayInput LoadReplayInput(const std::filesystem::path& path)
         Algorithms::TransactionalQualityPolicy::PointwiseTarget : Algorithms::TransactionalQualityPolicy::Legacy;
     s.Transactional.QualityTargetPixels = c.QualityTargetPixels;
     s.Transactional.QualityHeightRatio = c.QualityHeightRatio;
+    s.Transactional.ReceiverHeightPolicy = c.ReceiverHeightPolicy == "source-height" ?
+        Algorithms::TransactionalReceiverHeightPolicy::SourceHeight : Algorithms::TransactionalReceiverHeightPolicy::LegacyFit;
     s.Transactional.PrefixLimit=s.Transactional.DonorLimit=c.Prefix=="fixed64" ? 64 : 64*c.Budget/20000;
     if (s.Transactional.PrefixLimit==0) throw std::runtime_error("增长额度为零，请选择适用预算");
     auto& p=s.PassPolicy;

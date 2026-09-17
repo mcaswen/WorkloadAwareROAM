@@ -242,6 +242,7 @@ void TransactionalExchangeQualityAudit::Capture(const TransactionalState& state,
         << ",\"width\":" << config.Width << ",\"height\":" << config.Height
         << ",\"zeroToOne\":" << config.UsesZeroToOneDepth
         << ",\"qualityPolicy\":\"" << (config.QualityPolicy == Algorithms::TransactionalQualityPolicy::PointwiseTarget ? "pointwise-target" : "legacy")
+        << "\",\"receiverHeightPolicy\":\"" << (config.ReceiverHeightPolicy == Algorithms::TransactionalReceiverHeightPolicy::SourceHeight ? "source-height" : "legacy-fit")
         << "\",\"qualityTargetPixels\":" << config.QualityTargetPixels
         << ",\"qualityHeightRatio\":" << config.QualityHeightRatio << ",\"matrix\":[";
     for (std::size_t i = 0; i < config.Matrix.size(); ++i)

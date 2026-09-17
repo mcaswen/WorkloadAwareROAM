@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04h/run-01/dem-sierra-P0/visual/run/frame-16.png",
+    "bytes": 95163,
+    "sha256": "0991fedf72b71b01a058a84e71246d8b292c0ad556d229a376d2f8fd56a82a3e"
+  },
+  {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04h/run-01/dem-sierra-PS/visual/run/frame-16.png",
+    "bytes": 98342,
+    "sha256": "f1d2652cb1d03d4a07a793f43895e68c9bcfb21050f14b07793edf950a1dba2a"
+  },
+  {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04h/run-01/dem-sierra-P0/visual/run/frame-48.png",
+    "bytes": 100030,
+    "sha256": "c3b855acc1c23a1b19d6cee96249873231a0ed3dd50df8531e4d356dc0fb0c62"
+  },
+  {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04h/run-01/dem-sierra-PS/visual/run/frame-48.png",
+    "bytes": 109960,
+    "sha256": "a363f626b71ea4ad05352e81202dd4e9b9cf6655aacd8b398a2df30f327f597e"
+  },
+  {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04h/run-01/dem-canyon-P0/visual/run/frame-16.png",
+    "bytes": 218378,
+    "sha256": "59e704ed3970cb5b7cfdb8ba2dd92994cf01242102c50c9786a069c71df8d535"
+  },
+  {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04h/run-01/dem-canyon-PS/visual/run/frame-16.png",
+    "bytes": 218591,
+    "sha256": "fae88703dea854aeecc538f135e36463da23f30ccce310e5a64f4b69ae8140a5"
+  },
+  {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04h/run-01/dem-canyon-P0/visual/run/frame-48.png",
+    "bytes": 222862,
+    "sha256": "3efd00ae6d8ac04aa64a87d0072d73b6f4cb2957dbb3d4e626be8300a4428005"
+  },
+  {
+    "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-04h/run-01/dem-canyon-PS/visual/run/frame-48.png",
+    "bytes": 222958,
+    "sha256": "258626d8c079f30245c6265d8f698955c64230f548bc4935a937c152ade267d4"
+  }
+]

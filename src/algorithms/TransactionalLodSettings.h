@@ -23,6 +23,16 @@ enum class TransactionalQualityPolicy
 };
 
 /// <summary>
+/// 接收提案的新点高度来源；源高度只生成候选，仍须通过逐点质量认证。
+/// 不改变旧点高度、目录连接或边界与翻边的既有规则。
+/// </summary>
+enum class TransactionalReceiverHeightPolicy
+{
+    LegacyFit,
+    SourceHeight
+};
+
+/// <summary>
 /// 事务化算法的持续配置；任一字段变化都重新初始化独立状态
 /// 旧 DOD 阶段动作不映射到这些设置
 /// </summary>
@@ -41,6 +51,7 @@ struct TransactionalLodSettings
     bool EnableBoundaryRefinement{};
     TransactionalReceiverOrder ReceiverOrder{TransactionalReceiverOrder::Composite};
     TransactionalQualityPolicy QualityPolicy{TransactionalQualityPolicy::Legacy};
+    TransactionalReceiverHeightPolicy ReceiverHeightPolicy{TransactionalReceiverHeightPolicy::LegacyFit};
     double QualityTargetPixels{0.5};
     double QualityHeightRatio{1.0 / 256.0};
     bool operator==(const TransactionalLodSettings&) const = default;

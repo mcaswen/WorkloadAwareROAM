@@ -33,6 +33,7 @@ add_library(parallel_roam_transactional_lod_core STATIC
     "${transactional_core_dir}/TransactionalIdlePlanCache.cpp"
     "${transactional_core_dir}/TransactionalPointwiseQuality.cpp"
     "${transactional_core_dir}/TransactionalProposals.cpp" "${transactional_core_dir}/TransactionalReservation.cpp"
+    "${transactional_core_dir}/TransactionalSourceHeightReceiver.cpp"
     "${transactional_core_dir}/TransactionalFlipRecovery.cpp"
     "${transactional_core_dir}/TransactionalBoundaryRefinement.cpp"
     "${transactional_core_dir}/TransactionalCommit.cpp" "${transactional_core_dir}/TransactionalPipeline.cpp"

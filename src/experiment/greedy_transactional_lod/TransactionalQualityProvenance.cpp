@@ -3,6 +3,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalCertification.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
+#include "algorithms/greedy_transactional_lod/TransactionalSourceHeightReceiver.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 #include "algorithms/greedy_transactional_lod/TransactionalProposalEvidence.h"
 #include <cmath>
@@ -285,7 +286,12 @@ void Recovery(std::ostream& out,std::size_t frame,std::size_t witness,const Tran
     ReceiverCursor cursor(state,samples,root);std::optional<Proposal> receiver;
     while (auto next = cursor.Next(&work))
     {
-        if (TransactionalProposals::CertifyReceiver(state, samples, *next, work) != "certified")
+        const bool sourceHeight = state.Config().ReceiverHeightPolicy == Algorithms::TransactionalReceiverHeightPolicy::SourceHeight &&
+            (next->Kind == 'E' || next->Kind == 'F' || next->Kind == 'H');
+        const bool prepared = sourceHeight ?
+            TransactionalSourceHeightReceiver::Prepare(state, samples, *next, work).empty() :
+            TransactionalProposals::CertifyReceiver(state, samples, *next, work) == "certified";
+        if (!prepared)
         {
             continue;
         }
@@ -493,9 +499,14 @@ void TransactionalQualityProvenance::Before(std::size_t frame,const State& state
             if (!p) continue;
             _transactions<<"{\"frame\":"<<frame<<",\"exchange\":"<<index<<",\"kind\":\""<<p->Kind
                 <<"\",\"receiverRoot\":"<<state.Face(exchange.Receiver.Root).Id<<",\"center\":"<<p->Center
-                <<",\"sampleCount\":"<<p->Samples.size()<<",\"targetPx\":"<<exchange.Receiver.TargetMicropixels/1e6
-                <<",\"errorLowerSquared\":"<<p->ErrorLower<<",\"errorUpperSquared\":"<<p->ErrorUpper
-                <<",\"free\":[";
+                <<",\"sampleCount\":"<<p->Samples.size()<<",\"targetPx\":";
+            Number(_transactions, exchange.Receiver.HasLegacyQualityEvidence ?
+                static_cast<double>(exchange.Receiver.TargetMicropixels) / 1e6 : NAN);
+            _transactions << ",\"errorLowerSquared\":";
+            Number(_transactions, p->HasLegacyQualityEvidence ? p->ErrorLower : NAN);
+            _transactions << ",\"errorUpperSquared\":";
+            Number(_transactions, p->HasLegacyQualityEvidence ? p->ErrorUpper : NAN);
+            _transactions << ",\"free\":[";
             for (std::size_t j=0;j<p->Free.size();++j) { if (j) _transactions<<',';_transactions<<p->Free[j]; }
             _transactions<<"],\"freeVisibleSupport\":[";
             if (p->Kind!='D')

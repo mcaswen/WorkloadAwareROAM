@@ -18,6 +18,7 @@ void Merge(WorkLedger& target,const WorkLedger& source)
         &WorkLedger::Proposals,&WorkLedger::SampleTouches,&WorkLedger::Constraints,&WorkLedger::ExactChecks,&WorkLedger::FilterChecks,
         &WorkLedger::EarTests,&WorkLedger::RingVisits,&WorkLedger::PairChecks,&WorkLedger::ReservationChecks,
         &WorkLedger::DonorReuse,&WorkLedger::Conflicts,&WorkLedger::PreparedFaces,&WorkLedger::PreparedVertices,&WorkLedger::PreparedEdges,
+        &WorkLedger::SourceHeightAttempts,&WorkLedger::SourceHeightPrepared,
         &WorkLedger::RepairSamples,&WorkLedger::RepairFaces,&WorkLedger::OrderVisits,&WorkLedger::MeshVertices,&WorkLedger::MeshIndices,&WorkLedger::PendingBlocks,
         &WorkLedger::HeightSamples,&WorkLedger::HeightExactSamples,&WorkLedger::HeightGuardChecks,&WorkLedger::HeightGuardRejected,
         &WorkLedger::CapacityGrowths,&WorkLedger::CapacityBytesReserved,&WorkLedger::CapacityBytesRelocated,

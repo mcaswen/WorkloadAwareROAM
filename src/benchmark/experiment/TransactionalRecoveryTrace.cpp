@@ -226,6 +226,7 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         std::filesystem::create_directories(output);
         std::ofstream metadata(output / "policy.json");
         metadata << "{\"receiverOrder\":\"" << input.Case.ReceiverOrder
+            << "\",\"receiverHeightPolicy\":\"" << input.Case.ReceiverHeightPolicy
             << "\",\"qualityPolicy\":\"" << input.Case.QualityPolicy
             << "\",\"qualityTargetPixels\":" << input.Case.QualityTargetPixels
             << ",\"qualityHeightRatio\":" << input.Case.QualityHeightRatio << "}\n";

@@ -23,6 +23,7 @@ struct ExperimentCase
     bool BoundaryRefinement{};
     std::string ReceiverOrder{"composite"};
     std::string QualityPolicy{"legacy"};
+    std::string ReceiverHeightPolicy{"legacy-fit"};
     double QualityTargetPixels{0.5};
     double QualityHeightRatio{1.0 / 256.0};
     std::string Camera;

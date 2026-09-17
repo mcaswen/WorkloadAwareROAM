@@ -397,9 +397,10 @@ void TransactionalProposalFeasibilityAudit::Observe(const TransactionalState& st
     // 该诊断只覆盖冻结旧点的逐点政策，不把别的生产自由度投影成一维问题
     const auto started = Clock::now();
     if (!state.Config().PreserveSurvivingHeights ||
+        state.Config().ReceiverHeightPolicy != Algorithms::TransactionalReceiverHeightPolicy::LegacyFit ||
         state.Config().QualityPolicy != Algorithms::TransactionalQualityPolicy::PointwiseTarget)
     {
-        throw std::invalid_argument("提案审计要求冻结旧点及逐点目标政策");
+        throw std::invalid_argument("旧Fit可行域审计要求冻结旧点、旧拟合及逐点目标政策");
     }
     std::filesystem::create_directories(output);
     const auto sourcePath = output / "feasibility-source.json";

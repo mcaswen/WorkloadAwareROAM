@@ -64,7 +64,7 @@ struct Configuration
     std::size_t PrefixLimit{64}, DonorLimit{64};
     std::size_t SampleVisitLimit{1000000};
     bool HeightGuard{};
-    // 新点仍按原规则拟合；旧点的高度在整个存活期保持不变
+    // 旧点在整个存活期保持高度，新点来源由接收高度政策独立选择
     bool PreserveSurvivingHeights{};
     // 净零恢复只在固定旧点政策下开放，切换需要重新建立种子
     bool EnableFlipRecovery{};
@@ -72,6 +72,7 @@ struct Configuration
     bool EnableBoundaryRefinement{};
     TransactionalReceiverOrder ReceiverOrder{TransactionalReceiverOrder::Composite};
     TransactionalQualityPolicy QualityPolicy{TransactionalQualityPolicy::Legacy};
+    TransactionalReceiverHeightPolicy ReceiverHeightPolicy{TransactionalReceiverHeightPolicy::LegacyFit};
     double QualityTargetPixels{0.5};
     double QualityHeightRatio{1.0 / 256.0};
     bool UsesZeroToOneDepth{};
@@ -106,6 +107,8 @@ struct WorkLedger
     std::uint64_t Proposals{}, SampleTouches{}, Constraints{}, ExactChecks{}, FilterChecks{};
     std::uint64_t EarTests{}, RingVisits{}, PairChecks{}, ReservationChecks{};
     std::uint64_t DonorReuse{}, Conflicts{}, PreparedFaces{}, PreparedVertices{}, PreparedEdges{};
+    // 源高准备与旧拟合分开记账，不能把删掉拟合后的认证增长隐藏掉
+    std::uint64_t SourceHeightAttempts{}, SourceHeightPrepared{};
     std::uint64_t RepairSamples{}, RepairFaces{}, OrderVisits{}, MeshVertices{}, MeshIndices{}, PendingBlocks{};
     std::uint64_t HeightSamples{}, HeightExactSamples{}, HeightGuardChecks{}, HeightGuardRejected{};
     std::uint64_t QualityMaxRationalBits{};
@@ -156,6 +159,8 @@ struct Proposal
     std::vector<Identity> Free;
     std::vector<Slot> Samples;
     std::int64_t TargetMicropixels{};
+    // 源高接收项没有旧最大误差门槛；零值不得被解释为有效的旧证据
+    bool HasLegacyQualityEvidence{true};
     double ErrorLower{}, ErrorUpper{};
     std::string Reason;
     // 保护证据只在当前冻结提案内复用，不跨拓扑或视图代际缓存

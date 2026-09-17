@@ -14,7 +14,7 @@ def case_variants(original, budgets, workers, algorithms, prefixes, cbt_areas, c
         base = {key: value for key, value in original.items() if not key.startswith("cbt")}
         base.update(algorithm=algorithm, heightPolicy="fit", flipRecovery=False, boundaryRefinement=False,
                     receiverOrder="composite")
-        for key in ("qualityPolicy", "qualityTargetPixels", "qualityHeightRatio"):
+        for key in ("qualityPolicy", "qualityTargetPixels", "qualityHeightRatio", "receiverHeightPolicy"):
             base.pop(key, None)
         if algorithm == "cbt":
             for area, capacity in product(cbt_areas, cbt_capacities):
@@ -33,7 +33,7 @@ def case_variants(original, budgets, workers, algorithms, prefixes, cbt_areas, c
             base["flipRecovery"] = original.get("flipRecovery", False)
             base["boundaryRefinement"] = original.get("boundaryRefinement", False)
             base["receiverOrder"] = original.get("receiverOrder", "composite")
-            for key in ("qualityPolicy", "qualityTargetPixels", "qualityHeightRatio"):
+            for key in ("qualityPolicy", "qualityTargetPixels", "qualityHeightRatio", "receiverHeightPolicy"):
                 if key in original:
                     base[key] = original[key]
         for budget, worker, prefix in product(budgets, selected_workers, selected_prefixes):

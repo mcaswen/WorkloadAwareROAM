@@ -186,6 +186,15 @@ void TransactionalPointwiseQuality::Validate(const Configuration &config)
     {
         throw std::invalid_argument("未知逐点质量政策");
     }
+    if (config.ReceiverHeightPolicy != TransactionalReceiverHeightPolicy::LegacyFit &&
+        config.ReceiverHeightPolicy != TransactionalReceiverHeightPolicy::SourceHeight)
+    {
+        throw std::invalid_argument("未知接收新点高度政策");
+    }
+    if (config.ReceiverHeightPolicy == TransactionalReceiverHeightPolicy::SourceHeight && !Enabled(config))
+    {
+        throw std::invalid_argument("源高度接收提案要求逐点质量政策");
+    }
     if (!std::isfinite(config.QualityTargetPixels) || config.QualityTargetPixels <= 0 ||
         !std::isfinite(config.QualityHeightRatio) || config.QualityHeightRatio <= 0)
     {
@@ -208,7 +217,7 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
     ROAM_CPU_ZONE("gtp.pointwise.certify");
     // 拒绝或异常都不能残留此前提案的成功证书
     proposal.QualityProof.reset();
-    // 这里只消费旧目录已认证的提案，不扩成任意三角化合法性检查器
+    // 消费通过旧认证或源高结构准备的合法目录项，不检查任意三角化是否合法
     QualityWork work{ledger};
     auto proof = std::make_shared<ProposalQualityCertificate>();
     // 发布前逐字段比对用于防止缓存证书被复制到另一份拟合结果
@@ -337,6 +346,7 @@ void TransactionalPointwiseQuality::ValidateBatch(const TransactionalState &stat
             proof->Config.Matrix != config.Matrix || proof->Config.Width != config.Width ||
             proof->Config.Height != config.Height || proof->Config.UsesZeroToOneDepth != config.UsesZeroToOneDepth ||
             proof->Config.QualityTargetPixels != config.QualityTargetPixels ||
+            proof->Config.ReceiverHeightPolicy != config.ReceiverHeightPolicy ||
             proof->Config.QualityHeightRatio != config.QualityHeightRatio || proof->Kind != p.Kind ||
             proof->Root != p.Root || proof->Center != p.Center || proof->NewVertex != p.NewVertex ||
             proof->Support != p.Support || proof->Free != p.Free || proof->Faces != p.Faces ||

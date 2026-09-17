@@ -147,6 +147,10 @@ bool TransactionalCertification::Accepts(const TransactionalState& state,const T
     const Proposal& proposal,std::int64_t targetMicropixels,WorkLedger& work)
 {
     ROAM_CPU_ZONE("gtp.accepts");
+    if (!proposal.HasLegacyQualityEvidence)
+    {
+        throw std::logic_error("源高接收提案没有旧最大误差证据");
+    }
     if (targetMicropixels<0) return false;
     const Interval target=Interval(static_cast<double>(targetMicropixels))/Interval(1000000);
     const Interval square=target*target;

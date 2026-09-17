@@ -126,6 +126,13 @@ def resolve_case(path: Path, root: Path = ROOT) -> dict:
         raise ValueError("误差优先排序仅适用于Transactional")
     result["receiverOrder"] = order
     quality_policy = case.get("qualityPolicy", "legacy")
+    receiver_height = case.get("receiverHeightPolicy", "legacy-fit")
+    if receiver_height not in ("legacy-fit", "source-height"):
+        raise ValueError("未知接收新点高度政策")
+    if receiver_height != "legacy-fit":
+        if quality_policy != "pointwise-target":
+            raise ValueError("源高度接收提案要求逐点质量政策")
+        result["receiverHeightPolicy"] = receiver_height
     quality_target = case.get("qualityTargetPixels", 0.5)
     quality_height = case.get("qualityHeightRatio", 1 / 256)
     if quality_policy not in ("legacy", "pointwise-target"):
