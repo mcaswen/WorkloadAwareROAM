@@ -5,6 +5,8 @@
 #include "algorithms/greedy_transactional_lod/TransactionalFlipRecovery.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
 #include "algorithms/greedy_transactional_lod/TransactionalSourceHeightReceiver.h"
+#include "algorithms/greedy_transactional_lod/TransactionalHeightRejection.h"
+#include "algorithms/greedy_transactional_lod/TransactionalRejectionHints.h"
 
 #include <algorithm>
 #include <optional>
@@ -82,7 +84,8 @@ void TransactionalReservation::AssignFreeFaces(std::size_t availableFaces, Certi
 }
 
 CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,const TransactionalSamples& samples,WorkLedger& work,
-    const TransactionalExecution& execution)
+    const TransactionalExecution& execution, const TransactionalRejectionHints* hints,
+    std::vector<RejectionHint>* learned)
 {
     ROAM_CPU_ZONE("gtp.plan");
     CertifiedBatch batch;batch.Version=state.Version();batch.Raw=samples.RawCount();batch.PairAuditComplete=execution.Diagnostics;
@@ -93,6 +96,8 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
     batch.IntentIds.resize(prefix.size());batch.IntentResults.resize(prefix.size());batch.Attempts.resize(prefix.size());
     batch.IntentBudgets.resize(prefix.size());
     std::vector<std::optional<Proposal>> certified(prefix.size());
+    using Failure = std::tuple<char, std::size_t, Slot, bool, std::string>;
+    std::vector<std::vector<Failure>> failures(execution.ObserveHeightFailure || learned ? prefix.size() : 0);
     // 每根只写独占索引，动态领取不改变屏障后的全局前缀收集顺序
     execution.RunIndependent("receiver_stage", prefix.size(), work, [&](auto first, auto last, WorkLedger& local) {
         for (auto index=first;index<last;++index)
@@ -126,7 +131,28 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
                 // 源高准备只恢复结构前提，成功标记必须由完整逐点认证产生
                 if (ready && TransactionalPointwiseQuality::Enabled(state.Config()))
                 {
-                    reason = TransactionalPointwiseQuality::Certify(state, samples, proposal, true, local);
+                    HeightRejectionContext rejection;
+                    rejection.HeightFirst = execution.HeightRejection != HeightRejectionMode::Reference;
+                    rejection.Audit = execution.AuditHeightRejections;
+                    if (sourceHeight && hints && execution.HeightRejection == HeightRejectionMode::SampleHint)
+                    {
+                        const auto queryStarted = Clock::now();
+                        ++local.Reasons["height_hint_queries"];
+                        const auto hint = hints->Find(batch.IntentIds[index], proposal.Kind, batch.Attempts[index].size());
+                        if (hint)
+                        {
+                            rejection.HintSample = *hint;
+                            ++local.Reasons["height_hint_hits"];
+                        }
+                        local.Seconds["height_hint_query"] += Seconds(queryStarted);
+                    }
+                    reason = TransactionalPointwiseQuality::Certify(state, samples, proposal, true, local,
+                        sourceHeight ? &rejection : nullptr);
+                    if ((execution.ObserveHeightFailure || learned) && rejection.FailureSample != InvalidSlot)
+                    {
+                        failures[index].emplace_back(proposal.Kind, batch.Attempts[index].size(),
+                            rejection.FailureSample, rejection.IntervalFailure, rejection.OriginalReason);
+                    }
                     ++local.Reasons[reason];
                 }
                 batch.Attempts[index].emplace_back(proposal.Kind,reason);
@@ -142,6 +168,23 @@ CertifiedBatch TransactionalReservation::Plan(const TransactionalState& state,co
             }
         }
     });
+    if (execution.ObserveHeightFailure || learned)
+    {
+        for (std::size_t index = 0; index < failures.size(); ++index)
+        {
+            for (const auto& [kind, ordinal, sample, interval, originalReason] : failures[index])
+            {
+                if (execution.ObserveHeightFailure)
+                {
+                    execution.ObserveHeightFailure(batch.IntentIds[index], kind, ordinal, sample, interval, originalReason);
+                }
+                if (learned)
+                {
+                    learned->push_back({batch.IntentIds[index], kind, ordinal, sample});
+                }
+            }
+        }
+    }
     // 完成顺序不参与优先预留，仍按同一全局前缀收集成功项
     for (std::size_t index = 0; index < certified.size(); ++index)
     {

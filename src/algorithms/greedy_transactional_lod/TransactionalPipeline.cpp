@@ -27,6 +27,12 @@ void TransactionalPipeline::Initialize(WorkLedger& work)
 {
     ROAM_CPU_ZONE("gtp.initialize");
     if (_initialized) return;
+    if (_state.Config().ReceiverHeightPolicy == TransactionalReceiverHeightPolicy::SourceHeight &&
+        _execution.HeightRejection == HeightRejectionMode::SampleHint)
+    {
+        // 旧政策不分配提示表；新实例天然隔离参考源和样本身份
+        _heightHints = std::make_unique<TransactionalRejectionHints>();
+    }
     // 首次全 Q 与完整 mesh 初建另列，后续更新不能重新走这个入口
     const auto start=std::chrono::steady_clock::now();
     _samples.Refresh(_state,work);
@@ -102,7 +108,14 @@ CertifiedBatch TransactionalPipeline::Update(WorkLedger& work)
         work.Seconds.at("update") = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
         return std::move(*reused);
     }
-    auto batch=TransactionalReservation::Plan(_state,_samples,work,_execution);
+    std::vector<RejectionHint> learned;
+    auto batch=TransactionalReservation::Plan(_state,_samples,work,_execution,
+        _heightHints.get(), _heightHints ? &learned : nullptr);
+    if (_heightHints)
+    {
+        // 提示不属于生产状态；归并的分配和失败点必须留在正式发布之前
+        _heightHints->Remember(learned, work);
+    }
     Apply(batch,work);
     _idlePlan.Remember(_state, _execution.Diagnostics, batch, work);
     work.Seconds.at("update")=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();

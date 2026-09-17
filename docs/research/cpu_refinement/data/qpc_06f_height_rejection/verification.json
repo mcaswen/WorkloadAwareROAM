@@ -1,0 +1,90 @@
+{
+  "logical": {
+    "dem-sierra": {
+      "equal": true,
+      "frames": [
+        96,
+        96
+      ],
+      "differences": [],
+      "differenceCount": 0
+    },
+    "dem-canyon": {
+      "equal": true,
+      "frames": [
+        96,
+        96
+      ],
+      "differences": [],
+      "differenceCount": 0
+    }
+  },
+  "P0": {
+    "dem-sierra": {
+      "equal": true,
+      "frames": [
+        96,
+        96
+      ],
+      "differences": [],
+      "differenceCount": 0
+    },
+    "dem-canyon": {
+      "equal": true,
+      "frames": [
+        96,
+        96
+      ],
+      "differences": [],
+      "differenceCount": 0
+    }
+  },
+  "trace96ExceptTouches": true,
+  "shadowRejects": {
+    "pointwise_height_damage": 34705
+  },
+  "tests": {
+    "s1-tests.log": "Test project /home/mcaswen/.cache/roam-profiling/build/cpu-profile-fp\n    Start 4: transactional_pointwise_quality\n1/3 Test #4: transactional_pointwise_quality ...   Passed    0.02 sec\n    Start 5: transactional_height_rejection\n2/3 Test #5: transactional_height_rejection ....   Passed    0.01 sec\n    Start 6: transactional_source_height\n3/3 Test #6: transactional_source_height .......   Passed    0.01 sec\n\n100% tests passed, 0 tests failed out of 3\n\nTotal Test time (real) =   0.04 sec\n",
+    "s2-tests.log": "Test project /home/mcaswen/.cache/roam-profiling/build/cpu-profile-fp\n    Start 4: transactional_pointwise_quality\n1/3 Test #4: transactional_pointwise_quality ...   Passed    0.02 sec\n    Start 5: transactional_height_rejection\n2/3 Test #5: transactional_height_rejection ....   Passed    0.04 sec\n    Start 6: transactional_source_height\n3/3 Test #6: transactional_source_height .......   Passed    0.01 sec\n\n100% tests passed, 0 tests failed out of 3\n\nTotal Test time (real) =   0.07 sec\n",
+    "continuation-tests.log": "Test project /home/mcaswen/.cache/roam-profiling/build/cpu-profile-fp\n    Start 19: transactional_lod\n1/1 Test #19: transactional_lod ................   Passed    0.23 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.23 sec\n"
+  },
+  "nativeRestore": [
+    {
+      "command": [
+        "/mnt/d/Microsoft/Visual Studio/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+        "-S",
+        "D:/CPP-Projects/WorkloadAwareROAM",
+        "-B",
+        "D:/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch",
+        "-DPARALLEL_ROAM_BUILD_TESTS=OFF",
+        "-DPARALLEL_ROAM_ENABLE_CBT_2024=ON"
+      ],
+      "returncode": 0,
+      "seconds": 0.9251524250000216
+    },
+    {
+      "command": [
+        "/mnt/d/Microsoft/Visual Studio/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+        "--build",
+        "D:/CPP-Projects/WorkloadAwareROAM/build/relwithdebinfo-d3d12-fetch",
+        "--config",
+        "RelWithDebInfo",
+        "--target",
+        "parallel_roam",
+        "--parallel",
+        "4"
+      ],
+      "returncode": 0,
+      "seconds": 169.61332059699998
+    }
+  ],
+  "documentLinksChecked": 190,
+  "gitCommitPerformed": false,
+  "sourceHashes": {
+    "src/algorithms/greedy_transactional_lod/TransactionalHeightRejection.cpp": "72106571d1ca715367e0f9a91e35a620b0073d93626ab53bfe6f9d41f98add50",
+    "src/algorithms/greedy_transactional_lod/TransactionalHeightRejection.h": "4901d6f0a6af1e17d5c72316cc1a4809adf47444bb4049c317d0bd4259f3067a",
+    "src/algorithms/greedy_transactional_lod/TransactionalRejectionHints.cpp": "c2fb5a4d9add844f9ddfab4cf41b88e7ddb6ce70b4cba014ca8b9c89af9ee260",
+    "src/algorithms/greedy_transactional_lod/TransactionalRejectionHints.h": "ca93877dde22bc3667067e5264bae0f8ede4ff1e020d149192c00c31706ab103",
+    "tests/TransactionalHeightRejectionTests.cpp": "c8478e219091654a1313d122c640108bbb01b863b66964e9e1ebd98c0e515e4f"
+  }
+}

@@ -30,6 +30,8 @@ add_library(parallel_roam_transactional_lod_core STATIC
     "${transactional_core_dir}/TransactionalQualityEvaluation.cpp"
     "${transactional_core_dir}/TransactionalQualitySampleEvidence.cpp"
     "${transactional_core_dir}/TransactionalQualityFaceEvidence.cpp"
+    "${transactional_core_dir}/TransactionalHeightRejection.cpp"
+    "${transactional_core_dir}/TransactionalRejectionHints.cpp"
     "${transactional_core_dir}/TransactionalIdlePlanCache.cpp"
     "${transactional_core_dir}/TransactionalPointwiseQuality.cpp"
     "${transactional_core_dir}/TransactionalProposals.cpp" "${transactional_core_dir}/TransactionalReservation.cpp"

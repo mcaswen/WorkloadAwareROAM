@@ -6,6 +6,8 @@
 
 namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
+class TransactionalRejectionHints;
+struct RejectionHint;
 /// <summary>
 /// 几何读取和写入资源；派生邻接由批准批次统一合成，不允许并发覆盖
 /// </summary>
@@ -22,7 +24,8 @@ class TransactionalReservation
 {
 public:
     static CertifiedBatch Plan(const TransactionalState& state,const TransactionalSamples& samples,WorkLedger& work,
-        const TransactionalExecution& execution={});
+        const TransactionalExecution& execution={}, const TransactionalRejectionHints* hints = nullptr,
+        std::vector<RejectionHint>* learned = nullptr);
     static TransactionFootprint Footprint(const TransactionalState& state,const Proposal& proposal);
     static bool Conflict(const TransactionFootprint& first,const TransactionFootprint& second);
     /// <summary>

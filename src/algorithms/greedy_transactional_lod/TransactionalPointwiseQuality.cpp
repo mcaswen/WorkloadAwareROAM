@@ -2,6 +2,7 @@
 #include "algorithms/greedy_transactional_lod/TransactionalQualityEvaluation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalQualitySampleEvidence.h"
 #include "algorithms/greedy_transactional_lod/TransactionalQualityFaceEvidence.h"
+#include "algorithms/greedy_transactional_lod/TransactionalHeightRejection.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 #include "profiling/CpuProfiling.h"
 
@@ -42,7 +43,8 @@ namespace
 struct QualityWork
 {
     WorkLedger &Ledger;
-    std::uint64_t Samples{}, Exact{}, Filters{}, Bytes{};
+    std::uint64_t Samples{}, Exact{}, Filters{}, Bytes{}, EarlyHeightRejects{}, ScreenEvaluations{};
+    std::uint64_t HintOutside{}, HintChecks{}, HintRejected{}, DomainLoops{};
     QualityEvidenceWork Evidence{};
     QualityFaceEvidenceWork FaceEvidence{};
     const std::chrono::steady_clock::time_point Started{std::chrono::steady_clock::now()};
@@ -53,6 +55,12 @@ struct QualityWork
         Ledger.Reasons["quality_exact_samples"] += Exact;
         Ledger.Reasons["quality_filter_samples"] += Filters;
         Ledger.Reasons["quality_evidence_bytes"] += Bytes;
+        Ledger.Reasons["quality_early_height_rejects"] += EarlyHeightRejects;
+        Ledger.Reasons["quality_screen_evaluations"] += ScreenEvaluations;
+        Ledger.Reasons["quality_hint_outside"] += HintOutside;
+        Ledger.Reasons["quality_hint_checks"] += HintChecks;
+        Ledger.Reasons["quality_hint_rejected"] += HintRejected;
+        Ledger.Reasons["quality_full_domain_loops"] += DomainLoops;
         Ledger.Reasons["quality_contexts"] += Evidence.Contexts;
         Ledger.Reasons["quality_reference_bounds_builds"] += Evidence.BoundsReferences;
         Ledger.Reasons["quality_reference_exact_builds"] += Evidence.ExactReferences;
@@ -85,7 +93,7 @@ std::string CheckSample(const TransactionalState &state, const TransactionalSamp
                         TransactionalQualitySampleEvidence& evidence,
                         TransactionalQualityFaceEvidence& old, TransactionalQualityFaceEvidence& next,
                         QualityWork &work, Integer &gainLow,
-                        Integer &gainHigh)
+                        Integer &gainHigh, HeightRejectionContext* rejection)
 {
     ++work.Samples;
     work.Ledger.Touch();
@@ -104,8 +112,17 @@ std::string CheckSample(const TransactionalState &state, const TransactionalSamp
     const auto u0 = v0 * v0, u1 = v1 * v1;
     const Interval target = Interval(config.HeightScale) * Interval(config.QualityHeightRatio);
     const Interval heightCap = target * target;
+    if (rejection && rejection->HeightFirst && TransactionalHeightRejection::ProvesDamage(u0, u1, heightCap))
+    {
+        ++work.Filters;
+        ++work.EarlyHeightRejects;
+        rejection->FailureSample = sid;
+        rejection->IntervalFailure = true;
+        return "pointwise_height_damage";
+    }
     const Interval screenCap = Interval(config.QualityTargetPixels) * Interval(config.QualityTargetPixels);
     const bool visible = samples.Projection(sid).Visible;
+    work.ScreenEvaluations += visible ? 2 : 0;
     // 不可见项不进入屏幕势函数，但上面的高度分支不会被跳过
     const auto a0 = visible ? ScreenPrepared(config, ref, evidence.ClipBounds(), h0) : std::optional<Interval>{Interval(0)};
     const auto a1 = visible ? ScreenPrepared(config, ref, evidence.ClipBounds(), h1) : std::optional<Interval>{Interval(0)};
@@ -113,6 +130,11 @@ std::string CheckSample(const TransactionalState &state, const TransactionalSamp
     ++work.Filters;
     if (Finite(u0) && Finite(u1) && u1.Low > std::max(u0.High, heightCap.High))
     {
+        if (rejection)
+        {
+            rejection->FailureSample = sid;
+            rejection->IntervalFailure = true;
+        }
         return "pointwise_height_damage";
     }
     if (visible && a0 && a1 && Finite(*a0) && Finite(*a1) && a1->Low > std::max(a0->High, screenCap.High))
@@ -150,10 +172,15 @@ std::string CheckSample(const TransactionalState &state, const TransactionalSamp
     // 等号合法，所有输入都解释为实际二进制值，不添加经验epsilon
     if (newResidual * newResidual > std::max(R(oldResidual * oldResidual), R(h * h)))
     {
+        if (rejection)
+        {
+            rejection->FailureSample = sid;
+        }
         return "pointwise_height_damage";
     }
     if (visible)
     {
+        work.ScreenEvaluations += 2;
         const auto before = ScreenPrepared(config, exactRef, evidence.ExactClip(), oldHeight);
         const auto after = ScreenPrepared(config, exactRef, evidence.ExactClip(), newHeight);
         if (!before || !after)
@@ -208,8 +235,15 @@ void TransactionalPointwiseQuality::Validate(const Configuration &config)
 }
 
 std::string TransactionalPointwiseQuality::Certify(const TransactionalState &state, const TransactionalSamples &samples,
-                                                   Proposal &proposal, bool receiver, WorkLedger &ledger)
+                                                   Proposal &proposal, bool receiver, WorkLedger &ledger,
+                                                   HeightRejectionContext* rejection)
 {
+    if (rejection)
+    {
+        rejection->FailureSample = InvalidSlot;
+        rejection->IntervalFailure = false;
+        rejection->OriginalReason.clear();
+    }
     if (!Enabled(state.Config()))
     {
         return "certified";
@@ -292,6 +326,56 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
         };
         auto oldEvidence = prepare(old);
         auto nextEvidence = prepare(next);
+        // 只有源高接收的核心域参与消融，公开域和其他生成器仍按原序检查
+        auto* activeRejection = !output && receiver &&
+            state.Config().ReceiverHeightPolicy == TransactionalReceiverHeightPolicy::SourceHeight &&
+            (proposal.Kind == 'E' || proposal.Kind == 'F' || proposal.Kind == 'H') ? rejection : nullptr;
+        if (activeRejection && activeRejection->HintSample != InvalidSlot)
+        {
+            ROAM_CPU_ZONE("gtp.height_hint_check");
+            const auto started = std::chrono::steady_clock::now();
+            const auto sid = activeRejection->HintSample;
+            bool reject = false;
+            if (!std::binary_search(candidates.begin(), candidates.end(), sid))
+            {
+                ++work.HintOutside;
+            }
+            else
+            {
+                ++work.HintChecks;
+                ++work.Samples;
+                ledger.Touch();
+                TransactionalQualitySampleEvidence evidence(state, samples, sid, false, &work.Evidence);
+                reject = TransactionalHeightRejection::Recheck(state.Config(), evidence, oldEvidence, nextEvidence);
+            }
+            ledger.Seconds["height_hint_check"] +=
+                std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count();
+            if (reject)
+            {
+                ++work.HintRejected;
+                activeRejection->FailureSample = sid;
+                activeRejection->IntervalFailure = true;
+                if (activeRejection->Audit)
+                {
+                    // 影子重放只在诊断遍执行，不合入生产工作量或发布结果
+                    const auto auditStarted = std::chrono::steady_clock::now();
+                    auto original = proposal;
+                    WorkLedger audit;
+                    audit.Deadline = ledger.Deadline;
+                    audit.VisitLimit = ledger.VisitLimit;
+                    activeRejection->OriginalReason = Certify(state, samples, original, receiver, audit);
+                    if (activeRejection->OriginalReason == "certified")
+                    {
+                        throw std::runtime_error("高度提示错误拒绝了原认证可接受的提案");
+                    }
+                    ++ledger.Reasons["height_hint_shadow_" + activeRejection->OriginalReason];
+                    ledger.Seconds["height_hint_shadow"] +=
+                        std::chrono::duration<double>(std::chrono::steady_clock::now() - auditStarted).count();
+                }
+                return "pointwise_height_damage";
+            }
+        }
+        ++work.DomainLoops;
         for (auto sid : candidates)
         {
             TransactionalQualitySampleEvidence evidence(state, samples, sid, output, &work.Evidence);
@@ -307,7 +391,7 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
                 return "pointwise_coverage_unknown";
             }
             proof->Samples[domain].push_back(sid);
-            const auto reason = CheckSample(state, samples, sid, evidence, *before, *after, work, low, high);
+            const auto reason = CheckSample(state, samples, sid, evidence, *before, *after, work, low, high, activeRejection);
             if (!reason.empty())
             {
                 return reason;

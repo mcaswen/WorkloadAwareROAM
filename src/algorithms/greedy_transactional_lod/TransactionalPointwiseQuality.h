@@ -4,6 +4,7 @@
 
 namespace ParallelRoam::Algorithms::GreedyTransactionalLod
 {
+struct HeightRejectionContext;
 /// <summary>
 /// 冻结目标下的逐点损伤和进展认证，不参与根选择、拟合或资源预留
 /// </summary>
@@ -16,7 +17,7 @@ class TransactionalPointwiseQuality
     /// 只有认证完成才附着只读证书；拒绝原因区分损伤、无进展和数值未知
     /// </summary>
     static std::string Certify(const TransactionalState &state, const TransactionalSamples &samples, Proposal &proposal,
-                               bool receiver, WorkLedger &work);
+                               bool receiver, WorkLedger &work, HeightRejectionContext* rejection = nullptr);
     /// <summary>
     /// 核对代次、实际提案与共享贡献；失败抛出异常，调用方不得发布部分批次
     /// </summary>

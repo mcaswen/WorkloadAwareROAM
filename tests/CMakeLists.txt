@@ -27,6 +27,18 @@ if(PARALLEL_ROAM_ENABLE_TRANSACTIONAL_LOD_RUNTIME)
         "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
     add_test(NAME transactional_pointwise_quality COMMAND parallel_roam_transactional_pointwise_quality_tests)
     add_executable(parallel_roam_transactional_source_height_tests TransactionalSourceHeightReceiverTests.cpp)
+    add_executable(parallel_roam_transactional_height_rejection_tests TransactionalHeightRejectionTests.cpp)
+    target_link_libraries(parallel_roam_transactional_height_rejection_tests PRIVATE
+        parallel_roam_transactional_lod_core parallel_roam_project_warnings)
+    target_include_directories(parallel_roam_transactional_height_rejection_tests SYSTEM PRIVATE
+        "${PARALLEL_ROAM_TRANSACTIONAL_BOOST_INCLUDE}")
+    if(MSVC)
+        target_compile_options(parallel_roam_transactional_height_rejection_tests PRIVATE /fp:strict)
+    else()
+        target_compile_options(parallel_roam_transactional_height_rejection_tests PRIVATE -fno-fast-math -ffp-contract=off)
+    endif()
+    add_test(NAME transactional_height_rejection COMMAND parallel_roam_transactional_height_rejection_tests)
+    set_tests_properties(transactional_height_rejection PROPERTIES TIMEOUT 30)
     target_link_libraries(parallel_roam_transactional_source_height_tests PRIVATE
         parallel_roam_transactional_lod_core parallel_roam_project_warnings)
     add_test(NAME transactional_source_height COMMAND parallel_roam_transactional_source_height_tests)

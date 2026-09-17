@@ -236,8 +236,24 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         task.View = View(input, 0);
         auto seed = TransactionalSeedBuilder::Build(task);
         Tools::CpuTaskExecutor executor(settings.Transactional.WorkerCount);
-        const TransactionalExecution execution{settings.Transactional.WorkerCount, false,
+        TransactionalExecution execution{settings.Transactional.WorkerCount, false,
             [&](auto count, const auto& function) { executor.Dispatch(count, function); }};
+        std::ofstream heightFailures;
+        std::size_t observedFrame = 0;
+        TransactionalRejectionHints heightHints;
+        if (seed.Config.ReceiverHeightPolicy == Algorithms::TransactionalReceiverHeightPolicy::SourceHeight)
+        {
+            heightFailures.open(output / "height-failures.csv");
+            heightFailures.exceptions(std::ios::badbit | std::ios::failbit);
+            heightFailures << "frame,root,kind,ordinal,sample,interval,originalReason\n";
+            execution.AuditHeightRejections = true;
+            // 回调在工作线程结束后按根序执行，不让文件写入参与生产任务
+            execution.ObserveHeightFailure = [&](Identity root, char kind, std::size_t ordinal, Slot sample, bool interval,
+                                                const std::string& originalReason) {
+                heightFailures << observedFrame << ',' << root << ',' << kind << ',' << ordinal << ','
+                    << sample << ',' << interval << ',' << originalReason << '\n';
+            };
+        }
         TransactionalPipeline pipeline(std::move(seed), execution);
         TransactionalStateInvariant::Validate(pipeline.State());
         WorkLedger initialization;
@@ -293,6 +309,7 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
         }
         for (std::size_t frame = 0; frame < input.Cameras.size(); ++frame)
         {
+            observedFrame = frame;
             WorkLedger work;
             work.Deadline = std::chrono::steady_clock::now() + std::chrono::seconds(180);
             task.View = View(input, frame);
@@ -319,7 +336,15 @@ int RunTransactionalRecoveryTrace(int argc, char** argv)
                     }
                 }
             }
-            const auto batch = TransactionalReservation::Plan(pipeline.State(), pipeline.Samples(), work, execution);
+            std::vector<RejectionHint> learned;
+            const bool useHints = execution.ObserveHeightFailure &&
+                execution.HeightRejection == HeightRejectionMode::SampleHint;
+            const auto batch = TransactionalReservation::Plan(pipeline.State(), pipeline.Samples(), work, execution,
+                useHints ? &heightHints : nullptr, useHints ? &learned : nullptr);
+            if (useHints)
+            {
+                heightHints.Remember(learned, work);
+            }
             if (feasibility)
             {
                 if (batch.Version != pipeline.State().Version())
