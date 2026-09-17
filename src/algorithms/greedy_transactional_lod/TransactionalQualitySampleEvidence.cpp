@@ -45,7 +45,20 @@ const std::array<Interval, 2>& TransactionalQualitySampleEvidence::CoordinateBou
 {
     if (!_coordinateBounds)
     {
-        _coordinateBounds = Coordinate(ReferenceBounds(), _state.Config(), _output);
+        if (_referenceBounds)
+        {
+            _coordinateBounds = Coordinate(*_referenceBounds, _state.Config(), _output);
+        }
+        else
+        {
+            // 覆盖只依赖参数坐标，不为尚未需要的参考高度执行双线性插值
+            // 除法和输出域转换仍使用原区间表达式，不能先算double再包区间
+            const auto xy = _samples.Decode(_sample);
+            const std::array<Interval, 3> reference{
+                Interval(xy[0]) / Interval(_samples.Denominator()),
+                Interval(xy[1]) / Interval(_samples.Denominator()), Interval(0)};
+            _coordinateBounds = Coordinate(reference, _state.Config(), _output);
+        }
     }
     return *_coordinateBounds;
 }
@@ -54,7 +67,19 @@ const std::array<R, 2>& TransactionalQualitySampleEvidence::ExactCoordinate()
 {
     if (!_exactCoordinate)
     {
-        _exactCoordinate = Coordinate(ExactReference(), _state.Config(), _output);
+        if (_exactReference)
+        {
+            _exactCoordinate = Coordinate(*_exactReference, _state.Config(), _output);
+        }
+        else
+        {
+            // 边谓词歧义不等于质量谓词歧义；精确高度留到真正读取时构造
+            const auto xy = _samples.Decode(_sample);
+            const std::array<R, 3> reference{
+                R(xy[0]) / R(_samples.Denominator()),
+                R(xy[1]) / R(_samples.Denominator()), R(0)};
+            _exactCoordinate = Coordinate(reference, _state.Config(), _output);
+        }
     }
     return *_exactCoordinate;
 }

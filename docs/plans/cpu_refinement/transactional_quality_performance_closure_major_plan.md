@@ -10,6 +10,8 @@
 
 **每个小阶段独立规划、实验、实现、核查、提交并交用户验收，收到继续指示后再进入下一小阶段。** 大规划是最大工作边界，不要求把所有条件阶段做完，也不沿用此前其他大规划的自动推进授权。
 
+2026-09-18后续授权覆盖：用户要求将已讨论的剩余空间逐项小规划、自主闭环，每完成一项提交一次。[06G～06J有限队列](qpc_06_remaining_work_plan.md)在该范围内无需逐项再确认；质量政策、精度、候选顺序和其他QPC阶段不随之开放。06F已提交`1f72df1`，历史“未进入下一阶段”是当时状态。
+
 ## 1. 研究目标与04实施后的事实
 
 依据：[FER-02总报告](../../research/experiment_infrastructure/fer_02_overall_results.md)、[问题清单](../../research/experiment_infrastructure/fer_02_validation_questions.md)、[平台接入规划](transactional_platform_integration_plan.md)、[GWR规划](greedy_transactional_work_reduction_plan.md)、[CBT共同实验规划](../experiment_infrastructure/cbt_experiment_infrastructure_major_plan.md)。

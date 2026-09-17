@@ -255,6 +255,22 @@ int main()
             // 包括共享边与边界样本；参考按旧入口独立重算，不用缓存值自证
             for (Slot sid = 0; sid < samples.SampleCount(); ++sid)
             {
+                // 独立原表达式检查先坐标、后高度的惰性路径，两域都不能提前构造高度
+                QualityEvidenceWork coordinateWork;
+                TransactionalQualitySampleEvidence coordinateFirst(state, samples, sid, output, &coordinateWork);
+                const auto expectedCoordinate = Coordinate(Reference<Interval>(state, samples, sid), state.Config(), output);
+                const auto& actualCoordinate = coordinateFirst.CoordinateBounds();
+                for (std::size_t i = 0; i < 2; ++i)
+                {
+                    Require(expectedCoordinate[i].Low == actualCoordinate[i].Low &&
+                            expectedCoordinate[i].High == actualCoordinate[i].High, "坐标惰性路径改变区间端点");
+                }
+                Require(coordinateFirst.ExactCoordinate() ==
+                        Coordinate(Reference<R>(state, samples, sid), state.Config(), output), "惰性精确坐标改变值");
+                Require(coordinateWork.BoundsReferences == 0 && coordinateWork.ExactReferences == 0,
+                        "仅坐标请求仍构造完整高度参考");
+                Require(coordinateFirst.ExactReference() == Reference<R>(state, samples, sid),
+                        "坐标先行污染后续参考高度");
                 TransactionalQualitySampleEvidence evidence(state, samples, sid, output);
                 const auto expected = Reference<Interval>(state, samples, sid);
                 const auto& actual = evidence.ReferenceBounds();
