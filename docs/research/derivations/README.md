@@ -1,5 +1,7 @@
 # 算法推导与形式化验证总目录
 
+[06I样本续接](../cpu_refinement/qpc_06i_sample_continuation_results.md)：SC-01成员/插值分离，SC-02固定参考复用；归属重排保留中间异常义务，未实现。纸面推导与有限检查，无新Lean。
+
 [06H认证准备](../cpu_refinement/qpc_06h_certification_preparation_results.md)：CP-01集合成员等价、CP-02成功后绑定及根内复用负结果；纸面与有限检查，无新Lean。
 
 2026-09-18补充：[06G坐标证据解耦](../cpu_refinement/qpc_06g_coordinate_evidence_results.md)，CE-01坐标不依赖高度、CE-02覆盖与认证等价及实际成本；纸面推导与有限C++核对，无新增Lean。

@@ -23,4 +23,8 @@
 
 ## 5. 实施结果
 
-待06H闭环。
+06H已提交`9425da7`。直接调用链核查确认：Enumerate只需成员资格，其返回不含权重；其他Weights调用者确实消费权重。因此提取私有Contains保留原边谓词，Enumerate不再计算丢弃的StoredWeights，公开Weights仍组合两步。Prepare的ReferenceHeight来自完整初始化后的持久值，SetView禁止修改HeightScale、源和Q，故可复用；初始化Evaluate不变。
+
+暂不重排owner决定/投影：先增加局部累计计数，确认同批重复赢得owner的频率。先归属后统一投影可能改变中间跨近面异常检查，不能仅以最终网格一致自动删掉这些观察点。本轮把它作为有条件负面/延期结论，而非默认实现。
+
+闭环：Sierra移动减少387,036次无用权重和同量参考高度重算；36,048次重复owner选择仅占9.31%，不扩展两遍重排。原生完整107.427→105.708ms，样本准备22.306→22.147ms；Canyon完整62.544→62.893ms，未见工程退化。三条96帧输出一致，三个相关专项完成。保留简单减工，不声称完整提速或接近极限。详见[报告](../../research/cpu_refinement/qpc_06i_sample_continuation_results.md)，提交后进入06J有限总核查。

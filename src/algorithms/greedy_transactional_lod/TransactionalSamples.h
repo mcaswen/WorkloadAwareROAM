@@ -106,6 +106,8 @@ public:
 
 private:
     void Store(Slot sample,const SampleValue& value) noexcept;
+    // 枚举只需闭面成员资格，实际插值调用者另取同一权重表达式
+    bool Contains(Slot sample, const Point& a, const Point& b, const Point& c) const;
     std::vector<Slot> Enumerate(const std::array<Point,3>& points,WorkLedger& work) const;
     SampleValue Evaluate(const Configuration& config,Slot sample,Slot owner,double height,WorkLedger& work) const;
     SampleValue Project(const Configuration& config,Slot sample,SampleValue value,WorkLedger& work) const;

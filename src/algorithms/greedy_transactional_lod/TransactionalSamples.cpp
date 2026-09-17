@@ -99,6 +99,16 @@ std::array<double,4> TransactionalSamples::Clip(const Configuration& config, dou
 bool TransactionalSamples::Weights(Slot sample, const Point& a, const Point& b, const Point& c,
     std::array<double,3>& weights) const
 {
+    if (!Contains(sample, a, b, c))
+    {
+        return false;
+    }
+    weights = StoredWeights(sample, a, b, c);
+    return true;
+}
+
+bool TransactionalSamples::Contains(Slot sample, const Point& a, const Point& b, const Point& c) const
+{
     const auto q=Parameter(sample);
     // 同时考虑边的方向和真实样本坐标，不能靠负权重容差接收边界点
     const std::array<Point,3> points{a,b,c};
@@ -117,7 +127,7 @@ bool TransactionalSamples::Weights(Slot sample, const Point& a, const Point& b, 
         const R exact=(R(r.U)-p.U)*(v-p.V)-(R(r.V)-p.V)*(u-p.U);
         if (exact<0) return false;
     }
-    weights=StoredWeights(sample,a,b,c);return true;
+    return true;
 }
 
 std::array<double,3> TransactionalSamples::StoredWeights(Slot sample,const Point& a,const Point& b,const Point& c) const
@@ -166,8 +176,11 @@ std::vector<Slot> TransactionalSamples::Enumerate(const std::array<Point,3>& p,W
         for (int y=yl;y<=yr;++y) for (int x=xl;x<=xr;++x)
         {
             const auto sid=group.Start+static_cast<Slot>(y)*group.Columns+static_cast<Slot>(x);
-            std::array<double,3> weights{};++work.LocationTests;
-            if (Weights(sid,p[0],p[1],p[2],weights)) result.push_back(sid);
+            ++work.LocationTests;
+            if (Contains(sid, p[0], p[1], p[2]))
+            {
+                result.push_back(sid);
+            }
         }
     }
     work.SampleContributions+=result.size();work.CheckLimit();
@@ -309,6 +322,9 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
 {
     ROAM_CPU_ZONE("gtp.samples.prepare");
     PreparedSamples result;result.FaceSlots=target.FinalFaceSlots;
+    const auto contributionsBefore = work.SampleContributions;
+    std::uint64_t ownerSelections = 0;
+    std::uint64_t ownerReselections = 0;
     ReceiverIndex::Writes orderWrites;
     std::set<Slot> exterior;
     for (auto slot : target.Removed)
@@ -344,13 +360,33 @@ PreparedSamples TransactionalSamples::Prepare(const TransactionalState& state,co
             // 边界样本可能仍由外部保留面拥有，只有更小的最终身份才能取代
             auto [it,inserted]=result.Values.try_emplace(sid,Value(sid));
             static_cast<void>(inserted);auto& value=it->second;
-            if (value.Owner!=InvalidSlot && faceAt(value.Owner).Id<record.Geometry.Id) continue;
+            bool selectedEarlier = false;
+            if (value.Owner != InvalidSlot)
+            {
+                const auto owner = newFaces.find(value.Owner);
+                selectedEarlier = owner != newFaces.end();
+                const auto& currentFace = selectedEarlier ? *owner->second : state.Face(value.Owner);
+                if (currentFace.Id < record.Geometry.Id)
+                {
+                    continue;
+                }
+            }
+            ++ownerSelections;
+            ownerReselections += selectedEarlier ? 1 : 0;
             const auto weights=StoredWeights(sid,p[0],p[1],p[2]);
             const double height=(weights[0]*p[0].Height+weights[1]*p[1].Height)+weights[2]*p[2].Height;
-            value=Evaluate(state.Config(),sid,slot,height,work);
+            // Q、源和高度比例在持续状态内固定，复用原double参考值而非认证近似值
+            // 初始化仍独立计算参考；这里保留每次owner更新的原投影和异常检查
+            value.Owner = slot;
+            value.MeshHeight = height;
+            value.HeightError = std::abs(height - value.ReferenceHeight);
+            value = Project(state.Config(), sid, value, work);
         }
         result.Faces[slot]=std::move(ids);exterior.insert(slot);
     }
+    work.Reasons["continuation_unused_weights_removed"] += work.SampleContributions - contributionsBefore;
+    work.Reasons["continuation_reference_reuses"] += ownerSelections;
+    work.Reasons["continuation_owner_reselections"] += ownerReselections;
     for (const auto& [sid,value] : result.Values)
     {
         // 旧闭补丁中的所有样本必须找到目标 owner，局部有洞不能延后修复

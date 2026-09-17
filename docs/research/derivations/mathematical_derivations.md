@@ -1,5 +1,9 @@
 # 算法数学推导总览
 
+## 样本续接补充（SC-01～02）
+
+`Weights(q,f)=C(q,f)?W(q,f):false`中，枚举只读C，故省去未消费W不改变闭面人口。固定源/Q/高度比例下`h_ref(q,t)=h_ref(q,0)`，Prepare可复用同一double值，但不能复用旧投影。owner选择和每次Project仍按原序执行，避免删掉中间近面异常。387,036次算术重复被省，36,048次重复归属仍保留；工作数不等于墙钟比例，最终样本准备仍约22ms。见[完整推导与结果](../cpu_refinement/qpc_06i_sample_continuation_results.md)。
+
 ## 认证准备补充（CP-01～02）
 
 `q∈unique(∪A(f)) ⇔ ∃f:q∈A(f)`允许在当前闭面表直接确认提示资格，仍须重证当前损伤。未拒绝项继续原排序和完整双域求值。冻结输入下成功后复制绑定值与预先复制等价；失败不产生证书。提示拒绝项因此省O(s log s)集合整理，支付最坏O(s)成员查找；完整路径仍O(sd)。根内同支持缓存实测只有1次复用，已撤回；不从潜在相同支持推断实际收益。见[推导及数据](../cpu_refinement/qpc_06h_certification_preparation_results.md)。
