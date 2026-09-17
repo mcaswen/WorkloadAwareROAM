@@ -2,8 +2,10 @@
 #include "algorithms/greedy_transactional_lod/TransactionalPipeline.h"
 #include "algorithms/greedy_transactional_lod/TransactionalReservation.h"
 #include "algorithms/greedy_transactional_lod/TransactionalQualityEvaluation.h"
+#include "algorithms/greedy_transactional_lod/TransactionalQualitySampleEvidence.h"
 
 #include <iostream>
+#include <bit>
 
 namespace
 {
@@ -74,6 +76,25 @@ int main()
     {
         // 极小正数只能得到跨零区间；负数须向下取整，而不是向零截断
         using namespace QualityEvaluation;
+        // 覆盖每个有限指数、两种符号和尾数极端；独立oracle保留通用有理除法
+        for (std::uint64_t exponent = 0; exponent < 2047; ++exponent)
+        {
+            for (const std::uint64_t fraction : {std::uint64_t{0}, std::uint64_t{1}, (std::uint64_t{1} << 52) - 1})
+            {
+                for (const std::uint64_t sign : {std::uint64_t{0}, std::uint64_t{1} << 63})
+                {
+                    const double value = std::bit_cast<double>(sign | (exponent << 52) | fraction);
+                    Integer expectedLow = 7, expectedHigh = -3, actualLow = 7, actualHigh = -3;
+                    AddBounds(R(value), R(value), expectedLow, expectedHigh);
+                    AddBinaryBounds(value, value, actualLow, actualHigh);
+                    Require(expectedLow == actualLow && expectedHigh == actualHigh, "binary64定向累计失配");
+                }
+            }
+        }
+        MustReject([&] {
+            Integer a = 0, b = 0;
+            AddBinaryBounds(INFINITY, INFINITY, a, b);
+        }, "非有限区间端点被静默接受");
         Integer low = 0, high = 0;
         const R tiny = R(1) / (Integer(1) << 140);
         AddBounds(tiny, tiny, low, high);
@@ -102,6 +123,29 @@ int main()
         pipeline.Initialize(work);
         const auto &state = pipeline.State();
         const auto &samples = pipeline.Samples();
+        for (const bool output : {false, true})
+        {
+            auto proposal = Refine(input, .5);
+            const auto faces = Faces(state, proposal, output, false);
+            // 包括共享边与边界样本；参考按旧入口独立重算，不用缓存值自证
+            for (Slot sid = 0; sid < samples.SampleCount(); ++sid)
+            {
+                TransactionalQualitySampleEvidence evidence(state, samples, sid, output);
+                const auto expected = Reference<Interval>(state, samples, sid);
+                const auto& actual = evidence.ReferenceBounds();
+                for (std::size_t i = 0; i < 3; ++i)
+                {
+                    Require(expected[i].Low == actual[i].Low && expected[i].High == actual[i].High,
+                            "参考复用改变区间端点");
+                }
+                Require(evidence.ExactReference() == Reference<R>(state, samples, sid), "精确参考复用失配");
+                Require(evidence.ExactCoordinate() == Coordinate(Reference<R>(state, samples, sid), state.Config(), output),
+                        "坐标混用表示域");
+                Require(evidence.Cover(faces) == Cover(state, samples, sid, output, faces), "覆盖面选择失配");
+                Require(evidence.VisibilityAgrees() == VisibilityAgrees(state, samples, sid, expected),
+                        "可见性复用失配");
+            }
+        }
         Require(samples.RawCount() == 2, "目标超标根被旧SplitPixels挡住");
         auto legacy = input;
         legacy.Config.QualityPolicy = TransactionalQualityPolicy::Legacy;

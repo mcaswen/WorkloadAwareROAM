@@ -1,4 +1,5 @@
 #include "algorithms/greedy_transactional_lod/TransactionalQualityEvaluation.h"
+#include <bit>
 #include <stdexcept>
 
 namespace ParallelRoam::Algorithms::GreedyTransactionalLod::QualityEvaluation
@@ -119,42 +120,7 @@ std::optional<QualityFace> Cover(const TransactionalState &state, const Transact
                                  bool output, const std::vector<QualityFace> &faces)
 {
     const auto q = Coordinate(Reference<Interval>(state, samples, sid), state.Config(), output);
-    // 先用有向区间排除明确在外的点，边界才支付精确包含费用
-    for (const auto &face : faces)
-    {
-        bool covered = true;
-        for (std::size_t edge = 0; edge < 3; ++edge)
-        {
-            const auto &a = face[edge];
-            const auto &b = face[(edge + 1) % 3];
-            const auto cross = (Interval(b.U) - Interval(a.U)) * (q[1] - Interval(a.V)) -
-                               (Interval(b.V) - Interval(a.V)) * (q[0] - Interval(a.U));
-            if (cross.Low >= 0)
-            {
-                // 包含边界为闭条件；区间完全非负时无需再改变数值域
-                continue;
-            }
-            if (cross.High < 0)
-            {
-                covered = false;
-                break;
-            }
-            // 精确整数比Q与实际二进制端点比较，不靠包含容差填补裂缝
-            const auto exact = Coordinate(Reference<R>(state, samples, sid), state.Config(), output);
-            const R side = (R(b.U) - a.U) * (exact[1] - a.V) - (R(b.V) - a.V) * (exact[0] - a.U);
-            if (side < 0)
-            {
-                covered = false;
-                break;
-            }
-        }
-        if (covered)
-        {
-            // 合法连续三角化的共享边给出同一高度，稳定面序只确定取证来源
-            return face;
-        }
-    }
-    return {};
+    return CoverPrepared(q, faces, [&] { return Coordinate(Reference<R>(state, samples, sid), state.Config(), output); });
 }
 
 R Area(const QualityFace &f)
@@ -263,31 +229,43 @@ bool Finite(Interval a)
     return std::isfinite(a.Low) && std::isfinite(a.High);
 }
 
-bool VisibilityAgrees(const TransactionalState &state, const TransactionalSamples &samples, Slot sid,
-                      const std::array<Interval, 3> &reference)
+std::optional<bool> VisibleBounds(const Configuration& config, const std::array<Interval, 4>& c)
 {
-    const auto &config = state.Config();
-    const auto c = Clip(config, reference[0], reference[1], reference[2]);
     // 六个半空间与正w共同定义人口；近面同时兼容两种深度约定
     const std::array<Interval, 6> sides{
         c[0] + c[3], c[3] - c[0], c[1] + c[3], c[3] - c[1], config.UsesZeroToOneDepth ? c[2] : c[2] + c[3],
         c[3] - c[2]};
-    const bool visible = samples.Projection(sid).Visible;
     if (c[3].Low > 0 && std::all_of(sides.begin(), sides.end(), [](auto a) { return a.Low >= 0; }))
     {
-        return visible;
+        return true;
     }
     if (c[3].High <= 0 || std::any_of(sides.begin(), sides.end(), [](auto a) { return a.High < 0; }))
     {
-        return !visible;
+        return false;
+    }
+    return {};
+}
+
+bool ExactVisible(const Configuration& config, const std::array<R, 4>& exact)
+{
+    return exact[3] > 0 && exact[0] >= -exact[3] && exact[0] <= exact[3] && exact[1] >= -exact[3] &&
+           exact[1] <= exact[3] && exact[2] <= exact[3] &&
+           exact[2] >= (config.UsesZeroToOneDepth ? R(0) : R(-exact[3]));
+}
+
+bool VisibilityAgrees(const TransactionalState& state, const TransactionalSamples& samples, Slot sid,
+    const std::array<Interval, 3>& reference)
+{
+    const auto& config = state.Config();
+    const auto visible = VisibleBounds(config, Clip(config, reference[0], reference[1], reference[2]));
+    if (visible)
+    {
+        return *visible == samples.Projection(sid).Visible;
     }
     // 参考恰在裁剪边界时核对人口，不能把缓存舍入差异当作不可见保护漏洞
     const auto ref = Reference<R>(state, samples, sid);
     const auto exact = Clip(config, ref[0], ref[1], ref[2]);
-    const bool exactVisible = exact[3] > 0 && exact[0] >= -exact[3] && exact[0] <= exact[3] && exact[1] >= -exact[3] &&
-                              exact[1] <= exact[3] && exact[2] <= exact[3] &&
-                              exact[2] >= (config.UsesZeroToOneDepth ? R(0) : R(-exact[3]));
-    return visible == exactVisible;
+    return samples.Projection(sid).Visible == ExactVisible(config, exact);
 }
 
 void RecordBits(const R &value, WorkLedger &work)
@@ -316,6 +294,51 @@ void AddBounds(const R &lower, const R &upper, Integer &low, Integer &high)
     low += floor(lower);
     // ceil(x)=-floor(-x)，同一舍入实现也覆盖负进展和恰好整除
     high -= floor(R(-upper));
+}
+
+namespace
+{
+Integer BinaryFloor(double value)
+{
+    static_assert(sizeof(double) == sizeof(std::uint64_t) && std::numeric_limits<double>::is_iec559);
+    const auto bits = std::bit_cast<std::uint64_t>(value);
+    const auto exponent = static_cast<int>((bits >> 52) & 0x7ff);
+    const auto fraction = bits & ((std::uint64_t{1} << 52) - 1);
+    const auto significand = exponent == 0 ? fraction : fraction | (std::uint64_t{1} << 52);
+    const int shift = (exponent == 0 ? -1074 : exponent - 1023 - 52) + 128;
+    Integer magnitude;
+    bool remainder = false;
+    if (shift >= 0)
+    {
+        magnitude = Integer(significand) << shift;
+    }
+    else
+    {
+        const auto removed = static_cast<unsigned>(-shift);
+        // 移位超过机器字宽时显式给出零商，避免C++未定义行为
+        const auto quotient = removed >= 64 ? 0 : significand >> removed;
+        magnitude = quotient;
+        remainder = removed >= 64 ? significand != 0 : (quotient << removed) != significand;
+    }
+    if ((bits >> 63) != 0)
+    {
+        // 负数带余数须再减一；±0无余数，因此都准确映射为零
+        return -magnitude - static_cast<unsigned>(remainder);
+    }
+    return magnitude;
+}
+}
+
+void AddBinaryBounds(double lower, double upper, Integer& low, Integer& high)
+{
+    if (!std::isfinite(lower) || !std::isfinite(upper))
+    {
+        // 不扩大过滤器的定义域；维持旧有理转换对于非有限输入的失败行为
+        AddBounds(R(lower), R(upper), low, high);
+        return;
+    }
+    low += BinaryFloor(lower);
+    high -= BinaryFloor(-upper);
 }
 
 } // namespace ParallelRoam::Algorithms::GreedyTransactionalLod::QualityEvaluation

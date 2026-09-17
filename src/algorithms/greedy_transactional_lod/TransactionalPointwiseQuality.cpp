@@ -1,5 +1,6 @@
 #include "algorithms/greedy_transactional_lod/TransactionalPointwiseQuality.h"
 #include "algorithms/greedy_transactional_lod/TransactionalQualityEvaluation.h"
+#include "algorithms/greedy_transactional_lod/TransactionalQualitySampleEvidence.h"
 #include "algorithms/greedy_transactional_lod/TransactionalPredicates.h"
 
 #include <set>
@@ -40,6 +41,7 @@ struct QualityWork
 {
     WorkLedger &Ledger;
     std::uint64_t Samples{}, Exact{}, Filters{}, Bytes{};
+    QualityEvidenceWork Evidence;
     const std::chrono::steady_clock::time_point Started{std::chrono::steady_clock::now()};
     ~QualityWork()
     {
@@ -48,12 +50,20 @@ struct QualityWork
         Ledger.Reasons["quality_exact_samples"] += Exact;
         Ledger.Reasons["quality_filter_samples"] += Filters;
         Ledger.Reasons["quality_evidence_bytes"] += Bytes;
+        Ledger.Reasons["quality_contexts"] += Evidence.Contexts;
+        Ledger.Reasons["quality_reference_bounds_builds"] += Evidence.BoundsReferences;
+        Ledger.Reasons["quality_reference_exact_builds"] += Evidence.ExactReferences;
+        Ledger.Reasons["quality_clip_bounds_builds"] += Evidence.BoundsClips;
+        Ledger.Reasons["quality_clip_exact_builds"] += Evidence.ExactClips;
+        Ledger.Reasons["quality_cover_exact_requests"] += Evidence.ExactCoverRequests;
+        Ledger.Reasons["quality_visibility_exact_requests"] += Evidence.ExactVisibilityRequests;
         Ledger.Seconds["pointwise_quality"] +=
             std::chrono::duration<double>(std::chrono::steady_clock::now() - Started).count();
     }
 };
 
-std::string CheckSample(const TransactionalState &state, const TransactionalSamples &samples, Slot sid, bool output,
+std::string CheckSample(const TransactionalState &state, const TransactionalSamples &samples, Slot sid,
+                        TransactionalQualitySampleEvidence& evidence,
                         const QualityFace &old, const QualityFace &next, QualityWork &work, Integer &gainLow,
                         Integer &gainHigh)
 {
@@ -61,12 +71,12 @@ std::string CheckSample(const TransactionalState &state, const TransactionalSamp
     work.Ledger.Touch();
     const auto &config = state.Config();
     // 先校验参考可见性的人口，再判断被测几何；几何不能隐藏自身的坏样本
-    const auto ref = Reference<Interval>(state, samples, sid);
-    if (!VisibilityAgrees(state, samples, sid, ref))
+    const auto& ref = evidence.ReferenceBounds();
+    if (!evidence.VisibilityAgrees())
     {
         return "pointwise_visibility_unknown";
     }
-    const auto uv = Coordinate(ref, config, output);
+    const auto& uv = evidence.CoordinateBounds();
     const auto h0 = Height(uv[0], uv[1], old[0], old[1], old[2]);
     const auto h1 = Height(uv[0], uv[1], next[0], next[1], next[2]);
     // 高度残差跨相机保持含义，离屏点也必须走这个分支
@@ -77,8 +87,8 @@ std::string CheckSample(const TransactionalState &state, const TransactionalSamp
     const Interval screenCap = Interval(config.QualityTargetPixels) * Interval(config.QualityTargetPixels);
     const bool visible = samples.Projection(sid).Visible;
     // 不可见项不进入屏幕势函数，但上面的高度分支不会被跳过
-    const auto a0 = visible ? Screen(config, ref, h0) : std::optional<Interval>{Interval(0)};
-    const auto a1 = visible ? Screen(config, ref, h1) : std::optional<Interval>{Interval(0)};
+    const auto a0 = visible ? ScreenPrepared(config, ref, evidence.ClipBounds(), h0) : std::optional<Interval>{Interval(0)};
+    const auto a1 = visible ? ScreenPrepared(config, ref, evidence.ClipBounds(), h1) : std::optional<Interval>{Interval(0)};
     // 拒绝需要整个新区间都超过允许上界，区间重叠不能当作真实损伤
     ++work.Filters;
     if (Finite(u0) && Finite(u1) && u1.Low > std::max(u0.High, heightCap.High))
@@ -103,14 +113,14 @@ std::string CheckSample(const TransactionalState &state, const TransactionalSamp
             const Interval after{std::max(0.0, Down(a1->Low - screenCap.High)),
                                  std::max(0.0, Up(a1->High - screenCap.Low))};
             const auto delta = before - after;
-            AddBounds(R(delta.Low), R(delta.High), gainLow, gainHigh);
+            AddBinaryBounds(delta.Low, delta.High, gainLow, gainHigh);
         }
         return {};
     }
     // 临界相等使用精确值；这也覆盖区间不能判断投影定义域的情况
     ++work.Exact;
-    const auto exactRef = Reference<R>(state, samples, sid);
-    const auto exactUV = Coordinate(exactRef, config, output);
+    const auto& exactRef = evidence.ExactReference();
+    const auto& exactUV = evidence.ExactCoordinate();
     const R oldHeight = Height(exactUV[0], exactUV[1], old[0], old[1], old[2]);
     const R newHeight = Height(exactUV[0], exactUV[1], next[0], next[1], next[2]);
     const R oldResidual = oldHeight - exactRef[2], newResidual = newHeight - exactRef[2];
@@ -124,7 +134,8 @@ std::string CheckSample(const TransactionalState &state, const TransactionalSamp
     }
     if (visible)
     {
-        const auto before = Screen(config, exactRef, oldHeight), after = Screen(config, exactRef, newHeight);
+        const auto before = ScreenPrepared(config, exactRef, evidence.ExactClip(), oldHeight);
+        const auto after = ScreenPrepared(config, exactRef, evidence.ExactClip(), newHeight);
         if (!before || !after)
         {
             return "pointwise_projection_unknown";
@@ -240,8 +251,9 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
         Integer low = 0, high = 0;
         for (auto sid : candidates)
         {
-            const auto before = Cover(state, samples, sid, output, old);
-            const auto after = Cover(state, samples, sid, output, next);
+            TransactionalQualitySampleEvidence evidence(state, samples, sid, output, &work.Evidence);
+            const auto before = evidence.Cover(old);
+            const auto after = evidence.Cover(next);
             // 包围盒外扩产生的域外点跳过，旧新覆盖不一致则不能接受
             if (!before && !after)
             {
@@ -252,7 +264,7 @@ std::string TransactionalPointwiseQuality::Certify(const TransactionalState &sta
                 return "pointwise_coverage_unknown";
             }
             proof->Samples[domain].push_back(sid);
-            const auto reason = CheckSample(state, samples, sid, output, *before, *after, work, low, high);
+            const auto reason = CheckSample(state, samples, sid, evidence, *before, *after, work, low, high);
             if (!reason.empty())
             {
                 return reason;

@@ -1,0 +1,2901 @@
+{
+  "contract": "同政策单独进程快验；内部三次认证仅作内核定位",
+  "cases": {
+    "peking547": {
+      "P0": {
+        "warm": {
+          "frames": 21,
+          "means": {
+            "cpuMs": 94.28272447256106,
+            "viewMs": 10.836471428571429,
+            "receiverMs": 38.517490476190474,
+            "donorMs": 10.334042857142858,
+            "reservationMs": 26.490319047619046,
+            "sampleRepairMs": 4.506609523809524,
+            "topologyPrepareMs": 0.9302142857142858,
+            "topologyPublishMs": 0.2076095238095238,
+            "meshPrepareMs": 0.14055714285714285,
+            "continuationMs": 0.2022904761904762,
+            "adapterMs": 0.02157619047618887,
+            "unitemizedMs": 2.095543520180115
+          },
+          "medianCpuMs": 18.840599060058594,
+          "p95CpuMs": 299.09600830078125,
+          "counts": {
+            "raw": 1152,
+            "examined": 926,
+            "receivers": 642,
+            "exchanges": 242,
+            "free": 3,
+            "pairs": 71250,
+            "touches": 2527698,
+            "evaluations": 25162798
+          }
+        },
+        "events": {
+          "move": {
+            "frames": 13,
+            "means": {
+              "cpuMs": 151.05426260141226,
+              "viewMs": 16.282584615384614,
+              "receiverMs": 62.22056153846154,
+              "donorMs": 16.693453846153847,
+              "reservationMs": 42.791953846153845,
+              "sampleRepairMs": 7.279907692307693,
+              "topologyPrepareMs": 1.5026538461538461,
+              "topologyPublishMs": 0.33536923076923075,
+              "meshPrepareMs": 0.22705384615384616,
+              "continuationMs": 0.3267769230769231,
+              "adapterMs": 0.028553846153843557,
+              "unitemizedMs": 3.3653933706430337
+            },
+            "medianCpuMs": 149.48789978027344,
+            "p95CpuMs": 301.2005920410156,
+            "counts": {
+              "raw": 1152,
+              "examined": 926,
+              "receivers": 642,
+              "exchanges": 242,
+              "free": 3,
+              "pairs": 71250,
+              "touches": 2527698,
+              "evaluations": 23371917
+            }
+          },
+          "recovery": {
+            "frames": 8,
+            "means": {
+              "cpuMs": 2.028975013177842,
+              "viewMs": 1.9865375000000003,
+              "receiverMs": 0.0,
+              "donorMs": 0.0,
+              "reservationMs": 0.0001625,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.010237500000000005,
+              "unitemizedMs": 0.03203751317784165
+            },
+            "medianCpuMs": 0.039400000125169754,
+            "p95CpuMs": 15.976200103759766,
+            "counts": {
+              "raw": 0,
+              "examined": 0,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 0,
+              "evaluations": 1790881
+            }
+          }
+        }
+      },
+      "A1": {
+        "warm": {
+          "frames": 21,
+          "means": {
+            "cpuMs": 87.93328987141805,
+            "viewMs": 10.745590476190475,
+            "receiverMs": 32.764161904761906,
+            "donorMs": 9.254009523809524,
+            "reservationMs": 26.9233,
+            "sampleRepairMs": 4.7107190476190475,
+            "topologyPrepareMs": 0.9501571428571428,
+            "topologyPublishMs": 0.19224285714285713,
+            "meshPrepareMs": 0.1315142857142857,
+            "continuationMs": 0.23872857142857143,
+            "adapterMs": 0.02166666666666605,
+            "unitemizedMs": 2.001199395227573
+          },
+          "medianCpuMs": 18.335100173950195,
+          "p95CpuMs": 286.1614990234375,
+          "counts": {
+            "raw": 1152,
+            "examined": 926,
+            "receivers": 642,
+            "exchanges": 242,
+            "free": 3,
+            "pairs": 71250,
+            "touches": 2527698,
+            "evaluations": 25162798
+          }
+        },
+        "events": {
+          "move": {
+            "frames": 13,
+            "means": {
+              "cpuMs": 140.7557990734394,
+              "viewMs": 16.110969230769232,
+              "receiverMs": 52.92672307692308,
+              "donorMs": 14.948784615384616,
+              "reservationMs": 43.49123076923077,
+              "sampleRepairMs": 7.609623076923077,
+              "topologyPrepareMs": 1.5348692307692307,
+              "topologyPublishMs": 0.31054615384615386,
+              "meshPrepareMs": 0.21244615384615384,
+              "continuationMs": 0.38563846153846154,
+              "adapterMs": 0.026030769230768278,
+              "unitemizedMs": 3.1989375349778584
+            },
+            "medianCpuMs": 131.36239624023438,
+            "p95CpuMs": 291.1669006347656,
+            "counts": {
+              "raw": 1152,
+              "examined": 926,
+              "receivers": 642,
+              "exchanges": 242,
+              "free": 3,
+              "pairs": 71250,
+              "touches": 2527698,
+              "evaluations": 23371917
+            }
+          },
+          "recovery": {
+            "frames": 8,
+            "means": {
+              "cpuMs": 2.096712418133393,
+              "viewMs": 2.02685,
+              "receiverMs": 0.0,
+              "donorMs": 0.0,
+              "reservationMs": 0.00041249999999999994,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.014574999999999932,
+              "unitemizedMs": 0.054874918133392736
+            },
+            "medianCpuMs": 0.07599999755620956,
+            "p95CpuMs": 16.274799346923828,
+            "counts": {
+              "raw": 0,
+              "examined": 0,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 0,
+              "evaluations": 1790881
+            }
+          }
+        }
+      },
+      "P1": {
+        "warm": {
+          "frames": 21,
+          "means": {
+            "cpuMs": 83.30373420353446,
+            "viewMs": 10.8333,
+            "receiverMs": 28.97241904761905,
+            "donorMs": 8.64777619047619,
+            "reservationMs": 26.628914285714288,
+            "sampleRepairMs": 4.7152666666666665,
+            "topologyPrepareMs": 0.9341142857142857,
+            "topologyPublishMs": 0.24436666666666665,
+            "meshPrepareMs": 0.1413047619047619,
+            "continuationMs": 0.18942857142857142,
+            "adapterMs": 0.021733333333334465,
+            "unitemizedMs": 1.9751103940106418
+          },
+          "medianCpuMs": 18.211999893188477,
+          "p95CpuMs": 272.41180419921875,
+          "counts": {
+            "raw": 1152,
+            "examined": 926,
+            "receivers": 642,
+            "exchanges": 242,
+            "free": 3,
+            "pairs": 71250,
+            "touches": 2527698,
+            "evaluations": 25162798
+          }
+        },
+        "events": {
+          "move": {
+            "frames": 13,
+            "means": {
+              "cpuMs": 133.3525321667011,
+              "viewMs": 16.318076923076923,
+              "receiverMs": 46.8016,
+              "donorMs": 13.969484615384616,
+              "reservationMs": 43.015853846153846,
+              "sampleRepairMs": 7.6169692307692305,
+              "topologyPrepareMs": 1.508953846153846,
+              "topologyPublishMs": 0.39474615384615386,
+              "meshPrepareMs": 0.22826153846153846,
+              "continuationMs": 0.306,
+              "adapterMs": 0.026900000000001804,
+              "unitemizedMs": 3.1656860128549624
+            },
+            "medianCpuMs": 121.0562973022461,
+            "p95CpuMs": 276.418212890625,
+            "counts": {
+              "raw": 1152,
+              "examined": 926,
+              "receivers": 642,
+              "exchanges": 242,
+              "free": 3,
+              "pairs": 71250,
+              "touches": 2527698,
+              "evaluations": 23371917
+            }
+          },
+          "recovery": {
+            "frames": 8,
+            "means": {
+              "cpuMs": 1.9744375133886933,
+              "viewMs": 1.9205374999999998,
+              "receiverMs": 0.0,
+              "donorMs": 0.0,
+              "reservationMs": 0.00013749999999999998,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.013337500000000039,
+              "unitemizedMs": 0.04042501338869342
+            },
+            "medianCpuMs": 0.05674999952316284,
+            "p95CpuMs": 15.413700103759766,
+            "counts": {
+              "raw": 0,
+              "examined": 0,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 0,
+              "evaluations": 1790881
+            }
+          }
+        }
+      }
+    },
+    "dem-sierra": {
+      "P0": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 63.037014971497236,
+            "viewMs": 6.825284946236559,
+            "receiverMs": 52.08162688172043,
+            "donorMs": 0.0,
+            "reservationMs": 0.07034731182795699,
+            "sampleRepairMs": 2.9195247311827957,
+            "topologyPrepareMs": 0.14824193548387096,
+            "topologyPublishMs": 0.03341720430107527,
+            "meshPrepareMs": 0.02647741935483871,
+            "continuationMs": 0.053670967741935485,
+            "adapterMs": 0.014884946236558295,
+            "unitemizedMs": 0.8635386274112165
+          },
+          "medianCpuMs": 34.5994987487793,
+          "p95CpuMs": 199.77430725097656,
+          "counts": {
+            "raw": 282818,
+            "examined": 14880,
+            "receivers": 655,
+            "exchanges": 0,
+            "free": 385,
+            "pairs": 0,
+            "touches": 5453627,
+            "evaluations": 97810688
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 14.189053177833557,
+              "viewMs": 0.38975000000000004,
+              "receiverMs": 13.6418875,
+              "donorMs": 0.0,
+              "reservationMs": 0.000259375,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.011621875000000004,
+              "unitemizedMs": 0.1455344278335584
+            },
+            "medianCpuMs": 13.77310037612915,
+            "p95CpuMs": 15.492899894714355,
+            "counts": {
+              "raw": 129152,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 579712,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 48.45640343427658,
+              "viewMs": 10.34865,
+              "receiverMs": 36.4854,
+              "donorMs": 0.0,
+              "reservationMs": 0.0281,
+              "sampleRepairMs": 1.043428125,
+              "topologyPrepareMs": 0.08289375,
+              "topologyPublishMs": 0.0122875,
+              "meshPrepareMs": 0.02189375,
+              "continuationMs": 0.023278125,
+              "adapterMs": 0.015190625000000013,
+              "unitemizedMs": 0.39528155927658304
+            },
+            "medianCpuMs": 40.612051010131836,
+            "p95CpuMs": 92.50250244140625,
+            "counts": {
+              "raw": 88441,
+              "examined": 5120,
+              "receivers": 73,
+              "exchanges": 0,
+              "free": 53,
+              "pairs": 0,
+              "touches": 1735732,
+              "evaluations": 50413447
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 133.02716485385238,
+              "viewMs": 10.03871379310345,
+              "receiverMs": 111.70752068965517,
+              "donorMs": 0.0,
+              "reservationMs": 0.19430344827586207,
+              "sampleRepairMs": 8.211244827586206,
+              "topologyPrepareMs": 0.38392758620689654,
+              "topologyPublishMs": 0.09360689655172413,
+              "meshPrepareMs": 0.060751724137931035,
+              "continuationMs": 0.14643103448275863,
+              "adapterMs": 0.01814827586206624,
+              "unitemizedMs": 2.172516577990308
+            },
+            "medianCpuMs": 131.9761962890625,
+            "p95CpuMs": 255.8144989013672,
+            "counts": {
+              "raw": 65225,
+              "examined": 4640,
+              "receivers": 582,
+              "exchanges": 0,
+              "free": 332,
+              "pairs": 0,
+              "touches": 3138183,
+              "evaluations": 45822328
+            }
+          }
+        }
+      },
+      "A1": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 56.615336418151855,
+            "viewMs": 6.673912903225807,
+            "receiverMs": 45.681480645161294,
+            "donorMs": 0.0,
+            "reservationMs": 0.06486021505376344,
+            "sampleRepairMs": 3.0222129032258063,
+            "topologyPrepareMs": 0.1548247311827957,
+            "topologyPublishMs": 0.032661290322580645,
+            "meshPrepareMs": 0.02510752688172043,
+            "continuationMs": 0.05848172043010753,
+            "adapterMs": 0.014494623655913051,
+            "unitemizedMs": 0.8872998590120673
+          },
+          "medianCpuMs": 33.21099853515625,
+          "p95CpuMs": 175.20089721679688,
+          "counts": {
+            "raw": 282818,
+            "examined": 14880,
+            "receivers": 655,
+            "exchanges": 0,
+            "free": 385,
+            "pairs": 0,
+            "touches": 5453627,
+            "evaluations": 97810688
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 13.95183750987053,
+              "viewMs": 0.3955875,
+              "receiverMs": 13.4047875,
+              "donorMs": 0.0,
+              "reservationMs": 0.00024687499999999997,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.01094375000000003,
+              "unitemizedMs": 0.1402718848705291
+            },
+            "medianCpuMs": 13.46780014038086,
+            "p95CpuMs": 14.518899917602539,
+            "counts": {
+              "raw": 129152,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 579712,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 45.124112606048584,
+              "viewMs": 10.146975,
+              "receiverMs": 33.296815625,
+              "donorMs": 0.0,
+              "reservationMs": 0.028084374999999998,
+              "sampleRepairMs": 1.106359375,
+              "topologyPrepareMs": 0.08618125,
+              "topologyPublishMs": 0.011996875,
+              "meshPrepareMs": 0.020471875,
+              "continuationMs": 0.0233125,
+              "adapterMs": 0.01330937499999929,
+              "unitemizedMs": 0.3906063560485862
+            },
+            "medianCpuMs": 37.47869873046875,
+            "p95CpuMs": 89.25520324707031,
+            "counts": {
+              "raw": 88441,
+              "examined": 5120,
+              "receivers": 73,
+              "exchanges": 0,
+              "free": 53,
+              "pairs": 0,
+              "touches": 1735732,
+              "evaluations": 50413447
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 116.37227183374866,
+              "viewMs": 9.769375862068966,
+              "receiverMs": 94.96297931034482,
+              "donorMs": 0.0,
+              "reservationMs": 0.17673793103448276,
+              "sampleRepairMs": 8.471113793103449,
+              "topologyPrepareMs": 0.4014103448275862,
+              "topologyPublishMs": 0.09150344827586207,
+              "meshPrepareMs": 0.05792758620689655,
+              "continuationMs": 0.1618206896551724,
+              "adapterMs": 0.01972068965517019,
+              "unitemizedMs": 2.2596821785762558
+            },
+            "medianCpuMs": 115.2688980102539,
+            "p95CpuMs": 222.16409301757812,
+            "counts": {
+              "raw": 65225,
+              "examined": 4640,
+              "receivers": 582,
+              "exchanges": 0,
+              "free": 332,
+              "pairs": 0,
+              "touches": 3138183,
+              "evaluations": 45822328
+            }
+          }
+        }
+      },
+      "P1": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 54.74637736043623,
+            "viewMs": 6.908848387096774,
+            "receiverMs": 43.480467741935485,
+            "donorMs": 0.0,
+            "reservationMs": 0.06823225806451613,
+            "sampleRepairMs": 3.0485655913978493,
+            "topologyPrepareMs": 0.1554548387096774,
+            "topologyPublishMs": 0.03373333333333333,
+            "meshPrepareMs": 0.026456989247311827,
+            "continuationMs": 0.0605,
+            "adapterMs": 0.0156139784946235,
+            "unitemizedMs": 0.948504242156659
+          },
+          "medianCpuMs": 34.772098541259766,
+          "p95CpuMs": 162.25970458984375,
+          "counts": {
+            "raw": 282818,
+            "examined": 14880,
+            "receivers": 655,
+            "exchanges": 0,
+            "free": 385,
+            "pairs": 0,
+            "touches": 5453627,
+            "evaluations": 97810688
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 15.591593772172928,
+              "viewMs": 0.327953125,
+              "receiverMs": 15.06225,
+              "donorMs": 0.0,
+              "reservationMs": 0.00023124999999999998,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.011906249999999619,
+              "unitemizedMs": 0.18925314717292707
+            },
+            "medianCpuMs": 15.055350303649902,
+            "p95CpuMs": 17.29759979248047,
+            "counts": {
+              "raw": 129152,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 579712,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 45.67330288887024,
+              "viewMs": 10.624128125,
+              "receiverMs": 33.411840625,
+              "donorMs": 0.0,
+              "reservationMs": 0.023703125,
+              "sampleRepairMs": 1.042759375,
+              "topologyPrepareMs": 0.08008125,
+              "topologyPublishMs": 0.012346875,
+              "meshPrepareMs": 0.024178124999999998,
+              "continuationMs": 0.025640625,
+              "adapterMs": 0.014703124999999484,
+              "unitemizedMs": 0.41392163887023514
+            },
+            "medianCpuMs": 37.826148986816406,
+            "p95CpuMs": 85.35260009765625,
+            "counts": {
+              "raw": 88441,
+              "examined": 5120,
+              "receivers": 73,
+              "exchanges": 0,
+              "free": 53,
+              "pairs": 0,
+              "touches": 1735732,
+              "evaluations": 50413447
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 107.96332418507544,
+              "viewMs": 10.070906896551724,
+              "receiverMs": 85.94871034482759,
+              "donorMs": 0.0,
+              "reservationMs": 0.19240344827586206,
+              "sampleRepairMs": 8.625803448275862,
+              "topologyPrepareMs": 0.41016206896551727,
+              "topologyPublishMs": 0.0945551724137931,
+              "meshPrepareMs": 0.05816551724137931,
+              "continuationMs": 0.16572413793103447,
+              "adapterMs": 0.0207103448275867,
+              "unitemizedMs": 2.376182805765083
+            },
+            "medianCpuMs": 106.6405029296875,
+            "p95CpuMs": 202.9456024169922,
+            "counts": {
+              "raw": 65225,
+              "examined": 4640,
+              "receivers": 582,
+              "exchanges": 0,
+              "free": 332,
+              "pairs": 0,
+              "touches": 3138183,
+              "evaluations": 45822328
+            }
+          }
+        }
+      }
+    },
+    "dem-canyon": {
+      "P0": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 60.038519254294776,
+            "viewMs": 9.842716129032258,
+            "receiverMs": 42.22587311827957,
+            "donorMs": 6.653575268817204,
+            "reservationMs": 0.14558817204301075,
+            "sampleRepairMs": 0.5776064516129032,
+            "topologyPrepareMs": 0.06273333333333334,
+            "topologyPublishMs": 0.014120430107526881,
+            "meshPrepareMs": 0.01036236559139785,
+            "continuationMs": 0.01789032258064516,
+            "adapterMs": 0.014790322580645025,
+            "unitemizedMs": 0.47326334031627937
+          },
+          "medianCpuMs": 70.62300109863281,
+          "p95CpuMs": 123.03489685058594,
+          "counts": {
+            "raw": 1896521,
+            "examined": 14880,
+            "receivers": 1811,
+            "exchanges": 62,
+            "free": 2,
+            "pairs": 287994,
+            "touches": 5715278,
+            "evaluations": 97661064
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 9.12767505645752,
+              "viewMs": 0.5057843750000001,
+              "receiverMs": 7.9145375,
+              "donorMs": 0.45353125,
+              "reservationMs": 0.0039031250000000003,
+              "sampleRepairMs": 0.057853125,
+              "topologyPrepareMs": 0.007246875,
+              "topologyPublishMs": 0.001596875,
+              "meshPrepareMs": 0.001446875,
+              "continuationMs": 0.00164375,
+              "adapterMs": 0.012340625000000188,
+              "unitemizedMs": 0.16779068145751985
+            },
+            "medianCpuMs": 7.675750017166138,
+            "p95CpuMs": 10.913000106811523,
+            "counts": {
+              "raw": 823453,
+              "examined": 5120,
+              "receivers": 5,
+              "exchanges": 2,
+              "free": 1,
+              "pairs": 638,
+              "touches": 124045,
+              "evaluations": 1575210
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 78.35249352455139,
+              "viewMs": 14.765459375,
+              "receiverMs": 56.12593125,
+              "donorMs": 6.865971875,
+              "reservationMs": 0.11043125000000001,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.015162499999999302,
+              "unitemizedMs": 0.46953727455138505
+            },
+            "medianCpuMs": 79.20419692993164,
+            "p95CpuMs": 113.49040222167969,
+            "counts": {
+              "raw": 571958,
+              "examined": 5120,
+              "receivers": 677,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 108320,
+              "touches": 2669111,
+              "evaluations": 50397216
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 96.00747917438376,
+              "viewMs": 14.713544827586206,
+              "receiverMs": 64.74866206896552,
+              "donorMs": 13.26063448275862,
+              "reservationMs": 0.3407241379310345,
+              "sampleRepairMs": 1.7884862068965517,
+              "topologyPrepareMs": 0.19318275862068965,
+              "topologyPublishMs": 0.04352068965517241,
+              "meshPrepareMs": 0.03163448275862069,
+              "continuationMs": 0.05555862068965517,
+              "adapterMs": 0.01708275862068978,
+              "unitemizedMs": 0.8144481399010033
+            },
+            "medianCpuMs": 95.67620086669922,
+            "p95CpuMs": 151.97540283203125,
+            "counts": {
+              "raw": 501110,
+              "examined": 4640,
+              "receivers": 1129,
+              "exchanges": 60,
+              "free": 1,
+              "pairs": 179036,
+              "touches": 2922122,
+              "evaluations": 45688638
+            }
+          }
+        }
+      },
+      "A1": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 57.45367611608198,
+            "viewMs": 10.05125806451613,
+            "receiverMs": 39.9560623655914,
+            "donorMs": 6.076959139784946,
+            "reservationMs": 0.15288279569892474,
+            "sampleRepairMs": 0.6145,
+            "topologyPrepareMs": 0.0636258064516129,
+            "topologyPublishMs": 0.013416129032258065,
+            "meshPrepareMs": 0.011888172043010752,
+            "continuationMs": 0.01873010752688172,
+            "adapterMs": 0.014511827956989291,
+            "unitemizedMs": 0.479841707479828
+          },
+          "medianCpuMs": 68.7251968383789,
+          "p95CpuMs": 113.08609771728516,
+          "counts": {
+            "raw": 1896521,
+            "examined": 14880,
+            "receivers": 1811,
+            "exchanges": 62,
+            "free": 2,
+            "pairs": 287994,
+            "touches": 5715278,
+            "evaluations": 97661064
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 9.042465552687645,
+              "viewMs": 0.5156562499999999,
+              "receiverMs": 7.88266875,
+              "donorMs": 0.3860375,
+              "reservationMs": 0.00388125,
+              "sampleRepairMs": 0.0757125,
+              "topologyPrepareMs": 0.005734375,
+              "topologyPublishMs": 0.00149375,
+              "meshPrepareMs": 0.0010375,
+              "continuationMs": 0.00338125,
+              "adapterMs": 0.010824999999999918,
+              "unitemizedMs": 0.15603742768764484
+            },
+            "medianCpuMs": 7.484899997711182,
+            "p95CpuMs": 11.59749984741211,
+            "counts": {
+              "raw": 823453,
+              "examined": 5120,
+              "receivers": 5,
+              "exchanges": 2,
+              "free": 1,
+              "pairs": 638,
+              "touches": 124045,
+              "evaluations": 1575210
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 75.30475556850433,
+              "viewMs": 15.014796875,
+              "receiverMs": 53.137578125,
+              "donorMs": 6.5518875,
+              "reservationMs": 0.12155,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.015218749999999837,
+              "unitemizedMs": 0.46372431850433316
+            },
+            "medianCpuMs": 78.76605224609375,
+            "p95CpuMs": 106.73729705810547,
+            "counts": {
+              "raw": 571958,
+              "examined": 5120,
+              "receivers": 677,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 108320,
+              "touches": 2669111,
+              "evaluations": 50397216
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 91.17520010060278,
+              "viewMs": 15.096293103448277,
+              "receiverMs": 60.802272413793105,
+              "donorMs": 11.832537931034484,
+              "reservationMs": 0.35187241379310347,
+              "sampleRepairMs": 1.8870931034482759,
+              "topologyPrepareMs": 0.19771379310344828,
+              "topologyPublishMs": 0.04137586206896552,
+              "meshPrepareMs": 0.036979310344827585,
+              "continuationMs": 0.05633448275862069,
+              "adapterMs": 0.017800000000000413,
+              "unitemizedMs": 0.854927686809674
+            },
+            "medianCpuMs": 91.04679870605469,
+            "p95CpuMs": 135.11920166015625,
+            "counts": {
+              "raw": 501110,
+              "examined": 4640,
+              "receivers": 1129,
+              "exchanges": 60,
+              "free": 1,
+              "pairs": 179036,
+              "touches": 2922122,
+              "evaluations": 45688638
+            }
+          }
+        }
+      },
+      "P1": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 56.38359654334284,
+            "viewMs": 10.067087096774193,
+            "receiverMs": 39.051697849462364,
+            "donorMs": 5.887150537634409,
+            "reservationMs": 0.15801720430107527,
+            "sampleRepairMs": 0.5845333333333333,
+            "topologyPrepareMs": 0.05995268817204301,
+            "topologyPublishMs": 0.012870967741935484,
+            "meshPrepareMs": 0.010281720430107527,
+            "continuationMs": 0.016679569892473118,
+            "adapterMs": 0.015546236559139672,
+            "unitemizedMs": 0.5197793390417687
+          },
+          "medianCpuMs": 67.72589874267578,
+          "p95CpuMs": 104.32659912109375,
+          "counts": {
+            "raw": 1896521,
+            "examined": 14880,
+            "receivers": 1811,
+            "exchanges": 62,
+            "free": 2,
+            "pairs": 287994,
+            "touches": 5715278,
+            "evaluations": 97661064
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 9.172256231307983,
+              "viewMs": 0.4805125,
+              "receiverMs": 8.04910625,
+              "donorMs": 0.359303125,
+              "reservationMs": 0.005315624999999999,
+              "sampleRepairMs": 0.065953125,
+              "topologyPrepareMs": 0.007921875,
+              "topologyPublishMs": 0.002146875,
+              "meshPrepareMs": 0.002940625,
+              "continuationMs": 0.002815625,
+              "adapterMs": 0.013653124999999877,
+              "unitemizedMs": 0.18258748130798352
+            },
+            "medianCpuMs": 7.7101500034332275,
+            "p95CpuMs": 12.036600112915039,
+            "counts": {
+              "raw": 823453,
+              "examined": 5120,
+              "receivers": 5,
+              "exchanges": 2,
+              "free": 1,
+              "pairs": 638,
+              "touches": 124045,
+              "evaluations": 1575210
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 74.48694378137589,
+              "viewMs": 14.94908125,
+              "receiverMs": 52.525631249999996,
+              "donorMs": 6.353621875,
+              "reservationMs": 0.1183,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.0161781249999996,
+              "unitemizedMs": 0.5241312813758867
+            },
+            "medianCpuMs": 79.07580184936523,
+            "p95CpuMs": 104.29190063476562,
+            "counts": {
+              "raw": 571958,
+              "examined": 5120,
+              "receivers": 677,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 108320,
+              "touches": 2669111,
+              "evaluations": 50397216
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 88.50276131465517,
+              "viewMs": 15.258348275862069,
+              "receiverMs": 58.39366551724138,
+              "donorMs": 11.47211724137931,
+              "reservationMs": 0.37034137931034483,
+              "sampleRepairMs": 1.8017620689655174,
+              "topologyPrepareMs": 0.1835206896551724,
+              "topologyPublishMs": 0.038906896551724135,
+              "meshPrepareMs": 0.029727586206896552,
+              "continuationMs": 0.05038275862068965,
+              "adapterMs": 0.016937931034482975,
+              "unitemizedMs": 0.8870509698275839
+            },
+            "medianCpuMs": 88.59950256347656,
+            "p95CpuMs": 124.26190185546875,
+            "counts": {
+              "raw": 501110,
+              "examined": 4640,
+              "receivers": 1129,
+              "exchanges": 60,
+              "free": 1,
+              "pairs": 179036,
+              "touches": 2922122,
+              "evaluations": 45688638
+            }
+          }
+        }
+      }
+    }
+  },
+  "sources": {
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/peking547-b50000-transactional-t8/run/frames.csv": "3d677f9297270b6ba5125f9b2f7513c5fb5594bc991185b3e7deb77258065890",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/peking547-b50000-transactional-t8/run/frames.csv": "271f2dfce61698bca8e2be515a8d4e081d1c3d107385c7e6719674ea8be77135",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/peking547-b50000-transactional-t8/run/frames.csv": "f1e303aa6e388f33ca71dae90e78eff83a8ad1c7c31265bdde6d71141d48c163",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8/run/frames.csv": "f278a7c63252d83f6121c5034513d19907bf8e007c660079a260288a8af668ef",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8/run/frames.csv": "3d193a468757b9c5994bb8b012fa63594f025508b37a7608263780b36dca564e",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8/run/frames.csv": "c4b76c1982c09a02d066bac2b52982fa353bf56599e60d1512b6ef59ffdbf002",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-canyon-b50000-transactional-t8/run/frames.csv": "d6da194e3b7194eefbf01dd71a4b95d7a54fa341bfd89df3f00a5b88478c6bba",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-canyon-b50000-transactional-t8/run/frames.csv": "bf575a31055e58f1ec7ee220be4088d11daaf16e02fe13b910df1b2394732a10",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-canyon-b50000-transactional-t8/run/frames.csv": "2f86d6fc3b5612e72dbad1bda516cbfcaff948c06d370a15a01b7b070d54a8ff",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-0.json": "66bfb307114a7b00d0a68c56d050fde4dd7e47cef3a35bfe0d9bf36c9baef49e",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-1.json": "250a1bf15db07c11869f634ed634b313e32a96d91bb74c239d228ecb5c12b9b8",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-2.json": "831defb3ca876c21153b275bd1e627a7b06e3e9813b8e40963e242d5b900e504",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-3.json": "00f325f84e6724958a1c8273c3704fd73bce576c354b58fa11a14c6e5f83ff91",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-4.json": "a9d86a714243ea757420501a6c59ed53e1f9fd04a42ebc353ec367efb68f0ee7",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-0.json": "0ff71074867641933370df364139be391dfed1d0273eccd85305e3a8564de47f",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-1.json": "035eb1b76406998f24bd2d1d187e489d9837fa4376fc55d460403c5770023a42",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-2.json": "416e8f9ab2eae7056bfb10cbaa4fb81646e23ed4d4dd0caa462aa6132d83c121",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-3.json": "b6b5b17df135551726e51e0a997bfc306f3edae59937740fcc4c59dbaa264995",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-4.json": "046e4aee9d952c81b3d8cf013ba198374c5036a2d880f5a0b911c8c3cf3f5a6a",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-0.json": "a5c31a763b7878466d12f9f850ed785de713f51be6c68bea66569cace5320525",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-1.json": "795256ab58951e3b6207dc6a153ca7b77b536cc66e5a2c58129dad4b1e212897",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-2.json": "8ece994c38513e395638baea525eab1b1a19af47741012476d59987db0d8cbe5",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-3.json": "a0ded2cd25ed31e30960a772651f7729ecc1102a819febdefad027b3b5e1ca55",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-4.json": "4bf25a945ab55f669bd90ed487b03c461a8b2260fe444bfa08c2f912ffba88f4",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-5.json": "b592a0be7b04164e16fe1330c9565441035a6adae9d6e229f189fecdcef01bbb",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-6.json": "bde72e2139db7774d76733398b9e0b961cbe37b21137d6eafccff477fc16ef4b",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-0.json": "76151931a695215e18514881a57236aae75ee0be0df797d45c87365fffb3d0b0",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-1.json": "e116b8f70f7705aa22e484c7f33220ed117371ed1dbd87dbed5434201be5ed4e",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-2.json": "10d0bf52daa557bea2d97950b0c767a0857e13e614144d52e7c7bd9a68f28e79",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-3.json": "e8a736381271e61d5c58ff61effa4480e1ba41a22e6d9c04f9ad82cf1eb2cfb5",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-4.json": "7bb6449718ea661f91b7520c832d4d3c09552be6f6e3f06c299019ec18b9fa91",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-5.json": "89ae372a6360d644681a6e0a6b6cfb70e5f898c8de8665a9b02f3563dbba5bd0",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-6.json": "1a7bb2a9a47d202c28a17d8317820dbe9357b0b01b9f4de785c5e753cbcadef5",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-0.json": "2ec8cdd7b45f403fc67a3523cec4a2adaea933e0e4551be40c027fc7a07b6afc",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-1.json": "04235c0b45ddee69359e4ab14c9242ebd0f79aa2736ac5ab3c046f630d99ee1c",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-2.json": "0852ee6e6d64783fd54b6ddb13cc09f1f623631343ecf2ba78b8528971b0da42",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-3.json": "895a3d880a58378fb4ba3082c2cd4aa22e9086eefbc6132a56cd8f8e99b39f73",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-4.json": "1d4f3cc376547936ea6bee5caef46de95f564f750c8d80b60726daad769bb0eb",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-5.json": "b60fa5d7e2baf23c0e1aecfa0d42e28ab2bdc610a889b5ada77ba067de6d956c",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-6.json": "d40cac21de0e162053129748e2ee9ef891ab2217c51b07860318e3862c603661",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-0.json": "97c7c301488e46bbbaaae57c97b58f9e51c7af5b8635a2443b782028a3311f29",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-1.json": "ea993f39d9394a9d1da51013747682105ce2c6ca6755c5d5c17df38d94c51465",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-2.json": "6fdf95531eecb31b025f221780e62ae239b3294592b2385b1fe4c15838746c30",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-3.json": "302a0b7bcb8ac33db1b5ae913c6269cd69a7cc1709252ee5d5f573eb0d8f5ab2",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-4.json": "1fde9708b47448fc6b8402297518ba2f67e93995f36b6b0a6aebf93f45dd0268",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-5.json": "a20e136c4816b8b579795a8708204114d54e690de371fa05b443a532b1712f26",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-6.json": "a9152bdaf8d21bbbc26903d30fe23e464a310a37ae2cc302e3daa2e33940c2e6",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/peking547-b50000-transactional-t8-audit/proposal-15-599-0.json": "0a7341651117fc47600561e5b12ea542fd3c9dcb8cb6dec8bad3093dc2284c7d",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/peking547-b50000-transactional-t8-audit/proposal-15-599-1.json": "bf43ce948cb1ba9b64e821240d55de3ffd535fea6a283222da592abe13a1aa18",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/peking547-b50000-transactional-t8-audit/proposal-15-599-2.json": "a0b2b3a7ef1a174c1ad6e51414579df3cad4fbfebb2727ac8d030c4249663ed0",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/peking547-b50000-transactional-t8-audit/proposal-15-599-3.json": "b341d129ed0a92be45df9510e30d44f41b93e661df8bc8ce523b33f224bb3a36",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/peking547-b50000-transactional-t8-audit/proposal-15-599-4.json": "a122b11c05b5c816d241262929aa849434be4307b77a97a73c60e8ce4b5be09f",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-0.json": "8bbaa0372930ce7d7ac6e373321840683d8dda2358704c8d2d19d53b95eb8c22",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-1.json": "f824edb39249b221d68af56fbfbe71fcd15a4d47aa566646678ed5305d7e9456",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-2.json": "b1e25b075fcd013110beb61a32513dee4e3ac94fd3e3a5baa4a050baef7ca348",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-3.json": "a99d632fcf7ba6de56d5df00c65e92b31c5892c4e49cfb6b9344fc60e2fc2489",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-4.json": "a34c1b12e444de0e4c436451fcd88501a396985595ea45d092ccd0ede59a003e",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-0.json": "404ce934f12c5afd19b23e443516d924ec5288852c23d9da3ce28e07794da09a",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-1.json": "7eaceee287b31ba026ea0e20adbc6a6e1e3ba0eb0d3c34435a580a974b1af55b",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-2.json": "391009fda0d5ebaa73ab1dfe56e5285835f2bd836245419d9cd646aeb230df6b",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-3.json": "a8ccbcab7a2de3409c66e6b5d05b5d0bf6dc73e740832e47567e5b89b9d4c9b8",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-4.json": "7ccad5fa9fd7d918b703861793994c9f9f2b86d07c3ba06fd4e72e75f0fdd0fb",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-0.json": "88b85d8ce2fa4b4b091378be3d626648d4780172ebd9876371d0b4e7c1e3b419",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-1.json": "9cfaae8b5fcfe3bc636d18e28ff4d167cbe9709a3868036162701ed6beb1ab8f",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-2.json": "cd3cdfbce1d525b86840e7836443884d6500a1b4897206b5fbd5dba9e839d49b",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-3.json": "03e40a37ae6c73899c6e2e5c57de45fad4ace528f4060377d99f09f1d5108193",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-4.json": "e51f97ac5fd662bdd19017b90be7337d744bbff0352088f290deb3099f8b6831",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-5.json": "c78684b18100e00d5e83d71e38e799240cde9cea1747219f1db2469b0255d5c5",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-6.json": "4406658691339855b4f8f42a5b264a0dfc46c052db778959792ce4534fd6d17a",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-0.json": "179090702088c445ba8a46fb011fe7c6dbc49c6f3615bfd09cf1d27e3f4893a1",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-1.json": "046cc14c9d3cd3177b85cdfc3551daff058677dea18b0107563f2500b88e5fd3",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-2.json": "69d50e8eeda6ace8f1552a23bda63c2069857881597056dd20e1c223576b2094",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-3.json": "84e2401233f6b80e5bc4a2e8d63cb356e3fa8525ae4cc9e244290aed2e73253f",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-4.json": "5e11680efb0c7a501c97f20bfaaee62bfdb70d2663ca6052ec7b42442aa9b0ba",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-5.json": "c9eed3d7cf17966d8bcca1748067f39f331ae83b8503361bab0f8e9addc1fabb",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-6.json": "1d0f97018cda33d10cf4494068d8e0c12a2bdb239d201247993765c99a8b6b92",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-0.json": "70df8f68cf3a93535649fdfd39b2c7bf9749ea533bff7e933e2c264908e8f2b1",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-1.json": "20ddb1e6aa1c13f4121e004f3a12a6acc0c801daa0f380636f77eb231019418f",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-2.json": "919a6c0c27cece4178603d851e3fdc60a2ee6f43c40a6d14eca1ad2d3ebaf3d4",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-3.json": "d5a31eb80ea168bf5a4db0f737e568e67fcea85e9aa30ff159d6927dccd74fa4",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-4.json": "548ce4b58a32c516b3e3933acf8efc9d3111765a826b20187f1839886103a9ce",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-5.json": "b85ddee35352dabe3141169515421a25ccd58d4ed9c059533fd47925e437205e",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-6.json": "d8e62638406ae49dab5439b448e715afc197e1c8c4a94e629e0f004fe3ce2ee8",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-0.json": "ddc0497779bf9ecbf65e1c0bc22f2571c596974a55a11935d64dc8503e1c7f40",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-1.json": "480718742ecc3a449c2f266f834fba7f78ef0fb9c1858da91892cadb60297741",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-2.json": "25d8997851bac6e7531c9ba1a943aec83ea0a57c2b955b266c41b2a40b68adc1",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-3.json": "ec586e07321e8fc1c5aa9d2079bb0e96d35a1fe2042c55a2d3f316626fc0c854",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-4.json": "e150a67eec182cd5c8b7a421724fe8fa43ebac35ec60fa1f8595fc7258c324bc",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-5.json": "f692456d1b30fc95bdf0ac5d49d17da054c5ca15fbad456b024515e352255a3b",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-6.json": "e5971121cc37fdc3ffdeca8110644773eb41c91fb639e996f055360d7218d685",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/peking547-b50000-transactional-t8-audit/proposal-15-599-0.json": "693c17cfc35da2fad07aa1b68b3a2b79d59a20bdb0fae0762be78fa6a9946d21",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/peking547-b50000-transactional-t8-audit/proposal-15-599-1.json": "e0c6d6d2ab15fd3f6432ce569bce44c8b6084a012327e039fc480a88f78acb6f",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/peking547-b50000-transactional-t8-audit/proposal-15-599-2.json": "3a0f766abafc2bffa46785acea9d92ddbb0717e8f64193e4aa0c0bb715f81ee4",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/peking547-b50000-transactional-t8-audit/proposal-15-599-3.json": "6ab80a19c051a57a5b2c6964be3344bb639d85da56aec6bf77c2684f89f7189c",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/peking547-b50000-transactional-t8-audit/proposal-15-599-4.json": "057193e7f0341c0b7eb6fbef60a133e44777e48520e31713a9dee9fc754f5d59",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-0.json": "2ea1062a40d64fd1ada97150ecbbf988965d9a87bea69dd8c7d9625d774597df",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-1.json": "3b3cbf7b33d37ba71f805b77a030924296ee4c9f98b54712ee9ed6f7785e5823",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-2.json": "21d34a208c30d80e5071d6727f51006853d2728471b07793ffa1dd9c72d58b71",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-3.json": "f44d3a13f657991bae03cf4539b062b42d420e47e2eea6c9bde326f669b9962c",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-canyon-b50000-transactional-t8-audit/proposal-48-803-4.json": "598e28944bd0082efee0c5c7f6d834ac1e71879a859bcadd33386523370250ed",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-0.json": "b95831998d077718dca969bcc49e15cb298b75b9df779b3d1fa766a25f0a0a04",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-1.json": "195a3ff7ccea934efe4748b0bb3e1274b95556d8f5b3e7dbd37186c25ef1f0c0",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-2.json": "18344966fcdcee9128dab7aab7c6b7bcaac3384227e1f01057853d2ca9b319f0",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-3.json": "c21c9139cb22e10dfbbc5e073452251e5c17d011cd4a92abd0038de26e3cfa4b",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-48-4182-4.json": "bac4be51e2e1a4a1ee064447a400c40cc12645d3eef80a21f140cc8b48a13c5d",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-0.json": "727f3a5cb40435d2fcdb7f8c5fee29d7a1ea286c70874ead759fa63aa3c401bc",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-1.json": "9d9bf5bb1d7383e4dbe011badb06561d2220d7f755e26bd4d393e8bff503f2aa",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-2.json": "dfc242ac5a7f005d9e53bd42dc438a4b869d2ec19115bbdf3082bff99673aa4e",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-3.json": "712ac9ea603d53e44ed22801229a6964ad605cf7f3bc98cd2b49601ee3030820",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-4.json": "46705f84a545fdfc803d66d4c2ce981fb807fd4bfc90cbc341611f015c3c3e81",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-5.json": "4268d15363e99a0138b268c05a8e812cc7aa948055d027fdfff1ea403b6499e2",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--269-6.json": "dceb36c21b2a771f2a88b572206bf27705cc60815438c76caf3f9dd083a6c8af",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-0.json": "b96cdc79776c650caba678231800e5a45a41ad7911fa7f5b4a58a1b78fb641e9",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-1.json": "67c9d2ec0274fa47f94fa9d06e1a6752efbea8c3f868b4999dfa7b1f2e77ab80",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-2.json": "417ce442f259d077ddc98bc55703a85eadaee832dfea8714e9e5c50dde86ad3f",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-3.json": "e362446d72153a541fed15f1be5069a705144e1a8633c8f2aedc5c2fc0bd44f2",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-4.json": "6d7fba413776092a02417ae809cd293898e01d5549f4e6a085b5b49791c065d1",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-5.json": "df6869eb1361977fa0e5c57f1caea34692de682f316f951ed74e34005d562b2e",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--270-6.json": "ed80da1bde7f7e78fbeba0b71cea4181d66bcff45c0f2e3525243c3a4255941e",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-0.json": "8ab3be26d58ea6e9739d912f9545e3ec755cbe5412befa40a179bb72dd4ba9f4",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-1.json": "a66e998cb51e0049018a2afd69c393d7ae7695e493a6ab608821fa1277ee0b52",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-2.json": "bcb1cc9ff0ebf9cb0ff015d4ca986f3daa8e98650e7b689ef422f3f905fb7eac",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-3.json": "458ad89a60d70aa24db298f816d4e14f6864095da57d8b80388de1dcc5020fe9",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-4.json": "cd30aaef4f78c27e6c2d93fd1f5cb8f27f75e01d4229460f5e8195f6cc291ee2",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-5.json": "7941b7094392d441102902c849665e3ab7fbb4e6cfc654090ec33e7aa43344be",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--271-6.json": "ae89f0c0bcb285a128a27202b6a2dc46977e6c39fd61930eb820499e12319732",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-0.json": "f32c02fc6efada8ba962e93ccced0124fc9efb4bac82713b1232fd0e441b9a08",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-1.json": "d29d3fa7791cfeff75632c6973f178c8f03717d2dee309685f6d82b9709cf141",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-2.json": "f354f558cbff3783c995188e66ddd817d2de1ae4e701fe8a41f816a2e9414d89",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-3.json": "3dd1bee87565e32fbcf5c6712231ccf66a22f07bdf0668365aa4cd0d6cb8f933",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-4.json": "8b661f6b17fa012feea0cb3d9e6a38e120843ea4db0b0d2edb29eb67a4af90e6",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-5.json": "617cb5e33fc633cafcfef78919afcf3f7d882d2ee7d2da11c42cc42f4891548f",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/proposal-95--272-6.json": "1e930e0e7d2a3bace8bb8672d5bb63cd106fc18ab4b719ce9db05dbeef29d990",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/peking547-b50000-transactional-t8-audit/proposal-15-599-0.json": "d8cb82906ee9ab1d4b71b7641a354d4958052b782f14c387538440f212679f81",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/peking547-b50000-transactional-t8-audit/proposal-15-599-1.json": "b9593575c353449f1d7348882d62c2020a27d3b090ef23c9568be2af8ebabb93",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/peking547-b50000-transactional-t8-audit/proposal-15-599-2.json": "53c85d632b50abad1db703bbfe3fd0ff4eac092e72bb341156b8dbdde226a292",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/peking547-b50000-transactional-t8-audit/proposal-15-599-3.json": "302238ae9efbfecae76099ce6db604e8dd0e2696412f87240c6d6500f70b3de9",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/peking547-b50000-transactional-t8-audit/proposal-15-599-4.json": "1546fc315db0807436bdd3262568fbc78e9b44d7fd46c0a3b32cf5ff04626115",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/program.json": "5beb98cba47d63357829b2426934e4d9693d89461579a33c04c6efc828dff92f",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/program.json": "fe5b0e74fdbdc6dffd4ecbbf86db94892a1d05d090d2caaff7a0c1dcd6bbce3c",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/program.json": "4849f3a4e54f7b8bbc7252a0bdf358a0862bb011975008c33a9fb855e39f47ff",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-canyon-b50000-transactional-t8-audit/pointwise-work.csv": "e7189cdbbd7f5cc0cac8fd5dba2e16f5446398151e5827766a5e8fd94dd76983",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/dem-sierra-b50000-transactional-t8-audit/pointwise-work.csv": "1a4c4105901989c7a4d7de80d76a262e2d5b01bf8e51740fd709f7d0b0f6b444",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0/peking547-b50000-transactional-t8-audit/pointwise-work.csv": "26aa888f4fa4d67af26f071301696d5563efb0a07015342abfc0c053995e26bf",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-canyon-b50000-transactional-t8-audit/pointwise-work.csv": "d3f39e08bee5c0312dd4aece6001d5f0e0da421663a222e82dbadf1da7814259",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/dem-sierra-b50000-transactional-t8-audit/pointwise-work.csv": "5bc93f179cbe18d3ce4bb1cdc68beca6f2590376b472697f8b3aff2d0f4a70b1",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/A1/peking547-b50000-transactional-t8-audit/pointwise-work.csv": "78e712c442d058d8ab351de1f9abc00673828110aa28898b17f132c2f0793bb6",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-canyon-b50000-transactional-t8-audit/pointwise-work.csv": "4d5df60a87c2f1707d5048632d3a79f8cfc94434ada4b6ae173ef0756c6dfa72",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/dem-sierra-b50000-transactional-t8-audit/pointwise-work.csv": "0cd25507bb864fda0722ccfa835ef12ca2312b00de0dbfb48a440cfbb25f14b6",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1/peking547-b50000-transactional-t8-audit/pointwise-work.csv": "6bcea466f6a05e7207d0f67ae3ce50cd9ca720a38f6ab3e6b509c431d314767e",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/L0/dem-canyon-b50000-transactional-t8/run/frames.csv": "8715f1beef847fd683f646b97be740a8c26f549d25d275c26bce9b49b250ba55",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/L0/dem-sierra-b50000-transactional-t8/run/frames.csv": "e25bcbc55f85ebd894b381fc6d7110e282a3343639f93fdadf187220adddec38",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/L0/peking547-b50000-transactional-t8/run/frames.csv": "bbb9f9026da33d61a5052f711e728ca2daa604d0a20bb4bb607b9a65754e8141",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P0-repeat/dem-sierra-b50000-transactional-t8/run/frames.csv": "54056680490fad163c93018f4c096652e62362cefdb968f4091017c080691c1f",
+    "benchmark-output/cpu-refinement/qpc-06a/run-01/P1-repeat/dem-sierra-b50000-transactional-t8/run/frames.csv": "d834cde32b695b98527c6941448d48b5b1a471798894a3d5a999ed309be87c30"
+  },
+  "sameProposalRecords": 43,
+  "micro": {
+    "P0": {
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-0.json": {
+        "medianMs": 2.8321,
+        "repeatsSeconds": [
+          0.0028348,
+          0.0028321,
+          0.0028256
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-1.json": {
+        "medianMs": 3.5347,
+        "repeatsSeconds": [
+          0.0035347,
+          0.0035357,
+          0.003529
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-3.json": {
+        "medianMs": 2.6553,
+        "repeatsSeconds": [
+          0.0026553,
+          0.0026478,
+          0.0027176
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-4.json": {
+        "medianMs": 9.9142,
+        "repeatsSeconds": [
+          0.0099116,
+          0.0099664,
+          0.0099142
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-5.json": {
+        "medianMs": 17.128,
+        "repeatsSeconds": [
+          0.017149,
+          0.017128,
+          0.0171177
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-6.json": {
+        "medianMs": 14.362,
+        "repeatsSeconds": [
+          0.014362,
+          0.0143519,
+          0.0143964
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-0.json": {
+        "medianMs": 2.8428,
+        "repeatsSeconds": [
+          0.0028443,
+          0.00284,
+          0.0028428
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-1.json": {
+        "medianMs": 3.6746,
+        "repeatsSeconds": [
+          0.0036557,
+          0.0036746,
+          0.0037464
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-2.json": {
+        "medianMs": 3.6505,
+        "repeatsSeconds": [
+          0.0036505,
+          0.0036477,
+          0.0037525
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-3.json": {
+        "medianMs": 2.8739,
+        "repeatsSeconds": [
+          0.0028844,
+          0.0028726,
+          0.0028739
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-4.json": {
+        "medianMs": 9.7745,
+        "repeatsSeconds": [
+          0.0098213,
+          0.0097123,
+          0.0097745
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-5.json": {
+        "medianMs": 14.2005,
+        "repeatsSeconds": [
+          0.0141572,
+          0.0142058,
+          0.0142005
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-6.json": {
+        "medianMs": 14.3648,
+        "repeatsSeconds": [
+          0.0143493,
+          0.0144723,
+          0.0143648
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-0.json": {
+        "medianMs": 2.8556,
+        "repeatsSeconds": [
+          0.002865,
+          0.0028526,
+          0.0028556
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-1.json": {
+        "medianMs": 3.5589,
+        "repeatsSeconds": [
+          0.0035729,
+          0.0035553,
+          0.0035589
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-2.json": {
+        "medianMs": 3.4759,
+        "repeatsSeconds": [
+          0.0034759,
+          0.0035733,
+          0.0034498
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-3.json": {
+        "medianMs": 2.1963999999999997,
+        "repeatsSeconds": [
+          0.002207,
+          0.0021964,
+          0.0021918
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-4.json": {
+        "medianMs": 9.12,
+        "repeatsSeconds": [
+          0.0090956,
+          0.0091638,
+          0.00912
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-5.json": {
+        "medianMs": 13.5206,
+        "repeatsSeconds": [
+          0.0135206,
+          0.0134399,
+          0.0136084
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-6.json": {
+        "medianMs": 13.4219,
+        "repeatsSeconds": [
+          0.0134618,
+          0.0134078,
+          0.0134219
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-0.json": {
+        "medianMs": 2.8639,
+        "repeatsSeconds": [
+          0.0029303,
+          0.0028562,
+          0.0028639
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-1.json": {
+        "medianMs": 3.7066999999999997,
+        "repeatsSeconds": [
+          0.003706,
+          0.0037819,
+          0.0037067
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-2.json": {
+        "medianMs": 3.6454999999999997,
+        "repeatsSeconds": [
+          0.0035696,
+          0.0036455,
+          0.0036997
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-3.json": {
+        "medianMs": 3.0944000000000003,
+        "repeatsSeconds": [
+          0.0030944,
+          0.0032489,
+          0.00308
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-4.json": {
+        "medianMs": 9.8265,
+        "repeatsSeconds": [
+          0.0102036,
+          0.0098265,
+          0.0097649
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-5.json": {
+        "medianMs": 17.0699,
+        "repeatsSeconds": [
+          0.0171363,
+          0.0170699,
+          0.0170314
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-6.json": {
+        "medianMs": 14.446,
+        "repeatsSeconds": [
+          0.0146406,
+          0.0143847,
+          0.014446
+        ]
+      },
+      "peking547-b50000-transactional-t8-audit/proposal-15-599-0.json": {
+        "medianMs": 83.89399999999999,
+        "repeatsSeconds": [
+          0.0840029,
+          0.0835496,
+          0.083894
+        ]
+      }
+    },
+    "A1": {
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-0.json": {
+        "medianMs": 2.1885,
+        "repeatsSeconds": [
+          0.0021943,
+          0.0021885,
+          0.0021803
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-1.json": {
+        "medianMs": 2.7079999999999997,
+        "repeatsSeconds": [
+          0.0027294,
+          0.002708,
+          0.0027043
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-3.json": {
+        "medianMs": 2.1695,
+        "repeatsSeconds": [
+          0.0022466,
+          0.0021695,
+          0.002161
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-4.json": {
+        "medianMs": 8.049900000000001,
+        "repeatsSeconds": [
+          0.0080499,
+          0.0080134,
+          0.0081517
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-5.json": {
+        "medianMs": 13.8984,
+        "repeatsSeconds": [
+          0.0140486,
+          0.0138984,
+          0.0138602
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-6.json": {
+        "medianMs": 11.5396,
+        "repeatsSeconds": [
+          0.0115724,
+          0.0115396,
+          0.0114993
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-0.json": {
+        "medianMs": 2.2519,
+        "repeatsSeconds": [
+          0.0023596,
+          0.0022516,
+          0.0022519
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-1.json": {
+        "medianMs": 2.9326,
+        "repeatsSeconds": [
+          0.0029563,
+          0.0029326,
+          0.0028435
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-2.json": {
+        "medianMs": 2.9453,
+        "repeatsSeconds": [
+          0.0030041,
+          0.0029453,
+          0.002926
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-3.json": {
+        "medianMs": 2.3640000000000003,
+        "repeatsSeconds": [
+          0.0023778,
+          0.0023472,
+          0.002364
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-4.json": {
+        "medianMs": 8.0795,
+        "repeatsSeconds": [
+          0.0080795,
+          0.0083511,
+          0.0079982
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-5.json": {
+        "medianMs": 11.3802,
+        "repeatsSeconds": [
+          0.0113554,
+          0.0115553,
+          0.0113802
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-6.json": {
+        "medianMs": 11.815900000000001,
+        "repeatsSeconds": [
+          0.0117553,
+          0.0118269,
+          0.0118159
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-0.json": {
+        "medianMs": 2.1989,
+        "repeatsSeconds": [
+          0.0022613,
+          0.0021989,
+          0.0021906
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-1.json": {
+        "medianMs": 2.7279999999999998,
+        "repeatsSeconds": [
+          0.002728,
+          0.0027055,
+          0.0027567
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-2.json": {
+        "medianMs": 2.7892,
+        "repeatsSeconds": [
+          0.002801,
+          0.0027892,
+          0.0027737
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-3.json": {
+        "medianMs": 1.7501,
+        "repeatsSeconds": [
+          0.0017726,
+          0.0017496,
+          0.0017501
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-4.json": {
+        "medianMs": 7.3205,
+        "repeatsSeconds": [
+          0.0074564,
+          0.0073205,
+          0.0073017
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-5.json": {
+        "medianMs": 10.7998,
+        "repeatsSeconds": [
+          0.0106607,
+          0.0107998,
+          0.0108121
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-6.json": {
+        "medianMs": 10.919599999999999,
+        "repeatsSeconds": [
+          0.0109528,
+          0.0109,
+          0.0109196
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-0.json": {
+        "medianMs": 2.196,
+        "repeatsSeconds": [
+          0.0022067,
+          0.0021956,
+          0.002196
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-1.json": {
+        "medianMs": 2.8634,
+        "repeatsSeconds": [
+          0.0028622,
+          0.0028634,
+          0.0030143
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-2.json": {
+        "medianMs": 2.8783,
+        "repeatsSeconds": [
+          0.0028783,
+          0.0028733,
+          0.0028807
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-3.json": {
+        "medianMs": 2.5227,
+        "repeatsSeconds": [
+          0.0025509,
+          0.0025227,
+          0.0025161
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-4.json": {
+        "medianMs": 7.983199999999999,
+        "repeatsSeconds": [
+          0.007993,
+          0.0079639,
+          0.0079832
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-5.json": {
+        "medianMs": 13.9131,
+        "repeatsSeconds": [
+          0.0139131,
+          0.0140012,
+          0.013884
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-6.json": {
+        "medianMs": 11.809,
+        "repeatsSeconds": [
+          0.011809,
+          0.0117882,
+          0.0118417
+        ]
+      },
+      "peking547-b50000-transactional-t8-audit/proposal-15-599-0.json": {
+        "medianMs": 67.7537,
+        "repeatsSeconds": [
+          0.0677537,
+          0.0680907,
+          0.0676427
+        ]
+      }
+    },
+    "P1": {
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-0.json": {
+        "medianMs": 2.1094,
+        "repeatsSeconds": [
+          0.0021724,
+          0.0021094,
+          0.0020655
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-1.json": {
+        "medianMs": 2.6017,
+        "repeatsSeconds": [
+          0.0026017,
+          0.0025836,
+          0.0027657
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-3.json": {
+        "medianMs": 2.0928,
+        "repeatsSeconds": [
+          0.0021177,
+          0.0020928,
+          0.002089
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-4.json": {
+        "medianMs": 7.9514000000000005,
+        "repeatsSeconds": [
+          0.0079556,
+          0.0079514,
+          0.0078806
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-5.json": {
+        "medianMs": 13.3888,
+        "repeatsSeconds": [
+          0.0134363,
+          0.0133133,
+          0.0133888
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--269-6.json": {
+        "medianMs": 11.279900000000001,
+        "repeatsSeconds": [
+          0.0112519,
+          0.0113742,
+          0.0112799
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-0.json": {
+        "medianMs": 2.0915999999999997,
+        "repeatsSeconds": [
+          0.0020916,
+          0.0021078,
+          0.0020789
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-1.json": {
+        "medianMs": 2.7354,
+        "repeatsSeconds": [
+          0.0027428,
+          0.0027354,
+          0.0027316
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-2.json": {
+        "medianMs": 2.7598000000000003,
+        "repeatsSeconds": [
+          0.002776,
+          0.0027533,
+          0.0027598
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-3.json": {
+        "medianMs": 2.3259000000000003,
+        "repeatsSeconds": [
+          0.0023556,
+          0.0023259,
+          0.002302
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-4.json": {
+        "medianMs": 7.9113,
+        "repeatsSeconds": [
+          0.0078835,
+          0.0079241,
+          0.0079113
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-5.json": {
+        "medianMs": 10.614500000000001,
+        "repeatsSeconds": [
+          0.0106145,
+          0.0105923,
+          0.010702
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--270-6.json": {
+        "medianMs": 11.461,
+        "repeatsSeconds": [
+          0.0115279,
+          0.0113843,
+          0.011461
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-0.json": {
+        "medianMs": 2.0745,
+        "repeatsSeconds": [
+          0.0020745,
+          0.0020706,
+          0.00215
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-1.json": {
+        "medianMs": 2.5979,
+        "repeatsSeconds": [
+          0.0026092,
+          0.0025979,
+          0.0025957
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-2.json": {
+        "medianMs": 2.6129000000000002,
+        "repeatsSeconds": [
+          0.002625,
+          0.0026129,
+          0.0026096
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-3.json": {
+        "medianMs": 1.6916,
+        "repeatsSeconds": [
+          0.0016876,
+          0.0016916,
+          0.0017361
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-4.json": {
+        "medianMs": 7.1476,
+        "repeatsSeconds": [
+          0.0071476,
+          0.0071365,
+          0.0071604
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-5.json": {
+        "medianMs": 9.9821,
+        "repeatsSeconds": [
+          0.0099821,
+          0.0099376,
+          0.0100068
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--271-6.json": {
+        "medianMs": 10.801699999999999,
+        "repeatsSeconds": [
+          0.0115924,
+          0.0106248,
+          0.0108017
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-0.json": {
+        "medianMs": 2.0904000000000003,
+        "repeatsSeconds": [
+          0.0021703,
+          0.0020904,
+          0.0020854
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-1.json": {
+        "medianMs": 2.7882,
+        "repeatsSeconds": [
+          0.0027574,
+          0.0029009,
+          0.0027882
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-2.json": {
+        "medianMs": 2.7159,
+        "repeatsSeconds": [
+          0.0027159,
+          0.0027131,
+          0.0027869
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-3.json": {
+        "medianMs": 2.4856000000000003,
+        "repeatsSeconds": [
+          0.0025012,
+          0.0024856,
+          0.0024725
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-4.json": {
+        "medianMs": 7.863099999999999,
+        "repeatsSeconds": [
+          0.0078631,
+          0.0081685,
+          0.0078462
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-5.json": {
+        "medianMs": 13.3986,
+        "repeatsSeconds": [
+          0.0134214,
+          0.0133203,
+          0.0133986
+        ]
+      },
+      "dem-sierra-b50000-transactional-t8-audit/proposal-95--272-6.json": {
+        "medianMs": 11.404,
+        "repeatsSeconds": [
+          0.0114405,
+          0.011404,
+          0.0114026
+        ]
+      },
+      "peking547-b50000-transactional-t8-audit/proposal-15-599-0.json": {
+        "medianMs": 54.5722,
+        "repeatsSeconds": [
+          0.0545722,
+          0.0548325,
+          0.0545611
+        ]
+      }
+    }
+  },
+  "programs": {
+    "P0": {
+      "app": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06a/run-01/P0-bin/ParallelROAM.exe",
+        "bytes": 6572032,
+        "sha256": "088dc07a81582a28dfc2f55862f5876a52edccc2cdf2d7a526280818783b2d15"
+      },
+      "probe": null
+    },
+    "A1": {
+      "app": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06a/run-01/A1-bin/ParallelROAM.exe",
+        "bytes": 6572032,
+        "sha256": "2a98302b3c44045ac44f4061043edbf36d1ca4408a3abe2bce8d15562b772de0"
+      },
+      "probe": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06a/run-01/A1-bin/parallel_roam_experiment_cpu.exe",
+        "bytes": 1633280,
+        "sha256": "0af608822eaabfbd8733d20b903282b29c2f0bff30bcefb441df7c044feefc7f"
+      }
+    },
+    "P1": {
+      "app": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06a/run-01/P1-bin/ParallelROAM.exe",
+        "bytes": 6583296,
+        "sha256": "c08fd4202fdc638c4adc5e26513985c9c3dd0697256575b5ec4d95dbd113ef5f"
+      },
+      "probe": {
+        "path": "/mnt/d/CPP-Projects/WorkloadAwareROAM/benchmark-output/cpu-refinement/qpc-06a/run-01/P1-bin/parallel_roam_experiment_cpu.exe",
+        "bytes": 1645568,
+        "sha256": "1513bbd64ac20de3869110746b7126d809f215f13d9b500898a916e7e5cc766f"
+      }
+    }
+  },
+  "diagnosticWork": {
+    "P0": {
+      "dem-canyon-b50000-transactional-t8-audit": {
+        "seconds": {
+          "derived_publish": 0.0025268,
+          "donor_order": 0.002906899999999999,
+          "donor_stage": 0.7176234000000004,
+          "face_fill": 0.0014684000000000003,
+          "mesh_fill": 0.0009017999999999999,
+          "mesh_prepare": 0.0012824999999999998,
+          "next_order": 0.029372500000000003,
+          "pointwise_batch": 0.0078020999999999984,
+          "prepare": 0.011347700000000002,
+          "publish": 0.0027354999999999997,
+          "receiver_stage": 4.081465900000002,
+          "reservation": 0.03553040000000001,
+          "sample_repair": 0.0862058,
+          "task_wall_sum_pointwise_quality": 8.4349803,
+          "task_wall_sum_proposal": 0.8164162999999999,
+          "task_wall_sum_receiver_certification": 7.703934699999997,
+          "view_order": 0.176529,
+          "view_projection": 0.4208672999999999,
+          "view_refresh": 0.9746698000000001,
+          "view_scores": 0.3427454,
+          "task_wall_sum_flip_recovery": 0.2477887
+        },
+        "count": {
+          "certified": 6629,
+          "fast_shape_miss": 51396,
+          "fit_bound_failed": 65936,
+          "internal_conflict": 4,
+          "pointwise_donor_certified": 138,
+          "pointwise_height_damage": 262076,
+          "pointwise_receiver_certified": 1994,
+          "quality_evidence_bytes": 12111856,
+          "quality_exact_samples": 47442,
+          "quality_filter_samples": 353283,
+          "quality_samples": 353283,
+          "shape_infeasible": 25142,
+          "quality_infeasible": 169,
+          "flip_flip_nonconvex_or_existing_diagonal": 710,
+          "flip_quality_infeasible": 172,
+          "flip_flip_not_interior": 53,
+          "flip_shape_infeasible": 64,
+          "pointwise_screen_damage": 1960
+        },
+        "maximum": {
+          "rationalBits": 68
+        }
+      },
+      "dem-sierra-b50000-transactional-t8-audit": {
+        "seconds": {
+          "derived_publish": 0.0063917,
+          "donor_order": 0.0023477999999999997,
+          "face_fill": 0.002395000000000001,
+          "mesh_fill": 0.0017759999999999996,
+          "mesh_prepare": 0.0029686999999999995,
+          "next_order": 0.02869160000000001,
+          "pointwise_batch": 0.0613914,
+          "prepare": 0.017610800000000006,
+          "publish": 0.003580600000000001,
+          "receiver_stage": 5.269108499999999,
+          "reservation": 0.008407899999999992,
+          "sample_repair": 0.33034279999999994,
+          "task_wall_sum_pointwise_quality": 9.2956602,
+          "task_wall_sum_proposal": 1.2527762999999994,
+          "task_wall_sum_receiver_certification": 7.429321,
+          "view_order": 0.0334249,
+          "view_projection": 0.4324780000000001,
+          "view_refresh": 0.6491724999999998,
+          "view_scores": 0.17801329999999996,
+          "task_wall_sum_flip_recovery": 0.05133439999999998
+        },
+        "count": {
+          "certified": 3453,
+          "fit_bound_failed": 48023,
+          "pointwise_height_damage": 1775,
+          "pointwise_receiver_certified": 840,
+          "quality_evidence_bytes": 10521944,
+          "quality_exact_samples": 48103,
+          "quality_filter_samples": 747473,
+          "quality_samples": 747473,
+          "shape_infeasible": 50419,
+          "flip_flip_nonconvex_or_existing_diagonal": 841,
+          "flip_flip_not_interior": 70,
+          "flip_shape_infeasible": 188,
+          "flip_quality_infeasible": 109,
+          "flip_certified": 1
+        },
+        "maximum": {
+          "rationalBits": 73
+        }
+      },
+      "peking547-b50000-transactional-t8-audit": {
+        "seconds": {
+          "donor_order": 0.0008345999999999999,
+          "reservation": 0.5564205999999999,
+          "view_order": 0.028182400000000003,
+          "view_projection": 0.1136178,
+          "view_refresh": 0.22667230000000002,
+          "view_scores": 0.07750560000000001,
+          "derived_publish": 0.004526999999999999,
+          "donor_stage": 0.22567790000000001,
+          "face_fill": 0.0005645,
+          "mesh_fill": 0.0005628,
+          "mesh_prepare": 0.0021894999999999996,
+          "next_order": 0.017529199999999998,
+          "pointwise_batch": 0.027078500000000002,
+          "prepare": 0.019805,
+          "publish": 0.0043573,
+          "receiver_stage": 0.8090676000000001,
+          "sample_repair": 0.09665300000000002,
+          "task_wall_sum_pointwise_quality": 4.705792,
+          "task_wall_sum_proposal": 0.07593539999999999,
+          "task_wall_sum_receiver_certification": 0.7859445999999999,
+          "task_wall_sum_flip_recovery": 0.030962499999999997
+        },
+        "count": {
+          "certified": 2981,
+          "fast_shape_miss": 1249,
+          "fit_bound_failed": 305,
+          "pointwise_donor_certified": 1579,
+          "pointwise_height_damage": 48,
+          "pointwise_receiver_certified": 654,
+          "pointwise_screen_damage": 70,
+          "quality_evidence_bytes": 10229084,
+          "quality_exact_samples": 256,
+          "quality_filter_samples": 477754,
+          "quality_infeasible": 21,
+          "quality_samples": 477754,
+          "shape_infeasible": 2239,
+          "flip_certified": 12,
+          "flip_flip_nonconvex_or_existing_diagonal": 208,
+          "flip_shape_infeasible": 41,
+          "flip_flip_not_interior": 3,
+          "flip_quality_infeasible": 8
+        },
+        "maximum": {
+          "rationalBits": 75
+        }
+      }
+    },
+    "A1": {
+      "dem-canyon-b50000-transactional-t8-audit": {
+        "seconds": {
+          "derived_publish": 0.0021019,
+          "donor_order": 0.003042100000000001,
+          "donor_stage": 0.6338227000000001,
+          "face_fill": 0.001703,
+          "mesh_fill": 0.0007928999999999998,
+          "mesh_prepare": 0.0010892000000000002,
+          "next_order": 0.028545300000000003,
+          "pointwise_batch": 0.008321699999999998,
+          "prepare": 0.012183700000000002,
+          "publish": 0.0022400999999999996,
+          "receiver_stage": 3.8220238999999987,
+          "reservation": 0.03426600000000007,
+          "sample_repair": 0.0851048,
+          "task_wall_sum_pointwise_quality": 6.8552923,
+          "task_wall_sum_proposal": 0.803492,
+          "task_wall_sum_receiver_certification": 7.675156999999999,
+          "view_order": 0.17041230000000004,
+          "view_projection": 0.4122508000000001,
+          "view_refresh": 0.9655824999999999,
+          "view_scores": 0.3506319000000001,
+          "task_wall_sum_flip_recovery": 0.2478887
+        },
+        "count": {
+          "certified": 6629,
+          "fast_shape_miss": 51396,
+          "fit_bound_failed": 65936,
+          "internal_conflict": 4,
+          "pointwise_donor_certified": 138,
+          "pointwise_height_damage": 262076,
+          "pointwise_receiver_certified": 1994,
+          "quality_evidence_bytes": 12111856,
+          "quality_exact_samples": 47442,
+          "quality_filter_samples": 353283,
+          "quality_samples": 353283,
+          "shape_infeasible": 25142,
+          "quality_infeasible": 169,
+          "flip_flip_nonconvex_or_existing_diagonal": 710,
+          "flip_quality_infeasible": 172,
+          "flip_flip_not_interior": 53,
+          "flip_shape_infeasible": 64,
+          "pointwise_screen_damage": 1960
+        },
+        "maximum": {
+          "rationalBits": 68
+        }
+      },
+      "dem-sierra-b50000-transactional-t8-audit": {
+        "seconds": {
+          "derived_publish": 0.007094499999999998,
+          "donor_order": 0.0023469999999999997,
+          "face_fill": 0.0024664000000000005,
+          "mesh_fill": 0.0018974,
+          "mesh_prepare": 0.0031024000000000004,
+          "next_order": 0.030091599999999996,
+          "pointwise_batch": 0.05987410000000002,
+          "prepare": 0.018322500000000002,
+          "publish": 0.0037511000000000007,
+          "receiver_stage": 4.5378795,
+          "reservation": 0.007959499999999998,
+          "sample_repair": 0.3312146999999998,
+          "task_wall_sum_pointwise_quality": 7.486681499999999,
+          "task_wall_sum_proposal": 1.2479166999999995,
+          "task_wall_sum_receiver_certification": 7.377572899999999,
+          "view_order": 0.031236199999999995,
+          "view_projection": 0.4311737,
+          "view_refresh": 0.6562863999999997,
+          "view_scores": 0.18933529999999996,
+          "task_wall_sum_flip_recovery": 0.05354989999999999
+        },
+        "count": {
+          "certified": 3453,
+          "fit_bound_failed": 48023,
+          "pointwise_height_damage": 1775,
+          "pointwise_receiver_certified": 840,
+          "quality_evidence_bytes": 10521944,
+          "quality_exact_samples": 48103,
+          "quality_filter_samples": 747473,
+          "quality_samples": 747473,
+          "shape_infeasible": 50419,
+          "flip_flip_nonconvex_or_existing_diagonal": 841,
+          "flip_flip_not_interior": 70,
+          "flip_shape_infeasible": 188,
+          "flip_quality_infeasible": 109,
+          "flip_certified": 1
+        },
+        "maximum": {
+          "rationalBits": 73
+        }
+      },
+      "peking547-b50000-transactional-t8-audit": {
+        "seconds": {
+          "donor_order": 0.0008183,
+          "reservation": 0.5553402999999999,
+          "view_order": 0.032485,
+          "view_projection": 0.1108503,
+          "view_refresh": 0.2352885,
+          "view_scores": 0.0843121,
+          "derived_publish": 0.0037906,
+          "donor_stage": 0.1984259,
+          "face_fill": 0.0005858,
+          "mesh_fill": 0.0004585999999999999,
+          "mesh_prepare": 0.0020486999999999997,
+          "next_order": 0.016616099999999998,
+          "pointwise_batch": 0.024911300000000004,
+          "prepare": 0.018733100000000003,
+          "publish": 0.0034636,
+          "receiver_stage": 0.6928575,
+          "sample_repair": 0.09482259999999999,
+          "task_wall_sum_pointwise_quality": 3.869479,
+          "task_wall_sum_proposal": 0.0748555,
+          "task_wall_sum_receiver_certification": 0.7816694999999999,
+          "task_wall_sum_flip_recovery": 0.0248429
+        },
+        "count": {
+          "certified": 2981,
+          "fast_shape_miss": 1249,
+          "fit_bound_failed": 305,
+          "pointwise_donor_certified": 1579,
+          "pointwise_height_damage": 48,
+          "pointwise_receiver_certified": 654,
+          "pointwise_screen_damage": 70,
+          "quality_evidence_bytes": 10229084,
+          "quality_exact_samples": 256,
+          "quality_filter_samples": 477754,
+          "quality_infeasible": 21,
+          "quality_samples": 477754,
+          "shape_infeasible": 2239,
+          "flip_certified": 12,
+          "flip_flip_nonconvex_or_existing_diagonal": 208,
+          "flip_shape_infeasible": 41,
+          "flip_flip_not_interior": 3,
+          "flip_quality_infeasible": 8
+        },
+        "maximum": {
+          "rationalBits": 75
+        }
+      }
+    },
+    "P1": {
+      "dem-canyon-b50000-transactional-t8-audit": {
+        "seconds": {
+          "derived_publish": 0.0026651999999999995,
+          "donor_order": 0.0028715999999999998,
+          "donor_stage": 0.6081025,
+          "face_fill": 0.0014023000000000002,
+          "mesh_fill": 0.000869,
+          "mesh_prepare": 0.0012343999999999999,
+          "next_order": 0.028243699999999993,
+          "pointwise_batch": 0.009730399999999998,
+          "prepare": 0.012744099999999998,
+          "publish": 0.0026919000000000005,
+          "receiver_stage": 3.7036677,
+          "reservation": 0.036029400000000045,
+          "sample_repair": 0.08589939999999999,
+          "task_wall_sum_pointwise_quality": 6.563405300000002,
+          "task_wall_sum_proposal": 0.8034331999999998,
+          "task_wall_sum_receiver_certification": 7.6345598999999975,
+          "view_order": 0.16839319999999994,
+          "view_projection": 0.4209225000000001,
+          "view_refresh": 0.9613960999999998,
+          "view_scores": 0.33596839999999983,
+          "task_wall_sum_flip_recovery": 0.25251229999999997
+        },
+        "count": {
+          "certified": 6629,
+          "fast_shape_miss": 51396,
+          "fit_bound_failed": 65936,
+          "internal_conflict": 4,
+          "pointwise_donor_certified": 138,
+          "pointwise_height_damage": 262076,
+          "pointwise_receiver_certified": 1994,
+          "quality_clip_bounds_builds": 353283,
+          "quality_clip_exact_builds": 43079,
+          "quality_contexts": 776351,
+          "quality_cover_exact_requests": 716133,
+          "quality_evidence_bytes": 12111856,
+          "quality_exact_samples": 47442,
+          "quality_filter_samples": 353283,
+          "quality_reference_bounds_builds": 776351,
+          "quality_reference_exact_builds": 333096,
+          "quality_samples": 353283,
+          "quality_visibility_exact_requests": 0,
+          "shape_infeasible": 25142,
+          "quality_infeasible": 169,
+          "flip_flip_nonconvex_or_existing_diagonal": 710,
+          "flip_quality_infeasible": 172,
+          "flip_flip_not_interior": 53,
+          "flip_shape_infeasible": 64,
+          "pointwise_screen_damage": 1960
+        },
+        "maximum": {
+          "rationalBits": 68
+        }
+      },
+      "dem-sierra-b50000-transactional-t8-audit": {
+        "seconds": {
+          "derived_publish": 0.0075052,
+          "donor_order": 0.002030499999999999,
+          "face_fill": 0.0022136,
+          "mesh_fill": 0.0018296000000000005,
+          "mesh_prepare": 0.0027403,
+          "next_order": 0.03231159999999999,
+          "pointwise_batch": 0.0583783,
+          "prepare": 0.017924300000000004,
+          "publish": 0.0037727000000000004,
+          "receiver_stage": 4.252231700000001,
+          "reservation": 0.008072399999999988,
+          "sample_repair": 0.3460170000000001,
+          "task_wall_sum_pointwise_quality": 6.807649999999997,
+          "task_wall_sum_proposal": 1.2336159999999992,
+          "task_wall_sum_receiver_certification": 7.3884558,
+          "view_order": 0.030938700000000006,
+          "view_projection": 0.4325069000000001,
+          "view_refresh": 0.6414433999999998,
+          "view_scores": 0.17326460000000002,
+          "task_wall_sum_flip_recovery": 0.04891769999999998
+        },
+        "count": {
+          "certified": 3453,
+          "fit_bound_failed": 48023,
+          "pointwise_height_damage": 1775,
+          "pointwise_receiver_certified": 840,
+          "quality_clip_bounds_builds": 747473,
+          "quality_clip_exact_builds": 45226,
+          "quality_contexts": 1310488,
+          "quality_cover_exact_requests": 510912,
+          "quality_evidence_bytes": 10521944,
+          "quality_exact_samples": 48103,
+          "quality_filter_samples": 747473,
+          "quality_reference_bounds_builds": 1310488,
+          "quality_reference_exact_builds": 262502,
+          "quality_samples": 747473,
+          "quality_visibility_exact_requests": 0,
+          "shape_infeasible": 50419,
+          "flip_flip_nonconvex_or_existing_diagonal": 841,
+          "flip_flip_not_interior": 70,
+          "flip_shape_infeasible": 188,
+          "flip_quality_infeasible": 109,
+          "flip_certified": 1
+        },
+        "maximum": {
+          "rationalBits": 73
+        }
+      },
+      "peking547-b50000-transactional-t8-audit": {
+        "seconds": {
+          "donor_order": 0.0007437,
+          "reservation": 0.5693157999999998,
+          "view_order": 0.029702299999999997,
+          "view_projection": 0.1148511,
+          "view_refresh": 0.23757029999999998,
+          "view_scores": 0.08523320000000001,
+          "derived_publish": 0.0041345999999999996,
+          "donor_stage": 0.185646,
+          "face_fill": 0.0005032999999999999,
+          "mesh_fill": 0.00048140000000000005,
+          "mesh_prepare": 0.0021399999999999995,
+          "next_order": 0.0186336,
+          "pointwise_batch": 0.0218153,
+          "prepare": 0.0186698,
+          "publish": 0.0036242,
+          "receiver_stage": 0.6197826,
+          "sample_repair": 0.0963945,
+          "task_wall_sum_pointwise_quality": 3.3750966000000004,
+          "task_wall_sum_proposal": 0.08104689999999998,
+          "task_wall_sum_receiver_certification": 0.7959259000000001,
+          "task_wall_sum_flip_recovery": 0.021414199999999998
+        },
+        "count": {
+          "certified": 2981,
+          "fast_shape_miss": 1249,
+          "fit_bound_failed": 305,
+          "pointwise_donor_certified": 1579,
+          "pointwise_height_damage": 48,
+          "pointwise_receiver_certified": 654,
+          "pointwise_screen_damage": 70,
+          "quality_clip_bounds_builds": 477754,
+          "quality_clip_exact_builds": 252,
+          "quality_contexts": 1285794,
+          "quality_cover_exact_requests": 23900,
+          "quality_evidence_bytes": 10229084,
+          "quality_exact_samples": 256,
+          "quality_filter_samples": 477754,
+          "quality_infeasible": 21,
+          "quality_reference_bounds_builds": 1285794,
+          "quality_reference_exact_builds": 12895,
+          "quality_samples": 477754,
+          "quality_visibility_exact_requests": 0,
+          "shape_infeasible": 2239,
+          "flip_certified": 12,
+          "flip_flip_nonconvex_or_existing_diagonal": 208,
+          "flip_shape_infeasible": 41,
+          "flip_flip_not_interior": 3,
+          "flip_quality_infeasible": 8
+        },
+        "maximum": {
+          "rationalBits": 75
+        }
+      }
+    }
+  },
+  "supplement": {
+    "L0": {
+      "dem-canyon-b50000-transactional-t8": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 32.92239902865502,
+            "viewMs": 9.787656989247312,
+            "receiverMs": 10.756905376344086,
+            "donorMs": 2.6958849462365593,
+            "reservationMs": 1.8497731182795698,
+            "sampleRepairMs": 6.559450537634409,
+            "topologyPrepareMs": 0.4775225806451613,
+            "topologyPublishMs": 0.12908279569892472,
+            "meshPrepareMs": 0.03834838709677419,
+            "continuationMs": 0.1725483870967742,
+            "adapterMs": 0.017756989247311977,
+            "unitemizedMs": 0.4374689211281364
+          },
+          "medianCpuMs": 36.38740158081055,
+          "p95CpuMs": 64.2822036743164,
+          "counts": {
+            "raw": 395617,
+            "examined": 14880,
+            "receivers": 1212,
+            "exchanges": 573,
+            "free": 7,
+            "pairs": 137546,
+            "touches": 2543805,
+            "evaluations": 97968478
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 6.133890628814697,
+              "viewMs": 0.5561,
+              "receiverMs": 5.393678125,
+              "donorMs": 0.0,
+              "reservationMs": 0.00011874999999999999,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.012084374999999953,
+              "unitemizedMs": 0.17190937881469726
+            },
+            "medianCpuMs": 5.574350118637085,
+            "p95CpuMs": 6.11359977722168,
+            "counts": {
+              "raw": 9024,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 33920,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 37.00476282835007,
+              "viewMs": 14.626553125000001,
+              "receiverMs": 11.87628125,
+              "donorMs": 4.151625,
+              "reservationMs": 0.8202625,
+              "sampleRepairMs": 4.520671875,
+              "topologyPrepareMs": 0.322759375,
+              "topologyPublishMs": 0.0808875,
+              "meshPrepareMs": 0.039525,
+              "continuationMs": 0.131021875,
+              "adapterMs": 0.018196875000000223,
+              "unitemizedMs": 0.4169784533500689
+            },
+            "medianCpuMs": 36.799150466918945,
+            "p95CpuMs": 47.56740188598633,
+            "counts": {
+              "raw": 197484,
+              "examined": 5120,
+              "receivers": 295,
+              "exchanges": 142,
+              "free": 1,
+              "pairs": 34676,
+              "touches": 928861,
+              "evaluations": 50464116
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 57.977455139160156,
+              "viewMs": 14.634731034482758,
+              "receiverMs": 15.439775862068965,
+              "donorMs": 4.0643206896551725,
+              "reservationMs": 5.02678275862069,
+              "sampleRepairMs": 16.04715172413793,
+              "topologyPrepareMs": 1.1752172413793103,
+              "topologyPublishMs": 0.3247,
+              "meshPrepareMs": 0.07936551724137932,
+              "continuationMs": 0.4087689655172414,
+              "adapterMs": 0.02353103448275891,
+              "unitemizedMs": 0.7531103115739484
+            },
+            "medianCpuMs": 56.2843017578125,
+            "p95CpuMs": 76.0625,
+            "counts": {
+              "raw": 189109,
+              "examined": 4640,
+              "receivers": 917,
+              "exchanges": 431,
+              "free": 6,
+              "pairs": 102870,
+              "touches": 1581024,
+              "evaluations": 45929449
+            }
+          }
+        }
+      },
+      "dem-sierra-b50000-transactional-t8": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 29.829310876066966,
+            "viewMs": 7.085713978494623,
+            "receiverMs": 10.317345161290323,
+            "donorMs": 0.0,
+            "reservationMs": 0.21292150537634408,
+            "sampleRepairMs": 11.026513978494624,
+            "topologyPrepareMs": 0.3475354838709677,
+            "topologyPublishMs": 0.09882150537634408,
+            "meshPrepareMs": 0.04568279569892473,
+            "continuationMs": 0.25256236559139783,
+            "adapterMs": 0.014237634408601582,
+            "unitemizedMs": 0.4279764674648163
+          },
+          "medianCpuMs": 27.58650016784668,
+          "p95CpuMs": 70.55789947509766,
+          "counts": {
+            "raw": 233458,
+            "examined": 14391,
+            "receivers": 1873,
+            "exchanges": 0,
+            "free": 1192,
+            "pairs": 0,
+            "touches": 2704384,
+            "evaluations": 98348730
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 2.8428687378764153,
+              "viewMs": 0.34673125,
+              "receiverMs": 2.40540625,
+              "donorMs": 0.0,
+              "reservationMs": 6.874999999999999e-05,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.005684375000000047,
+              "unitemizedMs": 0.08497811287641532
+            },
+            "medianCpuMs": 2.387500047683716,
+            "p95CpuMs": 3.3201000690460205,
+            "counts": {
+              "raw": 4640,
+              "examined": 4640,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 4480,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 28.131947100162506,
+              "viewMs": 10.641399999999999,
+              "receiverMs": 10.91365,
+              "donorMs": 0.0,
+              "reservationMs": 0.118009375,
+              "sampleRepairMs": 5.706490625,
+              "topologyPrepareMs": 0.22659375,
+              "topologyPublishMs": 0.054928125,
+              "meshPrepareMs": 0.040775,
+              "continuationMs": 0.112421875,
+              "adapterMs": 0.014653124999999934,
+              "unitemizedMs": 0.3030252251625072
+            },
+            "medianCpuMs": 27.957449913024902,
+            "p95CpuMs": 40.674400329589844,
+            "counts": {
+              "raw": 115214,
+              "examined": 5111,
+              "receivers": 382,
+              "exchanges": 0,
+              "free": 244,
+              "pairs": 0,
+              "touches": 724540,
+              "evaluations": 50521875
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 61.48040705713733,
+              "viewMs": 10.598317241379311,
+              "receiverMs": 18.38976896551724,
+              "donorMs": 0.0,
+              "reservationMs": 0.5525241379310345,
+              "sampleRepairMs": 29.064072413793102,
+              "topologyPrepareMs": 0.8644758620689655,
+              "topologyPublishMs": 0.2563,
+              "meshPrepareMs": 0.10150689655172414,
+              "continuationMs": 0.6858896551724137,
+              "adapterMs": 0.023217241379308546,
+              "unitemizedMs": 0.9443346433442272
+            },
+            "medianCpuMs": 59.980201721191406,
+            "p95CpuMs": 78.62740325927734,
+            "counts": {
+              "raw": 113604,
+              "examined": 4640,
+              "receivers": 1491,
+              "exchanges": 0,
+              "free": 948,
+              "pairs": 0,
+              "touches": 1975364,
+              "evaluations": 46251942
+            }
+          }
+        }
+      },
+      "peking547-b50000-transactional-t8": {
+        "warm": {
+          "frames": 21,
+          "means": {
+            "cpuMs": 92.71534256708054,
+            "viewMs": 12.08192380952381,
+            "receiverMs": 14.821704761904762,
+            "donorMs": 2.348347619047619,
+            "reservationMs": 48.00724761904762,
+            "sampleRepairMs": 10.858647619047618,
+            "topologyPrepareMs": 2.1854095238095237,
+            "topologyPublishMs": 0.34983333333333333,
+            "meshPrepareMs": 0.16226666666666667,
+            "continuationMs": 0.6286047619047619,
+            "adapterMs": 0.0366571428571443,
+            "unitemizedMs": 1.2346997099376864
+          },
+          "medianCpuMs": 109.30960083007812,
+          "p95CpuMs": 177.0550994873047,
+          "counts": {
+            "raw": 1041076,
+            "examined": 3360,
+            "receivers": 1559,
+            "exchanges": 589,
+            "free": 4,
+            "pairs": 175489,
+            "touches": 1019777,
+            "evaluations": 25242445
+          }
+        },
+        "events": {
+          "move": {
+            "frames": 13,
+            "means": {
+              "cpuMs": 133.60382256141077,
+              "viewMs": 18.224984615384614,
+              "receiverMs": 21.88523846153846,
+              "donorMs": 2.457823076923077,
+              "reservationMs": 70.10050769230769,
+              "sampleRepairMs": 14.867076923076922,
+              "topologyPrepareMs": 2.8832307692307695,
+              "topologyPublishMs": 0.4588307692307692,
+              "meshPrepareMs": 0.20802307692307692,
+              "continuationMs": 0.8862461538461539,
+              "adapterMs": 0.04722307692308028,
+              "unitemizedMs": 1.584637946026163
+            },
+            "medianCpuMs": 125.14399719238281,
+            "p95CpuMs": 208.9333953857422,
+            "counts": {
+              "raw": 641667,
+              "examined": 2080,
+              "receivers": 1170,
+              "exchanges": 454,
+              "free": 4,
+              "pairs": 127540,
+              "touches": 963239,
+              "evaluations": 23445959
+            }
+          },
+          "recovery": {
+            "frames": 8,
+            "means": {
+              "cpuMs": 26.271562576293945,
+              "viewMs": 2.09945,
+              "receiverMs": 3.3434625000000002,
+              "donorMs": 2.17045,
+              "reservationMs": 12.1057,
+              "sampleRepairMs": 4.34495,
+              "topologyPrepareMs": 1.05145,
+              "topologyPublishMs": 0.1727125,
+              "meshPrepareMs": 0.0879125,
+              "continuationMs": 0.2099375,
+              "adapterMs": 0.019487499999998326,
+              "unitemizedMs": 0.6660500762939456
+            },
+            "medianCpuMs": 21.98550033569336,
+            "p95CpuMs": 55.45869827270508,
+            "counts": {
+              "raw": 399409,
+              "examined": 1280,
+              "receivers": 389,
+              "exchanges": 135,
+              "free": 0,
+              "pairs": 47949,
+              "touches": 56538,
+              "evaluations": 1796486
+            }
+          }
+        }
+      }
+    },
+    "P0-repeat": {
+      "dem-sierra-b50000-transactional-t8": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 62.48361283989363,
+            "viewMs": 6.712566666666667,
+            "receiverMs": 51.65368387096774,
+            "donorMs": 0.0,
+            "reservationMs": 0.06529569892473118,
+            "sampleRepairMs": 2.8353827956989246,
+            "topologyPrepareMs": 0.1552032258064516,
+            "topologyPublishMs": 0.03476451612903226,
+            "meshPrepareMs": 0.02542795698924731,
+            "continuationMs": 0.0646,
+            "adapterMs": 0.01445913978494629,
+            "unitemizedMs": 0.9222289689258929
+          },
+          "medianCpuMs": 35.31869888305664,
+          "p95CpuMs": 197.91529846191406,
+          "counts": {
+            "raw": 282818,
+            "examined": 14880,
+            "receivers": 655,
+            "exchanges": 0,
+            "free": 385,
+            "pairs": 0,
+            "touches": 5453627,
+            "evaluations": 97810688
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 13.82047814130783,
+              "viewMs": 0.323359375,
+              "receiverMs": 13.341303125,
+              "donorMs": 0.0,
+              "reservationMs": 0.00029374999999999996,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.01142187499999986,
+              "unitemizedMs": 0.14410001630783142
+            },
+            "medianCpuMs": 13.497600078582764,
+            "p95CpuMs": 14.33430004119873,
+            "counts": {
+              "raw": 129152,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 579712,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 48.05590897798538,
+              "viewMs": 10.221290625,
+              "receiverMs": 36.1973125,
+              "donorMs": 0.0,
+              "reservationMs": 0.027103125,
+              "sampleRepairMs": 1.04630625,
+              "topologyPrepareMs": 0.080434375,
+              "topologyPublishMs": 0.01170625,
+              "meshPrepareMs": 0.021471875,
+              "continuationMs": 0.028225,
+              "adapterMs": 0.013462499999999156,
+              "unitemizedMs": 0.4085964779853839
+            },
+            "medianCpuMs": 38.37030029296875,
+            "p95CpuMs": 91.87960052490234,
+            "counts": {
+              "raw": 88441,
+              "examined": 5120,
+              "receivers": 73,
+              "exchanges": 0,
+              "free": 53,
+              "pairs": 0,
+              "touches": 1735732,
+              "evaluations": 50413447
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 132.10108987216293,
+              "viewMs": 9.891031034482758,
+              "receiverMs": 110.98472068965518,
+              "donorMs": 0.0,
+              "reservationMs": 0.1791655172413793,
+              "sampleRepairMs": 7.938234482758621,
+              "topologyPrepareMs": 0.4089655172413793,
+              "topologyPublishMs": 0.09856896551724138,
+              "meshPrepareMs": 0.057851724137931035,
+              "continuationMs": 0.17602068965517242,
+              "adapterMs": 0.018910344827587463,
+              "unitemizedMs": 2.3476209066456875
+            },
+            "medianCpuMs": 132.8218994140625,
+            "p95CpuMs": 251.9351043701172,
+            "counts": {
+              "raw": 65225,
+              "examined": 4640,
+              "receivers": 582,
+              "exchanges": 0,
+              "free": 332,
+              "pairs": 0,
+              "touches": 3138183,
+              "evaluations": 45822328
+            }
+          }
+        }
+      }
+    },
+    "P1-repeat": {
+      "dem-sierra-b50000-transactional-t8": {
+        "warm": {
+          "frames": 93,
+          "means": {
+            "cpuMs": 53.00496114710326,
+            "viewMs": 6.600264516129032,
+            "receiverMs": 42.24435376344086,
+            "donorMs": 0.0,
+            "reservationMs": 0.06848387096774193,
+            "sampleRepairMs": 2.9663677419354837,
+            "topologyPrepareMs": 0.1514258064516129,
+            "topologyPublishMs": 0.035776344086021504,
+            "meshPrepareMs": 0.025795698924731183,
+            "continuationMs": 0.06320537634408602,
+            "adapterMs": 0.014932258064515556,
+            "unitemizedMs": 0.8343557707591742
+          },
+          "medianCpuMs": 34.77690124511719,
+          "p95CpuMs": 157.97979736328125,
+          "counts": {
+            "raw": 282818,
+            "examined": 14880,
+            "receivers": 655,
+            "exchanges": 0,
+            "free": 385,
+            "pairs": 0,
+            "touches": 5453627,
+            "evaluations": 97810688
+          }
+        },
+        "events": {
+          "recovery": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 14.00551262497902,
+              "viewMs": 0.31850625,
+              "receiverMs": 13.53895,
+              "donorMs": 0.0,
+              "reservationMs": 0.0003,
+              "sampleRepairMs": 0.0,
+              "topologyPrepareMs": 0.0,
+              "topologyPublishMs": 0.0,
+              "meshPrepareMs": 0.0,
+              "continuationMs": 0.0,
+              "adapterMs": 0.010431250000000003,
+              "unitemizedMs": 0.13732512497901972
+            },
+            "medianCpuMs": 13.741800308227539,
+            "p95CpuMs": 14.797100067138672,
+            "counts": {
+              "raw": 129152,
+              "examined": 5120,
+              "receivers": 0,
+              "exchanges": 0,
+              "free": 0,
+              "pairs": 0,
+              "touches": 579712,
+              "evaluations": 1574913
+            }
+          },
+          "return": {
+            "frames": 32,
+            "means": {
+              "cpuMs": 43.78348135948181,
+              "viewMs": 10.125046875,
+              "receiverMs": 32.113725,
+              "donorMs": 0.0,
+              "reservationMs": 0.025621875,
+              "sampleRepairMs": 1.01765,
+              "topologyPrepareMs": 0.07850625,
+              "topologyPublishMs": 0.011334375,
+              "meshPrepareMs": 0.0196125,
+              "continuationMs": 0.023034375,
+              "adapterMs": 0.01318437499999936,
+              "unitemizedMs": 0.3557657344818068
+            },
+            "medianCpuMs": 36.47990036010742,
+            "p95CpuMs": 83.40489959716797,
+            "counts": {
+              "raw": 88441,
+              "examined": 5120,
+              "receivers": 73,
+              "exchanges": 0,
+              "free": 53,
+              "pairs": 0,
+              "touches": 1735732,
+              "evaluations": 50413447
+            }
+          },
+          "reveal": {
+            "frames": 29,
+            "means": {
+              "cpuMs": 106.21426135096057,
+              "viewMs": 9.642444827586207,
+              "receiverMs": 85.09790689655172,
+              "donorMs": 0.0,
+              "reservationMs": 0.19101724137931034,
+              "sampleRepairMs": 8.389910344827586,
+              "topologyPrepareMs": 0.3989793103448276,
+              "topologyPublishMs": 0.10222413793103448,
+              "meshPrepareMs": 0.06108275862068965,
+              "continuationMs": 0.1772758620689655,
+              "adapterMs": 0.02182758620689542,
+              "unitemizedMs": 2.1315923854433407
+            },
+            "medianCpuMs": 104.28450012207031,
+            "p95CpuMs": 200.09339904785156,
+            "counts": {
+              "raw": 65225,
+              "examined": 4640,
+              "receivers": 582,
+              "exchanges": 0,
+              "free": 332,
+              "pairs": 0,
+              "touches": 3138183,
+              "evaluations": 45822328
+            }
+          }
+        }
+      }
+    }
+  }
+}

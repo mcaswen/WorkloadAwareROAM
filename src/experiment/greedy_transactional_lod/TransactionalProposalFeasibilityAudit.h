@@ -54,5 +54,6 @@ private:
     std::vector<Witness> _witnesses;
     std::string _expectedSource;
     std::size_t _sampleRecords{};
+    bool _costAudit{};
 };
 }

@@ -113,9 +113,53 @@ std::optional<QualityFace> Cover(const TransactionalState &, const Transactional
 bool SameInterface(const TransactionalState &, const Proposal &, bool output, const std::vector<QualityFace> &old,
                    const std::vector<QualityFace> &next);
 bool Finite(Interval);
+std::optional<bool> VisibleBounds(const Configuration&, const std::array<Interval, 4>&);
+bool ExactVisible(const Configuration&, const std::array<R, 4>&);
 bool VisibilityAgrees(const TransactionalState &, const TransactionalSamples &, Slot, const std::array<Interval, 3> &);
 void RecordBits(const R &, WorkLedger &);
 void AddBounds(const R &lower, const R &upper, Integer &low, Integer &high);
+// 有限binary64端点直接转定向整数，保留有理入口处理精确分支与非有限异常
+void AddBinaryBounds(double lower, double upper, Integer& low, Integer& high);
+
+// 精确坐标由调用方按需提供，过滤器不要求提前创建有理对象
+template <class ExactCoordinate>
+std::optional<QualityFace> CoverPrepared(const std::array<Interval, 2>& q,
+    const std::vector<QualityFace>& faces, ExactCoordinate&& exactCoordinate)
+{
+    for (const auto& face : faces)
+    {
+        bool covered = true;
+        for (std::size_t edge = 0; edge < 3; ++edge)
+        {
+            const auto& a = face[edge];
+            const auto& b = face[(edge + 1) % 3];
+            const auto cross = (Interval(b.U) - Interval(a.U)) * (q[1] - Interval(a.V)) -
+                               (Interval(b.V) - Interval(a.V)) * (q[0] - Interval(a.U));
+            if (cross.Low >= 0)
+            {
+                continue;
+            }
+            if (cross.High < 0)
+            {
+                covered = false;
+                break;
+            }
+            // 共享边采用闭包含，保留原有面序和精确谓词表达式
+            const auto& exact = exactCoordinate();
+            const R side = (R(b.U) - a.U) * (exact[1] - a.V) - (R(b.V) - a.V) * (exact[0] - a.U);
+            if (side < 0)
+            {
+                covered = false;
+                break;
+            }
+        }
+        if (covered)
+        {
+            return face;
+        }
+    }
+    return {};
+}
 
 template <class T>
 std::array<T, 2> Coordinate(const std::array<T, 3> &reference, const Configuration &config, bool output)
@@ -129,9 +173,9 @@ std::array<T, 2> Coordinate(const std::array<T, 3> &reference, const Configurati
 }
 
 template <class T>
-std::optional<T> Screen(const Configuration &config, const std::array<T, 3> &reference, const T &height)
+std::optional<T> ScreenPrepared(const Configuration &config, const std::array<T, 3> &reference,
+    const std::array<T, 4>& a, const T &height)
 {
-    const auto a = Clip(config, reference[0], reference[1], reference[2]);
     const auto b = Clip(config, reference[0], reference[1], height);
     // 只定义参考可见点到同一参数位置的屏幕位移，不混入光栅遮挡评价
     const auto near = config.UsesZeroToOneDepth ? b[2] : b[2] + b[3];
@@ -152,6 +196,12 @@ std::optional<T> Screen(const Configuration &config, const std::array<T, 3> &ref
     const T x = (b[0] / b[3] - a[0] / a[3]) * T(config.Width) / T(2);
     const T y = (b[1] / b[3] - a[1] / a[3]) * T(config.Height) / T(2);
     return T(x * x + y * y);
+}
+
+template <class T>
+std::optional<T> Screen(const Configuration& config, const std::array<T, 3>& reference, const T& height)
+{
+    return ScreenPrepared(config, reference, Clip(config, reference[0], reference[1], reference[2]), height);
 }
 
 } // namespace ParallelRoam::Algorithms::GreedyTransactionalLod::QualityEvaluation

@@ -175,6 +175,7 @@ TransactionalProposalFeasibilityAudit::TransactionalProposalFeasibilityAudit(
 {
     boost::property_tree::ptree tree;
     boost::property_tree::read_json(specification.string(), tree);
+    _costAudit = tree.get<bool>("costAudit", false);
     if (tree.get<std::string>("protocol") != "qpc04g-v1")
     {
         // 旧探针的身份和高度语义不同，不接受无版本或隐式兼容输入
@@ -269,13 +270,42 @@ void TransactionalProposalFeasibilityAudit::VerifyWitnesses(std::ostream& out,
         check.VisitLimit = 2000000;
         check.Deadline = Clock::now() + std::chrono::seconds(20);
         const auto reason = TransactionalPointwiseQuality::Certify(state, samples, candidate, true, check);
+        std::vector<double> costs;
+        if (_costAudit)
+        {
+            // 上面的首次认证作为预热；短重复只用于同提案定位，不充当独立进程
+            for (int repeat = 0; repeat < 3; ++repeat)
+            {
+                WorkLedger measured;
+                measured.VisitLimit = 2000000;
+                measured.Deadline = Clock::now() + std::chrono::seconds(1);
+                const auto started = Clock::now();
+                const auto repeated = TransactionalPointwiseQuality::Certify(state, samples, candidate, true, measured);
+                candidate.QualityProof.reset();
+                costs.push_back(Seconds(started));
+                if (repeated != reason || measured.SampleTouches != check.SampleTouches)
+                {
+                    throw std::runtime_error("相同提案重复认证改变理由或支持访问");
+                }
+            }
+        }
         // 旧最大值门槛独立核对，不把绕过Fit误称为旧完整流水线接受
         const auto targetReason = TransactionalCertification::SetProgressTarget(state, samples, candidate, check);
         const bool legacy = targetReason.empty() &&
             TransactionalCertification::Measure(state, samples, candidate, check) &&
             TransactionalCertification::Accepts(state, samples, candidate, candidate.TargetMicropixels, check);
         out << "{\"height\":" << witness.Height << ",\"pointwiseReason\":\"" << reason
-            << "\",\"legacyAccepts\":" << legacy << ",\"touches\":" << check.SampleTouches << '}';
+            << "\",\"legacyAccepts\":" << legacy << ",\"touches\":" << check.SampleTouches;
+        if (_costAudit)
+        {
+            out << ",\"certifySeconds\":[";
+            for (std::size_t i = 0; i < costs.size(); ++i)
+            {
+                out << (i == 0 ? "" : ",") << costs[i];
+            }
+            out << ']';
+        }
+        out << '}';
     }
 }
 

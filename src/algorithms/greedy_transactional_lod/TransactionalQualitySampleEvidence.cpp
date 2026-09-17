@@ -1,0 +1,116 @@
+#include "algorithms/greedy_transactional_lod/TransactionalQualitySampleEvidence.h"
+
+namespace ParallelRoam::Algorithms::GreedyTransactionalLod
+{
+using namespace QualityEvaluation;
+
+TransactionalQualitySampleEvidence::TransactionalQualitySampleEvidence(const TransactionalState& state,
+    const TransactionalSamples& samples, Slot sample, bool output, QualityEvidenceWork* work)
+    : _state(state), _samples(samples), _sample(sample), _output(output), _work(work)
+{
+    if (_work)
+    {
+        ++_work->Contexts;
+    }
+}
+
+const std::array<Interval, 3>& TransactionalQualitySampleEvidence::ReferenceBounds()
+{
+    if (!_referenceBounds)
+    {
+        _referenceBounds = Reference<Interval>(_state, _samples, _sample);
+        if (_work)
+        {
+            ++_work->BoundsReferences;
+        }
+    }
+    return *_referenceBounds;
+}
+
+const std::array<R, 3>& TransactionalQualitySampleEvidence::ExactReference()
+{
+    if (!_exactReference)
+    {
+        _exactReference = Reference<R>(_state, _samples, _sample);
+        if (_work)
+        {
+            ++_work->ExactReferences;
+        }
+    }
+    return *_exactReference;
+}
+
+const std::array<Interval, 2>& TransactionalQualitySampleEvidence::CoordinateBounds()
+{
+    if (!_coordinateBounds)
+    {
+        _coordinateBounds = Coordinate(ReferenceBounds(), _state.Config(), _output);
+    }
+    return *_coordinateBounds;
+}
+
+const std::array<R, 2>& TransactionalQualitySampleEvidence::ExactCoordinate()
+{
+    if (!_exactCoordinate)
+    {
+        _exactCoordinate = Coordinate(ExactReference(), _state.Config(), _output);
+    }
+    return *_exactCoordinate;
+}
+
+const std::array<Interval, 4>& TransactionalQualitySampleEvidence::ClipBounds()
+{
+    if (!_clipBounds)
+    {
+        const auto& ref = ReferenceBounds();
+        _clipBounds = Clip(_state.Config(), ref[0], ref[1], ref[2]);
+        if (_work)
+        {
+            ++_work->BoundsClips;
+        }
+    }
+    return *_clipBounds;
+}
+
+const std::array<R, 4>& TransactionalQualitySampleEvidence::ExactClip()
+{
+    if (!_exactClip)
+    {
+        const auto& ref = ExactReference();
+        _exactClip = Clip(_state.Config(), ref[0], ref[1], ref[2]);
+        if (_work)
+        {
+            ++_work->ExactClips;
+        }
+    }
+    return *_exactClip;
+}
+
+std::optional<QualityFace> TransactionalQualitySampleEvidence::Cover(const std::vector<QualityFace>& faces)
+{
+    // 两次覆盖共用坐标，但面遍历顺序不变；精确坐标只在边谓词歧义时读取
+    return CoverPrepared(CoordinateBounds(), faces, [this]() -> const auto& {
+        if (_work)
+        {
+            ++_work->ExactCoverRequests;
+        }
+        return ExactCoordinate();
+    });
+}
+
+bool TransactionalQualitySampleEvidence::VisibilityAgrees()
+{
+    const auto visible = VisibleBounds(_state.Config(), ClipBounds());
+    const bool expected = _samples.Projection(_sample).Visible;
+    if (visible)
+    {
+        return *visible == expected;
+    }
+    // 裁剪边界仍核对精确人口，复用并不把不确定点当作不可见
+    if (_work)
+    {
+        ++_work->ExactVisibilityRequests;
+    }
+    return ExactVisible(_state.Config(), ExactClip()) == expected;
+}
+}

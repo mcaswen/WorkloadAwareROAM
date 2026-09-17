@@ -195,12 +195,84 @@ def plot(summary: dict):
     plt.close(figure)
 
 
+def reduction(raw: Path, output: Path, arms: list[str]) -> dict:
+    """显式输入的同政策版本对照，原04F默认归约和产物保持不变。"""
+    sources = {}
+    result = {"contract": "同政策单独进程快验；内部三次认证仅作内核定位", "cases": {}, "sources": sources}
+    for scene in SCENES:
+        case = scene + "-b50000-transactional-t8"
+        records = {}
+        baseline = None
+        for arm in arms:
+            frames = read_rows(raw / arm / case / "run/frames.csv", sources)
+            if baseline is None:
+                baseline = frames
+            elif len(frames) != len(baseline) or any(
+                any(a[k] != b[k] for k in MATCH) for a, b in zip(baseline, frames)):
+                raise ValueError("等价优化改变离散结果")
+            warm = [r for r in frames if not int(r["warmup"])]
+            records[arm] = {"warm": statistics_for(warm), "events": {
+                event: statistics_for([r for r in warm if r["event"] == event])
+                for event in sorted({r["event"] for r in warm})}}
+        result["cases"][scene] = records
+    micro = {}
+    comparison = {}
+    for arm in arms:
+        items = {}
+        for file in sorted((raw / arm).glob("*-audit/proposal-*.json")):
+            item = read_json(file, sources)
+            key = file.parent.name + "/" + file.name
+            logical = {k: item[k] for k in ("binding", "constructionReason", "oldReason", "pointwiseReason",
+                                          "targetMicropixels", "fitHeight", "interval")}
+            logical["witnesses"] = [{k: w[k] for k in ("height", "pointwiseReason", "legacyAccepts", "touches")}
+                                    for w in item["verifiedWitnesses"]]
+            if key in comparison and comparison[key] != logical:
+                raise ValueError("同提案认证或见证结果不同：" + key)
+            comparison[key] = logical
+            for w in item["verifiedWitnesses"]:
+                items[key] = {"medianMs": 1000*statistics.median(w["certifySeconds"]),
+                              "repeatsSeconds": w["certifySeconds"]}
+        micro[arm] = items
+    result["sameProposalRecords"] = len(comparison)
+    result["micro"] = micro
+    result["programs"] = {arm: read_json(raw / arm / "program.json", sources) for arm in arms}
+    # 物理工作从诊断账本归约；原生完整时间只来自上面的普通平台CSV
+    result["diagnosticWork"] = {}
+    for arm in arms:
+        result["diagnosticWork"][arm] = {}
+        for file in sorted((raw / arm).glob("*-audit/pointwise-work.csv")):
+            data = read_rows(file, sources)
+            result["diagnosticWork"][arm][file.parent.name] = work_for(data, {int(r["frame"]) for r in data})
+    result["supplement"] = {}
+    for label in ("L0", "P0-repeat", "P1-repeat"):
+        records = {}
+        for file in sorted((raw / label).glob("*/run/frames.csv")):
+            data = read_rows(file, sources)
+            warm = [r for r in data if not int(r["warmup"])]
+            records[file.parents[1].name] = {"warm": statistics_for(warm), "events": {
+                e: statistics_for([r for r in warm if r["event"] == e]) for e in sorted({r["event"] for r in warm})}}
+        if records:
+            result["supplement"][label] = records
+    output.mkdir(parents=True, exist_ok=True)
+    (output / "summary.json").write_text(json.dumps(result, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    return result
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--plot", action="store_true", help="只对已归约结果制图")
+    parser.add_argument("--reduction-input", type=Path)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--arms", nargs="+", default=["P0", "A1", "P1"])
     args = parser.parse_args()
     started = time.perf_counter()
-    if args.plot:
+    if args.reduction_input:
+        if args.output is None:
+            parser.error("版本对照必须指定独立输出目录")
+        result = reduction(args.reduction_input.resolve(), args.output.resolve(), args.arms)
+        print(json.dumps({s: {a: v['warm']['means']['cpuMs'] for a,v in r.items()}
+                          for s,r in result['cases'].items()}))
+    elif args.plot:
         plot(json.loads((OUT / "summary.json").read_text(encoding="utf-8")))
     else:
         result = analyze()
